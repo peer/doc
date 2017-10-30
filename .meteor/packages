@@ -30,3 +30,4 @@ stylus
 accounts-base
 peerlibrary:user-extra
 doctorpangloss:method-hooks
+peerlibrary:peerdb
