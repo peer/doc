@@ -1,0 +1,3 @@
+[submodule "packages/tracker"]
+	path = packages/tracker
+	url = https://github.com/meteor-vue/tracker.git
