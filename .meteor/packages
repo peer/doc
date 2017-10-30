@@ -27,3 +27,6 @@ peerlibrary:subscription-data
 peerlibrary:reactive-publish
 vuejs:meteor-integration
 stylus
+accounts-base
+peerlibrary:user-extra
+doctorpangloss:method-hooks
