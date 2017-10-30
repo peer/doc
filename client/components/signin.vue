@@ -16,8 +16,9 @@
 </template>
 
 <script>
-  import Vue from 'vue';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
+
+  import Vue from 'vue';
 
   function checkUsername(username) {
     if (!username) {

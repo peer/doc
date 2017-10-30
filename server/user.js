@@ -1,4 +1,5 @@
 import {Accounts} from 'meteor/accounts-base';
+
 import {MethodHooks} from 'meteor/doctorpangloss:method-hooks';
 
 Accounts.onCreateUser(function (options, user) {
