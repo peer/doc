@@ -29,8 +29,6 @@ Meteor.methods({
         };
       }
 
-      Meteor._sleepForMs(5000);
-
       const {username} = args;
 
       // Does user already exists? Then we just sign the user in.
