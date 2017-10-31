@@ -2,6 +2,7 @@ import {Accounts} from 'meteor/accounts-base';
 import {check, Match} from 'meteor/check';
 
 import {MethodHooks} from 'meteor/doctorpangloss:method-hooks';
+import {PublishEndpoint} from 'meteor/peerlibrary:middleware';
 
 import {User} from '/lib/user';
 
@@ -48,4 +49,12 @@ Meteor.methods({
       return {userId};
     });
   }
+});
+
+new PublishEndpoint(null, function () {
+  return User.documents.find({
+    _id: Meteor.userId()
+  }, {
+    fields: User.EXTRA_PUBLISH_FIELDS()
+  });
 });

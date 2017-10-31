@@ -68,6 +68,7 @@ peerlibrary:data-lookup@0.1.0
 peerlibrary:ecmascript-compiler@0.5.7_2
 peerlibrary:extend-publish@0.4.0
 peerlibrary:fiber-utils@0.8.2
+peerlibrary:middleware@0.1.1
 peerlibrary:peerdb@0.24.0
 peerlibrary:publish-context@0.5.0
 peerlibrary:reactive-mongo@0.1.1
