@@ -18,5 +18,3 @@ Snackbar.Meta({
   name: 'Snackbar',
   collection: null
 });
-
-window.Snackbar = Snackbar;
