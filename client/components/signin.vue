@@ -5,6 +5,8 @@
       <v-form v-model="valid" @submit.prevent="onSubmit">
         <v-card>
           <v-card-text>
+            <!-- TODO: This should open with "slideDown" effect, where it pushes the content down gradually, as it grows vertically. -->
+            <v-alert v-model="errorShow" color="error" dismissible transition="scale-transition" class="mb-3">{{errorMessage}}</v-alert>
             <v-text-field :readonly="formSubmissionInProgress" label="Username" v-model="username" :rules="usernameRules" required></v-text-field>
           </v-card-text>
           <v-card-actions>
@@ -44,7 +46,9 @@
         valid: false,
         username: '',
         usernameRules: [checkUsername],
-        formSubmissionInProgress: false
+        formSubmissionInProgress: false,
+        errorShow: false,
+        errorMessage: null
       }
     },
 
@@ -56,11 +60,15 @@
 
     methods: {
       onSubmit() {
+        this.errorShow = false;
         this.formSubmissionInProgress = true;
+
         User.createUserAndSignIn(this.username, (error, userId) => {
           this.formSubmissionInProgress = false;
 
           if (error) {
+            this.errorMessage = `${error}`;
+            this.errorShow = true;
           }
           else {
             Snackbar.enqueue("You have been signed in.", 'success');
