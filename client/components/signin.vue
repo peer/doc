@@ -1,5 +1,6 @@
 <template>
-  <v-layout row>
+  <access-denied v-if="currentUserId"></access-denied>
+  <v-layout v-else row>
     <v-flex xs12 sm8 offset-sm2 md4 offset-md4 xl2 offset-xl5>
       <v-form v-model="valid" @submit.prevent="onSubmit">
         <v-card>
@@ -39,6 +40,12 @@
         valid: false,
         username: '',
         usernameRules: [checkUsername]
+      }
+    },
+
+    computed: {
+      currentUserId() {
+        return Meteor.userId();
       }
     },
 
