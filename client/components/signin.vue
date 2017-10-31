@@ -20,6 +20,8 @@
 
   import Vue from 'vue';
 
+  import {User} from '/lib/user';
+
   function checkUsername(username) {
     if (!username) {
       return "Username is required";
@@ -27,7 +29,7 @@
     if (username.length < 4) {
       return "Username too short, it should be 4 characters or more"
     }
-    if (!/^[A-Za-z][A-Za-z0-9_]{2,}[A-Za-z0-9]$/.test(username)) {
+    if (!User.VALID_USERNAME.test(username)) {
       return "Invalid username, it should contain only basic characters"
     }
     return true;
@@ -44,7 +46,8 @@
 
     methods: {
       onSubmit() {
-        // TODO
+        User.createUserAndSignIn(this.username, (error, userId) => {
+        });
       }
     }
   };
