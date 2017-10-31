@@ -28,6 +28,10 @@
     <v-footer app>
       <a href="https://github.com/peer/doc">Source code</a>
     </v-footer>
+    <v-snackbar :timeout="6000" :color="messageColor" v-model="messageShow">
+      {{messageText}}
+      <v-btn dark flat @click.native="messageShow = false">Close</v-btn>
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -35,6 +39,14 @@
   import {Meteor} from 'meteor/meteor';
 
   const component = {
+    data() {
+      return {
+        messageShow: false,
+        messageText: null,
+        messageColor: null
+      }
+    },
+
     computed: {
       currentUser() {
         return Meteor.user({username: 1, avatar: 1});
@@ -43,7 +55,17 @@
 
     methods: {
       onSignOut() {
-        Meteor.logout(() => {
+        Meteor.logout((error) => {
+          if (error) {
+            this.messageText = `Error signing out: ${error}`;
+            this.messageColor = 'error';
+            this.messageShow = true;
+          }
+          else {
+            this.messageText = "You have been signed out.";
+            this.messageColor = 'success';
+            this.messageShow = true;
+          }
         });
       }
     }
