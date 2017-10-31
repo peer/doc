@@ -23,6 +23,7 @@
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {User} from '/lib/user';
+  import {Snackbar} from '../snackbar';
 
   function checkUsername(username) {
     if (!username) {
@@ -58,6 +59,12 @@
         this.formSubmissionInProgress = true;
         User.createUserAndSignIn(this.username, (error, userId) => {
           this.formSubmissionInProgress = false;
+
+          if (error) {
+          }
+          else {
+            Snackbar.enqueue("You have been signed in.", 'success');
+          }
         });
       }
     }

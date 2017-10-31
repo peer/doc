@@ -28,9 +28,9 @@
     <v-footer app>
       <a href="https://github.com/peer/doc">Source code</a>
     </v-footer>
-    <v-snackbar :timeout="6000" :color="messageColor" v-model="messageShow">
-      {{messageText}}
-      <v-btn dark flat @click.native="messageShow = false">Close</v-btn>
+    <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
+      {{snackbarMessage}}
+      <v-btn dark flat @click.native="onSnackbarClose">Close</v-btn>
     </v-snackbar>
   </v-app>
 </template>
@@ -38,13 +38,22 @@
 <script>
   import {Meteor} from 'meteor/meteor';
 
+  import {Snackbar} from '../snackbar';
+
   const component = {
     data() {
       return {
-        messageShow: false,
-        messageText: null,
-        messageColor: null
+        snackbarShow: false,
+        snackbarMessage: null,
+        snackbarColor: null
       }
+    },
+
+    created() {
+      this.snackbarTime = 6000;
+      this.snackbarTimeout = null;
+      this.snackbarComputation = null;
+      this.showNextSnackbar();
     },
 
     computed: {
@@ -57,16 +66,59 @@
       onSignOut() {
         Meteor.logout((error) => {
           if (error) {
-            this.messageText = `Error signing out: ${error}`;
-            this.messageColor = 'error';
-            this.messageShow = true;
+            Snackbar.enqueue(`Error signing out: ${error}`, 'error');
           }
           else {
-            this.messageText = "You have been signed out.";
-            this.messageColor = 'success';
-            this.messageShow = true;
+            Snackbar.enqueue("You have been signed out.", 'success');
           }
         });
+      },
+
+      clearSnackbarState() {
+        if (this.snackbarTimeout) {
+          Meteor.clearTimeout(this.snackbarTimeout);
+          this.snackbarTimeout = null;
+        }
+
+        if (this.snackbarComputation) {
+          this.snackbarComputation.stop();
+          this.snackbarComputation = null;
+        }
+      },
+
+      showNextSnackbar() {
+        this.clearSnackbarState();
+
+        this.snackbarComputation = this.$autorun((computation) => {
+          // Wait for the next snackbar to be available.
+          const snackbar = Snackbar.documents.findOne({}, {sort: {createdAt: 1}});
+          if (!snackbar) return;
+
+          // Stop current computation. We will create a new one to wait
+          // when showNextSnackbar will be called again.
+          computation.stop();
+          Snackbar.documents.remove({_id: snackbar._id});
+
+          this.snackbarMessage = snackbar.message;
+          this.snackbarColor = snackbar.color;
+          this.snackbarShow = true;
+
+          this.snackbarTimeout = Meteor.setTimeout(() => {
+            this.snackbarTimeout = null;
+
+            this.showNextSnackbar();
+          }, this.snackbarTime + 300);
+        });
+      },
+
+      onSnackbarClose() {
+        this.clearSnackbarState();
+
+        this.snackbarShow = false;
+
+        Meteor.setTimeout(() => {
+          this.showNextSnackbar();
+        }, 300);
       }
     }
   };
