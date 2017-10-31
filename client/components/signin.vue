@@ -18,8 +18,6 @@
 <script>
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
-  import Vue from 'vue';
-
   import {User} from '/lib/user';
 
   function checkUsername(username) {

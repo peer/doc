@@ -7,10 +7,7 @@
 <script>
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
-  import Vue from 'vue';
-
-  const component = {
-  };
+  const component = {};
 
   RouterFactory.configure((factory) => {
     factory.addRoutes([
