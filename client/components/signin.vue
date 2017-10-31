@@ -5,10 +5,13 @@
       <v-form v-model="valid" @submit.prevent="onSubmit">
         <v-card>
           <v-card-text>
-            <v-text-field label="Username" v-model="username" :rules="usernameRules" required></v-text-field>
+            <v-text-field :readonly="formSubmissionInProgress" label="Username" v-model="username" :rules="usernameRules" required></v-text-field>
           </v-card-text>
           <v-card-actions>
-            <v-btn type="submit" :disabled="!valid" block color="primary">Sign in</v-btn>
+            <v-btn type="submit" :disabled="!valid || formSubmissionInProgress" block color="primary">
+              <span>Sign in</span>
+              <v-progress-linear v-if="formSubmissionInProgress" :indeterminate="true" :height="3" color="primary" class="signin-progress"></v-progress-linear>
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-form>
@@ -39,7 +42,8 @@
       return {
         valid: false,
         username: '',
-        usernameRules: [checkUsername]
+        usernameRules: [checkUsername],
+        formSubmissionInProgress: false
       }
     },
 
@@ -51,7 +55,9 @@
 
     methods: {
       onSubmit() {
+        this.formSubmissionInProgress = true;
         User.createUserAndSignIn(this.username, (error, userId) => {
+          this.formSubmissionInProgress = false;
         });
       }
     }
@@ -69,3 +75,10 @@
 
   export default component;
 </script>
+
+<style lang="stylus">
+  .signin-progress
+    position absolute
+    bottom 0
+    margin-bottom 0
+</style>
