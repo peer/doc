@@ -25,7 +25,7 @@ Meteor.methods({
       });
       if (Accounts._options.forbidClientAccountCreation) {
         return {
-          error: new Meteor.Error(403, "Sign ups forbidden.")
+          error: new Meteor.Error('forbidden', "Sign ups forbidden.")
         };
       }
 
