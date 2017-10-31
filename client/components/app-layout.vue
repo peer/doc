@@ -5,7 +5,17 @@
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-btn :to="{name: 'documents'}" flat>Documents</v-btn>
-        <v-btn :to="{name: 'user-signin'}" flat>Sign in</v-btn>
+        <v-menu v-if="currentUser" offset-y bottom origin="top right">
+          <v-btn slot="activator" flat>{{currentUser.username}}
+            <v-avatar size="36px" class="app-layout-avatar"><img :src="currentUser.avatarUrl()" alt=""></v-avatar>
+          </v-btn>
+          <v-list>
+            <v-list-tile @click="onSignOut">
+              <v-list-tile-title>Sign out</v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
+        <v-btn v-else :to="{name: 'user-signin'}" flat>Sign in</v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <main>
@@ -20,3 +30,29 @@
     </v-footer>
   </v-app>
 </template>
+
+<script>
+  import {Meteor} from 'meteor/meteor';
+
+  const component = {
+    computed: {
+      currentUser() {
+        return Meteor.user({username: 1, avatar: 1});
+      }
+    },
+
+    methods: {
+      onSignOut() {
+        Meteor.logout(() => {
+        });
+      }
+    }
+  };
+
+  export default component;
+</script>
+
+<style lang="stylus">
+  .app-layout-avatar
+    margin-left 8px
+</style>
