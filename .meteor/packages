@@ -28,7 +28,6 @@ peerlibrary:reactive-publish
 vuejs:meteor-integration
 stylus@2.513.13
 peerlibrary:user-extra
-doctorpangloss:method-hooks
 peerlibrary:peerdb
 accounts-password
 akryum:vue-stylus

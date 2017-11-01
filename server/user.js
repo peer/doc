@@ -2,8 +2,6 @@ import {Accounts} from 'meteor/accounts-base';
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
-import {MethodHooks} from 'meteor/doctorpangloss:method-hooks';
-
 import {User} from '/lib/user';
 
 Accounts.onCreateUser(function (options, user) {
@@ -11,12 +9,7 @@ Accounts.onCreateUser(function (options, user) {
   return user;
 });
 
-// We disable all service configurations from the client. We do not use this feature.
-// See: https://github.com/meteor/meteor/issues/7745
-MethodHooks.before('configureLoginService', function (options) {
-  throw new Meteor.Error('invalid-request', "Disabled.");
-});
-
+// A special case which is not using ValidatedMethod.
 Meteor.methods({
   'User.createUserAndSignIn'(args) {
     return Accounts._loginMethod(this, 'User.createUserAndSignIn', arguments, 'passwordless', () => {
@@ -51,6 +44,8 @@ Meteor.methods({
   }
 });
 
+// Some User fields are published automatically for the current user,
+// here we publish extra fields we need for the current user on the client.
 Meteor.publish(null, function () {
   return User.documents.find({
     _id: Meteor.userId()
