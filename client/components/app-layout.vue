@@ -5,7 +5,10 @@
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-btn :to="{name: 'documents'}" flat>Documents</v-btn>
-        <!-- TODO: Menu should open aligned on the right with the button and grow to the left, if necessary. -->
+        <!--
+          TODO: Menu should open aligned on the right with the button and grow to the left, if necessary.
+                See: https://github.com/vuetifyjs/vuetify/issues/2383
+        -->
         <v-menu v-if="currentUser" offset-y bottom origin="top right">
           <v-btn slot="activator" flat>{{currentUser.username}}
             <v-avatar size="36px" class="app-layout-avatar"><img :src="currentUser.avatarUrl()" alt=""></v-avatar>
