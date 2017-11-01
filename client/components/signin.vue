@@ -72,6 +72,9 @@
           }
           else {
             Snackbar.enqueue("You have been signed in.", 'success');
+            // TODO: Redirect to the previous page and not just to the front page.
+            //       See: https://github.com/vuejs/vue-router/issues/883
+            this.$router.push({name: 'front-page'});
           }
         });
       }
