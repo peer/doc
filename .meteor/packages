@@ -31,5 +31,4 @@ peerlibrary:user-extra
 doctorpangloss:method-hooks
 peerlibrary:peerdb
 accounts-password
-peerlibrary:middleware
 akryum:vue-stylus

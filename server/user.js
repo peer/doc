@@ -1,8 +1,8 @@
 import {Accounts} from 'meteor/accounts-base';
 import {check, Match} from 'meteor/check';
+import {Meteor} from 'meteor/meteor';
 
 import {MethodHooks} from 'meteor/doctorpangloss:method-hooks';
-import {PublishEndpoint} from 'meteor/peerlibrary:middleware';
 
 import {User} from '/lib/user';
 
@@ -51,7 +51,7 @@ Meteor.methods({
   }
 });
 
-new PublishEndpoint(null, function () {
+Meteor.publish(null, function () {
   return User.documents.find({
     _id: Meteor.userId()
   }, {
