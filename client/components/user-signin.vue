@@ -63,7 +63,7 @@
         this.errorShow = false;
         this.formSubmissionInProgress = true;
 
-        User.createUserAndSignIn(this.username, (error, userId) => {
+        User.createUserAndSignIn({username: this.username}, (error, userId) => {
           this.formSubmissionInProgress = false;
 
           if (error) {
