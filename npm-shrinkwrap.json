@@ -1316,7 +1316,7 @@
       }
     },
     "vue": {
-      "version": "git://github.com/meteor-vue/vue.git#8f05e5e88a3ccbbdcd3768ed8fde98d124f43386"
+      "version": "git://github.com/meteor-vue/vue.git#ed7c34d4811a00b485f5689b60cc0c66b79cff6d"
     },
     "vue-router": {
       "version": "https://registry.npmjs.org/vue-router/-/vue-router-2.8.1.tgz",
