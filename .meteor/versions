@@ -49,7 +49,7 @@ logging@1.1.19
 mdg:validated-method@1.1.0
 meteor@1.8.0
 meteor-base@1.2.0
-minifier-js@2.2.0
+minifier-js@2.2.1
 minimongo@1.4.0
 mobile-experience@1.0.5
 mobile-status-bar@1.0.14
@@ -90,13 +90,13 @@ sha@1.0.9
 shell-server@0.3.0
 spacebars-compiler@1.1.3
 srp@1.0.10
-standard-minifier-js@2.2.0
+standard-minifier-js@2.2.1
 static-html@1.2.2
 stylus@2.513.13
 templating-tools@1.1.2
 tracker@1.1.3
 underscore@1.0.10
 url@1.1.0
-vuejs:meteor-integration@0.1.1
+vuejs:meteor-integration@0.1.2
 webapp@1.4.0
 webapp-hashing@1.0.9
