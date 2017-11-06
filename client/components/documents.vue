@@ -2,12 +2,12 @@
   <v-layout row>
     <v-flex xs12 sm10 offset-sm1 md8 offset-md2 xl6 offset-xl3>
       <v-card>
-        <v-list two-line>
+        <v-list v-if="documents.exists()" two-line>
           <template v-for="(document, index) in documents">
             <v-list-tile ripple :to="{name: 'document', params: {documentId: document._id}}" :key="document._id">
               <v-list-tile-content>
                 <v-list-tile-title v-if="document.title">{{document.title}}</v-list-tile-title>
-                <v-list-tile-title v-else><i>Untitled</i></v-list-tile-title>
+                <v-list-tile-title v-else class="documents-untitled">Untitled</v-list-tile-title>
                 <!-- TODO: Create a filter which renders this better. -->
                 <v-list-tile-sub-title>{{document.createdAt}}</v-list-tile-sub-title>
               </v-list-tile-content>
@@ -18,6 +18,9 @@
             <v-divider v-if="index + 1 < documents.count()" :key="document._id"></v-divider>
           </template>
         </v-list>
+        <v-card-text v-else-if="$subscriptionsReady()" class="text-xs-center documents-none">
+          No documents.
+        </v-card-text>
       </v-card>
       <!--
         TODO: Do not hide the button when it is disabled.
@@ -95,4 +98,10 @@
 <style lang="stylus">
   .documents-label
     cursor pointer
+
+  .documents-none
+    font-style italic
+
+  .documents-untitled
+    font-style italic
 </style>
