@@ -19,6 +19,10 @@
           </template>
         </v-list>
       </v-card>
+      <!--
+        TODO: Do not hide the button when it is disabled.
+              See: https://github.com/vuetifyjs/vuetify/issues/2426
+      -->
       <v-btn v-if="canCreateDocument" :disabled="documentCreationInProgress" fab bottom right fixed dark color="primary" @click.native="onDocumentCreate">
         <v-icon>add</v-icon>
       </v-btn>
