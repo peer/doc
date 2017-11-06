@@ -1,6 +1,9 @@
 <template>
   <v-app>
     <v-toolbar app>
+      <v-btn :to="{name: 'front-page'}" exact icon>
+        <v-icon>apps</v-icon>
+      </v-btn>
       <v-toolbar-title>PeerDoc</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>
