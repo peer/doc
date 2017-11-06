@@ -19,7 +19,7 @@
           </template>
         </v-list>
       </v-card>
-      <v-btn v-if="canCreateDocument" fab bottom right fixed dark color="primary" @click.native="onDocumentCreate">
+      <v-btn v-if="canCreateDocument" :disabled="documentCreationInProgress" fab bottom right fixed dark color="primary" @click.native="onDocumentCreate">
         <v-icon>add</v-icon>
       </v-btn>
     </v-flex>
@@ -31,11 +31,13 @@
 
   import {Document} from '/lib/document';
   import {User} from '/lib/user';
+  import {Snackbar} from '../snackbar';
 
   const component = {
     data() {
       return {
         subscriptionHandle: null,
+        documentCreationInProgress: false
       };
     },
 
@@ -57,8 +59,18 @@
 
     methods: {
       onDocumentCreate() {
-        // TODO: This should just be a normal method call.
-        Document.create.call({});
+        this.documentCreationInProgress = true;
+        Document.create({}, (error, documentId) => {
+          this.documentCreationInProgress = false;
+
+          if (error) {
+            Snackbar.enqueue(`Error creating a new document: ${error}`, 'error');
+          }
+          else {
+            Snackbar.enqueue("New document has been created.", 'success');
+            this.$router.push({name: 'document', params: {documentId}});
+          }
+        });
       }
     }
   };
