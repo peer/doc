@@ -8,8 +8,9 @@
               <v-list-tile-content>
                 <v-list-tile-title v-if="document.title">{{document.title}}</v-list-tile-title>
                 <v-list-tile-title v-else class="documents-untitled">Untitled</v-list-tile-title>
-                <!-- TODO: Create a filter which renders this better. -->
-                <v-list-tile-sub-title>{{document.createdAt}}</v-list-tile-sub-title>
+                <v-list-tile-sub-title>
+                  <span class="timestamp" :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)">{{document.createdAt | fromNow}}</span>
+                </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
                 <v-chip v-if="!document.isPublished()" label color="yellow lighten-2" class="documents-label">Draft</v-chip>

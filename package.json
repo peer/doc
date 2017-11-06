@@ -8,6 +8,7 @@
     "babel-runtime": "^6.26.0",
     "bcrypt": "^1.0.3",
     "meteor-node-stubs": "^0.2.11",
+    "moment": "^2.19.1",
     "vue": "git://github.com/meteor-vue/vue.git#meteor",
     "vue-router": "^2.8.1",
     "vuetify": "^0.16.9"
