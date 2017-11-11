@@ -68,7 +68,7 @@
     methods: {
       onDocumentCreate() {
         this.documentCreationInProgress = true;
-        Document.create({}, (error, documentId) => {
+        Document.create({}, (error, document) => {
           this.documentCreationInProgress = false;
 
           if (error) {
@@ -76,7 +76,7 @@
           }
           else {
             Snackbar.enqueue("New document has been created.", 'success');
-            this.$router.push({name: 'document', params: {documentId}});
+            this.$router.push({name: 'document', params: {document._id}});
           }
         });
       }
