@@ -5,3 +5,21 @@
     </v-flex>
   </v-layout>
 </template>
+
+<script>
+  import {RouterFactory} from 'meteor/akryum:vue-router2';
+
+  const component = {};
+
+  RouterFactory.configure((factory) => {
+    factory.addRoutes([
+      {
+        component,
+        path: '*',
+        name: 'not-found'
+      },
+    ]);
+  }, -1);
+
+  export default component;
+</script>
