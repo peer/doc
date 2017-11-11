@@ -50,7 +50,7 @@
     },
 
     created() {
-      this.subscriptionHandle =  this.$subscribe('Document.list', {});
+      this.subscriptionHandle = this.$subscribe('Document.list', {});
     },
 
     computed: {
