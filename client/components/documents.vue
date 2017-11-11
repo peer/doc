@@ -76,7 +76,7 @@
           }
           else {
             Snackbar.enqueue("New document has been created.", 'success');
-            this.$router.push({name: 'document', params: {document._id}});
+            this.$router.push({name: 'document', params: {documentId: document._id}});
           }
         });
       }
