@@ -3,6 +3,7 @@
     <v-flex xs12>
       <v-card>
         <v-card-text>
+          <editor :contentKey="document.contentKey"></editor>
         </v-card-text>
       </v-card>
     </v-flex>
