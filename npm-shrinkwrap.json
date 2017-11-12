@@ -1091,6 +1091,14 @@
       "resolved": "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-1.0.7.tgz",
       "integrity": "sha1-FQ4gt1ZZCtP5EJPyWk8q2L/zC6M="
     },
+    "prosemirror-collab": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/prosemirror-collab/-/prosemirror-collab-1.0.0.tgz",
+      "integrity": "sha512-aqNz3Lukd/Ms9tiXb5V7jczBhlB5xSDdRMnEAKYQ+G4dBbKgQl09SU3j9PgMfZCKteyig4+LE1urVUVkujfGqQ==",
+      "requires": {
+        "prosemirror-state": "1.0.1"
+      }
+    },
     "prosemirror-commands": {
       "version": "1.0.1",
       "resolved": "https://registry.npmjs.org/prosemirror-commands/-/prosemirror-commands-1.0.1.tgz",
