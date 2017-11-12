@@ -9,7 +9,8 @@ Accounts.onCreateUser(function (options, user) {
   return user;
 });
 
-// A special case which is not using ValidatedMethod.
+// A special case which is not using ValidatedMethod because client side
+// differs a lot from the server side and there is no client stub.
 Meteor.methods({
   'User.createUserAndSignIn'(args) {
     return Accounts._loginMethod(this, 'User.createUserAndSignIn', arguments, 'passwordless', () => {
