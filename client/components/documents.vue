@@ -24,10 +24,10 @@
         </v-card-text>
       </v-card>
       <!--
-        TODO: In a newer version (than 0.16.9) the icon should be white and not black.
+        TODO: In a newer version (than 0.16.9) the icon should be white and not black, so we can remove white--text class.
               See: https://github.com/vuetifyjs/vuetify/issues/2426
       -->
-      <v-btn v-if="canCreateDocument" :disabled="documentCreationInProgress" fab bottom right fixed color="primary" @click.native="onDocumentCreate">
+      <v-btn v-if="canCreateDocument" :disabled="documentCreationInProgress" fab bottom right fixed color="primary" class="white--text" @click.native="onDocumentCreate">
         <v-icon>add</v-icon>
       </v-btn>
     </v-flex>
