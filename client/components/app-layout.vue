@@ -37,7 +37,11 @@
     </v-footer>
     <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
       {{snackbarMessage}}
-      <v-btn dark flat @click.native="onSnackbarClose">Close</v-btn>
+      <!--
+        TODO: We should not need to set button text to white manually.
+              See: https://github.com/vuetifyjs/vuetify/issues/2488
+      -->
+      <v-btn flat @click.native="onSnackbarClose" class="white--text">Close</v-btn>
     </v-snackbar>
   </v-app>
 </template>
