@@ -94,9 +94,10 @@
   export default component;
 </script>
 
-<style lang="stylus">
-  .user-signin-progress
-    position absolute
-    bottom 0
-    margin-bottom 0
+<style lang="scss">
+  .user-signin-progress {
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 0;
+  }
 </style>

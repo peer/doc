@@ -133,7 +133,8 @@
   export default component;
 </script>
 
-<style lang="stylus">
-  .app-layout-avatar
-    margin-left 8px
+<style lang="scss">
+  .app-layout-avatar {
+    margin-left: 8px;
+  }
 </style>

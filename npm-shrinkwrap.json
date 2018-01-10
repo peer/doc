@@ -1448,8 +1448,9 @@
       "integrity": "sha1-mDPJ7lesg76wJpBW/v7nFxPyBpU="
     },
     "vuetify": {
-      "version": "https://registry.npmjs.org/vuetify/-/vuetify-0.16.9.tgz",
-      "integrity": "sha1-/WHyGeSkDXr+XiSoA99WWKQLOOQ="
+      "version": "0.17.6",
+      "resolved": "https://registry.npmjs.org/vuetify/-/vuetify-0.17.6.tgz",
+      "integrity": "sha512-geIGnXjYEhUn1dr+g8FCFqvV6xUbALXNJ3UZQ32T0SJdGJh/JLsScINTxV+Pxt1F36s+YRnuFyHLiFOSnuVzjA=="
     },
     "w3c-keyname": {
       "version": "1.1.8",

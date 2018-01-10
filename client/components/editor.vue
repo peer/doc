@@ -112,7 +112,8 @@
   export default component;
 </script>
 
-<style lang="stylus">
-  .editor > p:last-child
-    margin-bottom 0
+<style lang="scss">
+  .editor > p:last-child {
+    margin-bottom: 0;
+  }
 </style>

@@ -96,13 +96,16 @@
   export default component;
 </script>
 
-<style lang="stylus">
-  .documents-label
-    cursor pointer
+<style lang="scss">
+  .documents-label {
+    cursor: pointer;
+  }
 
-  .documents-none
-    font-style italic
+  .documents-none {
+    font-style: italic;
+  }
 
-  .documents-untitled
-    font-style italic
+  .documents-untitled {
+    font-style: italic;
+  }
 </style>

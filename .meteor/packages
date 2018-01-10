@@ -16,18 +16,19 @@ es5-shim@4.6.15               # ECMAScript 5 compatibility for older browsers
 ecmascript@0.9.0              # Enable ECMAScript2015+ syntax in app code
 shell-server@0.3.0            # Server-side component of the `meteor shell` command
 
-akryum:vue-component
-akryum:vue-router2
 check@1.2.5
 audit-argument-checks@1.0.7
+accounts-password@1.5.0
+akryum:vue-component
+akryum:vue-router2
 mdg:validated-method
 peerlibrary:check-extension
 peerlibrary:subscription-scope
 peerlibrary:subscription-data
 peerlibrary:reactive-publish
 vuejs:meteor-integration
-stylus@2.513.13
 peerlibrary:user-extra
 peerlibrary:peerdb
-accounts-password@1.5.0
-akryum:vue-stylus
+akryum:vue-sass
+fourseven:scss
+seba:minifiers-autoprefixer
