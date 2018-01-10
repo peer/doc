@@ -90,7 +90,16 @@
         }
 
         // To register dependency on the latest version available from the server.
-        Content.documents.findOne(this.subscriptionHandle.scopeQuery(), {sort: {version: -1}, fields: {version: 1}});
+        const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
+
+        // We want all versions to be available without any version missing, before we start applying them.
+        // TODO: We could also just apply the initial consecutive set of versions we might have, even if later on there is one missing.
+        if (_.min(versions) !== 0) {
+          return;
+        }
+        if (versions.length !== _.max(versions) + 1) {
+          return;
+        }
 
         Tracker.nonreactive(() => {
           const newContents = Content.documents.find(_.extend(this.subscriptionHandle.scopeQuery(), {
