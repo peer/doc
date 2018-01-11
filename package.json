@@ -47,7 +47,10 @@
     "settings": {
       "import/resolver": "meteor"
     },
-    "extends": "airbnb-base",
+    "extends": [
+      "plugin:meteor/recommended",
+      "airbnb-base"
+    ],
     "rules": {
       "import/no-extraneous-dependencies": 0,
       "import/extensions": 0,
