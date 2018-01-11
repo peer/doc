@@ -10,7 +10,7 @@ function expirationMsFromDuration(duration) {
   const thresholds = {
     s: 45, // seconds to minute
     m: 45, // minutes to hour
-    h: 22 // hours to day
+    h: 22, // hours to day
   };
 
   const seconds = Math.round(duration.as('s'));
@@ -60,7 +60,7 @@ Vue.prototype.DEFAULT_TIME_FORMAT = 'LT';
 // Example:
 //
 //   {{createdAt | formatDate(DEFAULT_DATETIME_FORMAT)}}
-Vue.filter('formatDate', function (date, format) {
+Vue.filter('formatDate', function formatDate(date, format) {
   return moment(date).format(format);
 });
 
@@ -75,7 +75,7 @@ Vue.filter('formatDate', function (date, format) {
 // Example:
 //
 //   <span class="timestamp" :title="createdAt | formatDate(DEFAULT_DATETIME_FORMAT)">{{createdAt | fromNow}}</span>
-Vue.filter('fromNow', function (date, withoutSuffix) {
+Vue.filter('fromNow', function fromNow(date, withoutSuffix) {
   const momentDate = moment(date);
 
   if (Tracker.active) {
@@ -95,14 +95,14 @@ Vue.filter('fromNow', function (date, withoutSuffix) {
 // Example:
 //
 //   <span :title="playStart | formatDate(DEFAULT_DATETIME_FORMAT)">{{playStart | calendarDate}}</span>
-Vue.filter('calendarDate', function (date) {
+Vue.filter('calendarDate', function calendarDate(date) {
   return moment(date).calendar(null, {
     lastDay: '[yesterday at] LT',
     sameDay: '[today at] LT',
     nextDay: '[tomorrow at] LT',
     lastWeek: '[last] dddd [at] LT',
     nextWeek: 'dddd [at] LT',
-    sameElse: this.DEFAULT_DATETIME_FORMAT
+    sameElse: this.DEFAULT_DATETIME_FORMAT,
   });
 });
 
@@ -124,14 +124,14 @@ Vue.filter('calendarDate', function (date) {
 //   <span title="{{formatDuration startedAt null}}">{{formatDuration startedAt null 3}}</span>
 //
 // TODO: Support localization.
-Vue.prototype.$formatDuration = function (from, to, size) {
+Vue.prototype.$formatDuration = function $formatDuration(from, to, size) {
   const reactive = !(from && to);
 
   if (from == null) {
-    from = new Date();
+    from = new Date(); // eslint-disable-line no-param-reassign
   }
   if (to == null) {
-    to = new Date();
+    to = new Date(); // eslint-disable-line no-param-reassign
   }
 
   const duration = moment.duration({from, to}).abs();
@@ -143,16 +143,16 @@ Vue.prototype.$formatDuration = function (from, to, size) {
 
   let partials = [{
     key: 'week',
-    value: weeks
+    value: weeks,
   }, {
     key: 'day',
-    value: days
+    value: days,
   }, {
     key: 'hour',
-    value: hours
+    value: hours,
   }, {
     key: 'minute',
-    value: minutes
+    value: minutes,
   }];
 
   // Trim zero values from the left.
@@ -190,7 +190,7 @@ Vue.prototype.$formatDuration = function (from, to, size) {
   }
 
   const result = [];
-  for (let {key, value} of partials) {
+  for (let {key, value} of partials) { // eslint-disable-line prefer-const
     // Maybe there are some zero values in-between, skip them.
     if (value === 0) {
       continue;

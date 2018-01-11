@@ -9,12 +9,12 @@ export class Snackbar extends BaseDocument {
     this.documents.insert({
       createdAt: new Date(),
       message,
-      color
-    })
+      color,
+    });
   }
 }
 
 Snackbar.Meta({
   name: 'Snackbar',
-  collection: null
+  collection: null,
 });

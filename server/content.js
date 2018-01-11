@@ -11,10 +11,10 @@ import {User} from '/lib/user';
 Meteor.methods({
   'Content.addSteps'(args) {
     check(args, {
-      contentKey:  Match.DocumentId,
+      contentKey: Match.DocumentId,
       currentVersion: Match.Integer,
       steps: [Step],
-      clientId: Match.DocumentId
+      clientId: Match.DocumentId,
     });
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
@@ -33,62 +33,62 @@ Meteor.methods({
 
     const createdAt = new Date();
 
-    for (let step of args.steps) {
-      const {numberAffected, insertedId} = Content.documents.upsert({
+    for (const step of args.steps) {
+      const {numberAffected, insertedId} = Content.documents.upsert({ // eslint-disable-line no-unused-vars
         contentKey: args.contentKey,
-        version: args.currentVersion + addedCount + 1
+        version: args.currentVersion + addedCount + 1,
       }, {
         $setOnInsert: {
-          createdAt: createdAt,
+          createdAt,
           author: user.getReference(),
           clientId: args.clientId,
           // We do not store steps serialized wth EJSON but normal JSON to make it cleaner.
-          step: step.toJSON()
-        }
+          step: step.toJSON(),
+        },
       });
 
       if (!insertedId) {
         break;
       }
 
-      addedCount++;
+      addedCount += 1;
     }
 
     return addedCount;
-  }
+  },
 });
 
-Meteor.publish('Content.feed', function (args) {
+Meteor.publish('Content.feed', function contentFeed(args) {
   check(args, {
-    contentKey: Match.DocumentId
+    contentKey: Match.DocumentId,
   });
 
   this.enableScope();
 
   const handle = Content.documents.find({
-    contentKey: args.contentKey
+    contentKey: args.contentKey,
   }, {
-    fields: Content.PUBLISH_FIELDS()
+    fields: Content.PUBLISH_FIELDS(),
   // We do not store steps serialized wth EJSON but
   // normal JSON so we have to manually deserialize them.
   }).observeChanges({
     added: (id, fields) => {
       if (fields.step) {
-        fields.step = Step.fromJSON(schema, fields.step);
+        fields.step = Step.fromJSON(schema, fields.step); // eslint-disable-line no-param-reassign
       }
       this.added(Content.Meta.collection._name, id, fields);
     },
 
     changed: (id, fields) => {
       if (fields.step) {
-        fields.step = Step.fromJSON(schema, fields.step);
+        fields.step = Step.fromJSON(schema, fields.step); // eslint-disable-line no-param-reassign
       }
       this.changed(Content.Meta.collection._name, id, fields);
     },
 
     removed: (id) => {
       this.removed(Content.Meta.collection._name, id);
-    }
+    },
   });
 
   this.onStop(() => {

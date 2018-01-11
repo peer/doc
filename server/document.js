@@ -3,7 +3,7 @@ import {Meteor} from 'meteor/meteor';
 
 import {Document} from '/lib/document';
 
-Meteor.publish('Document.list', function (args) {
+Meteor.publish('Document.list', function documentList(args) {
   check(args, {});
 
   this.enableScope();
@@ -11,12 +11,12 @@ Meteor.publish('Document.list', function (args) {
   return Document.documents.find({}, {fields: Document.PUBLISH_FIELDS()});
 });
 
-Meteor.publish('Document.one', function (args) {
+Meteor.publish('Document.one', function documentOne(args) {
   check(args, {
-    documentId: Match.DocumentId
+    documentId: Match.DocumentId,
   });
 
   return Document.documents.find({
-    _id: args.documentId
+    _id: args.documentId,
   }, {fields: Document.PUBLISH_FIELDS()});
 });

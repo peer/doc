@@ -17,11 +17,11 @@ Meteor.startup(() => {
     scrollBehavior: nativeScrollBehavior,
   }).create();
 
-  new Vue({
+  new Vue({ // eslint-disable-line no-new
     router,
     el: '#app',
     render: (createElement) => {
       return createElement(Vue.component('app-layout'));
-    }
+    },
   });
 });

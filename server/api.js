@@ -6,16 +6,12 @@
 
 import {Meteor} from 'meteor/meteor';
 
-Meteor.startup(function () {
+Meteor.startup(function startup() {
   const publishHandlers = Meteor.server.publish_handlers;
 
   const BLACKLISTED_PUBLISH_ENDPOINTS = [];
 
-  for (let publishName in publishHandlers) {
-    if (!publishHandlers.hasOwnProperty(publishName)) {
-      continue;
-    }
-
+  for (const publishName of publishHandlers.keys()) {
     // Delete blacklisted publish endpoints.
     if (BLACKLISTED_PUBLISH_ENDPOINTS.includes(publishName)) {
       delete publishHandlers[publishName];
