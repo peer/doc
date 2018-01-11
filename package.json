@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "start": "meteor run",
-    "lint": "eslint . --ext .js --ext .vue"
+    "lint": "eslint . --ext .js --ext .vue",
+    "lint-ci": "eslint . --ext .js --ext .vue --format junit --output test-reports/js-lint-results.xml"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",

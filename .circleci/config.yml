@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: tozd/meteor-testing:ubuntu-xenial
+    steps:
+      - checkout
+      - run: git submodule update --init --recursive
+      - run: ./.circleci/authors/check-authors.sh
+      - run:
+          command: |
+            # No merge marks in commits.
+            ! git log --oneline "-G^(<<<<<<<|=======|>>>>>>>)" | grep '^'
+      - run: meteor npm install
+      - run: meteor npm run lint-ci
+      - store_test_results:
+          path: test-reports/

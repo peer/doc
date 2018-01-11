@@ -1,3 +1,6 @@
 [submodule "packages/tracker"]
 	path = packages/tracker
 	url = https://github.com/meteor-vue/tracker.git
+[submodule ".circleci/authors"]
+	path = .circleci/authors
+	url = https://github.com/tozd/git-check-authors.git
