@@ -11,7 +11,7 @@ Meteor.startup(function startup() {
 
   const BLACKLISTED_PUBLISH_ENDPOINTS = [];
 
-  for (const publishName of publishHandlers.keys()) {
+  for (const publishName of Object.keys(publishHandlers)) {
     // Delete blacklisted publish endpoints.
     if (BLACKLISTED_PUBLISH_ENDPOINTS.includes(publishName)) {
       delete publishHandlers[publishName];
