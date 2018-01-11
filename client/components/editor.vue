@@ -1,9 +1,10 @@
 <template>
-  <div class="editor"></div>
+  <div class="editor" />
 </template>
 
 <script>
   import {Random} from 'meteor/random';
+  import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
   import {schema} from 'prosemirror-schema-basic';
@@ -23,23 +24,24 @@
   import 'prosemirror-view/style/prosemirror.css';
   import 'prosemirror-gapcursor/style/gapcursor.css';
 
+  // @vue/component
   const component = {
-    data() {
-      return {
-        subscriptionHandle: null,
-        addingStepsInProgress: false
-      }
-    },
-
     props: {
       contentKey: {
         type: String,
-        required: true
-      }
+        required: true,
+      },
+    },
+
+    data() {
+      return {
+        subscriptionHandle: null,
+        addingStepsInProgress: false,
+      };
     },
 
     created() {
-      this.$autorun((computation) => {
+      this.$autorun(() => {
         this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
       });
     },
@@ -50,16 +52,16 @@
         plugins: [
           keymap({
             'Mod-z': undo,
-            'Mod-y': redo // TODO: shift+mod+z
+            'Mod-y': redo, // TODO: shift+mod+z
           }),
           keymap(baseKeymap),
           dropCursor(),
           gapCursor(),
           history(),
           collab.collab({
-            clientID: Random.id()
-          })
-        ]
+            clientID: Random.id(),
+          }),
+        ],
       });
 
       const view = new EditorView({mount: this.$el}, {
@@ -74,17 +76,17 @@
               contentKey: this.contentKey,
               currentVersion: sendable.version,
               steps: sendable.steps,
-              clientId: sendable.clientID
-            }, (error, stepsAdded) => {
+              clientId: sendable.clientID,
+            }, (error, stepsAdded) => { // eslint-disable-line no-unused-vars
               this.addingStepsInProgress = false;
 
               // TODO: Error handling.
             });
           }
-        }
+        },
       });
 
-      this.$autorun((computation) => {
+      this.$autorun(() => {
         if (this.addingStepsInProgress) {
           return;
         }
@@ -93,7 +95,8 @@
         const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
 
         // We want all versions to be available without any version missing, before we start applying them.
-        // TODO: We could also just apply the initial consecutive set of versions we might have, even if later on there is one missing.
+        // TODO: We could also just apply the initial consecutive set of versions we might have.
+        //       Even if later on there is one missing.
         if (_.min(versions) !== 0) {
           return;
         }
@@ -104,20 +107,20 @@
         Tracker.nonreactive(() => {
           const newContents = Content.documents.find(_.extend(this.subscriptionHandle.scopeQuery(), {
             version: {
-              $gt: collab.getVersion(view.state)
-            }
+              $gt: collab.getVersion(view.state),
+            },
           }), {
             sort: {
-              version: 1
-            }
+              version: 1,
+            },
           }).fetch();
 
           if (newContents.length) {
-            view.dispatch(collab.receiveTransaction(view.state, _.pluck(newContents, 'step'), _.pluck(newContents, 'clientId')))
+            view.dispatch(collab.receiveTransaction(view.state, _.pluck(newContents, 'step'), _.pluck(newContents, 'clientId')));
           }
-        })
+        });
       });
-    }
+    },
   };
 
   export default component;

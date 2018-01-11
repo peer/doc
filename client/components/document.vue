@@ -4,12 +4,12 @@
       <v-card>
         <v-card-text>
           <!-- TODO: Display editor only if you have permissions. -->
-          <editor :contentKey="document.contentKey"></editor>
+          <editor :content-key="document.contentKey" />
         </v-card-text>
       </v-card>
     </v-flex>
   </v-layout>
-  <not-found v-else-if="$subscriptionsReady()"></not-found>
+  <not-found v-else-if="$subscriptionsReady()" />
 </template>
 
 <script>
@@ -17,27 +17,28 @@
 
   import {Document} from '/lib/document';
 
+  // @vue/component
   const component = {
     props: {
       documentId: {
         type: String,
-        required: true
-      }
-    },
-
-    created() {
-      this.$autorun((computation) => {
-        this.$subscribe('Document.one', {documentId: this.documentId});
-      });
+        required: true,
+      },
     },
 
     computed: {
       document() {
         return Document.documents.findOne({
-          _id: this.documentId
+          _id: this.documentId,
         });
-      }
-    }
+      },
+    },
+
+    created() {
+      this.$autorun(() => {
+        this.$subscribe('Document.one', {documentId: this.documentId});
+      });
+    },
   };
 
   RouterFactory.configure((factory) => {
@@ -46,7 +47,7 @@
         component,
         path: '/document/:documentId',
         name: 'document',
-        props: true
+        props: true,
       },
     ]);
   });

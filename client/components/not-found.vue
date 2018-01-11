@@ -9,6 +9,7 @@
 <script>
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
+  // @vue/component
   const component = {};
 
   RouterFactory.configure((factory) => {
@@ -16,7 +17,7 @@
       {
         component,
         path: '*',
-        name: 'not-found'
+        name: 'not-found',
       },
     ]);
   }, -1);

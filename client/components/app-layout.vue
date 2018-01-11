@@ -5,7 +5,7 @@
         <v-icon>apps</v-icon>
       </v-btn>
       <v-toolbar-title>PeerDoc</v-toolbar-title>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-toolbar-items>
         <v-btn :to="{name: 'documents'}" flat>Documents</v-btn>
         <v-menu v-if="currentUser" offset-y bottom left origin="top right">
@@ -24,7 +24,7 @@
     <main>
       <v-content>
         <v-container fluid>
-          <router-view></router-view>
+          <router-view />
         </v-container>
       </v-content>
     </main>
@@ -48,8 +48,8 @@
       return {
         snackbarShow: false,
         snackbarMessage: null,
-        snackbarColor: null
-      }
+        snackbarColor: null,
+      };
     },
 
     created() {
@@ -62,7 +62,7 @@
     computed: {
       currentUser() {
         return Meteor.user({username: 1, avatar: 1});
-      }
+      },
     },
 
     methods: {
@@ -122,8 +122,8 @@
         Meteor.setTimeout(() => {
           this.showNextSnackbar();
         }, 300);
-      }
-    }
+      },
+    },
   };
 
   export default component;

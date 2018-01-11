@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "start": "meteor run",
-    "lint": "eslint ."
+    "lint": "eslint . --ext .js --ext .vue"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
@@ -30,13 +30,13 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-import-resolver-meteor": "^0.4.0",
     "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-meteor": "^4.1.4"
+    "eslint-plugin-meteor": "^4.1.4",
+    "eslint-plugin-vue": "^4.2.0"
   },
   "meteor": {
     "vueVersion": 2
   },
   "eslintConfig": {
-    "parser": "babel-eslint",
     "env": {
       "node": true,
       "browser": true
@@ -49,8 +49,12 @@
     },
     "extends": [
       "plugin:meteor/recommended",
+      "plugin:vue/recommended",
       "airbnb-base"
     ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
     "rules": {
       "import/no-extraneous-dependencies": 0,
       "import/extensions": 0,
@@ -61,6 +65,7 @@
       "prefer-arrow-callback": 0,
       "no-else-return": 0,
       "no-continue": 0,
+      "vue/max-attributes-per-line": 0,
       "object-shorthand": [
         "error",
         "always",
@@ -101,6 +106,33 @@
         {
           "selector": "WithStatement",
           "message": "`with` is disallowed in strict mode because it makes code impossible to predict and optimize."
+        }
+      ],
+      "vue/mustache-interpolation-spacing": [
+        "error",
+        "never"
+      ],
+      "indent": 0,
+      "indent-legacy": [
+        "error",
+        2,
+        {
+          "SwitchCase": 1,
+          "VariableDeclarator": 1,
+          "outerIIFEBody": 1,
+          "FunctionDeclaration": {
+            "parameters": 1,
+            "body": 1
+          },
+          "FunctionExpression": {
+            "parameters": 1,
+            "body": 1
+          },
+          "CallExpression": {
+            "arguments": 1
+          },
+          "ArrayExpression": 1,
+          "ObjectExpression": 1
         }
       ]
     }

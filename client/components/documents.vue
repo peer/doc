@@ -16,7 +16,7 @@
                 <v-chip v-if="!document.isPublished()" label color="yellow lighten-2" class="documents-label">Draft</v-chip>
               </v-list-tile-action>
             </v-list-tile>
-            <v-divider v-if="index + 1 < documents.count()" :key="document._id"></v-divider>
+            <v-divider v-if="index + 1 < documents.count()" :key="document._id" />
           </template>
         </v-list>
         <v-card-text v-else-if="$subscriptionsReady()" class="text-xs-center documents-none">
@@ -37,16 +37,13 @@
   import {User} from '/lib/user';
   import {Snackbar} from '../snackbar';
 
+  // @vue/component
   const component = {
     data() {
       return {
         subscriptionHandle: null,
-        documentCreationInProgress: false
+        documentCreationInProgress: false,
       };
-    },
-
-    created() {
-      this.subscriptionHandle = this.$subscribe('Document.list', {});
     },
 
     computed: {
@@ -58,7 +55,11 @@
         if (!this.subscriptionHandle) return [];
 
         return Document.documents.find(this.subscriptionHandle.scopeQuery(), {sort: {createdAt: -1}});
-      }
+      },
+    },
+
+    created() {
+      this.subscriptionHandle = this.$subscribe('Document.list', {});
     },
 
     methods: {
@@ -75,8 +76,8 @@
             this.$router.push({name: 'document', params: {documentId: document._id}});
           }
         });
-      }
-    }
+      },
+    },
   };
 
   RouterFactory.configure((factory) => {
@@ -84,7 +85,7 @@
       {
         component,
         path: '/document',
-        name: 'documents'
+        name: 'documents',
       },
     ]);
   });
