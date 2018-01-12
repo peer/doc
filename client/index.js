@@ -1,6 +1,6 @@
 import {Meteor} from 'meteor/meteor';
 
-import {RouterFactory, nativeScrollBehavior} from 'meteor/akryum:vue-router2';
+import {nativeScrollBehavior, RouterFactory} from 'meteor/akryum:vue-router2';
 
 import Vue from 'vue';
 import Vuetify from 'vuetify';
