@@ -40,7 +40,6 @@
 
 <script>
   import {Meteor} from 'meteor/meteor';
-  import {_} from 'meteor/underscore';
 
   import {Snackbar} from '../snackbar';
 
