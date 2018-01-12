@@ -12,7 +12,7 @@
           <v-card-actions>
             <v-btn type="submit" :disabled="!valid || formSubmissionInProgress" block color="primary">
               <span>Sign in</span>
-              <v-progress-linear v-if="formSubmissionInProgress" :indeterminate="true" :height="3" color="primary" class="user-signin-progress" />
+              <v-progress-linear v-if="formSubmissionInProgress" :indeterminate="true" :height="3" color="primary" class="user-signin__progress" />
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -97,7 +97,7 @@
 </script>
 
 <style lang="scss">
-  .user-signin-progress {
+  .user-signin__progress {
     position: absolute;
     bottom: 0;
     margin-bottom: 0;

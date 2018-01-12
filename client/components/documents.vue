@@ -7,19 +7,19 @@
             <v-list-tile ripple :to="{name: 'document', params: {documentId: document._id}}" :key="document._id">
               <v-list-tile-content>
                 <v-list-tile-title v-if="document.title">{{document.title}}</v-list-tile-title>
-                <v-list-tile-title v-else class="documents-untitled">Untitled</v-list-tile-title>
+                <v-list-tile-title v-else class="documents__untitled">Untitled</v-list-tile-title>
                 <v-list-tile-sub-title>
                   <span class="timestamp" :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)">{{document.createdAt | fromNow}}</span>
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-chip v-if="!document.isPublished()" label color="yellow lighten-2" class="documents-label">Draft</v-chip>
+                <v-chip v-if="!document.isPublished()" label color="yellow lighten-2" class="documents__label">Draft</v-chip>
               </v-list-tile-action>
             </v-list-tile>
             <v-divider v-if="index + 1 < documents.count()" :key="document._id" />
           </template>
         </v-list>
-        <v-card-text v-else-if="$subscriptionsReady()" class="text-xs-center documents-none">
+        <v-card-text v-else-if="$subscriptionsReady()" class="text-xs-center documents__none">
           No documents.
         </v-card-text>
       </v-card>
@@ -94,15 +94,15 @@
 </script>
 
 <style lang="scss">
-  .documents-label {
+  .documents__label {
     cursor: pointer;
   }
 
-  .documents-none {
+  .documents__none {
     font-style: italic;
   }
 
-  .documents-untitled {
+  .documents__untitled {
     font-style: italic;
   }
 </style>

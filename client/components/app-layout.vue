@@ -10,7 +10,7 @@
         <v-btn :to="{name: 'documents'}" flat>Documents</v-btn>
         <v-menu v-if="currentUser" offset-y bottom left origin="top right">
           <v-btn slot="activator" flat>{{currentUser.username}}
-            <v-avatar size="36px" class="app-layout-avatar"><img :src="currentUser.avatarUrl()" alt=""></v-avatar>
+            <v-avatar size="36px" class="app-layout__avatar"><img :src="currentUser.avatarUrl()" alt=""></v-avatar>
           </v-btn>
           <v-list>
             <v-list-tile @click="onSignOut">
@@ -130,7 +130,7 @@
 </script>
 
 <style lang="scss">
-  .app-layout-avatar {
+  .app-layout__avatar {
     margin-left: 8px;
   }
 </style>
