@@ -65,7 +65,7 @@
         this.errorShow = false;
         this.formSubmissionInProgress = true;
 
-        User.createUserAndSignIn({username: this.username}, (error, user) => { // eslint-disable-line no-unused-vars
+        User.createUserAndSignIn({username: this.username}, (error, user) => {
           this.formSubmissionInProgress = false;
 
           if (error) {

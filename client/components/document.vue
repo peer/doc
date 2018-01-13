@@ -35,7 +35,7 @@
     },
 
     created() {
-      this.$autorun(() => {
+      this.$autorun((computation) => {
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
     },

@@ -41,7 +41,7 @@
     },
 
     created() {
-      this.$autorun(() => {
+      this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
       });
     },
@@ -77,7 +77,7 @@
               currentVersion: sendable.version,
               steps: sendable.steps,
               clientId: sendable.clientID,
-            }, (error, stepsAdded) => { // eslint-disable-line no-unused-vars
+            }, (error, stepsAdded) => {
               this.addingStepsInProgress = false;
 
               // TODO: Error handling.
@@ -86,7 +86,7 @@
         },
       });
 
-      this.$autorun(() => {
+      this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
           return;
         }
