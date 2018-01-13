@@ -28,6 +28,15 @@ should use always when you are constructing a string, never string concatenation
 
 This means all object property names should use single quotes, except when you are interpolating them.
 
+### Unused function arguments encouraged
+
+In JavaScript it is not required to define all arguments if you do not use them in the body of a function,
+even if caller is passing them. We encourage you to always list all arguments which you know caller is
+passing to a function, even if you do not use them because maybe in the future somebody will find it useful
+when doing modification to function's code. In this way it is also easier to do modifications because you
+do not have to fullly know what all is being passed to a function and you can work directly with what you have
+available.
+
 ### Imports
 
 Imports should be divided into multiples sections, in order from more global to more local, separated by an empty line:
