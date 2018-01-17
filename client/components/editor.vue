@@ -1,5 +1,88 @@
 <template>
-  <div class="editor" />
+  <div>
+    <div id="tools" style="margin-bottom:25px">
+      <v-toolbar
+        card color="gray"
+        prominent>
+
+        <v-btn id="bold" icon>
+          <v-icon>format_bold</v-icon>
+        </v-btn>
+
+        <v-btn id="italic" icon>
+          <v-icon>format_italic</v-icon>
+        </v-btn>
+
+        <v-btn id="strikeout" icon>
+          <v-icon>format_strikethrough</v-icon>
+        </v-btn>
+
+        <v-btn id="paragraph" icon>
+          p
+        </v-btn>
+
+        <v-btn id="blockquote" icon>
+          <v-icon>format_quote</v-icon>
+        </v-btn>
+
+        <v-btn id="bullet" icon>
+          <v-icon>format_list_bulleted</v-icon>
+        </v-btn>
+
+        <v-btn id="order" icon>
+          <v-icon>format_list_numbered</v-icon>
+        </v-btn>
+
+        <v-btn id="sink" flat>
+          sink
+        </v-btn>
+
+        <v-btn id="split" flat>
+          split
+        </v-btn>
+
+        <v-btn id="lift" flat>
+          lift
+        </v-btn>
+
+        <v-btn id="link" icon>
+          <v-icon>insert_link</v-icon>
+        </v-btn>
+
+        <v-btn id="h1" icon>
+          h1
+        </v-btn>
+
+        <v-btn id="h2" icon>
+          h2
+        </v-btn>
+
+        <v-btn id="h3" icon>
+          h3
+        </v-btn>
+
+        <v-btn id="undo" icon>
+          <v-icon>undo</v-icon>
+        </v-btn>
+
+        <v-btn id="redo" icon>
+          <v-icon>redo</v-icon>
+        </v-btn>
+
+      </v-toolbar>
+      <!-- <v-divider></v-divider> -->
+    </div>
+
+    <h3>PeerDoc Editor with BasicSchema</h3>
+    <div id="editor" ref="editor" class="editor" />
+
+    <br>
+    <hr>
+    <br>
+
+    <h3>Editor prototype with CustomSchema</h3>
+    <div id="editorPrototype" ref="editorPrototype" class="editor" />
+  </div>
 </template>
 
 <script>
@@ -7,16 +90,20 @@
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
+  import {Schema} from "prosemirror-model";
   import {schema} from 'prosemirror-schema-basic';
+  import {addListNodes, wrapInList, sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
   import {EditorState} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {undo, redo, history} from 'prosemirror-history';
   import {keymap} from 'prosemirror-keymap';
-  import {baseKeymap} from 'prosemirror-commands';
   import {dropCursor} from 'prosemirror-dropcursor';
   import {gapCursor} from 'prosemirror-gapcursor';
   import collab from 'prosemirror-collab';
-
+  import {wrapIn, toggleMark, setBlockType, baseKeymap} from "prosemirror-commands";
+  
+  import {schema as peerDocSchema} from '/client/components/utils/schema.js';
+  import {menuPlugin, heading, toggleLink} from './utils/menu.js';
   import {Content} from '/lib/content';
 
   // TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
@@ -47,6 +134,31 @@
     },
 
     mounted() {
+      // const schema2 = schema;
+      const schemaTest = new Schema({
+        nodes: addListNodes(peerDocSchema.spec.nodes, "paragraph block*", "block"),
+        marks: peerDocSchema.spec.marks,
+      });
+
+      let menu = menuPlugin([
+        {command: toggleMark(schemaTest.marks.strong), dom: document.getElementById("bold")},
+        {command: toggleMark(schemaTest.marks.em), dom: document.getElementById("italic")},
+        {command: undo, dom: document.getElementById("undo")},
+        {command: redo, dom: document.getElementById("redo")},
+        heading(1, schemaTest),
+        heading(2, schemaTest),
+        heading(3, schemaTest),
+        {command: toggleMark(schemaTest.marks.strikeout), dom: document.getElementById("strikeout")},
+        {command: setBlockType(schemaTest.nodes.paragraph), dom: document.getElementById("paragraph")},
+        {command: wrapIn(schemaTest.nodes.blockquote), dom: document.getElementById("blockquote")},
+        {command: toggleLink(schemaTest), dom: document.getElementById("link")},
+        {command: wrapInList(schemaTest.nodes.bullet_list), dom: document.getElementById("bullet")},
+        {command: wrapInList(schemaTest.nodes.ordered_list), dom: document.getElementById("order")},
+        {command: liftListItem(schemaTest.nodes.list_item), dom: document.getElementById("lift")},
+        {command: sinkListItem(schemaTest.nodes.list_item), dom: document.getElementById("sink")},
+        {command: splitListItem(schemaTest.nodes.list_item), dom: document.getElementById("split")},
+      ]);
+
       const state = EditorState.create({
         schema,
         plugins: [
@@ -58,13 +170,31 @@
           dropCursor(),
           gapCursor(),
           history(),
+          // menu,
           collab.collab({
             clientID: Random.id(),
           }),
         ],
       });
 
-      const view = new EditorView({mount: this.$el}, {
+
+      window.view = new EditorView(document.querySelector("#editorPrototype"), {
+        state: EditorState.create({
+          schema: schemaTest,
+          plugins: [
+            keymap({
+              'Mod-z': undo,
+              'Mod-y': redo, // TODO: shift+mod+z
+            }),
+            keymap(baseKeymap),
+            menu,
+            dropCursor(),
+            gapCursor(),
+            history()],
+        }),
+      });
+
+      const view = new EditorView({mount: this.$refs.editor}, {
         state,
         dispatchTransaction: (transaction) => {
           const newState = view.state.apply(transaction);
@@ -129,5 +259,16 @@
 <style lang="scss">
   .editor > p:last-child {
     margin-bottom: 0;
+  }
+  strikeout { text-decoration:line-through; }
+  .ProseMirror blockquote {
+    padding-left: 1em;
+    border-left: 3px solid #eee;
+    margin-left: 0; margin-right: 0;
+  }
+  .ProseMirror ul, ol {
+    padding-left: 1em;
+    border-left: 3px;
+    margin-left: 0; margin-right: 0;
   }
 </style>
