@@ -73,15 +73,8 @@
       <!-- <v-divider></v-divider> -->
     </div>
 
-    <h3>PeerDoc Editor with BasicSchema</h3>
     <div id="editor" ref="editor" class="editor" />
 
-    <br>
-    <hr>
-    <br>
-
-    <h3>Editor prototype with CustomSchema</h3>
-    <div id="editorPrototype" ref="editorPrototype" class="editor" />
   </div>
 </template>
 
@@ -90,9 +83,7 @@
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
-  import {Schema} from "prosemirror-model";
-  import {schema} from 'prosemirror-schema-basic';
-  import {addListNodes, wrapInList, sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
+  import {wrapInList, sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
   import {EditorState} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {undo, redo, history} from 'prosemirror-history';
@@ -101,15 +92,16 @@
   import {gapCursor} from 'prosemirror-gapcursor';
   import collab from 'prosemirror-collab';
   import {wrapIn, toggleMark, setBlockType, baseKeymap} from "prosemirror-commands";
-  
-  import {schema as peerDocSchema} from '/client/components/utils/schema.js';
-  import {menuPlugin, heading, toggleLink} from './utils/menu.js';
-  import {Content} from '/lib/content';
 
   // TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
   //       See: https://github.com/meteor/meteor-feature-requests/issues/218
   import 'prosemirror-view/style/prosemirror.css';
   import 'prosemirror-gapcursor/style/gapcursor.css';
+
+  import {peerDocSchema} from '/lib/schema.js';
+  import {Content} from '/lib/content';
+  import {menuPlugin, heading, toggleLink} from './utils/menu.js';
+
 
   // @vue/component
   const component = {
@@ -134,33 +126,27 @@
     },
 
     mounted() {
-      // const schema2 = schema;
-      const schemaTest = new Schema({
-        nodes: addListNodes(peerDocSchema.spec.nodes, "paragraph block*", "block"),
-        marks: peerDocSchema.spec.marks,
-      });
-
-      let menu = menuPlugin([
-        {command: toggleMark(schemaTest.marks.strong), dom: document.getElementById("bold")},
-        {command: toggleMark(schemaTest.marks.em), dom: document.getElementById("italic")},
+      const menu = menuPlugin([
+        {command: toggleMark(peerDocSchema.marks.strong), dom: document.getElementById("bold")},
+        {command: toggleMark(peerDocSchema.marks.em), dom: document.getElementById("italic")},
         {command: undo, dom: document.getElementById("undo")},
         {command: redo, dom: document.getElementById("redo")},
-        heading(1, schemaTest),
-        heading(2, schemaTest),
-        heading(3, schemaTest),
-        {command: toggleMark(schemaTest.marks.strikeout), dom: document.getElementById("strikeout")},
-        {command: setBlockType(schemaTest.nodes.paragraph), dom: document.getElementById("paragraph")},
-        {command: wrapIn(schemaTest.nodes.blockquote), dom: document.getElementById("blockquote")},
-        {command: toggleLink(schemaTest), dom: document.getElementById("link")},
-        {command: wrapInList(schemaTest.nodes.bullet_list), dom: document.getElementById("bullet")},
-        {command: wrapInList(schemaTest.nodes.ordered_list), dom: document.getElementById("order")},
-        {command: liftListItem(schemaTest.nodes.list_item), dom: document.getElementById("lift")},
-        {command: sinkListItem(schemaTest.nodes.list_item), dom: document.getElementById("sink")},
-        {command: splitListItem(schemaTest.nodes.list_item), dom: document.getElementById("split")},
+        heading(1, peerDocSchema),
+        heading(2, peerDocSchema),
+        heading(3, peerDocSchema),
+        {command: toggleMark(peerDocSchema.marks.strikeout), dom: document.getElementById("strikeout")},
+        {command: setBlockType(peerDocSchema.nodes.paragraph), dom: document.getElementById("paragraph")},
+        {command: wrapIn(peerDocSchema.nodes.blockquote), dom: document.getElementById("blockquote")},
+        {command: toggleLink(peerDocSchema), dom: document.getElementById("link")},
+        {command: wrapInList(peerDocSchema.nodes.bullet_list), dom: document.getElementById("bullet")},
+        {command: wrapInList(peerDocSchema.nodes.ordered_list), dom: document.getElementById("order")},
+        {command: liftListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("lift")},
+        {command: sinkListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("sink")},
+        {command: splitListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("split")},
       ]);
 
       const state = EditorState.create({
-        schema,
+        schema: peerDocSchema,
         plugins: [
           keymap({
             'Mod-z': undo,
@@ -170,29 +156,13 @@
           dropCursor(),
           gapCursor(),
           history(),
-          // menu,
+          menu,
           collab.collab({
             clientID: Random.id(),
           }),
         ],
       });
 
-
-      window.view = new EditorView(document.querySelector("#editorPrototype"), {
-        state: EditorState.create({
-          schema: schemaTest,
-          plugins: [
-            keymap({
-              'Mod-z': undo,
-              'Mod-y': redo, // TODO: shift+mod+z
-            }),
-            keymap(baseKeymap),
-            menu,
-            dropCursor(),
-            gapCursor(),
-            history()],
-        }),
-      });
 
       const view = new EditorView({mount: this.$refs.editor}, {
         state,
@@ -209,7 +179,6 @@
               clientId: sendable.clientID,
             }, (error, stepsAdded) => {
               this.addingStepsInProgress = false;
-
               // TODO: Error handling.
             });
           }
