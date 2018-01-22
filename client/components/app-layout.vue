@@ -21,13 +21,11 @@
         <v-btn v-else :to="{name: 'user-signin'}" flat>Sign in</v-btn>
       </v-toolbar-items>
     </v-toolbar>
-    <main>
-      <v-content>
-        <v-container fluid>
-          <router-view />
-        </v-container>
-      </v-content>
-    </main>
+    <v-content>
+      <v-container fluid>
+        <router-view />
+      </v-container>
+    </v-content>
     <v-footer app>
       <a href="https://github.com/peer/doc">Source code</a>
     </v-footer>
