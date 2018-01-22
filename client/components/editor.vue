@@ -107,11 +107,11 @@
 
 // little helper function for measuring Y offset of element on viewport
 // See https://plainjs.com/javascript/styles/get-the-position-of-an-element-relative-to-the-document-24/
-function offsetY(el) {
-	    var rect = el.getBoundingClientRect(),
-	    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-	    return rect.top + scrollTop;
-	}
+  function offsetY(el) {
+    const rect = el.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    return rect.top + scrollTop;
+  }
 
   // @vue/component
   const component = {
@@ -127,7 +127,7 @@ function offsetY(el) {
         subscriptionHandle: null,
         addingStepsInProgress: false,
         fixToolbarToTop: false,
-        originalToolbarYPos: -1
+        originalToolbarYPos: -1,
       };
     },
 
@@ -233,17 +233,17 @@ function offsetY(el) {
       });
     },
     methods: {
-        onScroll(e) {
-          if(!this.$refs || !this.$refs.editorToolbar || !this.$refs.editorToolbar.$el) {
-            return;
-          } 
-          if(!this.fixToolbarToTop && this.originalToolbarYPos < 0) {
-            // set initial toolbar vertifical offset
-            this.originalToolbarYPos = offsetY(this.$refs.editorToolbar.$el);
-          }
-          this.fixToolbarToTpop = window.pageYOffset >= this.originalToolbarYPos;
+      onScroll(e) {
+        if (!this.$refs || !this.$refs.editorToolbar || !this.$refs.editorToolbar.$el) {
+          return;
         }
-      }
+        if (!this.fixToolbarToTop && this.originalToolbarYPos < 0) {
+          // set initial toolbar vertifical offset
+          this.originalToolbarYPos = offsetY(this.$refs.editorToolbar.$el);
+        }
+        this.fixToolbarToTop = window.pageYOffset >= this.originalToolbarYPos;
+      },
+    },
   };
 
   export default component;

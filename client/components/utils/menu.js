@@ -21,7 +21,7 @@ class MenuView {
 
   update() {
     this.items.forEach(({command, dom}) => {
-      let active = command(this.editorView.state, null, this.editorView);
+      const active = command(this.editorView.state, null, this.editorView);
       dom.style.display = active ? "" : "none";
     });
   }
@@ -35,7 +35,7 @@ class MenuView {
 export function menuPlugin(items) {
   return new Plugin({
     view(editorView) {
-      let menuView = new MenuView(items, editorView);
+      const menuView = new MenuView(items, editorView);
       editorView.dom.parentNode.insertBefore(menuView.dom, editorView.dom);
       return menuView;
     },
@@ -59,7 +59,7 @@ export function heading(level, schema) {
 
 export function toggleLink(schema) {
   return function (state, dispatch) {
-    let {doc, selection} = state;
+    const {doc, selection} = state;
     if (selection.empty) {
       return false;
     }
