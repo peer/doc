@@ -238,10 +238,10 @@ function offsetY(el) {
             return;
           } 
           if(!this.fixToolbarToTop && this.originalToolbarYPos < 0) {
+            // set initial toolbar vertifical offset
             this.originalToolbarYPos = offsetY(this.$refs.editorToolbar.$el);
           }
-          const windowOffset = window.pageYOffset;
-          this.fixToolbarToTpop = windowOffset >= this.originalToolbarYPos;
+          this.fixToolbarToTpop = window.pageYOffset >= this.originalToolbarYPos;
         }
       }
   };
