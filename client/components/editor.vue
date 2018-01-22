@@ -3,8 +3,10 @@
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
         card color="gray"
-        prominent>
-
+        prominent
+        :fixed="fixToolbarToTop"
+        v-scroll="onScroll"
+        ref="editorToolbar">
         <v-btn id="bold" icon>
           <v-icon>format_bold</v-icon>
         </v-btn>
@@ -103,6 +105,14 @@
   import {menuPlugin, heading, toggleLink} from './utils/menu.js';
 
 
+// little helper function for measuring Y offset of element on viewport
+// See https://plainjs.com/javascript/styles/get-the-position-of-an-element-relative-to-the-document-24/
+function offsetY(el) {
+	    var rect = el.getBoundingClientRect(),
+	    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+	    return rect.top + scrollTop;
+	}
+
   // @vue/component
   const component = {
     props: {
@@ -116,6 +126,8 @@
       return {
         subscriptionHandle: null,
         addingStepsInProgress: false,
+        fixToolbarToTop: false,
+        originalToolbarYPos: -1
       };
     },
 
@@ -220,6 +232,18 @@
         });
       });
     },
+    methods: {
+        onScroll(e) {
+          if(!this.$refs || !this.$refs.editorToolbar || !this.$refs.editorToolbar.$el) {
+            return;
+          } 
+          if(!this.fixToolbarToTop && this.originalToolbarYPos < 0) {
+            this.originalToolbarYPos = offsetY(this.$refs.editorToolbar.$el);
+          }
+          const windowOffset = window.pageYOffset;
+          this.fixToolbarToTpop = windowOffset >= this.originalToolbarYPos;
+        }
+      }
   };
 
   export default component;

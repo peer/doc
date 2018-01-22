@@ -43,8 +43,8 @@ export function menuPlugin(items) {
 }
 
 export function icon(text, name) {
-  let span = document.createElement("span");
-  span.className = "menuicon " + name;
+  const span = document.createElement("span");
+  span.className = `menuicon ${name}`;
   span.title = name;
   span.textContent = text;
   return span;
@@ -53,7 +53,7 @@ export function icon(text, name) {
 export function heading(level, schema) {
   return {
     command: setBlockType(schema.nodes.heading, {level}),
-    dom: document.getElementById("h" + level),
+    dom: document.getElementById(`h${level}`),
   };
 }
 
