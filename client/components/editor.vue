@@ -57,18 +57,6 @@
           <v-icon>format_list_numbered</v-icon>
         </v-btn>
 
-        <v-btn id="sink" flat>
-          sink
-        </v-btn>
-
-        <v-btn id="lift" flat>
-          lift
-        </v-btn>
-
-        <v-btn id="split" flat>
-          split
-        </v-btn>
-
       </v-toolbar>
       <v-divider/>
     </div>
@@ -140,9 +128,6 @@
         {command: toggleLink(peerDocSchema), dom: document.getElementById("link")},
         {command: wrapInList(peerDocSchema.nodes.bullet_list), dom: document.getElementById("bullet"), node: peerDocSchema.nodes.bullet_list},
         {command: wrapInList(peerDocSchema.nodes.ordered_list), dom: document.getElementById("order"), node: peerDocSchema.nodes.ordered_list},
-        {command: liftListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("lift"), node: peerDocSchema.nodes.list_item},
-        {command: sinkListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("sink"), node: peerDocSchema.nodes.list_item},
-        {command: splitListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("split"), node: peerDocSchema.nodes.list_item},
       ]);
 
       const state = EditorState.create({
@@ -150,6 +135,8 @@
         plugins: [
           keymap({
             Enter: splitListItem(peerDocSchema.nodes.list_item),
+            Tab: sinkListItem(peerDocSchema.nodes.list_item),
+            'Shift-Tab': liftListItem(peerDocSchema.nodes.list_item),
             'Mod-z': undo,
             'Shift-Mod-z': redo,
           }),

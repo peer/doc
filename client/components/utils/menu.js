@@ -49,7 +49,7 @@ class MenuView {
         btnClass += " btn--active";
       }
 
-      dom.className = btnClass;
+      dom.className = btnClass; // eslint-disable-line no-param-reassign
     });
   }
 
@@ -71,7 +71,7 @@ export function menuPlugin(items) {
 
 export function icon(text, name) {
   const span = document.createElement("span");
-  span.className = "menuicon " + name;
+  span.className = `menuicon ${name}`;
   span.title = name;
   span.textContent = text;
   return span;
@@ -80,7 +80,7 @@ export function icon(text, name) {
 export function heading(level, schema) {
   return {
     command: setBlockType(schema.nodes.heading, {level}),
-    dom: document.getElementById("h" + level),
+    dom: document.getElementById(`h${level}`),
     node: schema.nodes.heading,
     attr: {level},
   };
