@@ -59,7 +59,6 @@
         <v-btn id="order" flat>
           <v-icon>format_list_numbered</v-icon>
         </v-btn>
-        
         <VerticalDivider />
       </v-toolbar>
     </div>
@@ -84,7 +83,6 @@
   import collab from 'prosemirror-collab';
   import {wrapIn, toggleMark, setBlockType, baseKeymap} from "prosemirror-commands";
 
-  import VerticalDivider from './vertical-divider.vue';
   // TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
   //       See: https://github.com/meteor/meteor-feature-requests/issues/218
   import 'prosemirror-view/style/prosemirror.css';
@@ -92,11 +90,13 @@
 
   import {peerDocSchema} from '/lib/schema.js';
   import {Content} from '/lib/content';
+  import VerticalDivider from './vertical-divider.vue';
   import {menuPlugin, heading, toggleLink} from './utils/menu.js';
 
 
   // @vue/component
   const component = {
+    components: {VerticalDivider},
     props: {
       contentKey: {
         type: String,
@@ -107,7 +107,7 @@
     data() {
       return {
         subscriptionHandle: null,
-        addingStepsInProgress: false
+        addingStepsInProgress: false,
       };
     },
 
@@ -212,7 +212,6 @@
         });
       });
     },
-    components: {VerticalDivider}
   };
 
   export default component;
