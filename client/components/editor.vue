@@ -2,10 +2,18 @@
   <div>
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
-        card color="gray"
+        card color="white"
         prominent>
 
-        <v-btn id="bold" icon>
+        <v-btn id="undo" icon>
+          <v-icon>undo</v-icon>
+        </v-btn>
+
+        <v-btn id="redo" icon>
+          <v-icon>redo</v-icon>
+        </v-btn>
+
+        <v-btn id="bold" icon >
           <v-icon>format_bold</v-icon>
         </v-btn>
 
@@ -19,6 +27,22 @@
 
         <v-btn id="paragraph" icon>
           p
+        </v-btn>
+
+        <v-btn id="h1" icon>
+          h1
+        </v-btn>
+
+        <v-btn id="h2" icon>
+          h2
+        </v-btn>
+
+        <v-btn id="h3" icon>
+          h3
+        </v-btn>
+
+        <v-btn id="link" icon>
+          <v-icon>insert_link</v-icon>
         </v-btn>
 
         <v-btn id="blockquote" icon>
@@ -37,40 +61,16 @@
           sink
         </v-btn>
 
-        <v-btn id="split" flat>
-          split
-        </v-btn>
-
         <v-btn id="lift" flat>
           lift
         </v-btn>
 
-        <v-btn id="link" icon>
-          <v-icon>insert_link</v-icon>
-        </v-btn>
-
-        <v-btn id="h1" icon>
-          h1
-        </v-btn>
-
-        <v-btn id="h2" icon>
-          h2
-        </v-btn>
-
-        <v-btn id="h3" icon>
-          h3
-        </v-btn>
-
-        <v-btn id="undo" icon>
-          <v-icon>undo</v-icon>
-        </v-btn>
-
-        <v-btn id="redo" icon>
-          <v-icon>redo</v-icon>
+        <v-btn id="split" flat>
+          split
         </v-btn>
 
       </v-toolbar>
-      <!-- <v-divider></v-divider> -->
+      <v-divider/>
     </div>
 
     <div id="editor" ref="editor" class="editor" />
@@ -127,22 +127,22 @@
 
     mounted() {
       const menu = menuPlugin([
-        {command: toggleMark(peerDocSchema.marks.strong), dom: document.getElementById("bold")},
-        {command: toggleMark(peerDocSchema.marks.em), dom: document.getElementById("italic")},
+        {command: toggleMark(peerDocSchema.marks.strong), dom: document.getElementById("bold"), mark: peerDocSchema.marks.strong},
+        {command: toggleMark(peerDocSchema.marks.em), dom: document.getElementById("italic"), mark: peerDocSchema.marks.em},
         {command: undo, dom: document.getElementById("undo")},
         {command: redo, dom: document.getElementById("redo")},
         heading(1, peerDocSchema),
         heading(2, peerDocSchema),
         heading(3, peerDocSchema),
-        {command: toggleMark(peerDocSchema.marks.strikeout), dom: document.getElementById("strikeout")},
-        {command: setBlockType(peerDocSchema.nodes.paragraph), dom: document.getElementById("paragraph")},
-        {command: wrapIn(peerDocSchema.nodes.blockquote), dom: document.getElementById("blockquote")},
+        {command: toggleMark(peerDocSchema.marks.strikeout), dom: document.getElementById("strikeout"), mark: peerDocSchema.marks.strikeout},
+        {command: setBlockType(peerDocSchema.nodes.paragraph), dom: document.getElementById("paragraph"), node: peerDocSchema.nodes.paragraph},
+        {command: wrapIn(peerDocSchema.nodes.blockquote), dom: document.getElementById("blockquote"), node: peerDocSchema.nodes.blockquote},
         {command: toggleLink(peerDocSchema), dom: document.getElementById("link")},
-        {command: wrapInList(peerDocSchema.nodes.bullet_list), dom: document.getElementById("bullet")},
-        {command: wrapInList(peerDocSchema.nodes.ordered_list), dom: document.getElementById("order")},
-        {command: liftListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("lift")},
-        {command: sinkListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("sink")},
-        {command: splitListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("split")},
+        {command: wrapInList(peerDocSchema.nodes.bullet_list), dom: document.getElementById("bullet"), node: peerDocSchema.nodes.bullet_list},
+        {command: wrapInList(peerDocSchema.nodes.ordered_list), dom: document.getElementById("order"), node: peerDocSchema.nodes.ordered_list},
+        {command: liftListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("lift"), node: peerDocSchema.nodes.list_item},
+        {command: sinkListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("sink"), node: peerDocSchema.nodes.list_item},
+        {command: splitListItem(peerDocSchema.nodes.list_item), dom: document.getElementById("split"), node: peerDocSchema.nodes.list_item},
       ]);
 
       const state = EditorState.create({

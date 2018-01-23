@@ -20,9 +20,36 @@ class MenuView {
   }
 
   update() {
-    this.items.forEach(({command, dom}) => {
-      let active = command(this.editorView.state, null, this.editorView);
-      dom.style.display = active ? "" : "none";
+    const {state} = this.editorView;
+    const {selection} = state;
+    this.items.forEach(({
+      command, dom, node, mark, attr,
+    }) => {
+      let active = false;
+      let btnClass = dom.className.replace(' btn--active', '').replace(' btn--disabled', '');
+      if (mark) {
+        active = state.doc.rangeHasMark(selection.from, selection.to, mark);
+      }
+      else if (node) {
+        for (let i = 0; i < selection.$from.path.length; i += 1) {
+          if (typeof selection.$from.path[i] !== 'number' && selection.$from.path[i].hasMarkup(node, attr)) {
+            active = true;
+            break;
+          }
+        }
+      }
+
+      const enabled = command(state, null, this.editorView);
+
+      if (!enabled) {
+        btnClass += " btn--disabled";
+      }
+
+      if (active) {
+        btnClass += " btn--active";
+      }
+
+      dom.className = btnClass;
     });
   }
 
@@ -35,7 +62,7 @@ class MenuView {
 export function menuPlugin(items) {
   return new Plugin({
     view(editorView) {
-      let menuView = new MenuView(items, editorView);
+      const menuView = new MenuView(items, editorView);
       editorView.dom.parentNode.insertBefore(menuView.dom, editorView.dom);
       return menuView;
     },
@@ -43,7 +70,7 @@ export function menuPlugin(items) {
 }
 
 export function icon(text, name) {
-  let span = document.createElement("span");
+  const span = document.createElement("span");
   span.className = "menuicon " + name;
   span.title = name;
   span.textContent = text;
@@ -54,12 +81,14 @@ export function heading(level, schema) {
   return {
     command: setBlockType(schema.nodes.heading, {level}),
     dom: document.getElementById("h" + level),
+    node: schema.nodes.heading,
+    attr: {level},
   };
 }
 
 export function toggleLink(schema) {
-  return function (state, dispatch) {
-    let {doc, selection} = state;
+  return function onToggle(state, dispatch) {
+    const {doc, selection} = state;
     if (selection.empty) {
       return false;
     }
