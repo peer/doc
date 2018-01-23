@@ -12,7 +12,7 @@
         <v-btn id="redo" flat>
           <v-icon>redo</v-icon>
         </v-btn>
-
+        <VerticalDivider />
         <v-btn id="bold" flat>
           <v-icon>format_bold</v-icon>
         </v-btn>
@@ -24,6 +24,7 @@
         <v-btn id="strikeout" flat>
           <v-icon>format_strikethrough</v-icon>
         </v-btn>
+        <VerticalDivider />
 
         <v-btn id="paragraph" flat>
           p
@@ -40,6 +41,7 @@
         <v-btn id="h3" flat>
           h3
         </v-btn>
+        <VerticalDivider />
 
         <v-btn id="link" flat>
           <v-icon>insert_link</v-icon>
@@ -48,6 +50,7 @@
         <v-btn id="blockquote" flat>
           <v-icon>format_quote</v-icon>
         </v-btn>
+        <VerticalDivider />
 
         <v-btn id="bullet" flat>
           <v-icon>format_list_bulleted</v-icon>
@@ -56,6 +59,8 @@
         <v-btn id="order" flat>
           <v-icon>format_list_numbered</v-icon>
         </v-btn>
+        
+        <VerticalDivider />
 
         <v-btn id="sink" flat>
           sink
@@ -69,7 +74,7 @@
           split
         </v-btn>
       </v-toolbar>
-      <v-divider/>
+      <!-- <v-divider/> -->
     </div>
 
     <div id="editor" ref="editor" class="editor" />
@@ -92,6 +97,7 @@
   import collab from 'prosemirror-collab';
   import {wrapIn, toggleMark, setBlockType, baseKeymap} from "prosemirror-commands";
 
+  import VerticalDivider from './vertical-divider.vue';
   // TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
   //       See: https://github.com/meteor/meteor-feature-requests/issues/218
   import 'prosemirror-view/style/prosemirror.css';
@@ -220,6 +226,7 @@
         });
       });
     },
+    components: {VerticalDivider}
   };
 
   export default component;
