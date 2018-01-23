@@ -2,9 +2,9 @@
   <div>
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
+        :class="{'toolbar-fixed':fixToolbarToTop}"
         card color="gray"
         prominent
-        :fixed="fixToolbarToTop"
         v-scroll="onScroll"
         ref="editorToolbar">
         <v-btn id="bold" icon>
@@ -72,6 +72,7 @@
         </v-btn>
 
       </v-toolbar>
+      <div style="height: 64px;" v-if="fixToolbarToTop" />
       <!-- <v-divider></v-divider> -->
     </div>
 
@@ -128,6 +129,7 @@
         addingStepsInProgress: false,
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
+        originalToolbarWidth: -1,
       };
     },
 
@@ -237,11 +239,22 @@
         if (!this.$refs || !this.$refs.editorToolbar || !this.$refs.editorToolbar.$el) {
           return;
         }
+
         if (!this.fixToolbarToTop && this.originalToolbarYPos < 0) {
-          // set initial toolbar vertifical offset
           this.originalToolbarYPos = offsetY(this.$refs.editorToolbar.$el);
         }
-        this.fixToolbarToTop = window.pageYOffset >= this.originalToolbarYPos;
+        const shouldFixToolbar = window.pageYOffset >= this.originalToolbarYPos;
+
+        if (shouldFixToolbar && !this.fixToolbarToTop) {
+          // set initial toolbar vertifical offset
+          this.originalToolbarWidth = this.$refs.editorToolbar.$el.offsetWidth;
+          this.$refs.editorToolbar.$el.style.width = `${this.originalToolbarWidth}px`;
+        }
+
+        if (!shouldFixToolbar && this.fixToolbarToTop) {
+          this.$refs.editorToolbar.$el.style.width = '100%';
+        }
+        this.fixToolbarToTop = shouldFixToolbar;
       },
     },
   };
@@ -263,5 +276,11 @@
     padding-left: 1em;
     border-left: 3px;
     margin-left: 0; margin-right: 0;
+  }
+
+  .toolbar-fixed {
+    position: fixed;
+    z-index: 2;
+    top: 0;
   }
 </style>
