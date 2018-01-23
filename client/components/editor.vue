@@ -3,57 +3,57 @@
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
         card color="white"
+        class="editor-toolbar"
         prominent>
-
-        <v-btn id="undo" icon>
+        <v-btn id="undo" flat>
           <v-icon>undo</v-icon>
         </v-btn>
 
-        <v-btn id="redo" icon>
+        <v-btn id="redo" flat>
           <v-icon>redo</v-icon>
         </v-btn>
 
-        <v-btn id="bold" icon >
+        <v-btn id="bold" flat>
           <v-icon>format_bold</v-icon>
         </v-btn>
 
-        <v-btn id="italic" icon>
+        <v-btn id="italic" flat>
           <v-icon>format_italic</v-icon>
         </v-btn>
 
-        <v-btn id="strikeout" icon>
+        <v-btn id="strikeout" flat>
           <v-icon>format_strikethrough</v-icon>
         </v-btn>
 
-        <v-btn id="paragraph" icon>
+        <v-btn id="paragraph" flat>
           p
         </v-btn>
 
-        <v-btn id="h1" icon>
+        <v-btn id="h1" flat>
           h1
         </v-btn>
 
-        <v-btn id="h2" icon>
+        <v-btn id="h2" flat>
           h2
         </v-btn>
 
-        <v-btn id="h3" icon>
+        <v-btn id="h3" flat>
           h3
         </v-btn>
 
-        <v-btn id="link" icon>
+        <v-btn id="link" flat>
           <v-icon>insert_link</v-icon>
         </v-btn>
 
-        <v-btn id="blockquote" icon>
+        <v-btn id="blockquote" flat>
           <v-icon>format_quote</v-icon>
         </v-btn>
 
-        <v-btn id="bullet" icon>
+        <v-btn id="bullet" flat>
           <v-icon>format_list_bulleted</v-icon>
         </v-btn>
 
-        <v-btn id="order" icon>
+        <v-btn id="order" flat>
           <v-icon>format_list_numbered</v-icon>
         </v-btn>
 
@@ -68,7 +68,6 @@
         <v-btn id="split" flat>
           split
         </v-btn>
-
       </v-toolbar>
       <v-divider/>
     </div>
@@ -115,7 +114,7 @@
     data() {
       return {
         subscriptionHandle: null,
-        addingStepsInProgress: false,
+        addingStepsInProgress: false
       };
     },
 
@@ -239,5 +238,18 @@
     padding-left: 1em;
     border-left: 3px;
     margin-left: 0; margin-right: 0;
+  }
+
+  .editor-toolbar .btn--flat {
+    height: 36px;
+    width: 36px;
+    justify-content: center;
+    min-width: 0;
+    opacity: 0.4;
+    margin: 6px 2px;
+  }
+
+  .editor-toolbar .btn--flat.btn--active {
+    opacity: 1;
   }
 </style>
