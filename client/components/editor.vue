@@ -148,8 +148,9 @@
         schema: peerDocSchema,
         plugins: [
           keymap({
+            Enter: splitListItem(peerDocSchema.nodes.list_item),
             'Mod-z': undo,
-            'Mod-y': redo, // TODO: shift+mod+z
+            'Shift-Mod-z': redo,
           }),
           keymap(baseKeymap),
           dropCursor(),
