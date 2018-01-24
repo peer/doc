@@ -100,14 +100,7 @@
   import {peerDocSchema} from '/lib/schema.js';
   import {Content} from '/lib/content';
   import {menuPlugin, heading, toggleLink, toggleBlockquote} from './utils/menu.js';
-
-// little helper function for measuring Y offset of element on viewport
-// See https://plainjs.com/javascript/styles/get-the-position-of-an-element-relative-to-the-document-24/
-  function offsetY(el) {
-    const rect = el.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    return rect.top + scrollTop;
-  }
+  import offsetY from './utils/sticky-scroll';
 
   // @vue/component
   const component = {
