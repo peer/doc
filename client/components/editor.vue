@@ -12,7 +12,7 @@
         <v-btn id="redo" flat>
           <v-icon>redo</v-icon>
         </v-btn>
-        <VerticalDivider />
+        <div class="toolbar-gap" />
         <v-btn id="bold" flat>
           <v-icon>format_bold</v-icon>
         </v-btn>
@@ -22,10 +22,9 @@
         </v-btn>
 
         <v-btn id="strikeout" flat>
-          <v-icon>format_strikethrough</v-icon>
+          <v-icon>strikethrough_s</v-icon>
         </v-btn>
-        <VerticalDivider />
-
+        <div class="toolbar-gap" />
         <v-btn id="h1" icon>
           h1
         </v-btn>
@@ -37,7 +36,8 @@
         <v-btn id="h3" flat>
           h3
         </v-btn>
-        <VerticalDivider />
+
+        <div class="toolbar-gap" />
 
         <v-btn id="link" flat>
           <v-icon>insert_link</v-icon>
@@ -46,7 +46,8 @@
         <v-btn id="blockquote" flat>
           <v-icon>format_quote</v-icon>
         </v-btn>
-        <VerticalDivider />
+
+        <div class="toolbar-gap" />
 
         <v-btn id="bullet" flat>
           <v-icon>format_list_bulleted</v-icon>
@@ -55,7 +56,6 @@
         <v-btn id="order" flat>
           <v-icon>format_list_numbered</v-icon>
         </v-btn>
-        <VerticalDivider />
       </v-toolbar>
     </div>
 
@@ -88,10 +88,8 @@
   import {Content} from '/lib/content';
   import {menuPlugin, heading, toggleLink, toggleBlockquote} from './utils/menu.js';
 
-
   // @vue/component
   const component = {
-    components: {VerticalDivider},
     props: {
       contentKey: {
         type: String,
@@ -233,10 +231,14 @@
     justify-content: center;
     min-width: 0;
     opacity: 0.4;
-    margin: 6px 2px;
+    // margin: 6px 2px;
   }
 
   .editor-toolbar .btn--flat.btn--active {
     opacity: 1;
+  }
+
+  .toolbar-gap {
+    margin: 6px 12px;
   }
 </style>
