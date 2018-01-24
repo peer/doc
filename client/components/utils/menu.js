@@ -1,5 +1,36 @@
 import {Plugin} from "prosemirror-state";
-import {setBlockType, toggleMark} from "prosemirror-commands";
+import {wrapIn, lift, setBlockType, toggleMark} from "prosemirror-commands";
+
+function checkMarkup(state, markup, attr) {
+  for (let i = 0; i < state.selection.$from.path.length; i += 1) {
+    if (typeof state.selection.$from.path[i] !== 'number' && state.selection.$from.path[i].hasMarkup(markup, attr)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function toggleHeading(level) {
+  return function onToggle(state, dispatch) {
+    if (checkMarkup(state, state.schema.nodes.heading, {level})) {
+      return setBlockType(state.schema.nodes.paragraph)(state, dispatch);
+    }
+    else {
+      return setBlockType(state.schema.nodes.heading, {level})(state, dispatch);
+    }
+  };
+}
+
+export function toggleBlockquote() {
+  return function onToggle(state, dispatch) {
+    if (checkMarkup(state, state.schema.nodes.blockquote)) {
+      return lift(state, dispatch);
+    }
+    else {
+      return wrapIn(state.schema.nodes.blockquote)(state, dispatch);
+    }
+  };
+}
 
 class MenuView {
   constructor(items, editorView) {
@@ -20,9 +51,31 @@ class MenuView {
   }
 
   update() {
-    this.items.forEach(({command, dom}) => {
-      const active = command(this.editorView.state, null, this.editorView);
-      dom.style.display = active ? "" : "none";
+    const {state} = this.editorView;
+    const {selection} = state;
+    this.items.forEach(({
+      command, dom, node, mark, attr,
+    }) => {
+      let active = false;
+      let btnClass = dom.className.replace(' btn--active', '').replace(' btn--disabled', '');
+      if (mark) {
+        active = state.doc.rangeHasMark(selection.from, selection.to, mark);
+      }
+      else if (node) {
+        active = checkMarkup(state, node, attr);
+      }
+
+      const enabled = command(state, null, this.editorView);
+
+      if (!enabled) {
+        btnClass += " btn--disabled";
+      }
+
+      if (active) {
+        btnClass += " btn--active";
+      }
+
+      dom.className = btnClass; // eslint-disable-line no-param-reassign
     });
   }
 
@@ -52,13 +105,15 @@ export function icon(text, name) {
 
 export function heading(level, schema) {
   return {
-    command: setBlockType(schema.nodes.heading, {level}),
+    command: toggleHeading(level),
     dom: document.getElementById(`h${level}`),
+    node: schema.nodes.heading,
+    attr: {level},
   };
 }
 
 export function toggleLink(schema) {
-  return function (state, dispatch) {
+  return function onToggle(state, dispatch) {
     const {doc, selection} = state;
     if (selection.empty) {
       return false;
