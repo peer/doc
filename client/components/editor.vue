@@ -225,13 +225,16 @@
     margin-left: 0; margin-right: 0;
   }
 
+  .editor-toolbar {
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+  }
+
   .editor-toolbar .btn--flat {
     height: 36px;
     width: 36px;
     justify-content: center;
     min-width: 0;
     opacity: 0.4;
-    // margin: 6px 2px;
   }
 
   .editor-toolbar .btn--flat.btn--active {
