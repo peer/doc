@@ -1,5 +1,36 @@
 import {Plugin} from "prosemirror-state";
-import {setBlockType, toggleMark} from "prosemirror-commands";
+import {wrapIn, lift, setBlockType, toggleMark} from "prosemirror-commands";
+
+function checkMarkup(state, markup, attr) {
+  for (let i = 0; i < state.selection.$from.path.length; i += 1) {
+    if (typeof state.selection.$from.path[i] !== 'number' && state.selection.$from.path[i].hasMarkup(markup, attr)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function toggleHeading(level) {
+  return function onToggle(state, dispatch) {
+    if (checkMarkup(state, state.schema.nodes.heading, {level})) {
+      return setBlockType(state.schema.nodes.paragraph)(state, dispatch);
+    }
+    else {
+      return setBlockType(state.schema.nodes.heading, {level})(state, dispatch);
+    }
+  };
+}
+
+export function toggleBlockquote() {
+  return function onToggle(state, dispatch) {
+    if (checkMarkup(state, state.schema.nodes.blockquote)) {
+      return lift(state, dispatch);
+    }
+    else {
+      return wrapIn(state.schema.nodes.blockquote)(state, dispatch);
+    }
+  };
+}
 
 class MenuView {
   constructor(items, editorView) {
@@ -31,12 +62,7 @@ class MenuView {
         active = state.doc.rangeHasMark(selection.from, selection.to, mark);
       }
       else if (node) {
-        for (let i = 0; i < selection.$from.path.length; i += 1) {
-          if (typeof selection.$from.path[i] !== 'number' && selection.$from.path[i].hasMarkup(node, attr)) {
-            active = true;
-            break;
-          }
-        }
+        active = checkMarkup(state, node, attr);
       }
 
       const enabled = command(state, null, this.editorView);
@@ -79,7 +105,7 @@ export function icon(text, name) {
 
 export function heading(level, schema) {
   return {
-    command: setBlockType(schema.nodes.heading, {level}),
+    command: toggleHeading(level),
     dom: document.getElementById(`h${level}`),
     node: schema.nodes.heading,
     attr: {level},
