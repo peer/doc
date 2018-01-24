@@ -64,6 +64,11 @@
           <v-icon>format_list_numbered</v-icon>
         </v-btn>
       </v-toolbar>
+      <v-divider
+        class="editor-divider"
+        :class="{'editor-divider-fixed':fixToolbarToTop}"
+        ref="editorDivider"
+      />
       <div style="height: 64px;" v-if="fixToolbarToTop" />
     </div>
 
@@ -225,7 +230,7 @@
     },
     methods: {
       onScroll(e) {
-        if (!this.$refs || !this.$refs.editorToolbar || !this.$refs.editorToolbar.$el) {
+        if (!this.$refs || !this.$refs.editorToolbar) {
           return;
         }
 
@@ -238,10 +243,16 @@
           // set initial toolbar vertifical offset
           this.originalToolbarWidth = this.$refs.editorToolbar.$el.offsetWidth;
           this.$refs.editorToolbar.$el.style.width = `${this.originalToolbarWidth}px`;
+          if (this.$refs.editorDivider) {
+            this.$refs.editorDivider.style.width = `${this.originalToolbarWidth}px`;
+          }
         }
 
         if (!shouldFixToolbar && this.fixToolbarToTop) {
           this.$refs.editorToolbar.$el.style.width = '100%';
+          if (this.$refs.editorDivider) {
+            this.$refs.editorDivider.style.width = '100%';
+          }
         }
         this.fixToolbarToTop = shouldFixToolbar;
       },
@@ -272,7 +283,7 @@
     z-index: 2;
     top: 0;
   }
-  
+
   .editor-toolbar .btn--flat {
     height: 36px;
     width: 36px;
@@ -288,5 +299,11 @@
 
   .toolbar-gap {
     margin: 6px 12px;
+  }
+
+  .editor-divider-fixed {
+    position: fixed;
+    z-index: 2;
+    top: 64px;
   }
 </style>
