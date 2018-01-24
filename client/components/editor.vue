@@ -25,10 +25,6 @@
           <v-icon>format_strikethrough</v-icon>
         </v-btn>
 
-        <v-btn id="paragraph" icon>
-          p
-        </v-btn>
-
         <v-btn id="h1" icon>
           h1
         </v-btn>
@@ -79,7 +75,7 @@
   import {dropCursor} from 'prosemirror-dropcursor';
   import {gapCursor} from 'prosemirror-gapcursor';
   import collab from 'prosemirror-collab';
-  import {wrapIn, toggleMark, setBlockType, baseKeymap} from "prosemirror-commands";
+  import {toggleMark, baseKeymap} from "prosemirror-commands";
 
   // TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
   //       See: https://github.com/meteor/meteor-feature-requests/issues/218
@@ -88,7 +84,7 @@
 
   import {peerDocSchema} from '/lib/schema.js';
   import {Content} from '/lib/content';
-  import {menuPlugin, heading, toggleLink} from './utils/menu.js';
+  import {menuPlugin, heading, toggleLink, toggleBlockquote} from './utils/menu.js';
 
 
   // @vue/component
@@ -123,8 +119,7 @@
         heading(2, peerDocSchema),
         heading(3, peerDocSchema),
         {command: toggleMark(peerDocSchema.marks.strikeout), dom: document.getElementById("strikeout"), mark: peerDocSchema.marks.strikeout},
-        {command: setBlockType(peerDocSchema.nodes.paragraph), dom: document.getElementById("paragraph"), node: peerDocSchema.nodes.paragraph},
-        {command: wrapIn(peerDocSchema.nodes.blockquote), dom: document.getElementById("blockquote"), node: peerDocSchema.nodes.blockquote},
+        {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: peerDocSchema.nodes.blockquote},
         {command: toggleLink(peerDocSchema), dom: document.getElementById("link")},
         {command: wrapInList(peerDocSchema.nodes.bullet_list), dom: document.getElementById("bullet"), node: peerDocSchema.nodes.bullet_list},
         {command: wrapInList(peerDocSchema.nodes.ordered_list), dom: document.getElementById("order"), node: peerDocSchema.nodes.ordered_list},
