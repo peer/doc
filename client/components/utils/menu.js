@@ -1,5 +1,5 @@
 import {Plugin} from "prosemirror-state";
-import {wrapIn, lift, setBlockType, toggleMark} from "prosemirror-commands";
+import {wrapIn, lift, setBlockType} from "prosemirror-commands";
 
 function checkMarkup(state, markup, attr) {
   for (let i = 0; i < state.selection.$from.path.length; i += 1) {
