@@ -7,6 +7,7 @@
         card color="white"
         class="editor-toolbar"
         v-scroll="onScroll"
+        :style="toolbarWidth"
         ref="editorToolbar">
         <v-btn id="undo" flat>
           <v-icon>undo</v-icon>
@@ -67,6 +68,7 @@
       <v-divider
         class="editor-divider"
         :class="{'editor-divider-fixed':fixToolbarToTop}"
+        :style="toolbarWidth"
         ref="editorDivider"
       />
       <div style="height: 64px;" v-if="fixToolbarToTop" />
@@ -117,7 +119,7 @@
         addingStepsInProgress: false,
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
-        originalToolbarWidth: -1,
+        toolbarWidth: {width: '100%'},
       };
     },
 
@@ -186,6 +188,8 @@
         },
       });
 
+      this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
+      window.addEventListener('resize', this.handleWindowResize);
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
           return;
@@ -221,6 +225,9 @@
         });
       });
     },
+    beforeDestroy() {
+      window.removeEventListener('resize', this.handleWindowResize);
+    },
     methods: {
       onScroll(e) {
         if (!this.$refs || !this.$refs.editorToolbar) {
@@ -232,22 +239,10 @@
         }
         const shouldFixToolbar = window.pageYOffset >= this.originalToolbarYPos;
 
-        if (shouldFixToolbar && !this.fixToolbarToTop) {
-          // set initial toolbar vertifical offset
-          this.originalToolbarWidth = this.$refs.editorToolbar.$el.offsetWidth;
-          this.$refs.editorToolbar.$el.style.width = `${this.originalToolbarWidth}px`;
-          if (this.$refs.editorDivider) {
-            this.$refs.editorDivider.style.width = `${this.originalToolbarWidth}px`;
-          }
-        }
-
-        if (!shouldFixToolbar && this.fixToolbarToTop) {
-          this.$refs.editorToolbar.$el.style.width = '100%';
-          if (this.$refs.editorDivider) {
-            this.$refs.editorDivider.style.width = '100%';
-          }
-        }
         this.fixToolbarToTop = shouldFixToolbar;
+      },
+      handleWindowResize(e) {
+        this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       },
     },
   };
@@ -272,9 +267,9 @@
   }
 
   .toolbar-fixed {
-    position: fixed;
     z-index: 2;
     top: 0;
+    position: fixed;
   }
 
   .editor-toolbar .btn--flat {
