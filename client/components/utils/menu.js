@@ -111,22 +111,3 @@ export function heading(level, schema) {
     attr: {level},
   };
 }
-
-export function toggleLink(schema) {
-  return function onToggle(state, dispatch) {
-    const {doc, selection} = state;
-    if (selection.empty) {
-      return false;
-    }
-    let attrs = null;
-    if (dispatch) {
-      if (!doc.rangeHasMark(selection.from, selection.to, schema.marks.link)) {
-        attrs = {href: prompt("Link to where?", "")};
-        if (!attrs.href) {
-          return false;
-        }
-      }
-    }
-    return toggleMark(schema.marks.link, attrs)(state, dispatch);
-  };
-}

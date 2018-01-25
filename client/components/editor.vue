@@ -37,7 +37,7 @@
           h3
         </v-btn>
 
-        <v-btn id="link" icon>
+        <v-btn style="display:none" id="link" icon>
           <v-icon>insert_link</v-icon>
         </v-btn>
 
@@ -84,7 +84,7 @@
 
   import {peerDocSchema} from '/lib/schema.js';
   import {Content} from '/lib/content';
-  import {menuPlugin, heading, toggleLink, toggleBlockquote} from './utils/menu.js';
+  import {menuPlugin, heading, toggleBlockquote} from './utils/menu.js';
 
 
   // @vue/component
@@ -120,7 +120,6 @@
         heading(3, peerDocSchema),
         {command: toggleMark(peerDocSchema.marks.strikeout), dom: document.getElementById("strikeout"), mark: peerDocSchema.marks.strikeout},
         {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: peerDocSchema.nodes.blockquote},
-        {command: toggleLink(peerDocSchema), dom: document.getElementById("link")},
         {command: wrapInList(peerDocSchema.nodes.bullet_list), dom: document.getElementById("bullet"), node: peerDocSchema.nodes.bullet_list},
         {command: wrapInList(peerDocSchema.nodes.ordered_list), dom: document.getElementById("order"), node: peerDocSchema.nodes.ordered_list},
       ]);
