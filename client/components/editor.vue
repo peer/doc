@@ -167,40 +167,38 @@
         },
       });
 
-      Tracker.nonreactive(() => {
-        this.$autorun((computation) => {
-          if (this.addingStepsInProgress) {
-            return;
+      this.$autorun((computation) => {
+        if (this.addingStepsInProgress) {
+          return;
+        }
+
+        // To register dependency on the latest version available from the server.
+        const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
+
+        // We want all versions to be available without any version missing, before we start applying them.
+        // TODO: We could also just apply the initial consecutive set of versions we might have.
+        //       Even if later on there is one missing.
+        if (_.min(versions) !== 0) {
+          return;
+        }
+        if (versions.length !== _.max(versions) + 1) {
+          return;
+        }
+
+        Tracker.nonreactive(() => {
+          const newContents = Content.documents.find(_.extend(this.subscriptionHandle.scopeQuery(), {
+            version: {
+              $gt: collab.getVersion(view.state),
+            },
+          }), {
+            sort: {
+              version: 1,
+            },
+          }).fetch();
+
+          if (newContents.length) {
+            view.dispatch(collab.receiveTransaction(view.state, _.pluck(newContents, 'step'), _.pluck(newContents, 'clientId')));
           }
-
-          // To register dependency on the latest version available from the server.
-          const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
-
-          // We want all versions to be available without any version missing, before we start applying them.
-          // TODO: We could also just apply the initial consecutive set of versions we might have.
-          //       Even if later on there is one missing.
-          if (_.min(versions) !== 0) {
-            return;
-          }
-          if (versions.length !== _.max(versions) + 1) {
-            return;
-          }
-
-          Tracker.nonreactive(() => {
-            const newContents = Content.documents.find(_.extend(this.subscriptionHandle.scopeQuery(), {
-              version: {
-                $gt: collab.getVersion(view.state),
-              },
-            }), {
-              sort: {
-                version: 1,
-              },
-            }).fetch();
-
-            if (newContents.length) {
-              view.dispatch(collab.receiveTransaction(view.state, _.pluck(newContents, 'step'), _.pluck(newContents, 'clientId')));
-            }
-          });
         });
       });
     },
