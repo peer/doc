@@ -101,6 +101,7 @@
 
   import {schema} from '/lib/schema.js';
   import {Content} from '/lib/content';
+  import {Cursor} from '/lib/cursor';
 
   import {menuPlugin, heading, toggleBlockquote} from './utils/menu.js';
   import offsetY from './utils/sticky-scroll';
@@ -166,7 +167,6 @@
         ],
       });
 
-
       const view = new EditorView({mount: this.$refs.editor}, {
         state,
         dispatchTransaction: (transaction) => {
@@ -185,6 +185,14 @@
               // TODO: Error handling.
             });
           }
+          // update user current position
+          const {pos: position} = newState.selection.$cursor;
+          if (position) {
+            Cursor.update({
+              contentKey: this.contentKey,
+              position
+            });
+          }
         },
       });
 
@@ -197,7 +205,6 @@
 
         // To register dependency on the latest version available from the server.
         const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
-
         // We want all versions to be available without any version missing, before we start applying them.
         // TODO: We could also just apply the initial consecutive set of versions we might have.
         //       Even if later on there is one missing.
