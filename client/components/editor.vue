@@ -208,19 +208,27 @@
 </script>
 
 <style lang="scss">
-  .editor p {
-    margin-bottom: 0;
-  }
+  .editor {
+    p {
+      margin-bottom: 0;
+    }
 
-  strikeout { text-decoration:line-through; }
-  .ProseMirror blockquote {
-    padding-left: 1em;
-    border-left: 3px solid #eee;
-    margin-left: 0; margin-right: 0;
-  }
-  .ProseMirror ul, ol {
-    padding-left: 1em;
-    border-left: 3px;
-    margin-left: 0; margin-right: 0;
+    strikeout {
+      text-decoration: line-through;
+    }
+
+    blockquote {
+      padding-left: 1em;
+      border-left: 3px solid #eee;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    ul, ol {
+      padding-left: 1em;
+      border-left: 3px;
+      margin-left: 0;
+      margin-right: 0;
+    }
   }
 </style>
