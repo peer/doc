@@ -208,9 +208,10 @@
 </script>
 
 <style lang="scss">
-  .editor > p:last-child {
+  .editor p {
     margin-bottom: 0;
   }
+
   strikeout { text-decoration:line-through; }
   .ProseMirror blockquote {
     padding-left: 1em;
