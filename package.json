@@ -2,6 +2,7 @@
   "name": "peer-doc",
   "private": true,
   "scripts": {
+    "precommit": "lint-staged",
     "start": "meteor run",
     "lint": "eslint . --ext .js --ext .vue",
     "lint-ci": "eslint . --ext .js --ext .vue --format junit --output-file test-reports/js-lint-results.xml"
@@ -33,7 +34,9 @@
     "eslint-import-resolver-meteor": "^0.4.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-meteor": "^4.1.4",
-    "eslint-plugin-vue": "^4.2.0"
+    "eslint-plugin-vue": "^4.2.0",
+    "husky": "^0.14.3",
+    "lint-staged": "^6.0.1"
   },
   "meteor": {
     "vueVersion": 2
@@ -146,5 +149,8 @@
         }
       ]
     }
+  },
+  "lint-staged": {
+    "*.{js,vue}": ["eslint", "git add"]
   }
 }
