@@ -2,59 +2,76 @@
   <div>
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
+        :class="{'toolbar-fixed':fixToolbarToTop}"
+        prominent
         card color="white"
-        prominent>
-
-        <v-btn id="undo" icon>
+        class="editor-toolbar"
+        v-scroll="onScroll"
+        :style="toolbarWidth"
+        ref="editorToolbar">
+        <v-btn id="undo" flat>
           <v-icon>undo</v-icon>
         </v-btn>
 
-        <v-btn id="redo" icon>
+        <v-btn id="redo" flat>
           <v-icon>redo</v-icon>
         </v-btn>
 
-        <v-btn id="bold" icon >
+        <div class="toolbar-gap" />
+
+        <v-btn id="bold" flat>
           <v-icon>format_bold</v-icon>
         </v-btn>
 
-        <v-btn id="italic" icon>
+        <v-btn id="italic" flat>
           <v-icon>format_italic</v-icon>
         </v-btn>
 
-        <v-btn id="strikethrough" icon>
-          <v-icon>format_strikethrough</v-icon>
+        <v-btn id="strikethrough" flat>
+          <v-icon>strikethrough_s</v-icon>
         </v-btn>
+
+        <div class="toolbar-gap" />
 
         <v-btn id="h1" icon>
           h1
         </v-btn>
 
-        <v-btn id="h2" icon>
+        <v-btn id="h2" flat>
           h2
         </v-btn>
 
-        <v-btn id="h3" icon>
+        <v-btn id="h3" flat>
           h3
         </v-btn>
 
-        <v-btn style="display:none" id="link" icon>
+        <div class="toolbar-gap" />
+
+        <v-btn id="link" flat>
           <v-icon>insert_link</v-icon>
         </v-btn>
 
-        <v-btn id="blockquote" icon>
+        <v-btn id="blockquote" flat>
           <v-icon>format_quote</v-icon>
         </v-btn>
 
-        <v-btn id="bullet" icon>
+        <div class="toolbar-gap" />
+
+        <v-btn id="bullet" flat>
           <v-icon>format_list_bulleted</v-icon>
         </v-btn>
 
-        <v-btn id="order" icon>
+        <v-btn id="order" flat>
           <v-icon>format_list_numbered</v-icon>
         </v-btn>
-
       </v-toolbar>
-      <v-divider/>
+      <v-divider
+        class="editor-divider"
+        :class="{'editor-divider-fixed':fixToolbarToTop}"
+        :style="toolbarWidth"
+        ref="editorDivider"
+      />
+      <div style="height: 64px;" v-if="fixToolbarToTop" />
     </div>
 
     <div id="editor" ref="editor" class="editor" />
@@ -84,8 +101,9 @@
 
   import {peerDocSchema} from '/lib/schema.js';
   import {Content} from '/lib/content';
-  import {menuPlugin, heading, toggleBlockquote} from './utils/menu.js';
 
+  import {menuPlugin, heading, toggleBlockquote} from './utils/menu.js';
+  import offsetY from './utils/sticky-scroll';
 
   // @vue/component
   const component = {
@@ -100,6 +118,9 @@
       return {
         subscriptionHandle: null,
         addingStepsInProgress: false,
+        fixToolbarToTop: false,
+        originalToolbarYPos: -1,
+        toolbarWidth: {width: '100%'},
       };
     },
 
@@ -167,6 +188,8 @@
         },
       });
 
+      this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
+      window.addEventListener('resize', this.handleWindowResize);
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
           return;
@@ -202,6 +225,26 @@
         });
       });
     },
+    beforeDestroy() {
+      window.removeEventListener('resize', this.handleWindowResize);
+    },
+    methods: {
+      onScroll(e) {
+        if (!this.$refs || !this.$refs.editorToolbar) {
+          return;
+        }
+
+        if (!this.fixToolbarToTop && this.originalToolbarYPos < 0) {
+          this.originalToolbarYPos = offsetY(this.$refs.editorToolbar.$el);
+        }
+        const shouldFixToolbar = window.pageYOffset >= this.originalToolbarYPos;
+
+        this.fixToolbarToTop = shouldFixToolbar;
+      },
+      handleWindowResize(e) {
+        this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
+      },
+    },
   };
 
   export default component;
@@ -230,5 +273,34 @@
       margin-left: 0;
       margin-right: 0;
     }
+  }
+
+  .toolbar-fixed {
+    z-index: 2;
+    top: 0;
+    position: fixed;
+  }
+
+  .editor-toolbar .btn--flat {
+    height: 36px;
+    width: 36px;
+    justify-content: center;
+    min-width: 0;
+    opacity: 0.4;
+    // margin: 6px 2px;
+  }
+
+  .editor-toolbar .btn--flat.btn--active {
+    opacity: 1;
+  }
+
+  .toolbar-gap {
+    margin: 6px 12px;
+  }
+
+  .editor-divider-fixed {
+    position: fixed;
+    z-index: 2;
+    top: 64px;
   }
 </style>
