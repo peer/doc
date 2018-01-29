@@ -33,7 +33,7 @@
 
         <div class="toolbar-gap" />
 
-        <v-btn id="h1" icon>
+        <v-btn id="h1" flat>
           h1
         </v-btn>
 
@@ -99,7 +99,7 @@
   import 'prosemirror-view/style/prosemirror.css';
   import 'prosemirror-gapcursor/style/gapcursor.css';
 
-  import {peerDocSchema} from '/lib/schema.js';
+  import {schema} from '/lib/schema.js';
   import {Content} from '/lib/content';
 
   import {menuPlugin, heading, toggleBlockquote} from './utils/menu.js';
@@ -132,26 +132,26 @@
 
     mounted() {
       const menu = menuPlugin([
-        {command: toggleMark(peerDocSchema.marks.strong), dom: document.getElementById("bold"), mark: peerDocSchema.marks.strong},
-        {command: toggleMark(peerDocSchema.marks.em), dom: document.getElementById("italic"), mark: peerDocSchema.marks.em},
+        {command: toggleMark(schema.marks.strong), dom: document.getElementById("bold"), mark: schema.marks.strong},
+        {command: toggleMark(schema.marks.em), dom: document.getElementById("italic"), mark: schema.marks.em},
         {command: undo, dom: document.getElementById("undo")},
         {command: redo, dom: document.getElementById("redo")},
-        heading(1, peerDocSchema),
-        heading(2, peerDocSchema),
-        heading(3, peerDocSchema),
-        {command: toggleMark(peerDocSchema.marks.strikethrough), dom: document.getElementById("strikethrough"), mark: peerDocSchema.marks.strikethrough},
-        {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: peerDocSchema.nodes.blockquote},
-        {command: wrapInList(peerDocSchema.nodes.bullet_list), dom: document.getElementById("bullet"), node: peerDocSchema.nodes.bullet_list},
-        {command: wrapInList(peerDocSchema.nodes.ordered_list), dom: document.getElementById("order"), node: peerDocSchema.nodes.ordered_list},
+        heading(1, schema),
+        heading(2, schema),
+        heading(3, schema),
+        {command: toggleMark(schema.marks.strikethrough), dom: document.getElementById("strikethrough"), mark: schema.marks.strikethrough},
+        {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: schema.nodes.blockquote},
+        {command: wrapInList(schema.nodes.bullet_list), dom: document.getElementById("bullet"), node: schema.nodes.bullet_list},
+        {command: wrapInList(schema.nodes.ordered_list), dom: document.getElementById("order"), node: schema.nodes.ordered_list},
       ]);
 
       const state = EditorState.create({
-        schema: peerDocSchema,
+        schema,
         plugins: [
           keymap({
-            Enter: splitListItem(peerDocSchema.nodes.list_item),
-            Tab: sinkListItem(peerDocSchema.nodes.list_item),
-            'Shift-Tab': liftListItem(peerDocSchema.nodes.list_item),
+            Enter: splitListItem(schema.nodes.list_item),
+            Tab: sinkListItem(schema.nodes.list_item),
+            'Shift-Tab': liftListItem(schema.nodes.list_item),
             'Mod-z': undo,
             'Shift-Mod-z': redo,
           }),

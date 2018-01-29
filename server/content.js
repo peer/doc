@@ -2,7 +2,7 @@ import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
 import {Step} from 'prosemirror-transform';
-import {peerDocSchema} from '/lib/schema';
+import {schema} from '/lib/schema';
 
 import {Content} from '/lib/content';
 import {User} from '/lib/user';
@@ -16,10 +16,12 @@ Meteor.methods({
       steps: [Step],
       clientId: Match.DocumentId,
     });
+
     const user = Meteor.user(User.REFERENCE_FIELDS());
     if (!user) {
       throw new Meteor.Error('unauthorized', "Unauthorized.");
     }
+
     // TODO: Check more permissions?
 
     let addedCount = 0;
@@ -72,14 +74,14 @@ Meteor.publish('Content.feed', function contentFeed(args) {
   }).observeChanges({
     added: (id, fields) => {
       if (fields.step) {
-        fields.step = Step.fromJSON(peerDocSchema, fields.step); // eslint-disable-line no-param-reassign
+        fields.step = Step.fromJSON(schema, fields.step); // eslint-disable-line no-param-reassign
       }
       this.added(Content.Meta.collection._name, id, fields);
     },
 
     changed: (id, fields) => {
       if (fields.step) {
-        fields.step = Step.fromJSON(peerDocSchema, fields.step); // eslint-disable-line no-param-reassign
+        fields.step = Step.fromJSON(schema, fields.step); // eslint-disable-line no-param-reassign
       }
       this.changed(Content.Meta.collection._name, id, fields);
     },
