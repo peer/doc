@@ -27,7 +27,7 @@
           <v-icon>format_italic</v-icon>
         </v-btn>
 
-        <v-btn id="strikeout" flat>
+        <v-btn id="strikethrough" flat>
           <v-icon>strikethrough_s</v-icon>
         </v-btn>
 
@@ -101,7 +101,8 @@
 
   import {peerDocSchema} from '/lib/schema.js';
   import {Content} from '/lib/content';
-  import {menuPlugin, heading, toggleLink, toggleBlockquote} from './utils/menu.js';
+
+  import {menuPlugin, heading, toggleBlockquote} from './utils/menu.js';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
@@ -138,9 +139,8 @@
         heading(1, peerDocSchema),
         heading(2, peerDocSchema),
         heading(3, peerDocSchema),
-        {command: toggleMark(peerDocSchema.marks.strikeout), dom: document.getElementById("strikeout"), mark: peerDocSchema.marks.strikeout},
+        {command: toggleMark(peerDocSchema.marks.strikethrough), dom: document.getElementById("strikethrough"), mark: peerDocSchema.marks.strikethrough},
         {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: peerDocSchema.nodes.blockquote},
-        {command: toggleLink(peerDocSchema), dom: document.getElementById("link")},
         {command: wrapInList(peerDocSchema.nodes.bullet_list), dom: document.getElementById("bullet"), node: peerDocSchema.nodes.bullet_list},
         {command: wrapInList(peerDocSchema.nodes.ordered_list), dom: document.getElementById("order"), node: peerDocSchema.nodes.ordered_list},
       ]);
@@ -251,19 +251,28 @@
 </script>
 
 <style lang="scss">
-  .editor > p:last-child {
-    margin-bottom: 0;
-  }
-  strikeout { text-decoration:line-through; }
-  .ProseMirror blockquote {
-    padding-left: 1em;
-    border-left: 3px solid #eee;
-    margin-left: 0; margin-right: 0;
-  }
-  .ProseMirror ul, ol {
-    padding-left: 1em;
-    border-left: 3px;
-    margin-left: 0; margin-right: 0;
+  .editor {
+    p {
+      margin-bottom: 0;
+    }
+
+    del {
+      text-decoration: line-through;
+    }
+
+    blockquote {
+      padding-left: 1em;
+      border-left: 3px solid #eee;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    ul, ol {
+      padding-left: 1em;
+      border-left: 3px;
+      margin-left: 0;
+      margin-right: 0;
+    }
   }
 
   .toolbar-fixed {
