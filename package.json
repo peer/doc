@@ -151,6 +151,9 @@
     }
   },
   "lint-staged": {
-    "*.{js,vue}": ["eslint", "git add"]
+    "*.{js,vue}": [
+      "eslint",
+      "git add"
+    ]
   }
 }
