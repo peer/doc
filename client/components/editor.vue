@@ -190,7 +190,7 @@
           if (position) {
             Cursor.update({
               contentKey: this.contentKey,
-              position
+              position,
             });
           }
         },
