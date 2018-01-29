@@ -1,5 +1,65 @@
 <template>
-  <div class="editor" />
+  <div>
+    <div id="tools" style="margin-bottom:25px">
+      <v-toolbar
+        card color="white"
+        prominent>
+
+        <v-btn id="undo" icon>
+          <v-icon>undo</v-icon>
+        </v-btn>
+
+        <v-btn id="redo" icon>
+          <v-icon>redo</v-icon>
+        </v-btn>
+
+        <v-btn id="bold" icon >
+          <v-icon>format_bold</v-icon>
+        </v-btn>
+
+        <v-btn id="italic" icon>
+          <v-icon>format_italic</v-icon>
+        </v-btn>
+
+        <v-btn id="strikethrough" icon>
+          <v-icon>format_strikethrough</v-icon>
+        </v-btn>
+
+        <v-btn id="h1" icon>
+          h1
+        </v-btn>
+
+        <v-btn id="h2" icon>
+          h2
+        </v-btn>
+
+        <v-btn id="h3" icon>
+          h3
+        </v-btn>
+
+        <v-btn style="display:none" id="link" icon>
+          <v-icon>insert_link</v-icon>
+        </v-btn>
+
+        <v-btn id="blockquote" icon>
+          <v-icon>format_quote</v-icon>
+        </v-btn>
+
+        <v-btn id="bullet" icon>
+          <v-icon>format_list_bulleted</v-icon>
+        </v-btn>
+
+        <v-btn id="order" icon>
+          <v-icon>format_list_numbered</v-icon>
+        </v-btn>
+
+      </v-toolbar>
+      <v-divider/>
+    </div>
+
+    <div id="editor" ref="editor" class="editor" />
+
+  </div>
 </template>
 
 <script>
@@ -7,22 +67,25 @@
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
-  import {schema} from 'prosemirror-schema-basic';
+  import {wrapInList, sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
   import {EditorState} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {undo, redo, history} from 'prosemirror-history';
   import {keymap} from 'prosemirror-keymap';
-  import {baseKeymap} from 'prosemirror-commands';
   import {dropCursor} from 'prosemirror-dropcursor';
   import {gapCursor} from 'prosemirror-gapcursor';
   import collab from 'prosemirror-collab';
-
-  import {Content} from '/lib/content';
+  import {toggleMark, baseKeymap} from "prosemirror-commands";
 
   // TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
   //       See: https://github.com/meteor/meteor-feature-requests/issues/218
   import 'prosemirror-view/style/prosemirror.css';
   import 'prosemirror-gapcursor/style/gapcursor.css';
+
+  import {peerDocSchema} from '/lib/schema.js';
+  import {Content} from '/lib/content';
+  import {menuPlugin, heading, toggleBlockquote} from './utils/menu.js';
+
 
   // @vue/component
   const component = {
@@ -47,24 +110,43 @@
     },
 
     mounted() {
+      const menu = menuPlugin([
+        {command: toggleMark(peerDocSchema.marks.strong), dom: document.getElementById("bold"), mark: peerDocSchema.marks.strong},
+        {command: toggleMark(peerDocSchema.marks.em), dom: document.getElementById("italic"), mark: peerDocSchema.marks.em},
+        {command: undo, dom: document.getElementById("undo")},
+        {command: redo, dom: document.getElementById("redo")},
+        heading(1, peerDocSchema),
+        heading(2, peerDocSchema),
+        heading(3, peerDocSchema),
+        {command: toggleMark(peerDocSchema.marks.strikethrough), dom: document.getElementById("strikethrough"), mark: peerDocSchema.marks.strikethrough},
+        {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: peerDocSchema.nodes.blockquote},
+        {command: wrapInList(peerDocSchema.nodes.bullet_list), dom: document.getElementById("bullet"), node: peerDocSchema.nodes.bullet_list},
+        {command: wrapInList(peerDocSchema.nodes.ordered_list), dom: document.getElementById("order"), node: peerDocSchema.nodes.ordered_list},
+      ]);
+
       const state = EditorState.create({
-        schema,
+        schema: peerDocSchema,
         plugins: [
           keymap({
+            Enter: splitListItem(peerDocSchema.nodes.list_item),
+            Tab: sinkListItem(peerDocSchema.nodes.list_item),
+            'Shift-Tab': liftListItem(peerDocSchema.nodes.list_item),
             'Mod-z': undo,
-            'Mod-y': redo, // TODO: shift+mod+z
+            'Shift-Mod-z': redo,
           }),
           keymap(baseKeymap),
           dropCursor(),
           gapCursor(),
           history(),
+          menu,
           collab.collab({
             clientID: Random.id(),
           }),
         ],
       });
 
-      const view = new EditorView({mount: this.$el}, {
+
+      const view = new EditorView({mount: this.$refs.editor}, {
         state,
         dispatchTransaction: (transaction) => {
           const newState = view.state.apply(transaction);
@@ -79,7 +161,6 @@
               clientId: sendable.clientID,
             }, (error, stepsAdded) => {
               this.addingStepsInProgress = false;
-
               // TODO: Error handling.
             });
           }
@@ -127,7 +208,27 @@
 </script>
 
 <style lang="scss">
-  .editor > p:last-child {
-    margin-bottom: 0;
+  .editor {
+    p {
+      margin-bottom: 0;
+    }
+
+    del {
+      text-decoration: line-through;
+    }
+
+    blockquote {
+      padding-left: 1em;
+      border-left: 3px solid #eee;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    ul, ol {
+      padding-left: 1em;
+      border-left: 3px;
+      margin-left: 0;
+      margin-right: 0;
+    }
   }
 </style>

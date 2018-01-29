@@ -14,6 +14,7 @@
     "meteor-node-stubs": "^0.2.11",
     "moment": "^2.20.1",
     "prosemirror-collab": "^1.0.0",
+    "prosemirror-schema-list": "^1.0.0",
     "prosemirror-commands": "^1.0.3",
     "prosemirror-dropcursor": "^1.0.0",
     "prosemirror-gapcursor": "^1.0.0",
