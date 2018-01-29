@@ -99,6 +99,6 @@ templating-tools@1.1.2
 tracker@1.1.3
 underscore@1.0.10
 url@1.1.0
-vuejs:meteor-integration@0.1.4
+vuejs:meteor-integration@0.1.5
 webapp@1.4.0
 webapp-hashing@1.0.9

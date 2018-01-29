@@ -1,5 +1,5 @@
 import {Plugin} from "prosemirror-state";
-import {wrapIn, lift, setBlockType, toggleMark} from "prosemirror-commands";
+import {wrapIn, lift, setBlockType} from "prosemirror-commands";
 
 function checkMarkup(state, markup, attr) {
   for (let i = 0; i < state.selection.$from.path.length; i += 1) {
@@ -109,24 +109,5 @@ export function heading(level, schema) {
     dom: document.getElementById(`h${level}`),
     node: schema.nodes.heading,
     attr: {level},
-  };
-}
-
-export function toggleLink(schema) {
-  return function onToggle(state, dispatch) {
-    const {doc, selection} = state;
-    if (selection.empty) {
-      return false;
-    }
-    let attrs = null;
-    if (dispatch) {
-      if (!doc.rangeHasMark(selection.from, selection.to, schema.marks.link)) {
-        attrs = {href: prompt("Link to where?", "")};
-        if (!attrs.href) {
-          return false;
-        }
-      }
-    }
-    return toggleMark(schema.marks.link, attrs)(state, dispatch);
   };
 }
