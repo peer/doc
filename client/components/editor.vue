@@ -21,7 +21,7 @@
           <v-icon>format_italic</v-icon>
         </v-btn>
 
-        <v-btn id="strikeout" icon>
+        <v-btn id="strikethrough" icon>
           <v-icon>format_strikethrough</v-icon>
         </v-btn>
 
@@ -118,7 +118,7 @@
         heading(1, peerDocSchema),
         heading(2, peerDocSchema),
         heading(3, peerDocSchema),
-        {command: toggleMark(peerDocSchema.marks.strikeout), dom: document.getElementById("strikeout"), mark: peerDocSchema.marks.strikeout},
+        {command: toggleMark(peerDocSchema.marks.strikethrough), dom: document.getElementById("strikethrough"), mark: peerDocSchema.marks.strikethrough},
         {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: peerDocSchema.nodes.blockquote},
         {command: wrapInList(peerDocSchema.nodes.bullet_list), dom: document.getElementById("bullet"), node: peerDocSchema.nodes.bullet_list},
         {command: wrapInList(peerDocSchema.nodes.ordered_list), dom: document.getElementById("order"), node: peerDocSchema.nodes.ordered_list},
@@ -213,7 +213,7 @@
       margin-bottom: 0;
     }
 
-    strikeout {
+    del {
       text-decoration: line-through;
     }
 
