@@ -3,12 +3,14 @@ import {Meteor} from 'meteor/meteor';
 
 import {Cursor} from '/lib/cursor';
 import {User} from '/lib/user';
+import {getRandomColor} from '/lib/utils';
 
 Meteor.methods({
   'Cursor.update'(args) {
     check(args, {
       contentKey: Match.DocumentId,
       position: Match.Integer,
+      clientId: Match.DocumentId,
     });
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
@@ -22,7 +24,7 @@ Meteor.methods({
     Cursor.documents.update(
       {
         contentKey: args.contentKey,
-        author: user.getReference(),
+        clientId: args.clientId,
       },
       {
         $set: {
@@ -31,6 +33,8 @@ Meteor.methods({
         $setOnInsert: {
           createdAt,
           author: user.getReference(),
+          clientId: args.clientId,
+          color: getRandomColor(),
           contentKey: args.contentKey,
         },
       },

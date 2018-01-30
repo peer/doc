@@ -23,6 +23,7 @@
     "prosemirror-schema-list": "^1.0.0",
     "prosemirror-state": "^1.0.2",
     "prosemirror-view": "^1.0.8",
+    "randomcolor": "^0.5.3",
     "vue": "git://github.com/meteor-vue/vue.git#meteor",
     "vue-router": "^2.8.1",
     "vuetify": "^0.17.6"

@@ -122,6 +122,7 @@
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
         toolbarWidth: {width: '100%'},
+        clientId: Random.id(),
       };
     },
 
@@ -162,7 +163,7 @@
           history(),
           menu,
           collab.collab({
-            clientID: Random.id(),
+            clientID: this.clientId,
           }),
         ],
       });
@@ -191,6 +192,7 @@
             Cursor.update({
               contentKey: this.contentKey,
               position,
+              clientId: this.clientId,
             });
           }
         },
