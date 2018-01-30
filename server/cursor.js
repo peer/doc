@@ -14,9 +14,6 @@ Meteor.methods({
     });
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
-    if (!user) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
-    }
 
     // TODO: Check more permissions?
 
@@ -43,4 +40,49 @@ Meteor.methods({
       },
     );
   },
+  'Cursor.remove'(args) {
+    check(args, {
+      contentKey: Match.DocumentId,
+      clientId: Match.DocumentId,
+    });
+
+    // TODO: Check more permissions?
+
+    Cursor.documents.remove({
+      contentKey: args.contentKey,
+      clientId: args.clientId,
+    });
+  },
+});
+
+Meteor.publish('Cursor.feed', function cursorFeed(args) {
+  check(args, {
+    contentKey: Match.DocumentId,
+  });
+
+  this.enableScope();
+
+  const handle = Cursor.documents.find({
+    contentKey: args.contentKey,
+  }, {
+    fields: Cursor.PUBLISH_FIELDS(),
+  }).observeChanges({
+    added: (id, fields) => {
+      this.added(Cursor.Meta.collection._name, id, fields);
+    },
+
+    changed: (id, fields) => {
+      this.changed(Cursor.Meta.collection._name, id, fields);
+    },
+
+    removed: (id) => {
+      this.removed(Cursor.Meta.collection._name, id);
+    },
+  });
+
+  this.onStop(() => {
+    handle.stop();
+  });
+
+  this.ready();
 });

@@ -123,12 +123,14 @@
         originalToolbarYPos: -1,
         toolbarWidth: {width: '100%'},
         clientId: Random.id(),
+        cursorsHandle: null,
       };
     },
 
     created() {
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
+        this.cursorsHandle = this.$subscribe('Cursor.feed', {contentKey: this.contentKey});
       });
     },
 
@@ -187,24 +189,26 @@
             });
           }
           // update user current position
-          const {pos: position} = newState.selection.$cursor;
-          if (position) {
-            Cursor.update({
-              contentKey: this.contentKey,
-              position,
-              clientId: this.clientId,
-            });
+          if (newState.selection.$cursor) {
+            const {pos: position} = newState.selection.$cursor;
+            if (position) {
+              Cursor.update({
+                contentKey: this.contentKey,
+                position,
+                clientId: this.clientId,
+              });
+            }
           }
         },
       });
 
       this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       window.addEventListener('resize', this.handleWindowResize);
+      window.addEventListener('beforeunload', this.removeCursor);
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
           return;
         }
-
         // To register dependency on the latest version available from the server.
         const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
         // We want all versions to be available without any version missing, before we start applying them.
@@ -218,6 +222,12 @@
         }
 
         Tracker.nonreactive(() => {
+          const cursors = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
+            clientId: {
+              $ne: this.clientId,
+            },
+          })).fetch();
+          console.log('cursors: ', cursors);
           const newContents = Content.documents.find(_.extend(this.subscriptionHandle.scopeQuery(), {
             version: {
               $gt: collab.getVersion(view.state),
@@ -235,6 +245,8 @@
       });
     },
     beforeDestroy() {
+      this.removeCursor();
+      window.removeEventListener('unload', this.removeCursor);
       window.removeEventListener('resize', this.handleWindowResize);
     },
     methods: {
@@ -252,6 +264,12 @@
       },
       handleWindowResize(e) {
         this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
+      },
+      removeCursor() {
+        Cursor.remove({
+          contentKey: this.contentKey,
+          clientId: this.clientId,
+        });
       },
     },
   };
