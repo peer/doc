@@ -191,12 +191,15 @@
             });
           }
           // update user current position
-          const {from, to} = newState.selection;
+          const {head, ranges} = newState.selection;
+          const rangesArray = ranges.map((r) => {
+            return {beginning: r.$from.pos, end: r.$to.pos};
+          });
           Cursor.update({
             contentKey: this.contentKey,
             clientId: this.clientId,
-            from,
-            to,
+            head,
+            ranges: rangesArray,
           });
         },
       });
@@ -220,8 +223,8 @@
           const {tr} = view.state;
           const positions = cursors.map((c) => {
             return {
-              from: c.from,
-              to: c.to,
+              head: c.head,
+              ranges: c.ranges,
               color: c.color,
               username: c.author ? c.author.username : null,
             };
@@ -357,6 +360,7 @@
     position: absolute;
     cursor: text;
     opacity: 1;
+    user-select: none;
   }
 
   .caret-head {
@@ -384,6 +388,7 @@
     white-space: nowrap;
     font-size: 10px;
     position: absolute;
-    top: -10px;
+    top: -15px;
+    user-select: none;
   }
 </style>
