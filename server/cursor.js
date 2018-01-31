@@ -9,7 +9,8 @@ Meteor.methods({
   'Cursor.update'(args) {
     check(args, {
       contentKey: Match.DocumentId,
-      position: Match.Integer,
+      from: Match.Integer,
+      to: Match.Integer,
       clientId: Match.DocumentId,
     });
 
@@ -25,7 +26,8 @@ Meteor.methods({
       },
       {
         $set: {
-          position: args.position,
+          from: args.from,
+          to: args.to,
         },
         $setOnInsert: {
           createdAt,

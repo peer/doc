@@ -104,6 +104,7 @@
   import {Cursor} from '/lib/cursor';
 
   import {menuPlugin, heading, toggleBlockquote} from './utils/menu.js';
+  import {cursorsPlugin} from './utils/cursors-plugin';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
@@ -167,6 +168,7 @@
           collab.collab({
             clientID: this.clientId,
           }),
+          cursorsPlugin,
         ],
       });
 
@@ -189,16 +191,13 @@
             });
           }
           // update user current position
-          if (newState.selection.$cursor) {
-            const {pos: position} = newState.selection.$cursor;
-            if (position) {
-              Cursor.update({
-                contentKey: this.contentKey,
-                position,
-                clientId: this.clientId,
-              });
-            }
-          }
+          const {from, to} = newState.selection;
+          Cursor.update({
+            contentKey: this.contentKey,
+            clientId: this.clientId,
+            from,
+            to,
+          });
         },
       });
 
@@ -209,6 +208,23 @@
         if (this.addingStepsInProgress) {
           return;
         }
+
+        const cursors = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
+          clientId: {
+            $ne: this.clientId,
+          },
+        })).fetch();
+
+        if (cursors.length) {
+          // positions transaction
+          const {tr} = view.state;
+          const positions = cursors.map((c) => {
+            return {from: c.from, to: c.to};
+          });
+          tr.setMeta(cursorsPlugin, positions);
+          view.dispatch(tr);
+        }
+
         // To register dependency on the latest version available from the server.
         const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
         // We want all versions to be available without any version missing, before we start applying them.
@@ -217,17 +233,12 @@
         if (_.min(versions) !== 0) {
           return;
         }
+
         if (versions.length !== _.max(versions) + 1) {
           return;
         }
 
         Tracker.nonreactive(() => {
-          const cursors = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
-            clientId: {
-              $ne: this.clientId,
-            },
-          })).fetch();
-          console.log('cursors: ', cursors);
           const newContents = Content.documents.find(_.extend(this.subscriptionHandle.scopeQuery(), {
             version: {
               $gt: collab.getVersion(view.state),
@@ -333,4 +344,6 @@
     z-index: 2;
     top: 64px;
   }
+
+  .highlight { background: #fdd; border-bottom: 1px solid #f22; margin-bottom: -1px; }
 </style>
