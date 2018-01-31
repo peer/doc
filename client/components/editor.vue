@@ -219,7 +219,12 @@
           // positions transaction
           const {tr} = view.state;
           const positions = cursors.map((c) => {
-            return {from: c.from, to: c.to};
+            return {
+              from: c.from,
+              to: c.to,
+              color: c.color,
+              username: c.author ? c.author.username : null,
+            };
           });
           tr.setMeta(cursorsPlugin, positions);
           view.dispatch(tr);
@@ -346,4 +351,39 @@
   }
 
   .highlight { background: #fdd; border-bottom: 1px solid #f22; margin-bottom: -1px; }
+
+  .caret-container {
+    display: inline-block;
+    position: absolute;
+    cursor: text;
+    opacity: 1;
+  }
+
+  .caret-head {
+    background-color: rgb(255, 0, 122);
+    opacity: 1;
+    width: 6px;
+    height: 6px;
+    font-size: 0;
+  }
+
+  .caret-body {
+    border-color: rgb(255, 0, 122);
+    opacity: 1;
+    height: 17.6px;
+    width: 0px;
+    border-left: 2px solid;
+    border-left-color: rgb(255, 0, 122);
+    font-size: 0;
+  }
+
+  .caret-name {
+    background-color: rgb(255, 0, 122);
+    opacity: 1;
+    padding: 2px;
+    white-space: nowrap;
+    font-size: 10px;
+    position: absolute;
+    top: -10px;
+  }
 </style>
