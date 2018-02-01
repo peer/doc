@@ -80,7 +80,6 @@
 </template>
 
 <script>
-  import {Random} from 'meteor/random';
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
@@ -114,6 +113,10 @@
         type: String,
         required: true,
       },
+      clientId: {
+        type: String,
+        required: true,
+      },
     },
 
     data() {
@@ -123,7 +126,6 @@
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
         toolbarWidth: {width: '100%'},
-        clientId: Random.id(),
         cursorsHandle: null,
       };
     },
@@ -218,21 +220,20 @@
           },
         })).fetch();
 
-        if (cursors.length) {
-          // positions transaction
-          const {tr} = view.state;
-          const positions = cursors.map((c) => {
-            return {
-              head: c.head,
-              ranges: c.ranges,
-              color: c.color,
-              username: c.author ? c.author.username : null,
-              avatar: c.author ? c.author.avatar : null,
-            };
-          });
-          tr.setMeta(cursorsPlugin, positions);
-          view.dispatch(tr);
-        }
+        // positions transaction
+        const {tr} = view.state;
+        let positions = cursors.map((c) => {
+          return {
+            head: c.head,
+            ranges: c.ranges,
+            color: c.color,
+            username: c.author ? c.author.username : null,
+            avatar: c.author ? c.author.avatar : null,
+          };
+        });
+        positions = positions || [];
+        tr.setMeta(cursorsPlugin, positions);
+        view.dispatch(tr);
 
         // To register dependency on the latest version available from the server.
         const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
