@@ -381,26 +381,37 @@
     border-left: 2px solid;
     border-left-color: rgb(255, 0, 122);
     font-size: 0;
+    padding: 5px;
+  }
+
+  .caret-body:hover + .caret-name {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 250ms linear;
   }
 
   .caret-name {
     background-color: rgb(255, 0, 122);
-    opacity: 1;
     padding: 2px;
     white-space: nowrap;
     font-size: 10px;
     position: absolute;
     top: -22px;
     user-select: none;
+    visibility: hidden;
     display: flex;
+    opacity: 0;
+    transition: visibility 0s 750ms, opacity 750ms linear;
     align-items: center;
   }
 
   .caret-img {
     border-radius: 50%;
+    user-select: none;
   }
 
   .caret-username {
     margin-left: 5px;
+    user-select: none;
   }
 </style>
