@@ -6,7 +6,7 @@ import {flatten} from './utils';
  * Helper function that creates a DOM.node with the cursor to render
  * @param {*} color - String with the hex color to use
  */
-function createCaret(color, name) {
+function createCaret(color, name, avatar) {
   const caretContainer = document.createElement('div');
   caretContainer.className = 'caret-container';
   const caretHead = document.createElement('div');
@@ -18,7 +18,17 @@ function createCaret(color, name) {
   caretBody.style.borderLeftColor = color;
   const caretName = document.createElement('div');
   caretName.className = 'caret-name';
-  caretName.innerHTML = name || '';
+  if (avatar) {
+    const imgAvatar = document.createElement('img');
+    imgAvatar.className = 'caret-img';
+    imgAvatar.setAttribute('src', avatar);
+    imgAvatar.setAttribute('height', '25px');
+    caretName.appendChild(imgAvatar);
+  }
+  const textSpan = document.createElement('span');
+  textSpan.className = 'caret-username';
+  textSpan.textContent = name || 'Anonymous';
+  caretName.appendChild(textSpan);
   caretName.style.backgroundColor = color;
   caretContainer.appendChild(caretHead);
   caretContainer.appendChild(caretBody);
@@ -45,7 +55,7 @@ function getDecorations(doc, positions) {
   }));
 
   const decosWidget = positions.map((pos) => {
-    return Decoration.widget(pos.head, createCaret(pos.color, pos.username));
+    return Decoration.widget(pos.head, createCaret(pos.color, pos.username, pos.avatar));
   });
   return DecorationSet.create(doc, [...decosInline, ...decosWidget]);
 }

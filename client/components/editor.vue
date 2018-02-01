@@ -227,6 +227,7 @@
               ranges: c.ranges,
               color: c.color,
               username: c.author ? c.author.username : null,
+              avatar: c.author ? c.author.avatar : null,
             };
           });
           tr.setMeta(cursorsPlugin, positions);
@@ -364,6 +365,7 @@
   }
 
   .caret-head {
+    display: flex;
     background-color: rgb(255, 0, 122);
     opacity: 1;
     width: 6px;
@@ -388,7 +390,17 @@
     white-space: nowrap;
     font-size: 10px;
     position: absolute;
-    top: -15px;
+    top: -22px;
     user-select: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .caret-img {
+    border-radius: 50%;
+  }
+
+  .caret-username {
+    margin-left: 5px;
   }
 </style>
