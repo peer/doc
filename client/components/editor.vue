@@ -1,5 +1,24 @@
 <template>
   <div>
+    <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span>Insert Url</span>
+          <v-spacer/>
+        </v-card-title>
+        <v-container fluid>
+          <v-text-field
+            label="Url"
+            v-model="link"
+            required
+          />
+        </v-container>
+        <v-card-actions>
+          <v-btn color="primary" flat @click="linkDialog=false">Cancel</v-btn>
+          <v-btn color="primary" flat @click="insertLink">Insert Link</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
         :class="{'toolbar-fixed':fixToolbarToTop}"
@@ -47,7 +66,7 @@
 
         <div class="toolbar-gap" />
 
-        <v-btn id="link" flat>
+        <v-btn id="link" flat @click.stop="linkDialog=true">
           <v-icon>insert_link</v-icon>
         </v-btn>
 
@@ -102,7 +121,7 @@
   import {schema} from '/lib/schema.js';
   import {Content} from '/lib/content';
 
-  import {menuPlugin, heading, toggleBlockquote} from './utils/menu.js';
+  import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
@@ -121,6 +140,10 @@
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
         toolbarWidth: {width: '100%'},
+        dispatch: null,
+        state: null,
+        link: '',
+        linkDialog: false,
       };
     },
 
@@ -141,6 +164,7 @@
         heading(3, schema),
         {command: toggleMark(schema.marks.strikethrough), dom: document.getElementById("strikethrough"), mark: schema.marks.strikethrough},
         {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: schema.nodes.blockquote},
+        {command: toggleLink(schema, false), dom: document.getElementById("link")},
         {command: wrapInList(schema.nodes.bullet_list), dom: document.getElementById("bullet"), node: schema.nodes.bullet_list},
         {command: wrapInList(schema.nodes.ordered_list), dom: document.getElementById("order"), node: schema.nodes.ordered_list},
       ]);
@@ -172,6 +196,7 @@
         dispatchTransaction: (transaction) => {
           const newState = view.state.apply(transaction);
           view.updateState(newState);
+          this.state = newState;
           const sendable = collab.sendableSteps(newState);
           if (sendable) {
             this.addingStepsInProgress = true;
@@ -188,6 +213,7 @@
         },
       });
 
+      this.dispatch = view.dispatch;
       this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       window.addEventListener('resize', this.handleWindowResize);
       this.$autorun((computation) => {
@@ -243,6 +269,13 @@
       },
       handleWindowResize(e) {
         this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
+      },
+      insertLink() {
+        if (this.link !== '') {
+          toggleLink(schema, true, this.link)(this.state, this.dispatch);
+        }
+        this.linkDialog = false;
+        this.link = '';
       },
     },
   };
