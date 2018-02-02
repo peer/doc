@@ -2,20 +2,23 @@
   <div>
     <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
       <v-card>
-        <v-card-title>
-          <span>Insert Url</span>
-          <v-spacer/>
-        </v-card-title>
-        <v-container fluid>
-          <v-text-field
-            label="Url"
-            v-model="link"
-            required
-          />
-        </v-container>
+        <v-card-text>
+          <v-form v-model="validLink" lazy-validation>
+            <v-text-field
+              autofocus
+              placeholder="http://"
+              v-model="link"
+              hint="Enter a link"
+              single-line
+              required
+              prepend-icon="link"
+              :rules="[linkValidationRule]"
+            />
+          </v-form>
+        </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" flat @click="linkDialog=false">Cancel</v-btn>
-          <v-btn color="primary" flat @click="insertLink">Insert Link</v-btn>
+          <v-btn color="secondary" flat @click="linkDialog=false">Cancel</v-btn>
+          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink">Insert Link</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -144,6 +147,11 @@
         state: null,
         link: '',
         linkDialog: false,
+        validLink: false,
+        linkValidationRule: (value) => {
+          const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
+          return urlRegex.test(value) || "Invalid URL.";
+        },
       };
     },
 
@@ -272,6 +280,7 @@
       },
       insertLink() {
         if (this.link !== '') {
+          this.link = this.link.match(/^[a-zA-Z]+:\/\//) ? this.link : `http://${this.link}`;
           toggleLink(schema, true, this.link)(this.state, this.dispatch);
         }
         this.linkDialog = false;
