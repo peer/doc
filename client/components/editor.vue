@@ -84,7 +84,7 @@
   import {_} from 'meteor/underscore';
 
   import {wrapInList, sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
-  import {EditorState} from 'prosemirror-state';
+  import {EditorState, TextSelection} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {undo, redo, history} from 'prosemirror-history';
   import {keymap} from 'prosemirror-keymap';
@@ -117,6 +117,11 @@
         type: String,
         required: true,
       },
+      focusedCursor: {
+        type: Object,
+        rqeuired: false,
+        default: null,
+      },
     },
 
     data() {
@@ -127,9 +132,21 @@
         originalToolbarYPos: -1,
         toolbarWidth: {width: '100%'},
         cursorsHandle: null,
+        dipatch: null,
+        state: null,
       };
     },
-
+    watch: {
+      focusedCursor(cursor) {
+        // if we receive a new focused cursor we scroll the editor to its position
+        if (cursor) {
+          const {tr} = this.state;
+          tr.setSelection(TextSelection.create(tr.doc, cursor.head));
+          tr.scrollIntoView();
+          this.dispatch(tr);
+        }
+      },
+    },
     created() {
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
@@ -179,6 +196,7 @@
         dispatchTransaction: (transaction) => {
           const newState = view.state.apply(transaction);
           view.updateState(newState);
+          this.state = newState;
           const sendable = collab.sendableSteps(newState);
           if (sendable) {
             this.addingStepsInProgress = true;
@@ -205,6 +223,8 @@
           });
         },
       });
+      this.state = view.state;
+      this.dispatch = view.dispatch;
 
       this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       window.addEventListener('resize', this.handleWindowResize);
@@ -282,6 +302,9 @@
         const shouldFixToolbar = window.pageYOffset >= this.originalToolbarYPos;
 
         this.fixToolbarToTop = shouldFixToolbar;
+
+        // emit scroll event to notify parent component
+        this.$emit("scroll");
       },
       handleWindowResize(e) {
         this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;

@@ -2,7 +2,7 @@
   <v-container fluid class="app-layout__users">
     <v-layout row wrap justify-start align-content-start>
       <v-flex class="app-layout__user" v-for="cursor of cursors" :key="cursor._id">
-        <v-btn flat icon :style="{borderColor: cursor.color}">
+        <v-btn flat icon :style="{borderColor: cursor.color}" @click="onAvatarClicked(cursor)">
           <v-avatar size="36px"><img :src="cursor.author.avatar" :alt="cursor.author.username" :title="cursor.author.username"></v-avatar>
         </v-btn>
       </v-flex>
@@ -71,6 +71,11 @@
           },
         })).fetch();
       });
+    },
+    methods: {
+      onAvatarClicked(cursor) {
+        this.$emit('click', cursor);
+      },
     },
   };
 
