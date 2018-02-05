@@ -107,7 +107,7 @@
   import {_} from 'meteor/underscore';
 
   import {wrapInList, sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
-  import {EditorState} from 'prosemirror-state';
+  import {EditorState, TextSelection} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {undo, redo, history} from 'prosemirror-history';
   import {keymap} from 'prosemirror-keymap';
@@ -125,6 +125,7 @@
   import {Content} from '/lib/content';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
+  import {linkPlugin} from './utils/link-plugin.js';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
@@ -147,6 +148,7 @@
         state: null,
         link: '',
         linkDialog: false,
+        linkNode: null,
         validLink: false,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
@@ -195,6 +197,7 @@
           collab.collab({
             clientID: Random.id(),
           }),
+          linkPlugin(this),
         ],
       });
 
@@ -279,12 +282,23 @@
         this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       },
       insertLink() {
+        if (this.linkNode) {
+          this.removeLink(this.linkNode);
+          this.linkNode = null;
+        }
         if (this.link !== '') {
           this.link = this.link.match(/^[a-zA-Z]+:\/\//) ? this.link : `http://${this.link}`;
           toggleLink(schema, true, this.link)(this.state, this.dispatch);
         }
         this.linkDialog = false;
         this.link = '';
+      },
+      removeLink(linkNode) {
+        const {tr} = this.state;
+        tr
+        .setSelection(TextSelection.create(this.state.doc, linkNode.pos, linkNode.pos + linkNode.node.nodeSize));
+        this.dispatch(tr);
+        toggleMark(schema.marks.link)(this.state, this.dispatch);
       },
     },
   };
@@ -347,5 +361,32 @@
     position: fixed;
     z-index: 2;
     top: 64px;
+  }
+
+  .bubble {
+    display: none;
+    position: relative;
+    cursor: pointer;
+    visibility: hidden;
+  }
+
+  .link-bubble {
+    z-index: 24;
+    background-color: #fff;
+    border-radius: 2px;
+    border: 1px solid;
+    border-color: #bbb #bbb #a8a8a8;
+    color: #666;
+    padding: 12px 20px;
+    cursor: auto;
+    position: absolute;
+    left: -30px;
+    top: calc(100% + 10px);
+    width: max-content;
+  }
+
+  a:hover .bubble {
+    display: inline-block;
+    visibility: visible;
   }
 </style>
