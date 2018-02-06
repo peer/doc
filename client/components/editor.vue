@@ -3,12 +3,13 @@
     <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
       <v-card>
         <v-card-text>
-          <v-form v-model="validLink" lazy-validation>
+          <v-form v-model="validLink" @submit.prevent="insertLink">
             <v-text-field
               autofocus
               placeholder="http://"
               v-model="link"
               hint="Enter a link"
+              :hide-details="link === ''"
               single-line
               required
               prepend-icon="link"
@@ -17,7 +18,7 @@
           </v-form>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="secondary" flat @click="linkDialog=false">Cancel</v-btn>
+          <v-btn color="secondary" flat @click="cancelLink">Cancel</v-btn>
           <v-btn color="primary" flat @click="insertLink" :disabled="!validLink">Insert Link</v-btn>
         </v-card-actions>
       </v-card>
@@ -286,11 +287,11 @@
           this.removeLink(this.linkNode);
           this.linkNode = null;
         }
-        if (this.link !== '') {
+        if (this.link !== '' && this.linkValidationRule(this.link) === true) {
           this.link = this.link.match(/^[a-zA-Z]+:\/\//) ? this.link : `http://${this.link}`;
           toggleLink(schema, true, this.link)(this.state, this.dispatch);
+          this.linkDialog = false;
         }
-        this.linkDialog = false;
         this.link = '';
       },
       removeLink(linkNode) {
@@ -299,6 +300,10 @@
         .setSelection(TextSelection.create(this.state.doc, linkNode.pos, linkNode.pos + linkNode.node.nodeSize));
         this.dispatch(tr);
         toggleMark(schema.marks.link)(this.state, this.dispatch);
+      },
+      cancelLink() {
+        this.link = '';
+        this.linkDialog = false;
       },
     },
   };
