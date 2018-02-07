@@ -10,6 +10,25 @@ function checkMarkup(state, markup, attr) {
   return false;
 }
 
+function markExtend($start, mark) {
+  let startIndex = $start.index();
+  let endIndex = $start.indexAfter();
+
+  while (startIndex > 0 && mark.isInSet($start.parent.child(startIndex - 1).marks)) startIndex -= 1;
+  while (
+    endIndex < $start.parent.childCount &&
+    mark.isInSet($start.parent.child(endIndex).marks)) endIndex += 1;
+  let startPos = $start.start();
+  let endPos = startPos;
+
+  for (let i = 0; i < endIndex; i += 1) {
+    const size = $start.parent.child(i).nodeSize;
+    if (i < startIndex) startPos += size;
+    endPos += size;
+  }
+  return {from: startPos, to: endPos};
+}
+
 export function toggleHeading(level) {
   return function onToggle(state, dispatch) {
     if (checkMarkup(state, state.schema.nodes.heading, {level})) {
@@ -33,9 +52,10 @@ export function toggleBlockquote() {
 }
 
 class MenuView {
-  constructor(items, editorView) {
+  constructor(items, editorView, vueInstance) {
     this.items = items;
     this.editorView = editorView;
+    this.vueInstance = vueInstance;
     this.dom = document.getElementById("tools");
     this.update();
 
@@ -53,6 +73,7 @@ class MenuView {
   update() {
     const {state} = this.editorView;
     const {selection} = state;
+    const {vueInstance} = this;
     this.items.forEach(({
       command, dom, node, mark, attr,
     }) => {
@@ -65,7 +86,29 @@ class MenuView {
         active = checkMarkup(state, node, attr);
       }
 
-      const enabled = command(state, null, this.editorView);
+      let hasLink = false;
+
+      if (attr && attr.link) {
+        const newNode = state.doc.nodeAt(selection.from);
+        hasLink =
+          newNode &&
+          newNode.marks.length &&
+          newNode.marks[0] &&
+          newNode.marks[0].attrs &&
+          newNode.marks[0].attrs.href;
+
+        if (hasLink) {
+          const linkFullPosition = markExtend(selection.$from, newNode.marks[0]);
+          vueInstance.selectedExistingLink = {position: linkFullPosition};
+          vueInstance.link = newNode.marks[0].attrs.href;
+        }
+        else {
+          vueInstance.selectedExistingLink = null;
+          vueInstance.link = '';
+        }
+      }
+
+      const enabled = hasLink || command(state, null, this.editorView);
 
       if (!enabled) {
         btnClass += " btn--disabled";
@@ -85,10 +128,10 @@ class MenuView {
 }
 
 
-export function menuPlugin(items) {
+export function menuPlugin(items, vueInstance) {
   return new Plugin({
     view(editorView) {
-      const menuView = new MenuView(items, editorView);
+      const menuView = new MenuView(items, editorView, vueInstance);
       editorView.dom.parentNode.insertBefore(menuView.dom, editorView.dom);
       return menuView;
     },

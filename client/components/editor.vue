@@ -19,7 +19,8 @@
         </v-card-text>
         <v-card-actions>
           <v-btn color="secondary" flat @click="cancelLink">Cancel</v-btn>
-          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink">Insert Link</v-btn>
+          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink">Insert</v-btn>
+          <v-btn color="error" flat @click="removeLink" :disabled="!validLink" v-if="selectedExistingLink">Remove</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -126,7 +127,6 @@
   import {Content} from '/lib/content';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
-  import {linkPlugin} from './utils/link-plugin.js';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
@@ -149,7 +149,7 @@
         state: null,
         link: '',
         linkDialog: false,
-        linkNode: null,
+        selectedExistingLink: null,
         validLink: false,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
@@ -175,10 +175,15 @@
         heading(3, schema),
         {command: toggleMark(schema.marks.strikethrough), dom: document.getElementById("strikethrough"), mark: schema.marks.strikethrough},
         {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: schema.nodes.blockquote},
-        {command: toggleLink(schema, false), dom: document.getElementById("link")},
+        {
+          command: toggleLink(schema, false),
+          dom: document.getElementById("link"),
+          mark: schema.marks.link,
+          attr: {link: true},
+        },
         {command: wrapInList(schema.nodes.bullet_list), dom: document.getElementById("bullet"), node: schema.nodes.bullet_list},
         {command: wrapInList(schema.nodes.ordered_list), dom: document.getElementById("order"), node: schema.nodes.ordered_list},
-      ]);
+      ], this);
 
       const state = EditorState.create({
         schema,
@@ -198,7 +203,6 @@
           collab.collab({
             clientID: Random.id(),
           }),
-          linkPlugin(this),
         ],
       });
 
@@ -283,23 +287,29 @@
         this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       },
       insertLink() {
-        if (this.linkNode) {
-          this.removeLink(this.linkNode);
-          this.linkNode = null;
+        let {link} = this;
+        if (this.selectedExistingLink) {
+          this.clearLink();
+          this.selectedExistingLink = null;
         }
-        if (this.link !== '' && this.linkValidationRule(this.link) === true) {
-          this.link = this.link.match(/^[a-zA-Z]+:\/\//) ? this.link : `http://${this.link}`;
-          toggleLink(schema, true, this.link)(this.state, this.dispatch);
+        if (link !== '' && this.linkValidationRule(link) === true) {
+          link = link.match(/^[a-zA-Z]+:\/\//) ? link : `http://${link}`;
+          toggleLink(schema, true, link)(this.state, this.dispatch);
+          this.link = '';
           this.linkDialog = false;
         }
-        this.link = '';
       },
-      removeLink(linkNode) {
+      removeLink() {
+        this.clearLink();
+        this.link = '';
+        this.linkDialog = false;
+      },
+      clearLink() {
         const {tr} = this.state;
-        tr
-        .setSelection(TextSelection.create(this.state.doc, linkNode.pos, linkNode.pos + linkNode.node.nodeSize));
+        const {from: fromPos, to: toPos} = this.selectedExistingLink.position;
+        tr.removeMark(fromPos, toPos);
+        tr.setSelection(TextSelection.create(this.state.doc, fromPos, toPos));
         this.dispatch(tr);
-        toggleMark(schema.marks.link)(this.state, this.dispatch);
       },
       cancelLink() {
         this.link = '';
@@ -393,5 +403,9 @@
   a:hover .bubble {
     display: inline-block;
     visibility: visible;
+  }
+
+  .editor a {
+    cursor: text   !important;
   }
 </style>
