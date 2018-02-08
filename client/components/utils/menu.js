@@ -10,23 +10,41 @@ function checkMarkup(state, markup, attr) {
   return false;
 }
 
-function markExtend($start, mark) {
-  let startIndex = $start.index();
-  let endIndex = $start.indexAfter();
-
-  while (startIndex > 0 && mark.isInSet($start.parent.child(startIndex - 1).marks)) startIndex -= 1;
-  while (
-    endIndex < $start.parent.childCount &&
-    mark.isInSet($start.parent.child(endIndex).marks)) endIndex += 1;
-  let startPos = $start.start();
-  let endPos = startPos;
-
-  for (let i = 0; i < endIndex; i += 1) {
-    const size = $start.parent.child(i).nodeSize;
-    if (i < startIndex) startPos += size;
-    endPos += size;
+/**
+ * Check links on selection range and ad those to an
+ * array along with their positions
+ * @param {*} state
+ * @param {*} selection
+ */
+function handleLink(state, selection) {
+  const rangeLinks = [];
+  state.doc.nodesBetween(selection.from, selection.to, (node, start, parent, index) => {
+    const linked =
+          node &&
+          node.marks.length &&
+          node.marks[0] &&
+          node.marks[0].attrs &&
+          node.marks[0].attrs.href;
+    if (linked) {
+      rangeLinks.push({node, start});
+    }
+  });
+  let selectedExistingLinks;
+  if (rangeLinks.length) {
+    selectedExistingLinks = rangeLinks.map(({start, node}) => {
+      return {
+        position: {
+          from: start,
+          to: start + node.nodeSize,
+        },
+        href: node.marks[0].attrs.href,
+      };
+    });
   }
-  return {from: startPos, to: endPos};
+  else {
+    selectedExistingLinks = null;
+  }
+  return {selectedExistingLinks, linked: Boolean(rangeLinks.length)};
 }
 
 export function toggleHeading(level) {
@@ -86,26 +104,11 @@ class MenuView {
         active = checkMarkup(state, node, attr);
       }
 
-      let hasLink = false;
-
+      let hasLink;
       if (attr && attr.link) {
-        const newNode = state.doc.nodeAt(selection.from);
-        hasLink =
-          newNode &&
-          newNode.marks.length &&
-          newNode.marks[0] &&
-          newNode.marks[0].attrs &&
-          newNode.marks[0].attrs.href;
-
-        if (hasLink) {
-          const linkFullPosition = markExtend(selection.$from, newNode.marks[0]);
-          vueInstance.selectedExistingLink = {position: linkFullPosition};
-          vueInstance.link = newNode.marks[0].attrs.href;
-        }
-        else {
-          vueInstance.selectedExistingLink = null;
-          vueInstance.link = '';
-        }
+        const respLink = handleLink(state, selection);
+        hasLink = respLink.linked;
+        vueInstance.selectedExistingLinks = respLink.selectedExistingLinks || [];
       }
 
       const enabled = hasLink || command(state, null, this.editorView);
@@ -126,7 +129,6 @@ class MenuView {
     this.dom.remove();
   }
 }
-
 
 export function menuPlugin(items, vueInstance) {
   return new Plugin({

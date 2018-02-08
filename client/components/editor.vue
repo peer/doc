@@ -19,8 +19,8 @@
         </v-card-text>
         <v-card-actions>
           <v-btn color="secondary" flat @click="cancelLink">Cancel</v-btn>
+          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)">Remove</v-btn>
           <v-btn color="primary" flat @click="insertLink" :disabled="!validLink">Insert</v-btn>
-          <v-btn color="error" flat @click="removeLink" :disabled="!validLink" v-if="selectedExistingLink">Remove</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -71,7 +71,7 @@
 
         <div class="toolbar-gap" />
 
-        <v-btn id="link" flat @click.stop="linkDialog=true">
+        <v-btn id="link" flat @click.stop="openLinkDialog">
           <v-icon>insert_link</v-icon>
         </v-btn>
 
@@ -149,7 +149,7 @@
         state: null,
         link: '',
         linkDialog: false,
-        selectedExistingLink: null,
+        selectedExistingLinks: [],
         validLink: false,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
@@ -288,32 +288,67 @@
       },
       insertLink() {
         let {link} = this;
-        if (this.selectedExistingLink) {
+        if (this.selectedExistingLinks) {
+          // ProseMirror requires for the previous mark to be removed
+          // before adding a new mark
           this.clearLink();
-          this.selectedExistingLink = null;
+          this.selectedExistingLinks = [];
         }
         if (link !== '' && this.linkValidationRule(link) === true) {
           link = link.match(/^[a-zA-Z]+:\/\//) ? link : `http://${link}`;
           toggleLink(schema, true, link)(this.state, this.dispatch);
-          this.link = '';
           this.linkDialog = false;
+          this.link = '';
         }
       },
       removeLink() {
         this.clearLink();
-        this.link = '';
         this.linkDialog = false;
+        this.link = '';
+        // prevent bug where the whole paragraph is selected after removing
+        // links from a certain selected area of a paragraph
+        const {tr} = this.state;
+        tr.setSelection(TextSelection.create(this.state.doc, 0));
+        this.dispatch(tr);
+        window.getSelection().empty();
       },
       clearLink() {
         const {tr} = this.state;
-        const {from: fromPos, to: toPos} = this.selectedExistingLink.position;
-        tr.removeMark(fromPos, toPos);
-        tr.setSelection(TextSelection.create(this.state.doc, fromPos, toPos));
+        const {from: currentFrom, to: currentTo} = this.state.selection;
+        this.selectedExistingLinks.forEach(({position}) => {
+          const {from: fromPos, to: toPos} = position;
+          // only remove full link if the user did not make a selection
+          // and just left the cursor over a single character of the link
+          // otherwise, just remove selected portion
+          if (this.state.selection.$cursor) {
+            tr.removeMark(fromPos, toPos);
+          }
+          else {
+            tr.removeMark(currentFrom, currentTo);
+          }
+        });
+        let selection = TextSelection.create(this.state.doc, currentFrom, currentTo);
+        if (
+          this.state.selection.$cursor &&
+          this.selectedExistingLinks.length > 0) {
+          const {position} = this.selectedExistingLinks[0];
+          const {from: fromPos, to: toPos} = position;
+          selection = TextSelection.create(this.state.doc, fromPos, toPos);
+        }
+        tr.setSelection(selection);
         this.dispatch(tr);
       },
       cancelLink() {
-        this.link = '';
         this.linkDialog = false;
+        this.link = '';
+      },
+      openLinkDialog() {
+        if (this.selectedExistingLinks.length &&
+        this.selectedExistingLinks.length === 1) {
+          // preload link value if a single existing link is selected
+          this.link = this.selectedExistingLinks[0].href;
+        }
+        this.linkDialog = true;
       },
     },
   };
