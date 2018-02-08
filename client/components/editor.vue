@@ -191,6 +191,22 @@
         ],
       });
 
+      const updateUserPosition = (selection, contentKey, clientId) => {
+        // update user current position
+        const {head, ranges} = selection;
+        const rangesArray = ranges.map((r) => {
+          return {beginning: r.$from.pos, end: r.$to.pos};
+        });
+        Cursor.update({
+          contentKey,
+          clientId,
+          head,
+          ranges: rangesArray,
+        });
+      };
+
+      const debouncedUpdateUserPosition = _.debounce(updateUserPosition, 500);
+
       const view = new EditorView({mount: this.$refs.editor}, {
         state,
         dispatchTransaction: (transaction) => {
@@ -210,17 +226,7 @@
               // TODO: Error handling.
             });
           }
-          // update user current position
-          const {head, ranges} = newState.selection;
-          const rangesArray = ranges.map((r) => {
-            return {beginning: r.$from.pos, end: r.$to.pos};
-          });
-          Cursor.update({
-            contentKey: this.contentKey,
-            clientId: this.clientId,
-            head,
-            ranges: rangesArray,
-          });
+          debouncedUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
       });
       this.state = view.state;
