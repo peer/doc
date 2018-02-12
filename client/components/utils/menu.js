@@ -1,5 +1,5 @@
 import {Plugin} from "prosemirror-state";
-import {wrapIn, lift, setBlockType} from "prosemirror-commands";
+import {wrapIn, lift, setBlockType, toggleMark} from "prosemirror-commands";
 
 function checkMarkup(state, markup, attr) {
   for (let i = 0; i < state.selection.$from.path.length; i += 1) {
@@ -8,6 +8,43 @@ function checkMarkup(state, markup, attr) {
     }
   }
   return false;
+}
+
+/**
+ * Check links on selection range and ad those to an
+ * array along with their positions
+ * @param {*} state
+ * @param {*} selection
+ */
+function handleLink(state, selection) {
+  const rangeLinks = [];
+  state.doc.nodesBetween(selection.from, selection.to, (node, start, parent, index) => {
+    const linked =
+          node &&
+          node.marks.length &&
+          node.marks[0] &&
+          node.marks[0].attrs &&
+          node.marks[0].attrs.href;
+    if (linked) {
+      rangeLinks.push({node, start});
+    }
+  });
+  let selectedExistingLinks;
+  if (rangeLinks.length) {
+    selectedExistingLinks = rangeLinks.map(({start, node}) => {
+      return {
+        position: {
+          from: start,
+          to: start + node.nodeSize,
+        },
+        href: node.marks[0].attrs.href,
+      };
+    });
+  }
+  else {
+    selectedExistingLinks = null;
+  }
+  return {selectedExistingLinks, linked: Boolean(rangeLinks.length)};
 }
 
 export function toggleHeading(level) {
@@ -33,9 +70,10 @@ export function toggleBlockquote() {
 }
 
 class MenuView {
-  constructor(items, editorView) {
+  constructor(items, editorView, vueInstance) {
     this.items = items;
     this.editorView = editorView;
+    this.vueInstance = vueInstance;
     this.dom = document.getElementById("tools");
     this.update();
 
@@ -53,6 +91,7 @@ class MenuView {
   update() {
     const {state} = this.editorView;
     const {selection} = state;
+    const {vueInstance} = this;
     this.items.forEach(({
       command, dom, node, mark, attr,
     }) => {
@@ -65,7 +104,14 @@ class MenuView {
         active = checkMarkup(state, node, attr);
       }
 
-      const enabled = command(state, null, this.editorView);
+      let hasLink;
+      if (attr && attr.link) {
+        const respLink = handleLink(state, selection);
+        hasLink = respLink.linked;
+        vueInstance.selectedExistingLinks = respLink.selectedExistingLinks || [];
+      }
+
+      const enabled = hasLink || command(state, null, this.editorView);
 
       if (!enabled) {
         btnClass += " btn--disabled";
@@ -84,11 +130,10 @@ class MenuView {
   }
 }
 
-
-export function menuPlugin(items) {
+export function menuPlugin(items, vueInstance) {
   return new Plugin({
     view(editorView) {
-      const menuView = new MenuView(items, editorView);
+      const menuView = new MenuView(items, editorView, vueInstance);
       editorView.dom.parentNode.insertBefore(menuView.dom, editorView.dom);
       return menuView;
     },
@@ -109,5 +154,27 @@ export function heading(level, schema) {
     dom: document.getElementById(`h${level}`),
     node: schema.nodes.heading,
     attr: {level},
+  };
+}
+
+export function toggleLink(schema, clicked, url) {
+  return function onToggle(state, dispatch) {
+    const {doc, selection} = state;
+    if (selection.empty) {
+      return false;
+    }
+    let attrs = null;
+    if (dispatch) {
+      if (!clicked) {
+        return false;
+      }
+      if (!doc.rangeHasMark(selection.from, selection.to, schema.marks.link)) {
+        attrs = {href: url};
+        if (!attrs.href) {
+          return false;
+        }
+      }
+    }
+    return toggleMark(schema.marks.link, attrs)(state, dispatch);
   };
 }
