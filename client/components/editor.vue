@@ -205,7 +205,7 @@
         });
       };
 
-      const debouncedUpdateUserPosition = _.debounce(updateUserPosition, 500);
+      const debouncedUpdateUserPosition = _.throttle(updateUserPosition, 500);
 
       const view = new EditorView({mount: this.$refs.editor}, {
         state,
