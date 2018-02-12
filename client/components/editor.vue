@@ -234,7 +234,6 @@
 
       this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       window.addEventListener('resize', this.handleWindowResize);
-      window.addEventListener('beforeunload', this.removeCursor);
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
           return;
@@ -292,8 +291,6 @@
       });
     },
     beforeDestroy() {
-      this.removeCursor();
-      window.removeEventListener('unload', this.removeCursor);
       window.removeEventListener('resize', this.handleWindowResize);
     },
     methods: {
@@ -314,12 +311,6 @@
       },
       handleWindowResize(e) {
         this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
-      },
-      removeCursor() {
-        Cursor.remove({
-          contentKey: this.contentKey,
-          clientId: this.clientId,
-        });
       },
     },
   };
