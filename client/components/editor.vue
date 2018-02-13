@@ -413,33 +413,6 @@
     top: 64px;
   }
 
-  .bubble {
-    display: none;
-    position: relative;
-    cursor: pointer;
-    visibility: hidden;
-  }
-
-  .link-bubble {
-    z-index: 24;
-    background-color: #fff;
-    border-radius: 2px;
-    border: 1px solid;
-    border-color: #bbb #bbb #a8a8a8;
-    color: #666;
-    padding: 12px 20px;
-    cursor: auto;
-    position: absolute;
-    left: -30px;
-    top: calc(100% + 10px);
-    width: max-content;
-  }
-
-  a:hover .bubble {
-    display: inline-block;
-    visibility: visible;
-  }
-
   .editor a {
     cursor: text   !important;
   }
