@@ -3,7 +3,7 @@ import {Meteor} from 'meteor/meteor';
 
 import {Cursor} from '/lib/cursor';
 import {User} from '/lib/user';
-import {getRandomColor} from '/lib/utils';
+import randomColor from 'randomcolor';
 
 Meteor.methods({
   'Cursor.update'(args) {
@@ -34,7 +34,7 @@ Meteor.methods({
           connection: this.connection.id,
           author: user && user.getReference(),
           clientId: args.clientId,
-          color: getRandomColor(),
+          color: randomColor(),
           contentKey: args.contentKey,
         },
       },
@@ -63,27 +63,9 @@ Meteor.publish('Cursor.feed', function cursorFeed(args) {
 
   this.enableScope();
 
-  const handle = Cursor.documents.find({
+  return Cursor.documents.find({
     contentKey: args.contentKey,
   }, {
     fields: Cursor.PUBLISH_FIELDS(),
-  }).observeChanges({
-    added: (id, fields) => {
-      this.added(Cursor.Meta.collection._name, id, fields);
-    },
-
-    changed: (id, fields) => {
-      this.changed(Cursor.Meta.collection._name, id, fields);
-    },
-
-    removed: (id) => {
-      this.removed(Cursor.Meta.collection._name, id);
-    },
   });
-
-  this.onStop(() => {
-    handle.stop();
-  });
-
-  this.ready();
 });

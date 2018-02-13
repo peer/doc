@@ -1,10 +1,10 @@
+import {_} from 'meteor/underscore';
 import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
-import {flatten} from './utils';
 /**
- * Helper function that creates a DOM.node with the cursor to render
- * @param {*} color - String with the hex color to use
+ * Helper function that creates a DOM.node with the cursor to render.
+ * @param {*} color - String with the hex color to use.
  */
 function createCaret(color, name, avatar) {
   const caretContainer = document.createElement('div');
@@ -41,13 +41,13 @@ function createCaret(color, name, avatar) {
  * @param {*} positions - Positions array, each object needs a 'from' and 'to' property
  */
 function getDecorations(doc, positions) {
-  const decosInline = flatten(positions.map((pos) => {
+  const decosInline = _.flatten(positions.map((pos) => {
     return pos.ranges.map((range) => {
       return Decoration.inline(
         range.beginning,
         range.end,
         {
-          class: "highlight",
+          class: 'highlight',
           style: `background-color: ${pos.color}`,
         },
       );
@@ -68,7 +68,7 @@ function getDecorations(doc, positions) {
  */
 export const cursorsPlugin = new Plugin({
   state: {
-    init(_, {doc}) {
+    init(config, {doc}) {
       return DecorationSet.empty;
     },
     apply(tr, old) {

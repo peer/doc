@@ -169,11 +169,11 @@
       };
     },
     watch: {
-      focusedCursor(cursor) {
-        // if we receive a new focused cursor we scroll the editor to its position
-        if (cursor) {
+      focusedCursor(newCursor, oldCursor) {
+        // If we receive a new focused cursor we scroll the editor to its position.
+        if (newCursor) {
           const {tr} = this.state;
-          tr.setSelection(TextSelection.create(tr.doc, cursor.head));
+          tr.setSelection(TextSelection.create(tr.doc, newCursor.head));
           tr.scrollIntoView();
           this.dispatch(tr);
         }
@@ -182,6 +182,9 @@
     created() {
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
+      });
+
+      this.$autorun((computation) => {
         this.cursorsHandle = this.$subscribe('Cursor.feed', {contentKey: this.contentKey});
       });
     },
@@ -243,7 +246,7 @@
         });
       };
 
-      const debouncedUpdateUserPosition = _.throttle(updateUserPosition, 500);
+      const throttledUpdateUserPosition = _.throttle(updateUserPosition, 500);
 
       const view = new EditorView({mount: this.$refs.editor}, {
         state,
@@ -264,7 +267,7 @@
               // TODO: Error handling.
             });
           }
-          debouncedUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
+          throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
       });
       this.state = view.state;
@@ -278,29 +281,9 @@
           return;
         }
 
-        const cursors = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
-          clientId: {
-            $ne: this.clientId,
-          },
-        })).fetch();
-
-        // positions transaction
-        const {tr} = view.state;
-        let positions = cursors.map((c) => {
-          return {
-            head: c.head,
-            ranges: c.ranges,
-            color: c.color,
-            username: c.author ? c.author.username : null,
-            avatar: c.author ? c.author.avatar : null,
-          };
-        });
-        positions = positions || [];
-        tr.setMeta(cursorsPlugin, positions);
-        view.dispatch(tr);
-
         // To register dependency on the latest version available from the server.
         const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
+
         // We want all versions to be available without any version missing, before we start applying them.
         // TODO: We could also just apply the initial consecutive set of versions we might have.
         //       Even if later on there is one missing.
@@ -327,6 +310,27 @@
             view.dispatch(collab.receiveTransaction(view.state, _.pluck(newContents, 'step'), _.pluck(newContents, 'clientId')));
           }
         });
+      });
+
+      this.$autorun((computation) => {
+        let positions = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
+          clientId: {
+            $ne: this.clientId,
+          },
+        })).map((c) => {
+          return {
+            head: c.head,
+            ranges: c.ranges,
+            color: c.color,
+            username: c.author ? c.author.username : null,
+            avatar: c.author ? c.author.avatar : null,
+          };
+        });
+
+        const {tr} = view.state;
+        positions = positions || [];
+        tr.setMeta(cursorsPlugin, positions);
+        view.dispatch(tr);
       });
     },
     beforeDestroy() {

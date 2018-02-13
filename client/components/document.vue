@@ -55,7 +55,7 @@
         this.cursor = cursor;
       },
       onEditorScroll() {
-        // we just remove the reference to the previously clicked cursor because all we needed
+        // We just remove the reference to the previously clicked cursor because all we needed
         // was the `Editor` component to scroll to it.
         this.cursor = null;
       },
