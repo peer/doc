@@ -1,5 +1,29 @@
 <template>
   <div>
+    <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
+      <v-card>
+        <v-card-text>
+          <v-form v-model="validLink" @submit.prevent="insertLink">
+            <v-text-field
+              autofocus
+              placeholder="http://"
+              v-model="link"
+              hint="Enter a link"
+              :hide-details="link === ''"
+              single-line
+              required
+              prepend-icon="link"
+              :rules="[linkValidationRule]"
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="secondary" flat @click="cancelLink">Cancel</v-btn>
+          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)">Remove</v-btn>
+          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink">Insert</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
         :class="{'toolbar-fixed':fixToolbarToTop}"
@@ -47,7 +71,7 @@
 
         <div class="toolbar-gap" />
 
-        <v-btn id="link" flat>
+        <v-btn id="link" flat @click.stop="openLinkDialog">
           <v-icon>insert_link</v-icon>
         </v-btn>
 
@@ -102,7 +126,7 @@
   import {Content} from '/lib/content';
   import {Cursor} from '/lib/cursor';
 
-  import {menuPlugin, heading, toggleBlockquote} from './utils/menu.js';
+  import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
   import {cursorsPlugin} from './utils/cursors-plugin';
   import offsetY from './utils/sticky-scroll';
 
@@ -134,6 +158,14 @@
         cursorsHandle: null,
         dipatch: null,
         state: null,
+        link: '',
+        linkDialog: false,
+        selectedExistingLinks: [],
+        validLink: false,
+        linkValidationRule: (value) => {
+          const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
+          return urlRegex.test(value) || "Invalid URL.";
+        },
       };
     },
     watch: {
@@ -165,9 +197,15 @@
         heading(3, schema),
         {command: toggleMark(schema.marks.strikethrough), dom: document.getElementById("strikethrough"), mark: schema.marks.strikethrough},
         {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: schema.nodes.blockquote},
+        {
+          command: toggleLink(schema, false),
+          dom: document.getElementById("link"),
+          mark: schema.marks.link,
+          attr: {link: true},
+        },
         {command: wrapInList(schema.nodes.bullet_list), dom: document.getElementById("bullet"), node: schema.nodes.bullet_list},
         {command: wrapInList(schema.nodes.ordered_list), dom: document.getElementById("order"), node: schema.nodes.ordered_list},
-      ]);
+      ], this);
 
       const state = EditorState.create({
         schema,
@@ -232,6 +270,7 @@
       this.state = view.state;
       this.dispatch = view.dispatch;
 
+      this.dispatch = view.dispatch;
       this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       window.addEventListener('resize', this.handleWindowResize);
       this.$autorun((computation) => {
@@ -312,6 +351,70 @@
       handleWindowResize(e) {
         this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       },
+      insertLink() {
+        let {link} = this;
+        if (this.selectedExistingLinks) {
+          // ProseMirror requires for the previous mark to be removed
+          // before adding a new mark
+          this.clearLink();
+          this.selectedExistingLinks = [];
+        }
+        if (link !== '' && this.linkValidationRule(link) === true) {
+          link = link.match(/^[a-zA-Z]+:\/\//) ? link : `http://${link}`;
+          toggleLink(schema, true, link)(this.state, this.dispatch);
+          this.linkDialog = false;
+          this.link = '';
+        }
+      },
+      removeLink() {
+        this.clearLink();
+        this.linkDialog = false;
+        this.link = '';
+        // prevent bug where the whole paragraph is selected after removing
+        // links from a certain selected area of a paragraph
+        const {tr} = this.state;
+        tr.setSelection(TextSelection.create(this.state.doc, 0));
+        this.dispatch(tr);
+        window.getSelection().empty();
+      },
+      clearLink() {
+        const {tr} = this.state;
+        const {from: currentFrom, to: currentTo} = this.state.selection;
+        this.selectedExistingLinks.forEach(({position}) => {
+          const {from: fromPos, to: toPos} = position;
+          // only remove full link if the user did not make a selection
+          // and just left the cursor over a single character of the link
+          // otherwise, just remove selected portion
+          if (this.state.selection.$cursor) {
+            tr.removeMark(fromPos, toPos);
+          }
+          else {
+            tr.removeMark(currentFrom, currentTo);
+          }
+        });
+        let selection = TextSelection.create(this.state.doc, currentFrom, currentTo);
+        if (
+          this.state.selection.$cursor &&
+          this.selectedExistingLinks.length > 0) {
+          const {position} = this.selectedExistingLinks[0];
+          const {from: fromPos, to: toPos} = position;
+          selection = TextSelection.create(this.state.doc, fromPos, toPos);
+        }
+        tr.setSelection(selection);
+        this.dispatch(tr);
+      },
+      cancelLink() {
+        this.linkDialog = false;
+        this.link = '';
+      },
+      openLinkDialog() {
+        if (this.selectedExistingLinks.length &&
+        this.selectedExistingLinks.length === 1) {
+          // preload link value if a single existing link is selected
+          this.link = this.selectedExistingLinks[0].href;
+        }
+        this.linkDialog = true;
+      },
     },
   };
 
@@ -375,7 +478,11 @@
     top: 64px;
   }
 
-  .highlight { background: #fdd; border-bottom: 1px solid #f22; margin-bottom: -1px; }
+  .highlight {
+    background: #fdd;
+    border-bottom: 1px solid #f22;
+    margin-bottom: -1px;
+  }
 
   .caret-container {
     display: inline-block;
@@ -434,5 +541,9 @@
   .caret-username {
     margin-left: 5px;
     user-select: none;
+  }
+
+  .editor a {
+    cursor: text !important;
   }
 </style>
