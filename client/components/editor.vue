@@ -96,6 +96,18 @@
         ref="editorDivider"
       />
       <div style="height: 64px;" v-if="fixToolbarToTop" />
+      <v-btn
+        class="btn-comment"
+        color="white"
+        small
+        bottom
+        right
+        fab
+        ref="addCommentButton"
+        :style="{opacity: 0, display: 'none'}"
+      >
+        <v-icon>comment</v-icon>
+      </v-btn>
     </div>
 
     <div id="editor" ref="editor" class="editor" />
@@ -127,6 +139,7 @@
   import {Content} from '/lib/content';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
+  import addCommentPlugin from './utils/add-comment-plugin';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
@@ -200,6 +213,7 @@
           gapCursor(),
           history(),
           menu,
+          addCommentPlugin(this),
           collab.collab({
             clientID: Random.id(),
           }),
@@ -415,5 +429,15 @@
 
   .editor a {
     cursor: text   !important;
+  }
+
+  .btn-comment {
+    left: 99%;
+    z-index: 25;
+  }
+
+  .fade {
+   opacity: 1;
+   transition: opacity 2s ease-in-out;
   }
 </style>
