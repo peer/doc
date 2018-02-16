@@ -24,6 +24,27 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog hide-overlay v-model="commentDialog" max-width="500px">
+      <v-card>
+        <v-card-text>
+          <v-form @submit.prevent="insertComment">
+            <v-text-field
+              autofocus
+              multi-line
+              v-model="comment"
+              placeholder="Comment..."
+              required
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
+          <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
         :class="{'toolbar-fixed':fixToolbarToTop}"
@@ -104,7 +125,8 @@
         right
         fab
         ref="addCommentButton"
-        :style="{opacity: 0, display: 'none'}"
+        :style="{opacity: 0, visibility: 'hidden'}"
+        @click="openCommentDialog"
       >
         <v-icon>comment</v-icon>
       </v-btn>
@@ -139,6 +161,7 @@
   import {Content} from '/lib/content';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
+  import {Comment, commentPlugin} from './utils/comment-plugin';
   import addCommentPlugin from './utils/add-comment-plugin';
   import offsetY from './utils/sticky-scroll';
 
@@ -155,6 +178,7 @@
       return {
         subscriptionHandle: null,
         addingStepsInProgress: false,
+        addingCommentsInProgress: false,
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
         toolbarWidth: {width: '100%'},
@@ -162,6 +186,8 @@
         state: null,
         link: '',
         linkDialog: false,
+        commentDialog: false,
+        comment: '',
         selectedExistingLinks: [],
         validLink: false,
         linkValidationRule: (value) => {
@@ -198,6 +224,8 @@
         {command: wrapInList(schema.nodes.ordered_list), dom: document.getElementById("order"), node: schema.nodes.ordered_list},
       ], this);
 
+      this.clientId = Random.id();
+
       const state = EditorState.create({
         schema,
         plugins: [
@@ -212,10 +240,11 @@
           dropCursor(),
           gapCursor(),
           history(),
+          commentPlugin,
           menu,
           addCommentPlugin(this),
           collab.collab({
-            clientID: Random.id(),
+            clientID: this.clientId,
           }),
         ],
       });
@@ -228,6 +257,7 @@
           view.updateState(newState);
           this.state = newState;
           const sendable = collab.sendableSteps(newState);
+          const comments = commentPlugin.getState(newState).unsentEvents();
           if (sendable) {
             this.addingStepsInProgress = true;
             Content.addSteps({
@@ -238,6 +268,19 @@
             }, (error, stepsAdded) => {
               this.addingStepsInProgress = false;
               // TODO: Error handling.
+            });
+          }
+          if (comments.length) {
+            this.addingCommentsInProgress = true;
+            comments.forEach((comment) => {
+              Comment.create({
+                text: comment.text,
+                from: comment.from,
+                to: comment.to,
+                clientId: this.clientId,
+              }, (error, commentsAdded) => {
+                this.addingCommentsInProgress = false;
+              });
             });
           }
         },
@@ -315,6 +358,24 @@
           this.link = '';
         }
       },
+      insertComment() {
+        const {comment} = this;
+        this.commentDialog = false;
+        this.comment = '';
+        const {selection, tr} = this.state;
+        if (selection.empty) {
+          return;
+        }
+        this.dispatch(tr.setMeta(
+          commentPlugin,
+          {
+            type: "newComment",
+            from: selection.from,
+            to: selection.to,
+            comment: new Comment(comment, Random.id()),
+          },
+        ));
+      },
       removeLink() {
         this.clearLink();
         this.linkDialog = false;
@@ -356,6 +417,10 @@
         this.linkDialog = false;
         this.link = '';
       },
+      cancelComment() {
+        this.commentDialog = false;
+        this.comment = '';
+      },
       openLinkDialog() {
         if (this.selectedExistingLinks.length &&
         this.selectedExistingLinks.length === 1) {
@@ -363,6 +428,9 @@
           this.link = this.selectedExistingLinks[0].href;
         }
         this.linkDialog = true;
+      },
+      openCommentDialog() {
+        this.commentDialog = true;
       },
     },
   };
@@ -428,7 +496,7 @@
   }
 
   .editor a {
-    cursor: text   !important;
+    cursor: text !important;
   }
 
   .btn-comment {
@@ -439,5 +507,11 @@
   .fade {
    opacity: 1;
    transition: opacity 2s ease-in-out;
+  }
+
+  .comment {
+    background: #ffe168;
+    border-bottom: 1px solid #f22;
+    margin-bottom: -1px;
   }
 </style>

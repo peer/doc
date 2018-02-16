@@ -8,7 +8,7 @@ export class State {
   }
 }
 
-class Comment {
+export class Comment {
   constructor(text, id) {
     this.id = id;
     this.text = text;
@@ -104,10 +104,11 @@ class CommentState {
   }
 
   static init(config) {
-    const decos = config.comments.comments.map((c) => {
-      return deco(c.from, c.to, new Comment(c.text, c.id));
-    });
-    return new CommentState(config.comments.version, DecorationSet.create(config.doc, decos), []);
+    // console.log({config});
+    // const decos = config.comments.comments.map((c) => {
+    //   return deco(c.from, c.to, new Comment(c.text, c.id));
+    // });
+    return new CommentState(null, DecorationSet.empty, []);
   }
 }
 

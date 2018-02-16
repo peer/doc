@@ -27,12 +27,12 @@ class AddComment {
     // Hide the tooltip if the selection is empty
     if (state.selection.empty) {
       button.$el.style.opacity = 0;
-      button.$el.style.display = 'none';
+      button.$el.style.visibility = 'hidden';
       return;
     }
 
-    button.$el.style.opacity = 0.9;
-    button.$el.style.display = '';
+    button.$el.style.opacity = 0.8;
+    button.$el.style.visibility = 'visible';
     const {from} = state.selection;
     // These are in screen coordinates
     const start = view.coordsAtPos(from);
