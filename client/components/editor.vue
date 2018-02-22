@@ -158,11 +158,12 @@
   import 'prosemirror-gapcursor/style/gapcursor.css';
 
   import {schema} from '/lib/schema.js';
+  import {Comment} from '/lib/comment';
   import {Content} from '/lib/content';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
-  import {Comment, commentPlugin} from './utils/comment-plugin';
-  import addCommentPlugin from './utils/add-comment-plugin';
+  import {commentPlugin} from './utils/comment-plugin';
+  import addCommentPlugin, {toggleComment} from './utils/add-comment-plugin';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
@@ -177,6 +178,7 @@
     data() {
       return {
         subscriptionHandle: null,
+        commentsHandle: null,
         addingStepsInProgress: false,
         addingCommentsInProgress: false,
         fixToolbarToTop: false,
@@ -257,30 +259,31 @@
           view.updateState(newState);
           this.state = newState;
           const sendable = collab.sendableSteps(newState);
-          const comments = commentPlugin.getState(newState).unsentEvents();
+          // const comments = commentPlugin.getState(newState).unsentEvents();
+          // const commentsVersion = commentPlugin.getState(newState).version;
+          const {clientId} = this;
           if (sendable) {
+            const commentMarks = _.filter(transaction.steps, (s) => {
+              return s.mark && s.mark.type.name === "comment";
+            });
+            if (commentMarks) {
+              commentMarks.forEach((c) => {
+                const highlightId = c.mark.attrs["data-highlight-ids"];
+                Comment.setInitialVersion({
+                  highlightId,
+                  version: sendable.version,
+                });
+              });
+            }
             this.addingStepsInProgress = true;
             Content.addSteps({
               contentKey: this.contentKey,
               currentVersion: sendable.version,
               steps: sendable.steps,
-              clientId: sendable.clientID,
+              clientId,
             }, (error, stepsAdded) => {
               this.addingStepsInProgress = false;
               // TODO: Error handling.
-            });
-          }
-          if (comments.length) {
-            this.addingCommentsInProgress = true;
-            comments.forEach((comment) => {
-              Comment.create({
-                text: comment.text,
-                from: comment.from,
-                to: comment.to,
-                clientId: this.clientId,
-              }, (error, commentsAdded) => {
-                this.addingCommentsInProgress = false;
-              });
             });
           }
         },
@@ -362,19 +365,16 @@
         const {comment} = this;
         this.commentDialog = false;
         this.comment = '';
-        const {selection, tr} = this.state;
+        const {selection} = this.state;
         if (selection.empty) {
           return;
         }
-        this.dispatch(tr.setMeta(
-          commentPlugin,
-          {
-            type: "newComment",
-            from: selection.from,
-            to: selection.to,
-            comment: new Comment(comment, Random.id()),
-          },
-        ));
+        const id = Random.id();
+        Comment.create({
+          highlightId: id,
+          text: comment,
+        });
+        toggleComment(id, schema, this.state, this.dispatch);
       },
       removeLink() {
         this.clearLink();

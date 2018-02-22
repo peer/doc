@@ -1,5 +1,7 @@
 import {Plugin} from "prosemirror-state";
 
+import {toggleMark} from "prosemirror-commands";
+
 class AddComment {
   constructor(view, vueInstance) {
     view.dom.parentNode.appendChild(vueInstance.$refs.addCommentButton.$el);
@@ -31,7 +33,7 @@ class AddComment {
       return;
     }
 
-    button.$el.style.opacity = 0.8;
+    button.$el.style.opacity = 0.75;
     button.$el.style.visibility = 'visible';
     const {from} = state.selection;
     // These are in screen coordinates
@@ -48,4 +50,21 @@ export default function addCommentPlugin(vueInstance) {
       return new AddComment(editorView, vueInstance);
     },
   });
+}
+
+export function toggleComment(id, schema, state, dispatch) {
+  const {doc, selection} = state;
+  if (selection.empty) {
+    return false;
+  }
+  let attrs = null;
+  if (dispatch) {
+    if (!doc.rangeHasMark(selection.from, selection.to, schema.marks.comment)) {
+      attrs = {"data-highlight-ids": id};
+      if (!attrs["data-highlight-ids"]) {
+        return false;
+      }
+    }
+  }
+  return toggleMark(schema.marks.comment, attrs)(state, dispatch);
 }
