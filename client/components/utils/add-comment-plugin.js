@@ -26,7 +26,7 @@ class AddComment {
     }
 
     const button = this.vueInstance.$refs.addCommentButton;
-    // Hide the tooltip if the selection is empty
+    // Hide the comment button if the selection is empty
     if (state.selection.empty) {
       button.$el.style.opacity = 0;
       button.$el.style.visibility = 'hidden';
@@ -38,7 +38,7 @@ class AddComment {
     const {from} = state.selection;
     // These are in screen coordinates
     const start = view.coordsAtPos(from);
-    // The box in which the tooltip is positioned, to use as base
+    // The box in which the comment button is positioned, to use as base
     const box = button.$el.offsetParent.getBoundingClientRect();
     button.$el.style.bottom = `${(box.bottom - start.bottom)}px`;
   }

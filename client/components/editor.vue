@@ -203,6 +203,10 @@
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
       });
+
+      this.$autorun((computation) => {
+        this.commentsHandle = this.$subscribe('Comment.feed', {contentKey: this.contentKey});
+      });
     },
 
     mounted() {
@@ -292,6 +296,7 @@
       this.dispatch = view.dispatch;
       this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       window.addEventListener('resize', this.handleWindowResize);
+
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
           return;
@@ -325,6 +330,13 @@
             view.dispatch(collab.receiveTransaction(view.state, _.pluck(newContents, 'step'), _.pluck(newContents, 'clientId')));
           }
         });
+      });
+
+      this.$autorun((computation) => {
+        const comments = Comment.documents.find(this.commentsHandle.scopeQuery()).fetch();
+        if (comments.length) {
+          this.$emit("commentsFetched", comments);
+        }
       });
     },
     beforeDestroy() {
@@ -373,6 +385,7 @@
         Comment.create({
           highlightId: id,
           text: comment,
+          contentKey: this.contentKey,
         });
         toggleComment(id, schema, this.state, this.dispatch);
       },

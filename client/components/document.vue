@@ -4,7 +4,7 @@
       <v-card>
         <v-card-text>
           <!-- TODO: Display editor only if you have permissions. -->
-          <editor :content-key="document.contentKey" />
+          <editor :content-key="document.contentKey" @commentsFetched="showComments" />
         </v-card-text>
       </v-card>
     </v-flex>
@@ -49,7 +49,7 @@
         </v-layout>
         <v-layout row class="mt-3">
           <v-flex>
-            <v-tabs grow light>
+            <v-tabs grow light id="tab-sidebar">
               <v-tabs-bar class="grey lighten-4">
                 <v-tabs-item ripple href="#comments" class="primary--text">Comments</v-tabs-item>
                 <v-tabs-item ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span>Chat</v-badge></v-tabs-item>
@@ -58,14 +58,9 @@
               </v-tabs-bar>
               <v-tabs-items>
                 <v-tabs-content id="comments">
-                  <v-card>
+                  <v-card v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="commentsRef">
                     <v-card-text>
-                      Comment 1.
-                    </v-card-text>
-                  </v-card>
-                  <v-card>
-                    <v-card-text>
-                      Comment 2.
+                      {{comment.text}}
                     </v-card-text>
                   </v-card>
                 </v-tabs-content>
@@ -84,6 +79,13 @@
 
   import {Document} from '/lib/document';
 
+  function getOffset(el) {
+    const e = el.getBoundingClientRect();
+    return {
+      left: e.left + window.scrollX,
+      top: e.top + window.scrollY,
+    };
+  }
   // @vue/component
   const component = {
     props: {
@@ -92,7 +94,11 @@
         required: true,
       },
     },
-
+    data() {
+      return {
+        documentComments: [],
+      };
+    },
     computed: {
       document() {
         return Document.documents.findOne({
@@ -105,6 +111,74 @@
       this.$autorun((computation) => {
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
+    },
+    methods: {
+      /**
+       * Method that is called when new comments are fetched, and makes DOM
+       * manipulation needed to make sure comments are nicely aligned with
+       * the comments text.
+      */
+      showComments(comments) {
+        this.documentComments = comments.map((c) => {
+          // `highlightTop` will indicate the Y position of each text segment inside
+          // the editor that contains each comment.
+          const el = document.querySelector(`span[data-highlight-ids='${c.highlightId}']`);
+          return Object.assign({}, c, {highlightTop: getOffset(el).top});
+        }).sort((a, b) => {
+          // We sort these values in order to place the comments correctly
+          if (a.highlightTop > b.highlightTop) {
+            return 1;
+          }
+          else if (a.highlightTop < b.highlightTop) {
+            return -1;
+          }
+          else {
+            return 0;
+          }
+        }).map((c, i) => {
+          /*
+            We add a `marginTop` property to the comments that indicates how much
+            should the `marginTop` CSS value should be between two comments cards.
+            Before rendering we just can calculate the marginTop for the first
+            card, so we set 0 to the others in other for them to be displayed right
+            after the top card.
+          */
+          if (i === 0) {
+            const el2 = document.querySelector("#tab-sidebar .tabs__container");
+            const el2Y = getOffset(el2).top + el2.offsetHeight;
+            const elY = c.highlightTop;
+            const marginTop = elY - el2Y > 0 ? elY - el2Y : 0;
+            return Object.assign({}, c, {marginTop});
+          }
+          return Object.assign({}, c, {marginTop: 0});
+        });
+
+        this.$nextTick().then(() => {
+          // After the cards have been rendered we can start measuring the
+          // distance between each cards with the next, and adjust the margins
+          // acoordingly.
+          const heights = this.$refs.commentsRef.map((ref) => {
+            return ref.$el.offsetHeight;
+          });
+
+          for (let i = 0; i < this.documentComments.length; i += 1) {
+            const c = this.documentComments[i];
+            const height = heights[i];
+            let bottom = 0;
+            let {marginTop} = c;
+            if (i === 0) {
+              const {top} = getOffset(this.$refs.commentsRef[i].$el);
+              bottom = top + height;
+            }
+            else {
+              const previousBottom = this.documentComments[i - 1].bottom;
+              marginTop = c.highlightTop - previousBottom > 0 ? c.highlightTop - previousBottom : 0;
+              bottom = previousBottom + marginTop + height;
+            }
+            this.documentComments.splice(i, 1, Object.assign({}, c, {bottom, marginTop}));
+          }
+        });
+      },
     },
   };
 
