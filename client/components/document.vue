@@ -119,11 +119,16 @@
        * the comments text.
       */
       showComments(comments) {
-        this.documentComments = comments.map((c) => {
+        this.documentComments = comments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
           const el = document.querySelector(`span[data-highlight-ids='${c.highlightId}']`);
+          if (!el) {
+            return null;
+          }
           return Object.assign({}, c, {highlightTop: getOffset(el).top});
+        }).filter((c) => {
+          return c;
         }).sort((a, b) => {
           // We sort these values in order to place the comments correctly
           if (a.highlightTop > b.highlightTop) {
