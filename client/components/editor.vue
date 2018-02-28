@@ -246,7 +246,7 @@
           dropCursor(),
           gapCursor(),
           history(),
-          commentPlugin,
+          commentPlugin(this),
           menu,
           addCommentPlugin(this),
           collab.collab({
@@ -442,6 +442,10 @@
       },
       openCommentDialog() {
         this.commentDialog = true;
+      },
+      filterComments(ids) {
+        // Remove any orphan Comment that could stay in db.
+        Comment.filterOrphan({highlightIds: ids, contentKey: this.contentKey});
       },
     },
   };
