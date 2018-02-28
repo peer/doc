@@ -112,7 +112,13 @@
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
     },
+    mounted() {
+      window.addEventListener('resize', this.handleWindowResize);
+    },
     methods: {
+      handleWindowResize(e) {
+        this.layoutComments();
+      },
       /**
        * Method that is called when new comments are fetched, and makes DOM
        * manipulation needed to make sure comments are nicely aligned with
@@ -162,27 +168,30 @@
           // After the cards have been rendered we can start measuring the
           // distance between each cards with the next, and adjust the margins
           // acoordingly.
-          const heights = this.$refs.commentsRef.map((ref) => {
-            return ref.$el.offsetHeight;
-          });
-
-          for (let i = 0; i < this.documentComments.length; i += 1) {
-            const c = this.documentComments[i];
-            const height = heights[i];
-            let bottom = 0;
-            let {marginTop} = c;
-            if (i === 0) {
-              const {top} = getOffset(this.$refs.commentsRef[i].$el);
-              bottom = top + height;
-            }
-            else {
-              const previousBottom = this.documentComments[i - 1].bottom;
-              marginTop = c.highlightTop - previousBottom > 0 ? c.highlightTop - previousBottom : 0;
-              bottom = previousBottom + marginTop + height;
-            }
-            this.documentComments.splice(i, 1, Object.assign({}, c, {bottom, marginTop}));
-          }
+          this.layoutComments();
         });
+      },
+      layoutComments() {
+        const heights = this.$refs.commentsRef.map((ref) => {
+          return ref.$el.offsetHeight;
+        });
+
+        for (let i = 0; i < this.documentComments.length; i += 1) {
+          const c = this.documentComments[i];
+          const height = heights[i];
+          let bottom = 0;
+          let {marginTop} = c;
+          if (i === 0) {
+            const {top} = getOffset(this.$refs.commentsRef[i].$el);
+            bottom = top + height;
+          }
+          else {
+            const previousBottom = this.documentComments[i - 1].bottom;
+            marginTop = c.highlightTop - previousBottom > 0 ? c.highlightTop - previousBottom : 0;
+            bottom = previousBottom + marginTop + height;
+          }
+          this.documentComments.splice(i, 1, Object.assign({}, c, {bottom, marginTop}));
+        }
       },
     },
   };
