@@ -263,8 +263,6 @@
           view.updateState(newState);
           this.state = newState;
           const sendable = collab.sendableSteps(newState);
-          // const comments = commentPlugin.getState(newState).unsentEvents();
-          // const commentsVersion = commentPlugin.getState(newState).version;
           const {clientId} = this;
           if (sendable) {
             const commentMarks = _.filter(transaction.steps, (s) => {

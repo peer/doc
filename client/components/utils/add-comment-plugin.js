@@ -1,5 +1,4 @@
 import {Plugin} from "prosemirror-state";
-
 import {toggleMark} from "prosemirror-commands";
 
 class AddComment {
@@ -17,6 +16,7 @@ class AddComment {
    */
   update(view, lastState) {
     const {state} = view;
+    const {selection} = state;
     if (
       (lastState &&
       lastState.doc.eq(state.doc) &&
@@ -25,9 +25,26 @@ class AddComment {
       return;
     }
 
+    const marks = [];
+    state.doc.nodesBetween(selection.from, selection.to, (node, pos, parent, index) => {
+      marks.push(node.marks);
+    });
+    marks.shift(); // the first element always comes empty, so we remove it
+    let onlyCommentMarkInRange = true;
+    marks.forEach((markArray) => {
+      if (!markArray.length) {
+        onlyCommentMarkInRange = false;
+      }
+      if (markArray.filter((m) => {
+        return m.type.name !== 'comment';
+      }).length) {
+        onlyCommentMarkInRange = false;
+      }
+    });
     const button = this.vueInstance.$refs.addCommentButton;
-    // Hide the comment button if the selection is empty
-    if (state.selection.empty) {
+    // Hide the comment button if the selection is empty or the selection
+    // only contains comment marks.
+    if (state.selection.empty || onlyCommentMarkInRange) {
       button.$el.style.opacity = 0;
       button.$el.style.visibility = 'hidden';
       return;
