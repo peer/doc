@@ -131,6 +131,7 @@
         });
 
         if (!currentComments.length) {
+          this.documentComments = currentComments;
           return;
         }
 
@@ -181,6 +182,9 @@
         });
       },
       layoutComments() {
+        if (!this.$refs.commentsRef) {
+          return;
+        }
         const heights = this.$refs.commentsRef.map((ref) => {
           return ref.$el.offsetHeight;
         });
