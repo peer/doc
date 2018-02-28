@@ -4,7 +4,7 @@
       <v-card>
         <v-card-text>
           <!-- TODO: Display editor only if you have permissions. -->
-          <editor :content-key="document.contentKey" @commentsFetched="showComments" />
+          <editor :content-key="document.contentKey" @commentsFetched="showComments" @contentChanged="layoutComments" />
         </v-card-text>
       </v-card>
     </v-flex>
@@ -146,7 +146,10 @@
         }).filter((c) => {
           return c;
         }).sort((a, b) => {
-          // We sort these values in order to place the comments correctly
+          // We sort these values in order to place the comments correctly.
+          // For example, you could have a newer comment positioned on top
+          // of an older one, so we have to sort the positions accordinglys
+          // before Vue tries to render them.
           if (a.highlightTop > b.highlightTop) {
             return 1;
           }
@@ -156,21 +159,14 @@
           else {
             return 0;
           }
-        }).map((c, i) => {
+        }).map((c) => {
           /*
             We add a `marginTop` property to the comments that indicates how much
             should the `marginTop` CSS value should be between two comments cards.
-            Before rendering we just can calculate the marginTop for the first
-            card, so we set 0 to the others in other for them to be displayed right
-            after the top card.
+            Before rendering we set 0 to all the cards in other for let Vue to
+            render them normally and after that (with Vue.$nextTick()) make the
+            position changes accordingly (in layoutComments()).
           */
-          if (i === 0) {
-            const el2 = document.querySelector("#tab-sidebar .tabs__container");
-            const el2Y = getOffset(el2).top + el2.offsetHeight;
-            const elY = c.highlightTop;
-            const marginTop = elY - el2Y > 0 ? elY - el2Y : 0;
-            return Object.assign({}, c, {marginTop});
-          }
           return Object.assign({}, c, {marginTop: 0});
         });
 
@@ -185,6 +181,16 @@
         if (!this.$refs.commentsRef) {
           return;
         }
+        const highlightTops = this.documentComments.map((c, i) => {
+          // `highlightTop` will indicate the Y position of each text segment inside
+          // the editor that contains each comment.
+          const el = document.querySelector(`span[data-highlight-ids='${c.highlightId}']`);
+          if (!el) {
+            return null;
+          }
+          return getOffset(el).top;
+        });
+
         const heights = this.$refs.commentsRef.map((ref) => {
           return ref.$el.offsetHeight;
         });
@@ -195,12 +201,16 @@
           let bottom = 0;
           let {marginTop} = c;
           if (i === 0) {
-            const {top} = getOffset(this.$refs.commentsRef[i].$el);
-            bottom = top + height;
+            const el2 = document.querySelector("#tab-sidebar .tabs__container");
+            const el2Y = getOffset(el2).top + el2.offsetHeight;
+            const elY = highlightTops[0];
+            marginTop = elY - el2Y > 0 ? elY - el2Y : 0;
+            // const {top} = getOffset(this.$refs.commentsRef[i].$el);
+            bottom = el2Y + marginTop + height;
           }
           else {
             const previousBottom = this.documentComments[i - 1].bottom;
-            marginTop = c.highlightTop - previousBottom > 0 ? c.highlightTop - previousBottom : 0;
+            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : 0;
             bottom = previousBottom + marginTop + height;
           }
           this.documentComments.splice(i, 1, Object.assign({}, c, {bottom, marginTop}));

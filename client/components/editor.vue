@@ -287,6 +287,7 @@
               this.addingStepsInProgress = false;
               // TODO: Error handling.
             });
+            this.$emit("contentChanged");
           }
         },
       });
