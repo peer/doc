@@ -444,8 +444,15 @@
         this.commentDialog = true;
       },
       filterComments(ids) {
-        // Remove any orphan Comment that could stay in db.
-        Comment.filterOrphan({highlightIds: ids, contentKey: this.contentKey});
+        if (!this.state) {
+          return;
+        }
+        // Set final versino for any orphan Comment that could stay in db.
+        Comment.filterOrphan({
+          highlightIds: ids,
+          contentKey: this.contentKey,
+          version: collab.getVersion(this.state),
+        });
       },
     },
   };

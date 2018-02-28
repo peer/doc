@@ -125,7 +125,16 @@
        * the comments text.
       */
       showComments(comments) {
-        this.documentComments = comments.map((c, i) => {
+        const currentComments = comments
+        .filter((c) => {
+          return !c.versionTo;
+        });
+
+        if (!currentComments.length) {
+          return;
+        }
+
+        this.documentComments = currentComments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
           const el = document.querySelector(`span[data-highlight-ids='${c.highlightId}']`);
