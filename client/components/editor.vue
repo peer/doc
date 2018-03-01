@@ -163,7 +163,7 @@
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
   import {commentPlugin} from './utils/comment-plugin';
-  import addCommentPlugin, {toggleComment} from './utils/add-comment-plugin';
+  import addCommentPlugin, {addComment, removeComment, updateChunks} from './utils/add-comment-plugin';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
@@ -191,6 +191,7 @@
         commentDialog: false,
         comment: '',
         selectedExistingLinks: [],
+        selectedExistingComments: [],
         validLink: false,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
@@ -374,19 +375,49 @@
       },
       insertComment() {
         const {comment} = this;
-        this.commentDialog = false;
-        this.comment = '';
         const {selection} = this.state;
         if (selection.empty) {
           return;
         }
+
         const id = Random.id();
+        this.commentDialog = false;
+        this.comment = '';
         Comment.create({
           highlightId: id,
           text: comment,
           contentKey: this.contentKey,
         });
-        toggleComment(id, schema, this.state, this.dispatch);
+
+        let newChunks = [{
+          from: selection.from,
+          to: selection.to,
+          empty: true,
+        }];
+
+        if (this.selectedExistingComments) {
+          // Change existing comment marks to add the new hilight-id after their current highlight-ids.
+          this.selectedExistingComments.forEach((commentMark) => {
+            const {start, size, marks} = commentMark;
+            const end = start + size;
+            const chunkToSplit = newChunks.find((chunk) => {
+              return chunk.from <= start && chunk.to >= end;
+            });
+            if (chunkToSplit) {
+              // update collection to reflect new segments of the selection with previous comment marks
+              newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
+            }
+
+            const currentId = marks[0].attrs["data-highlight-ids"];
+            removeComment(schema, this.state, start, end, this.dispatch);
+            addComment(`${currentId},${id}`, schema, this.state, start, end, this.dispatch);
+          });
+        }
+        newChunks.filter((chunk) => {
+          return chunk.empty; // only add a new comment mark to segments with no previous comment marks
+        }).forEach((chunk) => {
+          addComment(id, schema, this.state, chunk.from, chunk.to, this.dispatch);
+        });
       },
       removeLink() {
         this.clearLink();

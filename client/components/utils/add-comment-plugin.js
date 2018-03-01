@@ -1,5 +1,4 @@
 import {Plugin} from "prosemirror-state";
-import {toggleMark} from "prosemirror-commands";
 
 class AddComment {
   constructor(view, vueInstance) {
@@ -26,20 +25,29 @@ class AddComment {
     }
 
     const marks = [];
-    state.doc.nodesBetween(selection.from, selection.to, (node, pos, parent, index) => {
-      marks.push(node.marks);
+    state.doc.nodesBetween(selection.from, selection.to, (node, start, parent, index) => {
+      marks.push({marks: node.marks, start, size: node.nodeSize});
     });
     marks.shift(); // the first element always comes empty, so we remove it
     let onlyCommentMarkInRange = true;
-    marks.forEach((markArray) => {
-      if (!markArray.length) {
+    marks.forEach((marksObj) => {
+      if (!marksObj.marks.length) {
         onlyCommentMarkInRange = false;
       }
-      if (markArray.filter((m) => {
+      if (marksObj.marks.filter((m) => {
         return m.type.name !== 'comment';
       }).length) {
         onlyCommentMarkInRange = false;
       }
+    });
+    this.vueInstance.selectedExistingComments = marks.filter((marksObj) => {
+      return marksObj.marks.length;
+    }).map((marksObj) => {
+      return Object.assign({}, marksObj, {
+        marks: marksObj.marks.filter((m) => {
+          return m.type.name === "comment";
+        }),
+      });
     });
     const button = this.vueInstance.$refs.addCommentButton;
     // Hide the comment button if the selection is empty or the selection
@@ -69,19 +77,63 @@ export default function addCommentPlugin(vueInstance) {
   });
 }
 
-export function toggleComment(id, schema, state, dispatch) {
-  const {doc, selection} = state;
-  if (selection.empty) {
-    return false;
-  }
+export function addComment(ids, schema, state, from, to, dispatch) {
+  const {doc, tr} = state;
   let attrs = null;
-  if (dispatch) {
-    if (!doc.rangeHasMark(selection.from, selection.to, schema.marks.comment)) {
-      attrs = {"data-highlight-ids": id};
-      if (!attrs["data-highlight-ids"]) {
-        return false;
-      }
+  if (!doc.rangeHasMark(from, to, schema.marks.comment)) {
+    attrs = {"data-highlight-ids": ids};
+    if (!attrs["data-highlight-ids"]) {
+      return false;
     }
   }
-  return toggleMark(schema.marks.comment, attrs)(state, dispatch);
+  return dispatch(tr.addMark(from, to, schema.marks.comment.create(attrs)));
+}
+
+export function removeComment(schema, state, from, to, dispatch) {
+  const {doc, tr} = state;
+  if (dispatch) {
+    if (doc.rangeHasMark(from, to, schema.marks.comment)) {
+      return dispatch(tr.removeMark(from, to, schema.marks.comment));
+    }
+  }
+  return null;
+}
+
+export function updateChunks(previousChunks, splitChunk, {from, to}) {
+  let chunk1 = null;
+  let chunk3 = null;
+  if (splitChunk.from < from) {
+    chunk1 = {
+      from: splitChunk.from,
+      to: from,
+      empty: true,
+    };
+  }
+  const chunk2 = {
+    from,
+    to,
+    empty: false,
+  };
+  if (splitChunk.to > to) {
+    chunk3 = {
+      from: to,
+      to: splitChunk.to,
+      empty: true,
+    };
+  }
+
+  const index = previousChunks.indexOf(splitChunk);
+  const newChunks = previousChunks;
+  newChunks.splice(index, 1);
+  if (chunk1) {
+    newChunks.splice(index, 0, chunk1);
+  }
+
+  newChunks.splice(index + 1, 0, chunk2);
+
+  if (chunk3) {
+    newChunks.splice(index + 2, 0, chunk3);
+  }
+
+  return newChunks;
 }
