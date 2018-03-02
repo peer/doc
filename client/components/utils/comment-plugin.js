@@ -10,11 +10,11 @@ function getDecorations(doc, vueInstance) {
       return m.type.name === "comment";
     });
     if (mark) {
-      ids.push(mark.attrs["data-highlight-ids"]);
+      ids.push(mark.attrs["data-highlight-ids"].split(","));
       result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "comment"}));
     }
   });
-  vueInstance.filterComments(ids);
+  vueInstance.filterComments(_.flatten(ids));
   return DecorationSet.create(doc, result);
 }
 export const commentPlugin = (vueInstance) => {

@@ -86,6 +86,20 @@
       top: e.top + window.scrollY,
     };
   }
+
+  function getElementByHighlightId(elements, id) {
+    for (let i = 0; i < elements.length; i += 1) {
+      const commentMarkEl = elements[i];
+      const ids = commentMarkEl.attributes["data-highlight-ids"].value.split(",");
+      if (ids.find((commentId) => {
+        return commentId === id;
+      })) {
+        return commentMarkEl;
+      }
+    }
+    return null;
+  }
+
   // @vue/component
   const component = {
     props: {
@@ -135,10 +149,11 @@
           return;
         }
 
+        const commentMarksEls = document.querySelectorAll(`span[data-highlight-ids]`);
         this.documentComments = currentComments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
-          const el = document.querySelector(`span[data-highlight-ids='${c.highlightId}']`);
+          const el = getElementByHighlightId(commentMarksEls, c.highlightId);
           if (!el) {
             return null;
           }
@@ -181,10 +196,11 @@
         if (!this.$refs.commentsRef) {
           return;
         }
+        const commentMarksEls = document.querySelectorAll(`span[data-highlight-ids]`);
         const highlightTops = this.documentComments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
-          const el = document.querySelector(`span[data-highlight-ids='${c.highlightId}']`);
+          const el = getElementByHighlightId(commentMarksEls, c.highlightId);
           if (!el) {
             return null;
           }
