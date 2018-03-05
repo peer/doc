@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 10:58-0300\n"
-"PO-Revision-Date: 2018-03-05 10:58-0300\n"
+"POT-Creation-Date: 2018-03-05 12:12-0300\n"
+"PO-Revision-Date: 2018-03-05 12:12-0300\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "Language: en_US\n"
@@ -81,9 +81,9 @@ msgstr "Source code"
 msgid "Untitled"
 msgstr "Untitled"
 
-#: client/components/user-signin.vue:58
+#: client/components/user-signin.vue:65
 msgid "username"
-msgstr "username"
+msgstr "Username"
 
 #: client/components/editor.vue:169
 msgid "linkHint"
@@ -91,8 +91,8 @@ msgstr "linkHint"
 
 #: client/components/app-layout.vue:70
 msgid "errorSigningOut"
-msgstr "errorSigningOut"
+msgstr "Error signing out"
 
 #: client/components/app-layout.vue:73
 msgid "signedOut"
-msgstr "signedOut"
+msgstr "You have been signed out."

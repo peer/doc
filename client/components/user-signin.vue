@@ -61,8 +61,8 @@
       },
     },
 
-    mounted: {
-      usernameLabel: this.$gettext('username'),
+    mounted() {
+      this.usernameLabel = this.$gettext('username');
     },
 
     methods: {
