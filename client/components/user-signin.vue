@@ -62,7 +62,7 @@
     },
 
     mounted() {
-      this.usernameLabel = this.$gettext('username');
+      this.usernameLabel = this.$gettext("username");
     },
 
     methods: {
@@ -78,7 +78,7 @@
             this.errorShow = true;
           }
           else {
-            Snackbar.enqueue(this.$gettext('You have been signed in.'), 'success');
+            Snackbar.enqueue(this.$gettext("You have been signed in."), 'success');
             // TODO: Redirect to the previous page and not just to the front page.
             //       See: https://github.com/vuejs/vue-router/issues/883
             this.$router.push({name: 'front-page'});
