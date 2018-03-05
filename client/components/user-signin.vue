@@ -30,13 +30,13 @@
 
   function checkUsername(username) {
     if (!username) {
-      return "Username is required";
+      return this.$gettext("Username is required");
     }
     if (username.length < 4) {
-      return "Username too short, it should be 4 characters or more";
+      return this.$gettext("Username too short, it should be 4 characters or more");
     }
     if (!User.VALID_USERNAME.test(username)) {
-      return "Invalid username, it should contain only basic characters";
+      return this.$gettext("Invalid username, it should contain only basic characters");
     }
     return true;
   }
@@ -47,7 +47,7 @@
       return {
         valid: false,
         username: '',
-        usernameRules: [checkUsername],
+        usernameRules: [checkUsername.bind(this)],
         formSubmissionInProgress: false,
         errorShow: false,
         errorMessage: null,
@@ -78,7 +78,7 @@
             this.errorShow = true;
           }
           else {
-            Snackbar.enqueue("You have been signed in.", 'success');
+            Snackbar.enqueue(this.$gettext('You have been signed in.'), 'success');
             // TODO: Redirect to the previous page and not just to the front page.
             //       See: https://github.com/vuejs/vue-router/issues/883
             this.$router.push({name: 'front-page'});

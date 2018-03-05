@@ -13,7 +13,7 @@
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-chip v-if="!document.isPublished()" label color="yellow lighten-2" class="documents__label" v-translate>Draft</v-chip>
+                <v-chip v-if="!document.isPublished()" label color="yellow lighten-2" class="documents__label"><translate>Draft</translate></v-chip>
               </v-list-tile-action>
             </v-list-tile>
             <v-divider v-if="index + 1 < documents.count()" :key="document._id" />

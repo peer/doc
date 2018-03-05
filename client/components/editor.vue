@@ -18,9 +18,9 @@
           </v-form>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="secondary" flat @click="cancelLink" v-translate>Cancel</v-btn>
-          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)" v-translate>Remove</v-btn>
-          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink" v-translate>Insert</v-btn>
+          <v-btn color="secondary" flat @click="cancelLink"><translate>Cancel</translate></v-btn>
+          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)"><translate>Remove</translate></v-btn>
+          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink"><translate>Insert</translate></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

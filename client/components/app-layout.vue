@@ -7,7 +7,7 @@
       <v-toolbar-title>PeerDoc</v-toolbar-title>
       <v-spacer />
       <v-toolbar-items>
-        <v-btn :to="{name: 'documents'}" flat v-translate>Documents</v-btn>
+        <v-btn :to="{name: 'documents'}" flat><translate>Documents</translate></v-btn>
         <v-menu v-if="currentUser" offset-y bottom left origin="top right">
           <v-btn slot="activator" flat>{{currentUser.username}}
             <v-avatar size="36px" class="app-layout__avatar"><img :src="currentUser.avatarUrl()" alt=""></v-avatar>
@@ -18,7 +18,7 @@
             </v-list-tile>
           </v-list>
         </v-menu>
-        <v-btn v-else :to="{name: 'user-signin'}" flat v-translate>Sign in</v-btn>
+        <v-btn v-else :to="{name: 'user-signin'}" flat><translate>Sign in</translate></v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
@@ -31,7 +31,7 @@
     </v-footer>
     <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
       {{snackbarMessage}}
-      <v-btn flat dark @click.native="onSnackbarClose" v-translate>Close</v-btn>
+      <v-btn flat dark @click.native="onSnackbarClose"><translate>Close</translate></v-btn>
     </v-snackbar>
   </v-app>
 </template>
