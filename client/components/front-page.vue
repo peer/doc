@@ -1,5 +1,5 @@
 <template>
-  <p>
+  <p v-translate>
     Front page.
   </p>
 </template>

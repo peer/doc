@@ -24,11 +24,13 @@
     "prosemirror-state": "^1.0.2",
     "prosemirror-view": "^1.0.8",
     "vue": "git://github.com/meteor-vue/vue.git#meteor",
+    "vue-gettext": "^2.0.26",
     "vue-router": "^2.8.1",
     "vuetify": "^0.17.6"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.1",
+    "easygettext": "^2.3.0",
     "eslint": "^4.15.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-import-resolver-meteor": "^0.4.0",
@@ -36,7 +38,8 @@
     "eslint-plugin-meteor": "^4.1.4",
     "eslint-plugin-vue": "^4.2.0",
     "husky": "^0.14.3",
-    "lint-staged": "^6.0.1"
+    "lint-staged": "^6.0.1",
+    "vue-template-compiler": "^2.5.2"
   },
   "meteor": {
     "vueVersion": 2

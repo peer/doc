@@ -8,7 +8,7 @@
               autofocus
               placeholder="http://"
               v-model="link"
-              hint="Enter a link"
+              :hint="linkHint"
               :hide-details="link === ''"
               single-line
               required
@@ -18,9 +18,9 @@
           </v-form>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="secondary" flat @click="cancelLink">Cancel</v-btn>
-          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)">Remove</v-btn>
-          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink">Insert</v-btn>
+          <v-btn color="secondary" flat @click="cancelLink" v-translate>Cancel</v-btn>
+          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)" v-translate>Remove</v-btn>
+          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink" v-translate>Insert</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -149,6 +149,7 @@
         state: null,
         link: '',
         linkDialog: false,
+        linkHint: '',
         selectedExistingLinks: [],
         validLink: false,
         linkValidationRule: (value) => {
@@ -165,6 +166,7 @@
     },
 
     mounted() {
+      this.linkHint = this.$gettext('linkHint');
       const menu = menuPlugin([
         {command: toggleMark(schema.marks.strong), dom: document.getElementById("bold"), mark: schema.marks.strong},
         {command: toggleMark(schema.marks.em), dom: document.getElementById("italic"), mark: schema.marks.em},

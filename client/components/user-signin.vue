@@ -7,11 +7,11 @@
           <v-card-text>
             <!-- TODO: This should open with "slideDown" effect, where it pushes the content down gradually, as it grows vertically. -->
             <v-alert v-model="errorShow" color="error" dismissible transition="scale-transition" class="mb-3">{{errorMessage}}</v-alert>
-            <v-text-field :readonly="formSubmissionInProgress" label="Username" v-model="username" :rules="usernameRules" required />
+            <v-text-field :readonly="formSubmissionInProgress" :label="usernameLabel" v-model="username" :rules="usernameRules" required />
           </v-card-text>
           <v-card-actions>
             <v-btn type="submit" :disabled="!valid || formSubmissionInProgress" block color="primary">
-              <span>Sign in</span>
+              <span v-translate>Sign in</span>
               <v-progress-linear v-if="formSubmissionInProgress" :indeterminate="true" :height="3" color="primary" class="user-signin__progress" />
             </v-btn>
           </v-card-actions>
@@ -51,6 +51,7 @@
         formSubmissionInProgress: false,
         errorShow: false,
         errorMessage: null,
+        usernameLabel: '',
       };
     },
 
@@ -58,6 +59,10 @@
       currentUserId() {
         return Meteor.userId();
       },
+    },
+
+    mounted: {
+      usernameLabel: this.$gettext('username'),
     },
 
     methods: {

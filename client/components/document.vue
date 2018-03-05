@@ -51,9 +51,9 @@
           <v-flex>
             <v-tabs grow light>
               <v-tabs-bar class="grey lighten-4">
-                <v-tabs-item ripple href="#comments" class="primary--text">Comments</v-tabs-item>
-                <v-tabs-item ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span>Chat</v-badge></v-tabs-item>
-                <v-tabs-item ripple href="#history" class="primary--text">History</v-tabs-item>
+                <v-tabs-item ripple href="#comments" class="primary--text" v-translate>Comments</v-tabs-item>
+                <v-tabs-item ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span><translate>Chat</translate></v-badge></v-tabs-item>
+                <v-tabs-item ripple href="#history" class="primary--text" v-translate>History</v-tabs-item>
                 <v-tabs-slider color="primary" />
               </v-tabs-bar>
               <v-tabs-items>

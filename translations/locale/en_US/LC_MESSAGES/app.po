@@ -1,0 +1,98 @@
+# English translations for peer-doc package.
+# Copyright (C) 2018 THE peer-doc'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the peer-doc package.
+# Automatically generated, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: peer-doc undefined\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-03-05 10:58-0300\n"
+"PO-Revision-Date: 2018-03-05 10:58-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: client/components/editor.vue:20
+msgid "Cancel"
+msgstr "Cancel"
+
+#: client/components/document.vue:54
+msgid "Chat"
+msgstr "Chat"
+
+#: client/components/app-layout.vue:33
+msgid "Close"
+msgstr "Close"
+
+#: client/components/document.vue:53
+msgid "Comments"
+msgstr "Comments"
+
+#: client/components/app-layout.vue:9
+msgid "Documents"
+msgstr "Documents"
+
+#: client/components/documents.vue:15
+msgid "Draft"
+msgstr "Draft"
+
+#: client/components/front-page.vue:1
+msgid "Front page."
+msgstr "Front page."
+
+#: client/components/document.vue:55
+msgid "History"
+msgstr "History"
+
+#: client/components/editor.vue:22
+msgid "Insert"
+msgstr "Insert"
+
+#: client/components/documents.vue:21
+msgid "No documents."
+msgstr "No documents."
+
+#: client/components/not-found.vue:3
+msgid "Not found."
+msgstr "Not found."
+
+#: client/components/editor.vue:21
+msgid "Remove"
+msgstr "Remove"
+
+#: client/components/app-layout.vue:20 client/components/user-signin.vue:13
+msgid "Sign in"
+msgstr "Sign in"
+
+#: client/components/app-layout.vue:16
+msgid "Sign out"
+msgstr "Sign out"
+
+#: client/components/app-layout.vue:29
+msgid "Source code"
+msgstr "Source code"
+
+#: client/components/documents.vue:9
+msgid "Untitled"
+msgstr "Untitled"
+
+#: client/components/user-signin.vue:58
+msgid "username"
+msgstr "username"
+
+#: client/components/editor.vue:169
+msgid "linkHint"
+msgstr "linkHint"
+
+#: client/components/app-layout.vue:70
+msgid "errorSigningOut"
+msgstr "errorSigningOut"
+
+#: client/components/app-layout.vue:73
+msgid "signedOut"
+msgstr "signedOut"
