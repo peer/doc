@@ -69,10 +69,10 @@
           this.documentCreationInProgress = false;
 
           if (error) {
-            Snackbar.enqueue(`Error creating a new document: ${error}`, 'error');
+            Snackbar.enqueue(`${this.$gettext("Error creating a new document")}: ${error}`, 'error');
           }
           else {
-            Snackbar.enqueue("New document has been created.", 'success');
+            Snackbar.enqueue(this.$gettext("New document has been created."), 'success');
             this.$router.push({name: 'document', params: {documentId: document._id}});
           }
         });

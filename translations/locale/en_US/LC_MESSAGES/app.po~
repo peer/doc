@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 12:12-0300\n"
+"POT-Creation-Date: 2018-03-05 13:59-0300\n"
 "PO-Revision-Date: 2018-03-05 12:12-0300\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -81,9 +81,25 @@ msgstr "Source code"
 msgid "Untitled"
 msgstr "Untitled"
 
+#: client/components/user-signin.vue:33
+msgid "Username is required"
+msgstr "Username is required"
+
+#: client/components/user-signin.vue:36
+msgid "Username too short, it should be 4 characters or more"
+msgstr "Username too short, it should be 4 characters or more"
+
+#: client/components/user-signin.vue:39
+msgid "Invalid username, it should contain only basic characters"
+msgstr "Invalid username, it should contain only basic characters"
+
 #: client/components/user-signin.vue:65
 msgid "username"
 msgstr "Username"
+
+#: client/components/user-signin.vue:81
+msgid "You have been signed in."
+msgstr "You have been signed in."
 
 #: client/components/editor.vue:169
 msgid "linkHint"
