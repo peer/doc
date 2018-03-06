@@ -49,6 +49,6 @@ $ meteor npm run lint
 The translations are handled by the [vue-gettext](https://github.com/Polyconseil/vue-gettext) package.
 
 These steps are followed to generate them:
-1. Run `make makemessages` to extract user-visible strings.
+1. Run `npm run extract-strings` to extract user-visible strings.
 2. Go to `translations/locale` and find the `.po` file associated with the language you want to translate.
-3. Generate an updated translations JSON file by running `make translations.`
+3. Generate an updated translations JSON file by running `npm run translate`
