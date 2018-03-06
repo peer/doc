@@ -3,13 +3,13 @@ import {Meteor} from 'meteor/meteor';
 import {nativeScrollBehavior, RouterFactory} from 'meteor/akryum:vue-router2';
 
 import Vue from 'vue';
-import Vuetify from 'vuetify';
 import GetTextPlugin from 'vue-gettext';
+import Vuetify from 'vuetify';
 
 // TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
 //       See: https://github.com/meteor/meteor-feature-requests/issues/218
-import 'vuetify/dist/vuetify.css';
 import translations from '/translations/translations.json';
+import 'vuetify/dist/vuetify.css';
 
 Vue.use(Vuetify);
 Vue.use(GetTextPlugin, {translations});

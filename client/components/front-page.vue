@@ -1,6 +1,6 @@
 <template>
   <p v-translate>
-    Front page.
+    front-page
   </p>
 </template>
 

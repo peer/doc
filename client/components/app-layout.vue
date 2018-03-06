@@ -7,18 +7,18 @@
       <v-toolbar-title>PeerDoc</v-toolbar-title>
       <v-spacer />
       <v-toolbar-items>
-        <v-btn :to="{name: 'documents'}" flat><translate>Documents</translate></v-btn>
+        <v-btn :to="{name: 'documents'}" flat><translate>documents</translate></v-btn>
         <v-menu v-if="currentUser" offset-y bottom left origin="top right">
           <v-btn slot="activator" flat>{{currentUser.username}}
             <v-avatar size="36px" class="app-layout__avatar"><img :src="currentUser.avatarUrl()" alt=""></v-avatar>
           </v-btn>
           <v-list>
             <v-list-tile @click="onSignOut">
-              <v-list-tile-title v-translate>Sign out</v-list-tile-title>
+              <v-list-tile-title v-translate>sign-out</v-list-tile-title>
             </v-list-tile>
           </v-list>
         </v-menu>
-        <v-btn v-else :to="{name: 'user-signin'}" flat><translate>Sign in</translate></v-btn>
+        <v-btn v-else :to="{name: 'user-signin'}" flat><translate>sign-in</translate></v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
@@ -27,11 +27,11 @@
       </v-container>
     </v-content>
     <v-footer app>
-      <a href="https://github.com/peer/doc" v-translate>Source code</a>
+      <a href="https://github.com/peer/doc" v-translate>source-code</a>
     </v-footer>
     <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
       {{snackbarMessage}}
-      <v-btn flat dark @click.native="onSnackbarClose"><translate>Close</translate></v-btn>
+      <v-btn flat dark @click.native="onSnackbarClose"><translate>close</translate></v-btn>
     </v-snackbar>
   </v-app>
 </template>
@@ -67,10 +67,11 @@
       onSignOut() {
         Meteor.logout((error) => {
           if (error) {
-            Snackbar.enqueue(`${this.$gettext('errorSigningOut')}: ${error}`, 'error');
+            const translated = this.$gettext("error-signing-out");
+            Snackbar.enqueue(this.$gettextInterpolate(translated, {error}), 'error');
           }
           else {
-            Snackbar.enqueue(this.$gettext('signedOut'), 'success');
+            Snackbar.enqueue(this.$gettext('signed-out'), 'success');
           }
         });
       },

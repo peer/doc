@@ -18,9 +18,9 @@
           </v-form>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="secondary" flat @click="cancelLink"><translate>Cancel</translate></v-btn>
-          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)"><translate>Remove</translate></v-btn>
-          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink"><translate>Insert</translate></v-btn>
+          <v-btn color="secondary" flat @click="cancelLink"><translate>cancel</translate></v-btn>
+          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)"><translate>remove</translate></v-btn>
+          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink"><translate>insert</translate></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -154,7 +154,7 @@
         validLink: false,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
-          return urlRegex.test(value) || "Invalid URL.";
+          return urlRegex.test(value) || this.$gettext('invalid-url');
         },
       };
     },

@@ -11,7 +11,7 @@
           </v-card-text>
           <v-card-actions>
             <v-btn type="submit" :disabled="!valid || formSubmissionInProgress" block color="primary">
-              <span v-translate>Sign in</span>
+              <span v-translate>sign-in</span>
               <v-progress-linear v-if="formSubmissionInProgress" :indeterminate="true" :height="3" color="primary" class="user-signin__progress" />
             </v-btn>
           </v-card-actions>
@@ -30,13 +30,13 @@
 
   function checkUsername(username) {
     if (!username) {
-      return this.$gettext("Username is required");
+      return this.$gettext("username-is-required");
     }
     if (username.length < 4) {
-      return this.$gettext("Username too short, it should be 4 characters or more");
+      return this.$gettext("Username-too-short");
     }
     if (!User.VALID_USERNAME.test(username)) {
-      return this.$gettext("Invalid username, it should contain only basic characters");
+      return this.$gettext("invalid-username");
     }
     return true;
   }
@@ -78,7 +78,7 @@
             this.errorShow = true;
           }
           else {
-            Snackbar.enqueue(this.$gettext("You have been signed in."), 'success');
+            Snackbar.enqueue(this.$gettext("you-have-been-signed-in"), 'success');
             // TODO: Redirect to the previous page and not just to the front page.
             //       See: https://github.com/vuejs/vue-router/issues/883
             this.$router.push({name: 'front-page'});

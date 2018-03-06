@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 14:58-0300\n"
+"POT-Creation-Date: 2018-03-06 11:26-0300\n"
 "PO-Revision-Date: 2018-03-05 12:12-0300\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -18,109 +18,113 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: client/components/access-denied.vue:3
-msgid "Access denied."
+msgid "access-denied"
 msgstr "Access denied."
 
 #: client/components/editor.vue:20
-msgid "Cancel"
+msgid "cancel"
 msgstr "Cancel"
 
 #: client/components/document.vue:54
-msgid "Chat"
+msgid "chat"
 msgstr "Chat"
 
 #: client/components/app-layout.vue:33
-msgid "Close"
+msgid "close"
 msgstr "Close"
 
 #: client/components/document.vue:53
-msgid "Comments"
+msgid "comments"
 msgstr "Comments"
 
 #: client/components/app-layout.vue:9
-msgid "Documents"
+msgid "documents"
 msgstr "Documents"
 
 #: client/components/documents.vue:15
-msgid "Draft"
+msgid "draft"
 msgstr "Draft"
 
 #: client/components/front-page.vue:1
-msgid "Front page."
+msgid "front-page"
 msgstr "Front page."
 
 #: client/components/document.vue:55
-msgid "History"
+msgid "history"
 msgstr "History"
 
 #: client/components/editor.vue:22
-msgid "Insert"
+msgid "insert"
 msgstr "Insert"
 
 #: client/components/documents.vue:21
-msgid "No documents."
+msgid "no-documents"
 msgstr "No documents."
 
 #: client/components/not-found.vue:3
-msgid "Not found."
+msgid "not-found"
 msgstr "Not found."
 
 #: client/components/editor.vue:21
-msgid "Remove"
+msgid "remove"
 msgstr "Remove"
 
 #: client/components/app-layout.vue:20 client/components/user-signin.vue:13
-msgid "Sign in"
-msgstr "Sign in"
+msgid "sign-in"
+msgstr "Sign In"
 
 #: client/components/app-layout.vue:16
-msgid "Sign out"
-msgstr "Sign out"
+msgid "sign-out"
+msgstr "Sign Out"
 
 #: client/components/app-layout.vue:29
-msgid "Source code"
+msgid "source-code"
 msgstr "Source code"
 
 #: client/components/documents.vue:9
-msgid "Untitled"
+msgid "untitled"
 msgstr "Untitled"
 
 #: client/components/user-signin.vue:33
-msgid "Username is required"
+msgid "username-is-required"
 msgstr "Username is required"
 
 #: client/components/user-signin.vue:36
-msgid "Username too short, it should be 4 characters or more"
-msgstr "Username too short, it should be 4 characters or more"
+msgid "Username-too-short"
+msgstr "Username too short, it should be 4 characters or more."
 
 #: client/components/user-signin.vue:39
-msgid "Invalid username, it should contain only basic characters"
-msgstr "Invalid username, it should contain only basic characters"
+msgid "invalid-username"
+msgstr "Username"
 
 #: client/components/user-signin.vue:65
 msgid "username"
 msgstr "Username"
 
 #: client/components/user-signin.vue:81
-msgid "You have been signed in."
+msgid "you-have-been-signed-in"
 msgstr "You have been signed in."
+
+#: client/components/editor.vue:157
+msgid "invalid-url"
+msgstr "Invalid username, it should contain only basic characters."
 
 #: client/components/editor.vue:169
 msgid "linkHint"
 msgstr "linkHint"
 
 #: client/components/documents.vue:72
-msgid "Error creating a new document"
-msgstr "Error creating a new document"
+msgid "error-creating-document"
+msgstr "Error creating a new document: %{error}"
 
-#: client/components/documents.vue:75
-msgid "New document has been created."
+#: client/components/documents.vue:76
+msgid "new-document-created."
 msgstr "New document has been created."
 
 #: client/components/app-layout.vue:70
-msgid "errorSigningOut"
-msgstr "Error signing out"
+msgid "error-signing-out"
+msgstr "Error signing out: %{error}"
 
-#: client/components/app-layout.vue:73
-msgid "signedOut"
+#: client/components/app-layout.vue:74
+msgid "signed-out"
 msgstr "You have been signed out."
