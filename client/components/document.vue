@@ -11,8 +11,9 @@
     <v-flex xs4>
       <v-container fluid class="app-layout__users">
         <v-layout row>
-          <v-chip v-if="!document.isPublished()" label color="yellow lighten-2" class="documents__label">Draft</v-chip>
-          <v-dialog v-model="publishDialog" max-width="600">
+          <v-chip v-if="!document.isPublished()" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
+          <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
+          <v-dialog v-if="!document.isPublished()" v-model="publishDialog" max-width="600">
             <v-btn color="success" slot="activator">Publish</v-btn>
             <v-card>
               <v-card-title class="headline">Do you wish to publish this document now?</v-card-title>
@@ -174,5 +175,10 @@
   .app-layout__users {
     padding-top: 0;
     padding-right: 0;
+  }
+
+  .doc_status__label {
+    text-transform: uppercase;
+    font-weight: bold;
   }
 </style>
