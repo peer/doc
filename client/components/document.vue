@@ -49,7 +49,7 @@
         </v-layout>
         <v-layout row class="mt-3">
           <v-flex>
-            <v-tabs grow light show-arrows>
+            <v-tabs grow light show-arrows color="grey lighten-4">
               <v-tabs-slider color="primary" />
               <v-tab ripple href="#comments" class="primary--text">Comments</v-tab>
               <v-tab ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span>Chat</v-badge></v-tab>
