@@ -104,6 +104,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {Random} from 'meteor/random';
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
@@ -160,6 +161,11 @@
           return urlRegex.test(value) || "Invalid URL.";
         },
       };
+    },
+    computed: {
+      currentUser() {
+        return Meteor.user({username: 1, avatar: 1});
+      },
     },
     created() {
       this.$autorun((computation) => {
@@ -231,7 +237,7 @@
           }
         },
         editable: () => {
-          return !this.readOnly;
+          return Boolean(!this.readOnly && this.currentUser);
         },
       });
 
