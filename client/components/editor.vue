@@ -136,6 +136,10 @@
         type: String,
         required: true,
       },
+      readOnly: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     data() {
@@ -157,7 +161,6 @@
         },
       };
     },
-
     created() {
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
@@ -226,6 +229,9 @@
               // TODO: Error handling.
             });
           }
+        },
+        editable: () => {
+          return !this.readOnly;
         },
       });
 

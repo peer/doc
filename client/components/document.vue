@@ -4,7 +4,7 @@
       <v-card>
         <v-card-text>
           <!-- TODO: Display editor only if you have permissions. -->
-          <editor :content-key="document.contentKey" />
+          <editor :content-key="document.contentKey" :read-only="document.isPublished()" />
         </v-card-text>
       </v-card>
     </v-flex>
