@@ -130,10 +130,8 @@
           _id: this.documentId,
         });
       },
-      computed: {
-        currentUser() {
-          return Meteor.user({username: 1, avatar: 1});
-        },
+      currentUser() {
+        return Meteor.user({username: 1, avatar: 1});
       },
     },
     created() {
