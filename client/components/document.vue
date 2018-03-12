@@ -13,7 +13,7 @@
         <v-layout row>
           <v-chip v-if="!document.isPublished()" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
           <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
-          <v-dialog v-if="!document.isPublished()" v-model="publishDialog" max-width="600">
+          <v-dialog v-if="!document.isPublished() && currentUser" v-model="publishDialog" max-width="600">
             <v-btn color="success" slot="activator">Publish</v-btn>
             <v-card>
               <v-card-title class="headline">Do you wish to publish this document now?</v-card-title>
@@ -106,6 +106,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {Document} from '/lib/document';
@@ -129,6 +130,11 @@
           _id: this.documentId,
         });
       },
+      computed: {
+        currentUser() {
+          return Meteor.user({username: 1, avatar: 1});
+        },
+      },
     },
     created() {
       this.$autorun((computation) => {
@@ -137,6 +143,10 @@
     },
     methods: {
       publishArticle() {
+        if (!this.currentUser) {
+          // only publish article if current user is set
+          return;
+        }
         Document.publish({documentId: this.documentId});
         this.publishDialog = false;
       },
