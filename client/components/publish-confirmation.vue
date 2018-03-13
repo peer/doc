@@ -11,7 +11,7 @@
               </div>
             </v-card-title>
             <v-card-actions>
-              <v-btn flat color="error" class="mx-0" @click="onCancelClick">Cancel</v-btn>
+              <v-btn flat color="primary" class="mx-0" @click="onCancelClick">Cancel</v-btn>
               <v-btn flat color="primary" class="mx-0" @click="onPublishClick">Publish</v-btn>
             </v-card-actions>
           </v-card>
@@ -58,7 +58,7 @@ RouterFactory.configure((factory) => {
   factory.addRoutes([
     {
       component,
-      path: '/document/:documentId/publish',
+      path: '/document/publish/:documentId',
       name: 'publishDocument',
       props: true,
     },
