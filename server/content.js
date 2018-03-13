@@ -5,6 +5,7 @@ import {Step} from 'prosemirror-transform';
 import {schema} from '/lib/schema';
 
 import {Content} from '/lib/content';
+import {Document} from '/lib/document';
 import {User} from '/lib/user';
 
 // A special case which is not using ValidatedMethod.
@@ -23,10 +24,15 @@ Meteor.methods({
     }
 
     // TODO: Check more permissions?
-
     let addedCount = 0;
     const latestContent = Content.documents.findOne({contentKey: args.contentKey}, {sort: {version: -1}, fields: {version: 1}});
-
+    const document = Document.documents.findOne({contentKey: args.contentKey});
+    if (document.isPublished()) {
+      // If the document is published we immediately discard this new step
+      // In the future, we should check if the content that they're trying
+      // to add is a comment, to allow that.
+      return 0;
+    }
     if (latestContent.version !== args.currentVersion) {
       return addedCount;
     }
