@@ -13,28 +13,7 @@
         <v-layout row>
           <v-chip v-if="!document.isPublished()" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
           <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
-          <v-dialog v-if="!document.isPublished() && currentUser" v-model="publishDialog" max-width="600">
-            <v-btn color="success" slot="activator">Publish</v-btn>
-            <v-card>
-              <v-card-title class="headline">Do you wish to publish this document now?</v-card-title>
-              <v-card-text>Once it's published it will not be editable anymore.</v-card-text>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn
-                  color="green darken-1"
-                  flat
-                  @click.native="publishDialog = false">
-                  Cancel
-                </v-btn>
-                <v-btn
-                  color="green darken-1"
-                  flat
-                  @click.native="publishArticle">
-                  Confirm
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+          <v-btn v-if="!document.isPublished() && currentUser" color="success" slot="activator" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
         </v-layout>
         <v-layout row wrap justify-start align-content-start>
           <v-flex class="app-layout__user">
