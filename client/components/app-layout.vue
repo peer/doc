@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-toolbar app>
+    <v-toolbar app v-if="!isEmbeded">
       <v-btn :to="{name: 'front-page'}" exact icon>
         <v-icon>apps</v-icon>
       </v-btn>
@@ -23,10 +23,12 @@
     </v-toolbar>
     <v-content>
       <v-container fluid>
-        <router-view />
+        <router-view
+          @embed="onEmbed"
+        />
       </v-container>
     </v-content>
-    <v-footer app>
+    <v-footer app v-if="!isEmbeded">
       <a href="https://github.com/peer/doc">Source code</a>
     </v-footer>
     <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
@@ -47,6 +49,7 @@
         snackbarShow: false,
         snackbarMessage: null,
         snackbarColor: null,
+        isEmbeded: false,
       };
     },
 
@@ -74,7 +77,6 @@
           }
         });
       },
-
       clearSnackbarState() {
         if (this.snackbarTimeout) {
           Meteor.clearTimeout(this.snackbarTimeout);
@@ -86,7 +88,9 @@
           this.snackbarComputation = null;
         }
       },
-
+      onEmbed(val) {
+        this.isEmbeded = val;
+      },
       showNextSnackbar() {
         this.clearSnackbarState();
 
