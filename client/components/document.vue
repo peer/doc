@@ -75,24 +75,3 @@
 
   export default component;
 </script>
-
-<style lang="scss">
-  .app-layout__user {
-    flex: 0 0 auto;
-
-    button {
-      margin: 2px;
-      border-radius: 50%;
-      height: 42px;
-      width: 42px;
-      border-width: 2px;
-      border-style: solid;
-      padding: 1px;
-    }
-  }
-
-  .app-layout__users {
-    padding-top: 0;
-    padding-right: 0;
-  }
-</style>
