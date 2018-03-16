@@ -49,15 +49,13 @@
         </v-layout>
         <v-layout row class="mt-3">
           <v-flex>
-            <v-tabs grow light>
-              <v-tabs-bar class="grey lighten-4">
-                <v-tabs-item ripple href="#comments" class="primary--text">Comments</v-tabs-item>
-                <v-tabs-item ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span>Chat</v-badge></v-tabs-item>
-                <v-tabs-item ripple href="#history" class="primary--text">History</v-tabs-item>
-                <v-tabs-slider color="primary" />
-              </v-tabs-bar>
+            <v-tabs grow light show-arrows color="grey lighten-4">
+              <v-tabs-slider color="primary" />
+              <v-tab ripple href="#comments" class="primary--text">Comments</v-tab>
+              <v-tab ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span>Chat</v-badge></v-tab>
+              <v-tab ripple href="#history" class="primary--text">History</v-tab>
               <v-tabs-items>
-                <v-tabs-content id="comments">
+                <v-tab-item id="comments">
                   <v-card>
                     <v-card-text>
                       Comment 1.
@@ -68,7 +66,7 @@
                       Comment 2.
                     </v-card-text>
                   </v-card>
-                </v-tabs-content>
+                </v-tab-item>
               </v-tabs-items>
             </v-tabs>
           </v-flex>
@@ -144,6 +142,10 @@
       border-width: 2px;
       border-style: solid;
       padding: 1px;
+
+      .btn__content {
+        height: 100%;
+      }
     }
   }
 

@@ -28,9 +28,6 @@
         />
       </v-container>
     </v-content>
-    <v-footer app v-if="!isEmbeded">
-      <a href="https://github.com/peer/doc">Source code</a>
-    </v-footer>
     <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
       {{snackbarMessage}}
       <v-btn flat dark @click.native="onSnackbarClose">Close</v-btn>

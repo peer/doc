@@ -358,6 +358,8 @@
 
 <style lang="scss">
   .editor {
+    outline: none;
+
     p {
       margin-bottom: 0;
     }
@@ -379,6 +381,10 @@
       margin-left: 0;
       margin-right: 0;
     }
+
+    a {
+      cursor: text !important;
+    }
   }
 
   .toolbar-fixed {
@@ -388,19 +394,19 @@
   }
 
   .editor-toolbar {
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
-  }
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
 
-  .editor-toolbar .btn--flat {
-    height: 36px;
-    width: 36px;
-    justify-content: center;
-    min-width: 0;
-    opacity: 0.4;
-  }
+    .btn--flat {
+      height: 36px;
+      width: 36px;
+      justify-content: center;
+      min-width: 0;
+      opacity: 0.4;
+    }
 
-  .editor-toolbar .btn--flat.btn--active {
-    opacity: 1;
+    .btn--flat.btn--active {
+      opacity: 1;
+    }
   }
 
   .toolbar-gap {
@@ -411,9 +417,5 @@
     position: fixed;
     z-index: 2;
     top: 64px;
-  }
-
-  .editor a {
-    cursor: text   !important;
   }
 </style>
