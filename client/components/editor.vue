@@ -490,8 +490,6 @@
 
   .highlight {
     background: #fdd;
-    border-bottom: 1px solid #f22;
-    margin-bottom: -1px;
   }
 
   .caret-container {
