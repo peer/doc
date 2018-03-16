@@ -132,6 +132,10 @@
       border-width: 2px;
       border-style: solid;
       padding: 1px;
+
+      .btn__content {
+        height: 100%;
+      }
     }
   }
 
