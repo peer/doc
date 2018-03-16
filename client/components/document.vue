@@ -12,38 +12,38 @@
       <v-container fluid class="app-layout__users">
         <v-layout row wrap justify-start align-content-start>
           <v-flex class="app-layout__user">
-            <v-btn icon style="border-color: #9fa8da;">
-              <v-avatar size="38px"><img src="https://randomuser.me/api/portraits/women/71.jpg" alt=""></v-avatar>
+            <v-btn flat icon style="border-color: #9fa8da;">
+              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/women/71.jpg" alt=""></v-avatar>
             </v-btn>
           </v-flex>
           <v-flex class="app-layout__user">
-            <v-btn icon style="border-color: #90caf9;">
-              <v-avatar size="38px"><img src="https://randomuser.me/api/portraits/women/72.jpg" alt=""></v-avatar>
+            <v-btn flat icon style="border-color: #90caf9;">
+              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/women/72.jpg" alt=""></v-avatar>
             </v-btn>
           </v-flex>
           <v-flex class="app-layout__user">
-            <v-btn icon style="border-color: #b39ddb;">
-              <v-avatar size="38px"><img src="https://randomuser.me/api/portraits/men/73.jpg" alt=""></v-avatar>
+            <v-btn flat icon style="border-color: #b39ddb;">
+              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/men/73.jpg" alt=""></v-avatar>
             </v-btn>
           </v-flex>
           <v-flex class="app-layout__user">
-            <v-btn icon style="border-color: #80cbc4;">
-              <v-avatar size="38px"><img src="https://randomuser.me/api/portraits/women/74.jpg" alt=""></v-avatar>
+            <v-btn flat icon style="border-color: #80cbc4;">
+              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/women/74.jpg" alt=""></v-avatar>
             </v-btn>
           </v-flex>
           <v-flex class="app-layout__user">
-            <v-btn icon style="border-color: #e6ee9c;">
-              <v-avatar size="38px"><img src="https://randomuser.me/api/portraits/men/75.jpg" alt=""></v-avatar>
+            <v-btn flat icon style="border-color: #e6ee9c;">
+              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/men/75.jpg" alt=""></v-avatar>
             </v-btn>
           </v-flex>
           <v-flex class="app-layout__user">
-            <v-btn icon style="border-color: #ffcc80;">
-              <v-avatar size="38px"><img src="https://randomuser.me/api/portraits/men/77.jpg" alt=""></v-avatar>
+            <v-btn flat icon style="border-color: #ffcc80;">
+              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/men/77.jpg" alt=""></v-avatar>
             </v-btn>
           </v-flex>
           <v-flex class="app-layout__user">
-            <v-btn icon style="border-color: #ffab91;">
-              <v-avatar size="38px"><img src="https://randomuser.me/api/portraits/men/78.jpg" alt=""></v-avatar>
+            <v-btn flat icon style="border-color: #ffab91;">
+              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/men/78.jpg" alt=""></v-avatar>
             </v-btn>
           </v-flex>
         </v-layout>
@@ -131,10 +131,7 @@
       width: 42px;
       border-width: 2px;
       border-style: solid;
-    }
-
-    .btn__content {
-      margin-top: -2px;
+      padding: 1px;
     }
   }
 
