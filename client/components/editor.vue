@@ -358,6 +358,8 @@
 
 <style lang="scss">
   .editor {
+    outline: none;
+
     p {
       margin-bottom: 0;
     }
