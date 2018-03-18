@@ -31,7 +31,7 @@ Meteor.methods({
         },
         $setOnInsert: {
           createdAt,
-          connection: this.connection.id,
+          connectionId: this.connection.id,
           author: user && user.getReference(),
           clientId: args.clientId,
           color: randomColor(),
@@ -45,13 +45,13 @@ Meteor.methods({
   },
   'Cursor.clear'(args) {
     check(args, {
-      connection: String,
+      connectionId: String,
     });
 
     // TODO: Check more permissions?
 
     Cursor.documents.remove({
-      connection: args.connection,
+      connectionId: args.connection,
     });
   },
 });

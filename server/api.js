@@ -23,7 +23,7 @@ Meteor.startup(function startup() {
 Meteor.onConnection((connection) => {
   connection.onClose(() => {
     Cursor.clear({
-      connection: connection.id,
+      connectionId: connection.id,
     });
   });
 });
