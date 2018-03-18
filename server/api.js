@@ -5,6 +5,7 @@
 // identify. See: https://github.com/meteor/meteor-feature-requests/issues/213
 
 import {Meteor} from 'meteor/meteor';
+import {Cursor} from '/lib/cursor';
 
 Meteor.startup(function startup() {
   const publishHandlers = Meteor.server.publish_handlers;
@@ -17,4 +18,12 @@ Meteor.startup(function startup() {
       delete publishHandlers[publishName];
     }
   }
+});
+
+Meteor.onConnection((connection) => {
+  connection.onClose(() => {
+    Cursor.clear({
+      connectionId: connection.id,
+    });
+  });
 });

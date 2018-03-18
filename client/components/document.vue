@@ -4,80 +4,19 @@
       <v-card>
         <v-card-text>
           <!-- TODO: Display editor only if you have permissions. -->
-          <editor :content-key="document.contentKey" />
+          <editor :content-key="document.contentKey" :client-id="clientId" :focused-cursor="cursor" @scroll="onEditorScroll"/>
         </v-card-text>
       </v-card>
     </v-flex>
     <v-flex xs4>
-      <v-container fluid class="app-layout__users">
-        <v-layout row wrap justify-start align-content-start>
-          <v-flex class="app-layout__user">
-            <v-btn flat icon style="border-color: #9fa8da;">
-              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/women/71.jpg" alt=""></v-avatar>
-            </v-btn>
-          </v-flex>
-          <v-flex class="app-layout__user">
-            <v-btn flat icon style="border-color: #90caf9;">
-              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/women/72.jpg" alt=""></v-avatar>
-            </v-btn>
-          </v-flex>
-          <v-flex class="app-layout__user">
-            <v-btn flat icon style="border-color: #b39ddb;">
-              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/men/73.jpg" alt=""></v-avatar>
-            </v-btn>
-          </v-flex>
-          <v-flex class="app-layout__user">
-            <v-btn flat icon style="border-color: #80cbc4;">
-              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/women/74.jpg" alt=""></v-avatar>
-            </v-btn>
-          </v-flex>
-          <v-flex class="app-layout__user">
-            <v-btn flat icon style="border-color: #e6ee9c;">
-              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/men/75.jpg" alt=""></v-avatar>
-            </v-btn>
-          </v-flex>
-          <v-flex class="app-layout__user">
-            <v-btn flat icon style="border-color: #ffcc80;">
-              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/men/77.jpg" alt=""></v-avatar>
-            </v-btn>
-          </v-flex>
-          <v-flex class="app-layout__user">
-            <v-btn flat icon style="border-color: #ffab91;">
-              <v-avatar size="36px"><img src="https://randomuser.me/api/portraits/men/78.jpg" alt=""></v-avatar>
-            </v-btn>
-          </v-flex>
-        </v-layout>
-        <v-layout row class="mt-3">
-          <v-flex>
-            <v-tabs grow light show-arrows color="grey lighten-4">
-              <v-tabs-slider color="primary" />
-              <v-tab ripple href="#comments" class="primary--text">Comments</v-tab>
-              <v-tab ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span>Chat</v-badge></v-tab>
-              <v-tab ripple href="#history" class="primary--text">History</v-tab>
-              <v-tabs-items>
-                <v-tab-item id="comments">
-                  <v-card>
-                    <v-card-text>
-                      Comment 1.
-                    </v-card-text>
-                  </v-card>
-                  <v-card>
-                    <v-card-text>
-                      Comment 2.
-                    </v-card-text>
-                  </v-card>
-                </v-tab-item>
-              </v-tabs-items>
-            </v-tabs>
-          </v-flex>
-        </v-layout>
-      </v-container>
+      <sidebar :content-key="document.contentKey" :client-id="clientId" @click="onAvatarClicked"/>
     </v-flex>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />
 </template>
 
 <script>
+  import {Random} from 'meteor/random';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {Document} from '/lib/document';
@@ -89,6 +28,13 @@
         type: String,
         required: true,
       },
+    },
+
+    data() {
+      return {
+        clientId: Random.id(),
+        cursor: null,
+      };
     },
 
     computed: {
@@ -103,6 +49,16 @@
       this.$autorun((computation) => {
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
+    },
+    methods: {
+      onAvatarClicked(cursor) {
+        this.cursor = cursor;
+      },
+      onEditorScroll() {
+        // We just remove the reference to the previously clicked cursor because all we needed
+        // was the `Editor` component to scroll to it.
+        this.cursor = null;
+      },
     },
   };
 
@@ -119,28 +75,3 @@
 
   export default component;
 </script>
-
-<style lang="scss">
-  .app-layout__user {
-    flex: 0 0 auto;
-
-    button {
-      margin: 2px;
-      border-radius: 50%;
-      height: 42px;
-      width: 42px;
-      border-width: 2px;
-      border-style: solid;
-      padding: 1px;
-
-      .btn__content {
-        height: 100%;
-      }
-    }
-  }
-
-  .app-layout__users {
-    padding-top: 0;
-    padding-right: 0;
-  }
-</style>
