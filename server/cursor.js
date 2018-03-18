@@ -51,7 +51,7 @@ Meteor.methods({
     // TODO: Check more permissions?
 
     Cursor.documents.remove({
-      connectionId: args.connection,
+      connectionId: args.connectionId,
     });
   },
 });
