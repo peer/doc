@@ -127,6 +127,7 @@
   import {Cursor} from '/lib/cursor';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
+  import PlaceholderPlugin from './utils/placeholder.js';
   import {cursorsPlugin} from './utils/cursors-plugin';
   import offsetY from './utils/sticky-scroll';
 
@@ -225,6 +226,7 @@
           gapCursor(),
           history(),
           menu,
+          PlaceholderPlugin,
           collab.collab({
             clientID: this.clientId,
           }),
@@ -549,5 +551,24 @@
   .caret-username {
     margin-left: 5px;
     user-select: none;
+  }
+
+  .editor .empty-node::before {
+    float: left;
+    color: #aaa;
+    pointer-events: none;
+    height: 0;
+  }
+
+  .editor .empty-node:hover::before {
+    color: #777;
+  }
+
+  .editor h1.empty-node::before {
+    content: 'Choose a title';
+  }
+
+  .editor p.empty-node:first-of-type::before {
+    content: 'Edit content';
   }
 </style>
