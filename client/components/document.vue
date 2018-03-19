@@ -4,12 +4,12 @@
       <v-card>
         <v-card-text>
           <!-- TODO: Display editor only if you have permissions. -->
-          <editor :content-key="document.contentKey" :client-id="clientId" :focused-cursor="cursor" @scroll="onEditorScroll"/>
+          <editor :document-id="document._id" :content-key="document.contentKey" :client-id="clientId" :focused-cursor="cursor" @scroll="onEditorScroll" @contentChanged="onContentChanged" />
         </v-card-text>
       </v-card>
     </v-flex>
     <v-flex xs4>
-      <sidebar :content-key="document.contentKey" :client-id="clientId" @click="onAvatarClicked"/>
+      <sidebar :document-id="document._id" :content-key="document.contentKey" :client-id="clientId" @click="onAvatarClicked" ref="sidebar" />
     </v-flex>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />
@@ -50,14 +50,20 @@
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
     },
+
     methods: {
       onAvatarClicked(cursor) {
         this.cursor = cursor;
       },
+
       onEditorScroll() {
         // We just remove the reference to the previously clicked cursor because all we needed
         // was the `Editor` component to scroll to it.
         this.cursor = null;
+      },
+
+      onContentChanged() {
+        this.$refs.sidebar.layoutComments();
       },
     },
   };

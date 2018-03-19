@@ -24,6 +24,27 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog hide-overlay v-model="commentDialog" max-width="500px">
+      <v-card>
+        <v-card-text>
+          <v-form @submit.prevent="insertComment">
+            <v-text-field
+              autofocus
+              multi-line
+              v-model="comment"
+              placeholder="Comment..."
+              required
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
+          <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
         :class="{'toolbar-fixed':fixToolbarToTop}"
@@ -96,6 +117,19 @@
         ref="editorDivider"
       />
       <div style="height: 64px;" v-if="fixToolbarToTop" />
+      <v-btn
+        class="btn-comment"
+        color="white"
+        small
+        bottom
+        right
+        fab
+        ref="addCommentButton"
+        :style="{opacity: 0, visibility: 'hidden'}"
+        @click="openCommentDialog"
+      >
+        <v-icon>comment</v-icon>
+      </v-btn>
     </div>
 
     <div id="editor" ref="editor" class="editor" />
@@ -104,6 +138,7 @@
 </template>
 
 <script>
+  import {Random} from 'meteor/random';
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
@@ -123,17 +158,24 @@
   import 'prosemirror-gapcursor/style/gapcursor.css';
 
   import {schema} from '/lib/schema.js';
+  import {Comment} from '/lib/comment';
   import {Content} from '/lib/content';
   import {Cursor} from '/lib/cursor';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
   import PlaceholderPlugin from './utils/placeholder.js';
   import {cursorsPlugin} from './utils/cursors-plugin';
+  import {commentPlugin} from './utils/comment-plugin';
+  import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
   const component = {
     props: {
+      documentId: {
+        type: String,
+        required: true,
+      },
       contentKey: {
         type: String,
         required: true,
@@ -144,7 +186,7 @@
       },
       focusedCursor: {
         type: Object,
-        rqeuired: false,
+        required: false,
         default: null,
       },
     },
@@ -152,7 +194,9 @@
     data() {
       return {
         subscriptionHandle: null,
+        commentsHandle: null,
         addingStepsInProgress: false,
+        addingCommentsInProgress: false,
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
         toolbarWidth: {width: '100%'},
@@ -161,7 +205,10 @@
         state: null,
         link: '',
         linkDialog: false,
+        commentDialog: false,
+        comment: '',
         selectedExistingLinks: [],
+        selectedExistingHighlights: [],
         validLink: false,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
@@ -183,6 +230,10 @@
     created() {
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
+      });
+
+      this.$autorun((computation) => {
+        this.commentsHandle = this.$subscribe('Comment.feed', {documentId: this.documentId});
       });
 
       this.$autorun((computation) => {
@@ -225,7 +276,9 @@
           dropCursor(),
           gapCursor(),
           history(),
+          commentPlugin(this),
           menu,
+          addCommentPlugin(this),
           PlaceholderPlugin,
           collab.collab({
             clientID: this.clientId,
@@ -257,17 +310,31 @@
           view.updateState(newState);
           this.state = newState;
           const sendable = collab.sendableSteps(newState);
+          const {clientId} = this;
           if (sendable) {
+            const commentMarks = _.filter(transaction.steps, (s) => {
+              return s.mark && s.mark.type.name === "comment";
+            });
+            if (commentMarks) {
+              commentMarks.forEach((c) => {
+                const highlightKey = c.mark.attrs["data-highlight-keys"];
+                Comment.setInitialVersion({
+                  highlightKey,
+                  version: sendable.version,
+                });
+              });
+            }
             this.addingStepsInProgress = true;
             Content.addSteps({
               contentKey: this.contentKey,
               currentVersion: sendable.version,
               steps: sendable.steps,
-              clientId: sendable.clientID,
+              clientId,
             }, (error, stepsAdded) => {
               this.addingStepsInProgress = false;
               // TODO: Error handling.
             });
+            this.$emit("contentChanged");
           }
           throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
@@ -278,6 +345,7 @@
       this.dispatch = view.dispatch;
       this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       window.addEventListener('resize', this.handleWindowResize);
+
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
           return;
@@ -372,6 +440,52 @@
           this.link = '';
         }
       },
+      insertComment() {
+        const {comment} = this;
+        const {selection} = this.state;
+        if (selection.empty) {
+          return;
+        }
+
+        const key = Random.id();
+        this.commentDialog = false;
+        this.comment = '';
+        Comment.create({
+          highlightKey: key,
+          body: comment,
+          documentId: this.documentId,
+        });
+
+        let newChunks = [{
+          from: selection.from,
+          to: selection.to,
+          empty: true,
+        }];
+
+        if (this.selectedExistingHighlights) {
+          // Change existing highlight marks to add the new highlight-key after their current highlight-keys.
+          this.selectedExistingHighlights.forEach((highlightMark) => {
+            const {start, size, marks} = highlightMark;
+            const end = start + size;
+            const chunkToSplit = newChunks.find((chunk) => {
+              return chunk.from <= start && chunk.to >= end;
+            });
+            if (chunkToSplit) {
+              // update collection to reflect new segments of the selection with previous highlight marks
+              newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
+            }
+
+            const currentKey = marks[0].attrs["data-highlight-keys"];
+            removeHighlight(schema, this.state, start, end, this.dispatch);
+            addHighlight(`${currentKey},${key}`, schema, this.state, start, end, this.dispatch);
+          });
+        }
+        newChunks.filter((chunk) => {
+          return chunk.empty; // only add a new highlight mark to segments with no previous highlight marks
+        }).forEach((chunk) => {
+          addHighlight(key, schema, this.state, chunk.from, chunk.to, this.dispatch);
+        });
+      },
       removeLink() {
         this.clearLink();
         this.linkDialog = false;
@@ -413,6 +527,10 @@
         this.linkDialog = false;
         this.link = '';
       },
+      cancelComment() {
+        this.commentDialog = false;
+        this.comment = '';
+      },
       openLinkDialog() {
         if (this.selectedExistingLinks.length &&
         this.selectedExistingLinks.length === 1) {
@@ -420,6 +538,20 @@
           this.link = this.selectedExistingLinks[0].href;
         }
         this.linkDialog = true;
+      },
+      openCommentDialog() {
+        this.commentDialog = true;
+      },
+      filterComments(keys) {
+        if (!this.state) {
+          return;
+        }
+        // Set final version for any orphan Comment that could stay in db.
+        Comment.filterOrphan({
+          documentId: this.documentId,
+          highlightKeys: keys,
+          version: collab.getVersion(this.state),
+        });
       },
     },
   };
@@ -490,7 +622,27 @@
     top: 64px;
   }
 
+  .editor a {
+    cursor: text !important;
+  }
+
+  .btn-comment {
+    left: 99%;
+    z-index: 25;
+  }
+
+  .fade {
+   opacity: 1;
+   transition: opacity 2s ease-in-out;
+  }
+
   .highlight {
+    background: #ffe168;
+    border-bottom: 1px solid #f22;
+    margin-bottom: -1px;
+  }
+
+  .user-selection {
     background: #fdd;
   }
 

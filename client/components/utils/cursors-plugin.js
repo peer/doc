@@ -47,7 +47,7 @@ function getDecorations(doc, positions) {
         range.beginning,
         range.end,
         {
-          class: 'highlight',
+          class: 'user-selection',
           style: `background-color: ${pos.color}`,
         },
       );
