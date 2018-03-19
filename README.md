@@ -50,7 +50,7 @@ The translations are handled by the [vue-gettext](https://github.com/Polyconseil
 
 To generate translations:
 
-1. Run `npm run extract-strings` to extract user-visible strings.
+1. Run `meteor npm run extract-strings` to extract user-visible strings.
 2. Go to `translations/locale` and find the `.po` file associated with the language you want to translate.
 3. Update the `.po` file with translations for extracted strings.
-4. Generate an updated translations JSON file by running `npm run translations`.
+4. Generate an updated translations JSON file by running `meteor npm run translations`.
