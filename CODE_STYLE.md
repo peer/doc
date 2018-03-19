@@ -20,11 +20,10 @@ so they are both approximately the same length.
 
 ### Strings
 
-Use `'single_quote_strings` for constant strings and `"double_quote_strings"` for any string shown to the
-user (like exception messages, or warning). A general guideline is: if a string might be ever translated to a
-different language, use double quotes for it. Except if you need string interpolation (which you
-should use always when you are constructing a string, never string concatenation), then always use
-`` `backtick_quote_${strings}` ``.
+Use `'single_quote_string` for constant strings and `"double-quote-string"` for translation keys
+(which should always be in kebab-case).
+If you need string interpolation (which you should use always when you are constructing a string,
+never string concatenation), then use `` `backtick_quote_${string}` ``.
 
 This means all object property names should use single quotes, except when you are interpolating them.
 
