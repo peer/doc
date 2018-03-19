@@ -25,6 +25,7 @@
     "prosemirror-schema-list": "^1.0.0",
     "prosemirror-state": "^1.0.2",
     "prosemirror-view": "^1.0.8",
+    "query-string": "^6.0.0",
     "randomcolor": "^0.5.3",
     "vue": "git://github.com/meteor-vue/vue.git#meteor",
     "vue-gettext": "^2.0.26",
