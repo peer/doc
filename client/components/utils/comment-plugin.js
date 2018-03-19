@@ -4,17 +4,17 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 
 function getDecorations(doc, vueInstance) {
   const result = [];
-  const ids = [];
+  const keys = [];
   doc.descendants((node, pos) => {
     const mark = _.find(node.marks, (m) => {
       return m.type.name === "comment";
     });
     if (mark) {
-      ids.push(mark.attrs["data-highlight-ids"].split(","));
+      keys.push(mark.attrs["data-highlight-keys"].split(","));
       result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "comment"}));
     }
   });
-  vueInstance.filterComments(_.flatten(ids));
+  vueInstance.filterComments(_.flatten(keys));
   return DecorationSet.create(doc, result);
 }
 export const commentPlugin = (vueInstance) => {

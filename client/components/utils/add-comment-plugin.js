@@ -77,12 +77,12 @@ export default function addCommentPlugin(vueInstance) {
   });
 }
 
-export function addComment(ids, schema, state, from, to, dispatch) {
+export function addComment(keys, schema, state, from, to, dispatch) {
   const {doc, tr} = state;
   let attrs = null;
   if (!doc.rangeHasMark(from, to, schema.marks.comment)) {
-    attrs = {"data-highlight-ids": ids};
-    if (!attrs["data-highlight-ids"]) {
+    attrs = {"data-highlight-keys": keys};
+    if (!attrs["data-highlight-keys"]) {
       return false;
     }
   }

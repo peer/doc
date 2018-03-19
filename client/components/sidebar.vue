@@ -18,7 +18,7 @@
             <v-tab-item id="comments">
               <v-card v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="commentsRef">
                 <v-card-text>
-                  {{comment.text}}
+                  {{comment.body}}
                 </v-card-text>
               </v-card>
             </v-tab-item>
@@ -42,12 +42,12 @@
     };
   }
 
-  function getElementByHighlightId(elements, id) {
+  function getElementByHighlightKey(elements, key) {
     for (let i = 0; i < elements.length; i += 1) {
       const commentMarkEl = elements[i];
-      const ids = commentMarkEl.attributes["data-highlight-ids"].value.split(",");
+      const ids = commentMarkEl.attributes["data-highlight-keys"].value.split(",");
       if (ids.find((commentId) => {
-        return commentId === id;
+        return commentId === key;
       })) {
         return commentMarkEl;
       }
@@ -118,11 +118,11 @@
           return;
         }
 
-        const commentMarksEls = document.querySelectorAll(`span[data-highlight-ids]`);
+        const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
         this.documentComments = currentComments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
-          const el = getElementByHighlightId(commentMarksEls, c.highlightId);
+          const el = getElementByHighlightKey(commentMarksEls, c.highlightId);
           if (!el) {
             return null;
           }
@@ -166,11 +166,11 @@
         if (!this.$refs.commentsRef) {
           return;
         }
-        const commentMarksEls = document.querySelectorAll(`span[data-highlight-ids]`);
+        const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
         const highlightTops = this.documentComments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
-          const el = getElementByHighlightId(commentMarksEls, c.highlightId);
+          const el = getElementByHighlightKey(commentMarksEls, c.highlightId);
           if (!el) {
             return null;
           }

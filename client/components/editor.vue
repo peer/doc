@@ -180,9 +180,13 @@
         type: String,
         required: true,
       },
+      documentId: {
+        type: String,
+        required: true,
+      },
       focusedCursor: {
         type: Object,
-        rqeuired: false,
+        required: false,
         default: null,
       },
     },
@@ -315,9 +319,9 @@
             });
             if (commentMarks) {
               commentMarks.forEach((c) => {
-                const highlightId = c.mark.attrs["data-highlight-ids"];
+                const highlightKey = c.mark.attrs["data-highlight-keys"];
                 Comment.setInitialVersion({
-                  highlightId,
+                  highlightKey,
                   version: sendable.version,
                 });
               });
@@ -452,11 +456,11 @@
           return;
         }
 
-        const id = Random.id();
+        const key = Random.id();
         this.commentDialog = false;
         this.comment = '';
         Comment.create({
-          highlightId: id,
+          highlightKey: key,
           text: comment,
           contentKey: this.contentKey,
         });
@@ -468,7 +472,7 @@
         }];
 
         if (this.selectedExistingComments) {
-          // Change existing comment marks to add the new hilight-id after their current highlight-ids.
+          // Change existing comment marks to add the new highlight-key after their current highlight-keys.
           this.selectedExistingComments.forEach((commentMark) => {
             const {start, size, marks} = commentMark;
             const end = start + size;
@@ -480,15 +484,15 @@
               newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             }
 
-            const currentId = marks[0].attrs["data-highlight-ids"];
+            const currentKey = marks[0].attrs["data-highlight-keys"];
             removeComment(schema, this.state, start, end, this.dispatch);
-            addComment(`${currentId},${id}`, schema, this.state, start, end, this.dispatch);
+            addComment(`${currentKey},${key}`, schema, this.state, start, end, this.dispatch);
           });
         }
         newChunks.filter((chunk) => {
           return chunk.empty; // only add a new comment mark to segments with no previous comment marks
         }).forEach((chunk) => {
-          addComment(id, schema, this.state, chunk.from, chunk.to, this.dispatch);
+          addComment(key, schema, this.state, chunk.from, chunk.to, this.dispatch);
         });
       },
       removeLink() {
@@ -547,14 +551,14 @@
       openCommentDialog() {
         this.commentDialog = true;
       },
-      filterComments(ids) {
+      filterComments(keys) {
         if (!this.state) {
           return;
         }
-        // Set final versino for any orphan Comment that could stay in db.
+        // Set final version for any orphan Comment that could stay in db.
         Comment.filterOrphan({
-          highlightIds: ids,
-          contentKey: this.contentKey,
+          documentId: this.documentId,
+          highlightKeys: keys,
           version: collab.getVersion(this.state),
         });
       },

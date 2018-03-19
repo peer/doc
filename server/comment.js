@@ -5,13 +5,13 @@ import {Comment} from '/lib/comment';
 
 Meteor.publish('Comment.feed', function commentFeed(args) {
   check(args, {
-    contentKey: Match.DocumentId,
+    documentId: Match.DocumentId,
   });
 
   this.enableScope();
 
   return Comment.documents.find({
-    contentKey: args.contentKey,
+    'document._id': args.documentId,
   }, {
     fields: Comment.PUBLISH_FIELDS(),
   });
