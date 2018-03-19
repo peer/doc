@@ -172,15 +172,15 @@
   // @vue/component
   const component = {
     props: {
+      documentId: {
+        type: String,
+        required: true,
+      },
       contentKey: {
         type: String,
         required: true,
       },
       clientId: {
-        type: String,
-        required: true,
-      },
-      documentId: {
         type: String,
         required: true,
       },
@@ -380,13 +380,6 @@
             view.dispatch(collab.receiveTransaction(view.state, _.pluck(newContents, 'step'), _.pluck(newContents, 'clientId')));
           }
         });
-      });
-
-      this.$autorun((computation) => {
-        const comments = Comment.documents.find(this.commentsHandle.scopeQuery()).fetch();
-        if (comments.length) {
-          this.$emit("commentsFetched", comments);
-        }
       });
 
       this.$autorun((computation) => {

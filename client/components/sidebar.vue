@@ -32,6 +32,7 @@
 <script>
   import {_} from 'meteor/underscore';
 
+  import {Comment} from '/lib/comment';
   import {Cursor} from '/lib/cursor';
 
   function getOffset(el) {
@@ -58,6 +59,10 @@
   // @vue/component
   const component = {
     props: {
+      documentId: {
+        type: String,
+        required: true,
+      },
       contentKey: {
         type: String,
         required: true,
@@ -70,12 +75,18 @@
 
     data() {
       return {
+        commentsHandle: null,
+        cursorsHandle: null,
         cursors: [],
         documentComments: [],
       };
     },
 
     created() {
+      this.$autorun((computation) => {
+        this.commentsHandle = this.$subscribe('Comment.feed', {documentId: this.documentId});
+      });
+
       this.$autorun((computation) => {
         this.cursorsHandle = this.$subscribe('Cursor.feed', {contentKey: this.contentKey});
       });
@@ -88,6 +99,13 @@
             $ne: this.clientId,
           },
         })).fetch();
+      });
+
+      this.$autorun((computation) => {
+        const comments = Comment.documents.find(this.commentsHandle.scopeQuery()).fetch();
+        if (comments.length) {
+          this.showComments(comments);
+        }
       });
 
       window.addEventListener('resize', this.handleWindowResize);
@@ -122,7 +140,7 @@
         this.documentComments = currentComments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
-          const el = getElementByHighlightKey(commentMarksEls, c.highlightId);
+          const el = getElementByHighlightKey(commentMarksEls, c.highlightKey);
           if (!el) {
             return null;
           }
@@ -157,7 +175,7 @@
         this.$nextTick().then(() => {
           // After the cards have been rendered we can start measuring the
           // distance between each cards with the next, and adjust the margins
-          // acoordingly.
+          // accordingly.
           this.layoutComments();
         });
       },
@@ -170,7 +188,7 @@
         const highlightTops = this.documentComments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
-          const el = getElementByHighlightKey(commentMarksEls, c.highlightId);
+          const el = getElementByHighlightKey(commentMarksEls, c.highlightKey);
           if (!el) {
             return null;
           }
