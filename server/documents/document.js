@@ -1,7 +1,7 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
-import {Document} from '/lib/document';
+import {Document} from '/lib/documents/document';
 
 Meteor.publish('Document.list', function documentList(args) {
   check(args, {});

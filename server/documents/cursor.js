@@ -1,8 +1,8 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
-import {Cursor} from '/lib/cursor';
-import {User} from '/lib/user';
+import {Cursor} from '/lib/documents/cursor';
+import {User} from '/lib/documents/user';
 import randomColor from 'randomcolor';
 
 // Server-side only method, so we are not using ValidatedMethod.

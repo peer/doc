@@ -33,8 +33,8 @@
 <script>
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
-  import {Document} from '/lib/document';
-  import {User} from '/lib/user';
+  import {Document} from '/lib/documents/document';
+  import {User} from '/lib/documents/user';
   import {Snackbar} from '../snackbar';
 
   // @vue/component

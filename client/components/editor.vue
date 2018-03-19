@@ -158,9 +158,9 @@
   import 'prosemirror-gapcursor/style/gapcursor.css';
 
   import {schema} from '/lib/schema.js';
-  import {Comment} from '/lib/comment';
-  import {Content} from '/lib/content';
-  import {Cursor} from '/lib/cursor';
+  import {Comment} from '/lib/documents/comment';
+  import {Content} from '/lib/documents/content';
+  import {Cursor} from '/lib/documents/cursor';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
   import PlaceholderPlugin from './utils/placeholder.js';

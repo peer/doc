@@ -32,8 +32,8 @@
 <script>
   import {_} from 'meteor/underscore';
 
-  import {Comment} from '/lib/comment';
-  import {Cursor} from '/lib/cursor';
+  import {Comment} from '/lib/documents/comment';
+  import {Cursor} from '/lib/documents/cursor';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
