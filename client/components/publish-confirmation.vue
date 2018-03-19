@@ -25,6 +25,7 @@ import {Meteor} from 'meteor/meteor';
 import {RouterFactory} from 'meteor/akryum:vue-router2';
 
 import {Document} from '/lib/document';
+import {Snackbar} from '../snackbar';
 // @vue/component
 const component = {
   props: {
@@ -48,7 +49,9 @@ const component = {
         this.$router.push({name: 'document', params: {documentId: this.documentId}});
         return;
       }
-      Document.publish({documentId: this.documentId});
+      Document.publish({documentId: this.documentId}, () => {
+        Snackbar.enqueue(this.$gettext("publish-success"), 'success');
+      });
       this.$router.push({name: 'document', params: {documentId: this.documentId}});
     },
   },

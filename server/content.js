@@ -39,7 +39,7 @@ Meteor.methods({
       // If the document is published we immediately discard this new step
       // In the future, we should check if the content that they're trying
       // to add is a comment, to allow that.
-      return 0;
+      return addedCount;
     }
     if (latestContent.version !== args.currentVersion) {
       return addedCount;
