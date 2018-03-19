@@ -262,8 +262,6 @@
         {command: wrapInList(schema.nodes.ordered_list), dom: document.getElementById("order"), node: schema.nodes.ordered_list},
       ], this);
 
-      this.clientId = Random.id();
-
       const state = EditorState.create({
         schema,
         plugins: [
