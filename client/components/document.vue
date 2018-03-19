@@ -60,7 +60,15 @@
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
     },
-
+    mounted() {
+      if (this.shouldEmbed) {
+        this.sendNewSizeToParentWindow();
+        window.addEventListener('resize', this.sendNewSizeToParentWindow);
+      }
+    },
+    beforeDestroy() {
+      window.removeEventListener('resize', this.sendNewSizeToParentWindow);
+    },
     methods: {
       onAvatarClicked(cursor) {
         this.cursor = cursor;
@@ -74,6 +82,17 @@
 
       onContentChanged() {
         this.$refs.sidebar.layoutComments();
+      },
+      sendNewSizeToParentWindow() {
+        const width = window.innerWidth
+          || document.documentElement.clientWidth
+          || document.body.clientWidth;
+        const height = window.innerHeight
+          || document.documentElement.clientHeight
+          || document.body.clientHeight;
+        const size = {size: {width, height}};
+        const message = JSON.stringify(size);
+        window.postMessage(message, '*');
       },
     },
   };
