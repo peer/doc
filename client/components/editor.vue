@@ -318,7 +318,7 @@
             });
             if (commentMarks) {
               commentMarks.forEach((c) => {
-                const highlightKey = c.mark.attrs["data-highlight-keys"];
+                const highlightKey = c.mark.attrs["highlight-keys"];
                 Comment.setInitialVersion({
                   highlightKey,
                   version: sendable.version,
@@ -476,7 +476,7 @@
               newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             }
 
-            const currentKey = marks[0].attrs["data-highlight-keys"];
+            const currentKey = marks[0].attrs["highlight-keys"];
             removeHighlight(schema, this.state, start, end, this.dispatch);
             addHighlight(`${currentKey},${key}`, schema, this.state, start, end, this.dispatch);
           });

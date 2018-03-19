@@ -81,8 +81,8 @@ export function addHighlight(keys, schema, state, from, to, dispatch) {
   const {doc, tr} = state;
   let attrs = null;
   if (!doc.rangeHasMark(from, to, schema.marks.highlight)) {
-    attrs = {"data-highlight-keys": keys};
-    if (!attrs["data-highlight-keys"]) {
+    attrs = {"highlight-keys": keys};
+    if (!attrs["highlight-keys"]) {
       return false;
     }
   }
