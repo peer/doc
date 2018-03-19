@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-toolbar app>
+    <v-toolbar app absolute>
       <v-btn :to="{name: 'front-page'}" exact icon>
         <v-icon>apps</v-icon>
       </v-btn>
