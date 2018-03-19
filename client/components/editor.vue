@@ -394,7 +394,7 @@
             ranges: c.ranges,
             color: c.color,
             username: c.author ? c.author.username : null,
-            avatar: c.author ? c.author.avatar : null,
+            avatar: c.author ? c.author.avatarUrl() : null,
           };
         });
 
