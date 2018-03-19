@@ -11,9 +11,9 @@
       <v-flex>
         <v-tabs grow light show-arrows color="grey lighten-4" id="tab-sidebar">
           <v-tabs-slider color="primary" />
-          <v-tab ripple href="#comments" class="primary--text">Comments</v-tab>
-          <v-tab ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span>Chat</v-badge></v-tab>
-          <v-tab ripple href="#history" class="primary--text">History</v-tab>
+          <v-tab ripple href="#comments" class="primary--text"><translate>comments</translate></v-tab>
+          <v-tab ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span><translate>chat</translate></v-badge></v-tab>
+          <v-tab ripple href="#history" class="primary--text"><translate>history</translate></v-tab>
           <v-tabs-items>
             <v-tab-item id="comments">
               <v-card v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="commentsRef">
