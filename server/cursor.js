@@ -46,6 +46,7 @@ Meteor.methods({
   },
 });
 
+// TODO: Publish only cursors which are not for the current connection.
 Meteor.publish('Cursor.list', function cursorList(args) {
   check(args, {
     contentKey: Match.DocumentId,
