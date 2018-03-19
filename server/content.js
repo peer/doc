@@ -8,7 +8,7 @@ import {Content} from '/lib/content';
 import {Document} from '/lib/document';
 import {User} from '/lib/user';
 
-// A special case which is not using ValidatedMethod.
+// Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
   'Content.addSteps'(args) {
     check(args, {
@@ -72,7 +72,7 @@ Meteor.methods({
   },
 });
 
-Meteor.publish('Content.feed', function contentFeed(args) {
+Meteor.publish('Content.list', function contentList(args) {
   check(args, {
     contentKey: Match.DocumentId,
   });

@@ -43,3 +43,14 @@ To run a linting tool to check the code style, run:
 ```bash
 $ meteor npm run lint
 ```
+
+## Translations
+
+The translations are handled by the [vue-gettext](https://github.com/Polyconseil/vue-gettext) package.
+
+To generate translations:
+
+1. Run `meteor npm run extract-strings` to extract user-visible strings.
+2. Go to `translations/locale` and find the `.po` file associated with the language you want to translate.
+3. Update the `.po` file with translations for extracted strings.
+4. Generate an updated translations JSON file by running `meteor npm run translations`.

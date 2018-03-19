@@ -7,20 +7,20 @@
             <v-list-tile ripple :to="{name: 'document', params: {documentId: document._id}}" :key="document._id">
               <v-list-tile-content>
                 <v-list-tile-title v-if="document.title">{{document.title}}</v-list-tile-title>
-                <v-list-tile-title v-else class="documents__untitled">Untitled</v-list-tile-title>
+                <v-list-tile-title v-else class="documents__untitled" v-translate>untitled</v-list-tile-title>
                 <v-list-tile-sub-title>
                   <span class="timestamp" :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)">{{document.createdAt | fromNow}}</span>
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-chip v-if="!document.isPublished()" label color="yellow lighten-2" class="documents__label">Draft</v-chip>
+                <v-chip v-if="!document.isPublished()" label color="yellow lighten-2" class="documents__label"><translate>draft</translate></v-chip>
               </v-list-tile-action>
             </v-list-tile>
             <v-divider v-if="index + 1 < documents.count()" :key="document._id" />
           </template>
         </v-list>
-        <v-card-text v-else-if="$subscriptionsReady()" class="text-xs-center documents__none">
-          No documents.
+        <v-card-text v-else-if="$subscriptionsReady()" class="text-xs-center documents__none" v-translate>
+          no-documents
         </v-card-text>
       </v-card>
       <v-btn v-if="canCreateDocument" :disabled="documentCreationInProgress" fab bottom right fixed color="primary" @click.native="onDocumentCreate">
@@ -69,10 +69,11 @@
           this.documentCreationInProgress = false;
 
           if (error) {
-            Snackbar.enqueue(`Error creating a new document: ${error}`, 'error');
+            const translated = this.$gettext("document-created-error");
+            Snackbar.enqueue(this.$gettextInterpolate(translated, {error}), 'error');
           }
           else {
-            Snackbar.enqueue("New document has been created.", 'success');
+            Snackbar.enqueue(this.$gettext("document-created-success"), 'success');
             this.$router.push({name: 'document', params: {documentId: document._id}});
           }
         });
