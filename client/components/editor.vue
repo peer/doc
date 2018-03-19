@@ -149,12 +149,12 @@
         state: null,
         link: '',
         linkDialog: false,
-        linkHint: this.$gettext('linkHint'),
+        linkHint: this.$gettext("link-hint"),
         selectedExistingLinks: [],
         validLink: false,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
-          return urlRegex.test(value) || this.$gettext('invalid-url');
+          return urlRegex.test(value) || this.$gettext("invalid-url");
         },
       };
     },

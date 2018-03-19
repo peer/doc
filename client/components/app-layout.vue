@@ -67,11 +67,11 @@
       onSignOut() {
         Meteor.logout((error) => {
           if (error) {
-            const translated = this.$gettext("error-signing-out");
+            const translated = this.$gettext("signed-out-error");
             Snackbar.enqueue(this.$gettextInterpolate(translated, {error}), 'error');
           }
           else {
-            Snackbar.enqueue(this.$gettext('signed-out'), 'success');
+            Snackbar.enqueue(this.$gettext("signed-out-success"), 'success');
           }
         });
       },

@@ -69,11 +69,11 @@
           this.documentCreationInProgress = false;
 
           if (error) {
-            const translated = this.$gettext("error-creating-document");
+            const translated = this.$gettext("document-created-error");
             Snackbar.enqueue(this.$gettextInterpolate(translated, {error}), 'error');
           }
           else {
-            Snackbar.enqueue(this.$gettext("new-document-created."), 'success');
+            Snackbar.enqueue(this.$gettext("document-created-success"), 'success');
             this.$router.push({name: 'document', params: {documentId: document._id}});
           }
         });
