@@ -12,7 +12,12 @@
             </v-card-title>
             <v-card-actions>
               <v-btn flat color="primary" class="mx-0" @click="onCancelClick">Cancel</v-btn>
-              <v-btn flat color="primary" class="mx-0" @click="onPublishClick">Publish</v-btn>
+              <v-btn
+                flat
+                color="primary"
+                class="mx-0"
+                @click="onPublishClick"
+                :disabled="documentPublishInProgress">Publish</v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
@@ -34,6 +39,11 @@ const component = {
       required: true,
     },
   },
+  data() {
+    return {
+      documentPublishInProgress: false,
+    };
+  },
   computed: {
     currentUser() {
       return Meteor.user({username: 1, avatar: 1});
@@ -44,12 +54,15 @@ const component = {
       this.$router.push({name: 'document', params: {documentId: this.documentId}});
     },
     onPublishClick() {
+      this.documentPublishInProgress = true;
       if (!this.currentUser) {
         // only publish article if current user is set
         this.$router.push({name: 'document', params: {documentId: this.documentId}});
+        this.documentPublishInProgress = false;
         return;
       }
       Document.publish({documentId: this.documentId}, () => {
+        this.documentPublishInProgress = false;
         Snackbar.enqueue(this.$gettext("publish-success"), 'success');
       });
       this.$router.push({name: 'document', params: {documentId: this.documentId}});
