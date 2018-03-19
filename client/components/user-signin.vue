@@ -51,7 +51,7 @@
         formSubmissionInProgress: false,
         errorShow: false,
         errorMessage: null,
-        usernameLabel: '',
+        usernameLabel: this.$gettext("username"),
       };
     },
 
@@ -59,10 +59,6 @@
       currentUserId() {
         return Meteor.userId();
       },
-    },
-
-    mounted() {
-      this.usernameLabel = this.$gettext("username");
     },
 
     methods: {

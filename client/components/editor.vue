@@ -149,7 +149,7 @@
         state: null,
         link: '',
         linkDialog: false,
-        linkHint: '',
+        linkHint: this.$gettext('linkHint'),
         selectedExistingLinks: [],
         validLink: false,
         linkValidationRule: (value) => {
@@ -166,7 +166,6 @@
     },
 
     mounted() {
-      this.linkHint = this.$gettext('linkHint');
       const menu = menuPlugin([
         {command: toggleMark(schema.marks.strong), dom: document.getElementById("bold"), mark: schema.marks.strong},
         {command: toggleMark(schema.marks.em), dom: document.getElementById("italic"), mark: schema.marks.em},
