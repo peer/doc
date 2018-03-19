@@ -17,14 +17,19 @@
       </v-card>
     </v-flex>
     <v-flex xs4>
-      <sidebar :document-id="document._id" :content-key="document.contentKey" :client-id="clientId" @click="onAvatarClicked" ref="sidebar" />
+      <sidebar
+        :document-id="document._id"
+        :content-key="document.contentKey"
+        :document-published="document.isPublished()"
+        :client-id="clientId"
+        @click="onAvatarClicked"
+        ref="sidebar" />
     </v-flex>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />
 </template>
 
 <script>
-  import {Meteor} from 'meteor/meteor';
   import {Random} from 'meteor/random';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
@@ -51,9 +56,6 @@
           _id: this.documentId,
         });
       },
-      currentUser() {
-        return Meteor.user({username: 1, avatar: 1});
-      },
     },
     created() {
       this.$autorun((computation) => {
@@ -73,14 +75,6 @@
 
       onContentChanged() {
         this.$refs.sidebar.layoutComments();
-      },
-      publishArticle() {
-        if (!this.currentUser) {
-          // only publish article if current user is set
-          return;
-        }
-        Document.publish({documentId: this.documentId});
-        this.publishDialog = false;
       },
     },
   };

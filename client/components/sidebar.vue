@@ -1,5 +1,10 @@
 <template>
   <v-container fluid class="app-layout__users">
+    <v-layout row>
+      <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
+      <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
+      <v-btn v-if="!documentPublished && currentUser" color="success" slot="activator" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
+    </v-layout>
     <v-layout row wrap justify-start align-content-start>
       <v-flex class="app-layout__user" v-for="cursor of cursors" :key="cursor._id">
         <v-btn flat icon :style="{borderColor: cursor.color}" @click="onAvatarClicked(cursor)">
@@ -30,6 +35,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {_} from 'meteor/underscore';
 
   import {Comment} from '/lib/comment';
@@ -63,6 +69,10 @@
         type: String,
         required: true,
       },
+      documentPublished: {
+        type: Boolean,
+        default: false,
+      },
       contentKey: {
         type: String,
         required: true,
@@ -80,6 +90,12 @@
         cursors: [],
         documentComments: [],
       };
+    },
+
+    computed: {
+      currentUser() {
+        return Meteor.user({username: 1, avatar: 1});
+      },
     },
 
     created() {
@@ -110,7 +126,6 @@
 
       window.addEventListener('resize', this.handleWindowResize);
     },
-
     methods: {
       onAvatarClicked(cursor) {
         this.$emit('click', cursor);
