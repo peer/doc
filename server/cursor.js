@@ -43,6 +43,7 @@ Meteor.methods({
       },
     );
   },
+
   'Cursor.clear'(args) {
     check(args, {
       connectionId: String,
@@ -56,7 +57,7 @@ Meteor.methods({
   },
 });
 
-Meteor.publish('Cursor.list', function cursorFeed(args) {
+Meteor.publish('Cursor.list', function cursorList(args) {
   check(args, {
     contentKey: Match.DocumentId,
   });
