@@ -61,9 +61,19 @@ Meteor.publish('Cursor.list', function cursorList(args) {
 });
 
 Meteor.onConnection((connection) => {
-  connection.onClose(() => {
+  const cleanup = Meteor.bindEnvironment(() => {
     Cursor.documents.remove({
       connectionId: connection.id,
     });
+
+    process.removeListener('exit', cleanup);
+    process.removeListener('SIGTERM', cleanup);
+    process.removeListener('SIGINT', cleanup);
   });
+
+  connection.onClose(cleanup);
+
+  process.once('exit', cleanup);
+  process.once('SIGTERM', cleanup);
+  process.once('SIGINT', cleanup);
 });
