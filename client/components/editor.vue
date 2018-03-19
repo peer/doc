@@ -166,7 +166,7 @@
   import PlaceholderPlugin from './utils/placeholder.js';
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
-  import addCommentPlugin, {addComment, removeComment, updateChunks} from './utils/add-comment-plugin';
+  import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
@@ -485,14 +485,14 @@
             }
 
             const currentKey = marks[0].attrs["data-highlight-keys"];
-            removeComment(schema, this.state, start, end, this.dispatch);
-            addComment(`${currentKey},${key}`, schema, this.state, start, end, this.dispatch);
+            removeHighlight(schema, this.state, start, end, this.dispatch);
+            addHighlight(`${currentKey},${key}`, schema, this.state, start, end, this.dispatch);
           });
         }
         newChunks.filter((chunk) => {
           return chunk.empty; // only add a new comment mark to segments with no previous comment marks
         }).forEach((chunk) => {
-          addComment(key, schema, this.state, chunk.from, chunk.to, this.dispatch);
+          addHighlight(key, schema, this.state, chunk.from, chunk.to, this.dispatch);
         });
       },
       removeLink() {
@@ -645,13 +645,13 @@
    transition: opacity 2s ease-in-out;
   }
 
-  .comment {
+  .highlight {
     background: #ffe168;
     border-bottom: 1px solid #f22;
     margin-bottom: -1px;
   }
 
-  .highlight {
+  .user-selection {
     background: #fdd;
   }
 

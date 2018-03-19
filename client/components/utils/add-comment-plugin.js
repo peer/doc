@@ -29,15 +29,15 @@ class AddComment {
       marks.push({marks: node.marks, start, size: node.nodeSize});
     });
     marks.shift(); // the first element always comes empty, so we remove it
-    let onlyCommentMarkInRange = true;
+    let onlyHighlightMarkInRange = true;
     marks.forEach((marksObj) => {
       if (!marksObj.marks.length) {
-        onlyCommentMarkInRange = false;
+        onlyHighlightMarkInRange = false;
       }
       if (marksObj.marks.filter((m) => {
-        return m.type.name !== 'comment';
+        return m.type.name !== 'highlight';
       }).length) {
-        onlyCommentMarkInRange = false;
+        onlyHighlightMarkInRange = false;
       }
     });
     this.vueInstance.selectedExistingComments = marks.filter((marksObj) => {
@@ -45,14 +45,14 @@ class AddComment {
     }).map((marksObj) => {
       return Object.assign({}, marksObj, {
         marks: marksObj.marks.filter((m) => {
-          return m.type.name === "comment";
+          return m.type.name === "highlight";
         }),
       });
     });
     const button = this.vueInstance.$refs.addCommentButton;
     // Hide the comment button if the selection is empty or the selection
-    // only contains comment marks.
-    if (state.selection.empty || onlyCommentMarkInRange) {
+    // only contains highlight marks.
+    if (state.selection.empty || onlyHighlightMarkInRange) {
       button.$el.style.opacity = 0;
       button.$el.style.visibility = 'hidden';
       return;
@@ -77,23 +77,23 @@ export default function addCommentPlugin(vueInstance) {
   });
 }
 
-export function addComment(keys, schema, state, from, to, dispatch) {
+export function addHighlight(keys, schema, state, from, to, dispatch) {
   const {doc, tr} = state;
   let attrs = null;
-  if (!doc.rangeHasMark(from, to, schema.marks.comment)) {
+  if (!doc.rangeHasMark(from, to, schema.marks.highlight)) {
     attrs = {"data-highlight-keys": keys};
     if (!attrs["data-highlight-keys"]) {
       return false;
     }
   }
-  return dispatch(tr.addMark(from, to, schema.marks.comment.create(attrs)));
+  return dispatch(tr.addMark(from, to, schema.marks.highlight.create(attrs)));
 }
 
-export function removeComment(schema, state, from, to, dispatch) {
+export function removeHighlight(schema, state, from, to, dispatch) {
   const {doc, tr} = state;
   if (dispatch) {
-    if (doc.rangeHasMark(from, to, schema.marks.comment)) {
-      return dispatch(tr.removeMark(from, to, schema.marks.comment));
+    if (doc.rangeHasMark(from, to, schema.marks.highlight)) {
+      return dispatch(tr.removeMark(from, to, schema.marks.highlight));
     }
   }
   return null;

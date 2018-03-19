@@ -7,11 +7,11 @@ function getDecorations(doc, vueInstance) {
   const keys = [];
   doc.descendants((node, pos) => {
     const mark = _.find(node.marks, (m) => {
-      return m.type.name === "comment";
+      return m.type.name === "highlight";
     });
     if (mark) {
       keys.push(mark.attrs["data-highlight-keys"].split(","));
-      result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "comment"}));
+      result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "highlight"}));
     }
   });
   vueInstance.filterComments(_.flatten(keys));
