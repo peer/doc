@@ -1,4 +1,8 @@
-node_modules/
-.idea/
+.build*
+.idea
+.meteor/storage
+.meteor-spk
+node_modules
+settings.json
 *.po~
 translations/template.pot
