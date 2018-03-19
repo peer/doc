@@ -58,7 +58,7 @@ Meteor.methods({
   },
 });
 
-Meteor.publish('Content.feed', function contentFeed(args) {
+Meteor.publish('Content.list', function contentList(args) {
   check(args, {
     contentKey: Match.DocumentId,
   });

@@ -230,7 +230,7 @@
     },
     created() {
       this.$autorun((computation) => {
-        this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
+        this.subscriptionHandle = this.$subscribe('Content.list', {contentKey: this.contentKey});
       });
 
       this.$autorun((computation) => {

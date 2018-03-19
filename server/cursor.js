@@ -61,20 +61,28 @@ Meteor.publish('Cursor.list', function cursorList(args) {
   });
 });
 
+const connectionIds = new Set();
+
 Meteor.onConnection((connection) => {
-  const cleanup = Meteor.bindEnvironment(() => {
+  connectionIds.add(connection.id);
+
+  connection.onClose(() => {
     Cursor.documents.remove({
       connectionId: connection.id,
     });
-
-    process.removeListener('exit', cleanup);
-    process.removeListener('SIGTERM', cleanup);
-    process.removeListener('SIGINT', cleanup);
+    connectionIds.delete(connection.id);
   });
-
-  connection.onClose(cleanup);
-
-  process.once('exit', cleanup);
-  process.once('SIGTERM', cleanup);
-  process.once('SIGINT', cleanup);
 });
+
+const connectionsCleanup = Meteor.bindEnvironment(() => {
+  for (const connectionId of connectionIds) {
+    Cursor.documents.remove({
+      connectionId,
+    });
+    connectionIds.delete(connectionId);
+  }
+});
+
+process.once('exit', connectionsCleanup);
+process.once('SIGTERM', connectionsCleanup);
+process.once('SIGINT', connectionsCleanup);
