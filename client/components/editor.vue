@@ -160,8 +160,11 @@
   import {schema} from '/lib/schema.js';
   import {Comment} from '/lib/comment';
   import {Content} from '/lib/content';
+  import {Cursor} from '/lib/cursor';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
+  import PlaceholderPlugin from './utils/placeholder.js';
+  import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
   import addCommentPlugin, {addComment, removeComment, updateChunks} from './utils/add-comment-plugin';
   import offsetY from './utils/sticky-scroll';
@@ -172,6 +175,15 @@
       contentKey: {
         type: String,
         required: true,
+      },
+      clientId: {
+        type: String,
+        required: true,
+      },
+      focusedCursor: {
+        type: Object,
+        rqeuired: false,
+        default: null,
       },
     },
 
@@ -184,7 +196,8 @@
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
         toolbarWidth: {width: '100%'},
-        dispatch: null,
+        cursorsHandle: null,
+        dipatch: null,
         state: null,
         link: '',
         linkDialog: false,
@@ -199,7 +212,17 @@
         },
       };
     },
-
+    watch: {
+      focusedCursor(newCursor, oldCursor) {
+        // If we receive a new focused cursor we scroll the editor to its position.
+        if (newCursor) {
+          const {tr} = this.state;
+          tr.setSelection(TextSelection.create(tr.doc, newCursor.head));
+          tr.scrollIntoView();
+          this.dispatch(tr);
+        }
+      },
+    },
     created() {
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
@@ -207,6 +230,10 @@
 
       this.$autorun((computation) => {
         this.commentsHandle = this.$subscribe('Comment.feed', {contentKey: this.contentKey});
+      });
+
+      this.$autorun((computation) => {
+        this.cursorsHandle = this.$subscribe('Cursor.feed', {contentKey: this.contentKey});
       });
     },
 
@@ -250,12 +277,29 @@
           commentPlugin(this),
           menu,
           addCommentPlugin(this),
+          PlaceholderPlugin,
           collab.collab({
             clientID: this.clientId,
           }),
+          cursorsPlugin,
         ],
       });
 
+      const updateUserPosition = (selection, contentKey, clientId) => {
+        // update user current position
+        const {head, ranges} = selection;
+        const rangesArray = ranges.map((r) => {
+          return {beginning: r.$from.pos, end: r.$to.pos};
+        });
+        Cursor.update({
+          contentKey,
+          clientId,
+          head,
+          ranges: rangesArray,
+        });
+      };
+
+      const throttledUpdateUserPosition = _.throttle(updateUserPosition, 500);
 
       const view = new EditorView({mount: this.$refs.editor}, {
         state,
@@ -290,8 +334,11 @@
             });
             this.$emit("contentChanged");
           }
+          throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
       });
+      this.state = view.state;
+      this.dispatch = view.dispatch;
 
       this.dispatch = view.dispatch;
       this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
@@ -311,6 +358,7 @@
         if (_.min(versions) !== 0) {
           return;
         }
+
         if (versions.length !== _.max(versions) + 1) {
           return;
         }
@@ -338,6 +386,27 @@
           this.$emit("commentsFetched", comments);
         }
       });
+
+      this.$autorun((computation) => {
+        let positions = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
+          clientId: {
+            $ne: this.clientId,
+          },
+        })).map((c) => {
+          return {
+            head: c.head,
+            ranges: c.ranges,
+            color: c.color,
+            username: c.author ? c.author.username : null,
+            avatar: c.author ? c.author.avatar : null,
+          };
+        });
+
+        const {tr} = view.state;
+        positions = positions || [];
+        tr.setMeta(cursorsPlugin, positions);
+        view.dispatch(tr);
+      });
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.handleWindowResize);
@@ -354,6 +423,9 @@
         const shouldFixToolbar = window.pageYOffset >= this.originalToolbarYPos;
 
         this.fixToolbarToTop = shouldFixToolbar;
+
+        // emit scroll event to notify parent component
+        this.$emit("scroll");
       },
       handleWindowResize(e) {
         this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
@@ -494,6 +566,8 @@
 
 <style lang="scss">
   .editor {
+    outline: none;
+
     p {
       margin-bottom: 0;
     }
@@ -515,6 +589,10 @@
       margin-left: 0;
       margin-right: 0;
     }
+
+    a {
+      cursor: text !important;
+    }
   }
 
   .toolbar-fixed {
@@ -524,19 +602,19 @@
   }
 
   .editor-toolbar {
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
-  }
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
 
-  .editor-toolbar .btn--flat {
-    height: 36px;
-    width: 36px;
-    justify-content: center;
-    min-width: 0;
-    opacity: 0.4;
-  }
+    .btn--flat {
+      height: 36px;
+      width: 36px;
+      justify-content: center;
+      min-width: 0;
+      opacity: 0.4;
+    }
 
-  .editor-toolbar .btn--flat.btn--active {
-    opacity: 1;
+    .btn--flat.btn--active {
+      opacity: 1;
+    }
   }
 
   .toolbar-gap {
@@ -567,5 +645,87 @@
     background: #ffe168;
     border-bottom: 1px solid #f22;
     margin-bottom: -1px;
+  }
+
+  .highlight {
+    background: #fdd;
+  }
+
+  .caret-container {
+    display: inline-block;
+    position: absolute;
+    cursor: text;
+    opacity: 1;
+    user-select: none;
+  }
+
+  .caret-head {
+    display: flex;
+    background-color: rgb(255, 0, 122);
+    opacity: 1;
+    width: 6px;
+    height: 6px;
+    font-size: 0;
+  }
+
+  .caret-body {
+    border-color: rgb(255, 0, 122);
+    opacity: 1;
+    height: 17.6px;
+    width: 0px;
+    border-left: 2px solid;
+    border-left-color: rgb(255, 0, 122);
+    font-size: 0;
+    padding: 5px;
+  }
+
+  .caret-body:hover + .caret-name {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 250ms linear;
+  }
+
+  .caret-name {
+    background-color: rgb(255, 0, 122);
+    padding: 2px;
+    white-space: nowrap;
+    font-size: 10px;
+    position: absolute;
+    top: -22px;
+    user-select: none;
+    visibility: hidden;
+    display: flex;
+    opacity: 0;
+    transition: visibility 0s 750ms, opacity 750ms linear;
+    align-items: center;
+  }
+
+  .caret-img {
+    border-radius: 50%;
+    user-select: none;
+  }
+
+  .caret-username {
+    margin-left: 5px;
+    user-select: none;
+  }
+
+  .editor .empty-node::before {
+    float: left;
+    color: #aaa;
+    pointer-events: none;
+    height: 0;
+  }
+
+  .editor .empty-node:hover::before {
+    color: #777;
+  }
+
+  .editor h1.empty-node::before {
+    content: 'Choose a title';
+  }
+
+  .editor p.empty-node:first-of-type::before {
+    content: 'Edit content';
   }
 </style>
