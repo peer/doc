@@ -5,24 +5,28 @@ import {Cursor} from '/lib/cursor';
 import {User} from '/lib/user';
 import randomColor from 'randomcolor';
 
+// Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
   'Cursor.update'(args) {
     check(args, {
       contentKey: Match.DocumentId,
-      head: Match.Integer,
-      ranges: [{beginning: Number, end: Number}],
       clientId: Match.DocumentId,
+      head: Match.Integer,
+      ranges: [{beginning: Match.Integer, end: Match.Integer}],
     });
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
+    if (!user) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    }
 
     // TODO: Check more permissions?
 
-    const createdAt = new Date();
     Cursor.documents.update(
       {
         contentKey: args.contentKey,
         clientId: args.clientId,
+        connectionId: this.connection.id,
       },
       {
         $set: {
@@ -30,30 +34,15 @@ Meteor.methods({
           ranges: args.ranges,
         },
         $setOnInsert: {
-          createdAt,
-          connectionId: this.connection.id,
-          author: user && user.getReference(),
-          clientId: args.clientId,
+          createdAt: new Date(),
+          author: user.getReference(),
           color: randomColor(),
-          contentKey: args.contentKey,
         },
       },
       {
         upsert: true,
       },
     );
-  },
-
-  'Cursor.clear'(args) {
-    check(args, {
-      connectionId: String,
-    });
-
-    // TODO: Check more permissions?
-
-    Cursor.documents.remove({
-      connectionId: args.connectionId,
-    });
   },
 });
 
@@ -73,7 +62,7 @@ Meteor.publish('Cursor.list', function cursorList(args) {
 
 Meteor.onConnection((connection) => {
   connection.onClose(() => {
-    Cursor.clear({
+    Cursor.documents.remove({
       connectionId: connection.id,
     });
   });
