@@ -208,7 +208,7 @@
         commentDialog: false,
         comment: '',
         selectedExistingLinks: [],
-        selectedExistingComments: [],
+        selectedExistingHighlights: [],
         validLink: false,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
@@ -233,7 +233,7 @@
       });
 
       this.$autorun((computation) => {
-        this.commentsHandle = this.$subscribe('Comment.feed', {contentKey: this.contentKey});
+        this.commentsHandle = this.$subscribe('Comment.feed', {documentId: this.documentId});
       });
 
       this.$autorun((computation) => {
@@ -459,8 +459,8 @@
         this.comment = '';
         Comment.create({
           highlightKey: key,
-          text: comment,
-          contentKey: this.contentKey,
+          body: comment,
+          documentId: this.documentId,
         });
 
         let newChunks = [{
@@ -469,16 +469,16 @@
           empty: true,
         }];
 
-        if (this.selectedExistingComments) {
-          // Change existing comment marks to add the new highlight-key after their current highlight-keys.
-          this.selectedExistingComments.forEach((commentMark) => {
-            const {start, size, marks} = commentMark;
+        if (this.selectedExistingHighlights) {
+          // Change existing highlight marks to add the new highlight-key after their current highlight-keys.
+          this.selectedExistingHighlights.forEach((highlightMark) => {
+            const {start, size, marks} = highlightMark;
             const end = start + size;
             const chunkToSplit = newChunks.find((chunk) => {
               return chunk.from <= start && chunk.to >= end;
             });
             if (chunkToSplit) {
-              // update collection to reflect new segments of the selection with previous comment marks
+              // update collection to reflect new segments of the selection with previous highlight marks
               newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             }
 
@@ -488,7 +488,7 @@
           });
         }
         newChunks.filter((chunk) => {
-          return chunk.empty; // only add a new comment mark to segments with no previous comment marks
+          return chunk.empty; // only add a new highlight mark to segments with no previous highlight marks
         }).forEach((chunk) => {
           addHighlight(key, schema, this.state, chunk.from, chunk.to, this.dispatch);
         });

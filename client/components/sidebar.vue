@@ -45,8 +45,8 @@
   function getElementByHighlightKey(elements, key) {
     for (let i = 0; i < elements.length; i += 1) {
       const commentMarkEl = elements[i];
-      const ids = commentMarkEl.attributes["data-highlight-keys"].value.split(",");
-      if (ids.find((commentId) => {
+      const leys = commentMarkEl.attributes["data-highlight-keys"].value.split(",");
+      if (leys.find((commentId) => {
         return commentId === key;
       })) {
         return commentMarkEl;

@@ -40,7 +40,7 @@ class AddComment {
         onlyHighlightMarkInRange = false;
       }
     });
-    this.vueInstance.selectedExistingComments = marks.filter((marksObj) => {
+    this.vueInstance.selectedExistingHighlights = marks.filter((marksObj) => {
       return marksObj.marks.length;
     }).map((marksObj) => {
       return Object.assign({}, marksObj, {
