@@ -3,7 +3,7 @@ import {Meteor} from 'meteor/meteor';
 
 import {Comment} from '/lib/comment';
 
-Meteor.publish('Comment.feed', function commentFeed(args) {
+Meteor.publish('Comment.list', function commentFeed(args) {
   check(args, {
     documentId: Match.DocumentId,
   });

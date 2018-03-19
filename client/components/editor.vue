@@ -234,11 +234,11 @@
       });
 
       this.$autorun((computation) => {
-        this.commentsHandle = this.$subscribe('Comment.feed', {documentId: this.documentId});
+        this.commentsHandle = this.$subscribe('Comment.list', {documentId: this.documentId});
       });
 
       this.$autorun((computation) => {
-        this.cursorsHandle = this.$subscribe('Cursor.feed', {contentKey: this.contentKey});
+        this.cursorsHandle = this.$subscribe('Cursor.list', {contentKey: this.contentKey});
       });
     },
 
