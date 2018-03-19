@@ -26,9 +26,6 @@
         <router-view />
       </v-container>
     </v-content>
-    <v-footer app>
-      <a href="https://github.com/peer/doc" v-translate>source-code</a>
-    </v-footer>
     <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
       {{snackbarMessage}}
       <v-btn flat dark @click.native="onSnackbarClose"><translate>close</translate></v-btn>

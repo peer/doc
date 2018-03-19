@@ -24,6 +24,27 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog hide-overlay v-model="commentDialog" max-width="500px">
+      <v-card>
+        <v-card-text>
+          <v-form @submit.prevent="insertComment">
+            <v-text-field
+              autofocus
+              multi-line
+              v-model="comment"
+              placeholder="Comment..."
+              required
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
+          <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
         :class="{'toolbar-fixed':fixToolbarToTop}"
@@ -96,6 +117,19 @@
         ref="editorDivider"
       />
       <div style="height: 64px;" v-if="fixToolbarToTop" />
+      <v-btn
+        class="btn-comment"
+        color="white"
+        small
+        bottom
+        right
+        fab
+        ref="addCommentButton"
+        :style="{opacity: 0, visibility: 'hidden'}"
+        @click="openCommentDialog"
+      >
+        <v-icon>comment</v-icon>
+      </v-btn>
     </div>
 
     <div id="editor" ref="editor" class="editor" />
@@ -124,33 +158,58 @@
   import 'prosemirror-gapcursor/style/gapcursor.css';
 
   import {schema} from '/lib/schema.js';
+  import {Comment} from '/lib/comment';
   import {Content} from '/lib/content';
+  import {Cursor} from '/lib/cursor';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
+  import PlaceholderPlugin from './utils/placeholder.js';
+  import {cursorsPlugin} from './utils/cursors-plugin';
+  import {commentPlugin} from './utils/comment-plugin';
+  import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
   import offsetY from './utils/sticky-scroll';
 
   // @vue/component
   const component = {
     props: {
+      documentId: {
+        type: String,
+        required: true,
+      },
       contentKey: {
         type: String,
         required: true,
+      },
+      clientId: {
+        type: String,
+        required: true,
+      },
+      focusedCursor: {
+        type: Object,
+        required: false,
+        default: null,
       },
     },
 
     data() {
       return {
         subscriptionHandle: null,
+        commentsHandle: null,
         addingStepsInProgress: false,
+        addingCommentsInProgress: false,
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
         toolbarWidth: {width: '100%'},
-        dispatch: null,
+        cursorsHandle: null,
+        dipatch: null,
         state: null,
         link: '',
         linkDialog: false,
         linkHint: this.$gettext("link-hint"),
+        commentDialog: false,
+        comment: '',
         selectedExistingLinks: [],
+        selectedExistingHighlights: [],
         validLink: false,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
@@ -158,10 +217,28 @@
         },
       };
     },
-
+    watch: {
+      focusedCursor(newCursor, oldCursor) {
+        // If we receive a new focused cursor we scroll the editor to its position.
+        if (newCursor) {
+          const {tr} = this.state;
+          tr.setSelection(TextSelection.create(tr.doc, newCursor.head));
+          tr.scrollIntoView();
+          this.dispatch(tr);
+        }
+      },
+    },
     created() {
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
+      });
+
+      this.$autorun((computation) => {
+        this.commentsHandle = this.$subscribe('Comment.feed', {documentId: this.documentId});
+      });
+
+      this.$autorun((computation) => {
+        this.cursorsHandle = this.$subscribe('Cursor.feed', {contentKey: this.contentKey});
       });
     },
 
@@ -200,13 +277,32 @@
           dropCursor(),
           gapCursor(),
           history(),
+          commentPlugin(this),
           menu,
+          addCommentPlugin(this),
+          PlaceholderPlugin,
           collab.collab({
-            clientID: Random.id(),
+            clientID: this.clientId,
           }),
+          cursorsPlugin,
         ],
       });
 
+      const updateUserPosition = (selection, contentKey, clientId) => {
+        // update user current position
+        const {head, ranges} = selection;
+        const rangesArray = ranges.map((r) => {
+          return {beginning: r.$from.pos, end: r.$to.pos};
+        });
+        Cursor.update({
+          contentKey,
+          clientId,
+          head,
+          ranges: rangesArray,
+        });
+      };
+
+      const throttledUpdateUserPosition = _.throttle(updateUserPosition, 500);
 
       const view = new EditorView({mount: this.$refs.editor}, {
         state,
@@ -215,24 +311,42 @@
           view.updateState(newState);
           this.state = newState;
           const sendable = collab.sendableSteps(newState);
+          const {clientId} = this;
           if (sendable) {
+            const commentMarks = _.filter(transaction.steps, (s) => {
+              return s.mark && s.mark.type.name === "comment";
+            });
+            if (commentMarks) {
+              commentMarks.forEach((c) => {
+                const highlightKey = c.mark.attrs["data-highlight-keys"];
+                Comment.setInitialVersion({
+                  highlightKey,
+                  version: sendable.version,
+                });
+              });
+            }
             this.addingStepsInProgress = true;
             Content.addSteps({
               contentKey: this.contentKey,
               currentVersion: sendable.version,
               steps: sendable.steps,
-              clientId: sendable.clientID,
+              clientId,
             }, (error, stepsAdded) => {
               this.addingStepsInProgress = false;
               // TODO: Error handling.
             });
+            this.$emit("contentChanged");
           }
+          throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
       });
+      this.state = view.state;
+      this.dispatch = view.dispatch;
 
       this.dispatch = view.dispatch;
       this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       window.addEventListener('resize', this.handleWindowResize);
+
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
           return;
@@ -247,6 +361,7 @@
         if (_.min(versions) !== 0) {
           return;
         }
+
         if (versions.length !== _.max(versions) + 1) {
           return;
         }
@@ -267,6 +382,27 @@
           }
         });
       });
+
+      this.$autorun((computation) => {
+        let positions = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
+          clientId: {
+            $ne: this.clientId,
+          },
+        })).map((c) => {
+          return {
+            head: c.head,
+            ranges: c.ranges,
+            color: c.color,
+            username: c.author ? c.author.username : null,
+            avatar: c.author ? c.author.avatar : null,
+          };
+        });
+
+        const {tr} = view.state;
+        positions = positions || [];
+        tr.setMeta(cursorsPlugin, positions);
+        view.dispatch(tr);
+      });
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.handleWindowResize);
@@ -283,6 +419,9 @@
         const shouldFixToolbar = window.pageYOffset >= this.originalToolbarYPos;
 
         this.fixToolbarToTop = shouldFixToolbar;
+
+        // emit scroll event to notify parent component
+        this.$emit("scroll");
       },
       handleWindowResize(e) {
         this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
@@ -301,6 +440,52 @@
           this.linkDialog = false;
           this.link = '';
         }
+      },
+      insertComment() {
+        const {comment} = this;
+        const {selection} = this.state;
+        if (selection.empty) {
+          return;
+        }
+
+        const key = Random.id();
+        this.commentDialog = false;
+        this.comment = '';
+        Comment.create({
+          highlightKey: key,
+          body: comment,
+          documentId: this.documentId,
+        });
+
+        let newChunks = [{
+          from: selection.from,
+          to: selection.to,
+          empty: true,
+        }];
+
+        if (this.selectedExistingHighlights) {
+          // Change existing highlight marks to add the new highlight-key after their current highlight-keys.
+          this.selectedExistingHighlights.forEach((highlightMark) => {
+            const {start, size, marks} = highlightMark;
+            const end = start + size;
+            const chunkToSplit = newChunks.find((chunk) => {
+              return chunk.from <= start && chunk.to >= end;
+            });
+            if (chunkToSplit) {
+              // update collection to reflect new segments of the selection with previous highlight marks
+              newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
+            }
+
+            const currentKey = marks[0].attrs["data-highlight-keys"];
+            removeHighlight(schema, this.state, start, end, this.dispatch);
+            addHighlight(`${currentKey},${key}`, schema, this.state, start, end, this.dispatch);
+          });
+        }
+        newChunks.filter((chunk) => {
+          return chunk.empty; // only add a new highlight mark to segments with no previous highlight marks
+        }).forEach((chunk) => {
+          addHighlight(key, schema, this.state, chunk.from, chunk.to, this.dispatch);
+        });
       },
       removeLink() {
         this.clearLink();
@@ -343,6 +528,10 @@
         this.linkDialog = false;
         this.link = '';
       },
+      cancelComment() {
+        this.commentDialog = false;
+        this.comment = '';
+      },
       openLinkDialog() {
         if (this.selectedExistingLinks.length &&
         this.selectedExistingLinks.length === 1) {
@@ -350,6 +539,20 @@
           this.link = this.selectedExistingLinks[0].href;
         }
         this.linkDialog = true;
+      },
+      openCommentDialog() {
+        this.commentDialog = true;
+      },
+      filterComments(keys) {
+        if (!this.state) {
+          return;
+        }
+        // Set final version for any orphan Comment that could stay in db.
+        Comment.filterOrphan({
+          documentId: this.documentId,
+          highlightKeys: keys,
+          version: collab.getVersion(this.state),
+        });
       },
     },
   };
@@ -359,6 +562,8 @@
 
 <style lang="scss">
   .editor {
+    outline: none;
+
     p {
       margin-bottom: 0;
     }
@@ -380,6 +585,10 @@
       margin-left: 0;
       margin-right: 0;
     }
+
+    a {
+      cursor: text !important;
+    }
   }
 
   .toolbar-fixed {
@@ -389,19 +598,19 @@
   }
 
   .editor-toolbar {
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
-  }
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
 
-  .editor-toolbar .btn--flat {
-    height: 36px;
-    width: 36px;
-    justify-content: center;
-    min-width: 0;
-    opacity: 0.4;
-  }
+    .btn--flat {
+      height: 36px;
+      width: 36px;
+      justify-content: center;
+      min-width: 0;
+      opacity: 0.4;
+    }
 
-  .editor-toolbar .btn--flat.btn--active {
-    opacity: 1;
+    .btn--flat.btn--active {
+      opacity: 1;
+    }
   }
 
   .toolbar-gap {
@@ -415,6 +624,104 @@
   }
 
   .editor a {
-    cursor: text   !important;
+    cursor: text !important;
+  }
+
+  .btn-comment {
+    left: 99%;
+    z-index: 25;
+  }
+
+  .fade {
+   opacity: 1;
+   transition: opacity 2s ease-in-out;
+  }
+
+  .highlight {
+    background: #ffe168;
+    border-bottom: 1px solid #f22;
+    margin-bottom: -1px;
+  }
+
+  .user-selection {
+    background: #fdd;
+  }
+
+  .caret-container {
+    display: inline-block;
+    position: absolute;
+    cursor: text;
+    opacity: 1;
+    user-select: none;
+  }
+
+  .caret-head {
+    display: flex;
+    background-color: rgb(255, 0, 122);
+    opacity: 1;
+    width: 6px;
+    height: 6px;
+    font-size: 0;
+  }
+
+  .caret-body {
+    border-color: rgb(255, 0, 122);
+    opacity: 1;
+    height: 17.6px;
+    width: 0px;
+    border-left: 2px solid;
+    border-left-color: rgb(255, 0, 122);
+    font-size: 0;
+    padding: 5px;
+  }
+
+  .caret-body:hover + .caret-name {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 250ms linear;
+  }
+
+  .caret-name {
+    background-color: rgb(255, 0, 122);
+    padding: 2px;
+    white-space: nowrap;
+    font-size: 10px;
+    position: absolute;
+    top: -22px;
+    user-select: none;
+    visibility: hidden;
+    display: flex;
+    opacity: 0;
+    transition: visibility 0s 750ms, opacity 750ms linear;
+    align-items: center;
+  }
+
+  .caret-img {
+    border-radius: 50%;
+    user-select: none;
+  }
+
+  .caret-username {
+    margin-left: 5px;
+    user-select: none;
+  }
+
+  .editor .empty-node::before {
+    float: left;
+    color: #aaa;
+    pointer-events: none;
+    height: 0;
+  }
+
+  .editor .empty-node:hover::before {
+    color: #777;
+  }
+
+  .editor h1.empty-node::before {
+    content: 'Choose a title';
+  }
+
+  .editor p.empty-node:first-of-type::before {
+    content: 'Edit content';
   }
 </style>
