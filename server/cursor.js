@@ -69,3 +69,11 @@ Meteor.publish('Cursor.feed', function cursorFeed(args) {
     fields: Cursor.PUBLISH_FIELDS(),
   });
 });
+
+Meteor.onConnection((connection) => {
+  connection.onClose(() => {
+    Cursor.clear({
+      connectionId: connection.id,
+    });
+  });
+});
