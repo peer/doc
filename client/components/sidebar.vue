@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="app-layout__users">
+  <v-container fluid class="sidebar__users">
     <v-layout row wrap justify-start align-content-start>
-      <v-flex class="app-layout__user" v-for="cursor of cursors" :key="cursor._id">
+      <v-flex class="sidebar__user" v-for="cursor of cursors" :key="cursor._id">
         <v-btn flat icon :style="{borderColor: cursor.color}" @click="onAvatarClicked(cursor)">
           <v-avatar size="36px"><img :src="cursor.author.avatarUrl()" :alt="cursor.author.username" :title="cursor.author.username"></v-avatar>
         </v-btn>
@@ -227,7 +227,7 @@
 </script>
 
 <style lang="scss">
-  .app-layout__user {
+  .sidebar__user {
     flex: 0 0 auto;
 
     button {
@@ -245,7 +245,7 @@
     }
   }
 
-  .app-layout__users {
+  .sidebar__users {
     padding-top: 0;
     padding-right: 0;
   }
