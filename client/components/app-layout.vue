@@ -7,18 +7,18 @@
       <v-toolbar-title>PeerDoc</v-toolbar-title>
       <v-spacer />
       <v-toolbar-items>
-        <v-btn :to="{name: 'documents'}" flat>Documents</v-btn>
+        <v-btn :to="{name: 'documents'}" flat><translate>documents</translate></v-btn>
         <v-menu v-if="currentUser" offset-y bottom left origin="top right">
           <v-btn slot="activator" flat>{{currentUser.username}}
             <v-avatar size="36px" class="app-layout__avatar"><img :src="currentUser.avatarUrl()" alt=""></v-avatar>
           </v-btn>
           <v-list>
             <v-list-tile @click="onSignOut">
-              <v-list-tile-title>Sign out</v-list-tile-title>
+              <v-list-tile-title v-translate>sign-out</v-list-tile-title>
             </v-list-tile>
           </v-list>
         </v-menu>
-        <v-btn v-else :to="{name: 'user-signin'}" flat>Sign in</v-btn>
+        <v-btn v-else :to="{name: 'user-signin'}" flat><translate>sign-in</translate></v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
@@ -30,7 +30,7 @@
     </v-content>
     <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
       {{snackbarMessage}}
-      <v-btn flat dark @click.native="onSnackbarClose">Close</v-btn>
+      <v-btn flat dark @click.native="onSnackbarClose"><translate>close</translate></v-btn>
     </v-snackbar>
   </v-app>
 </template>
@@ -67,10 +67,11 @@
       onSignOut() {
         Meteor.logout((error) => {
           if (error) {
-            Snackbar.enqueue(`Error signing out: ${error}`, 'error');
+            const translated = this.$gettext("signed-out-error");
+            Snackbar.enqueue(this.$gettextInterpolate(translated, {error}), 'error');
           }
           else {
-            Snackbar.enqueue("You have been signed out.", 'success');
+            Snackbar.enqueue(this.$gettext("signed-out-success"), 'success');
           }
         });
       },

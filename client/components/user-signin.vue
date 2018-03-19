@@ -7,11 +7,11 @@
           <v-card-text>
             <!-- TODO: This should open with "slideDown" effect, where it pushes the content down gradually, as it grows vertically. -->
             <v-alert v-model="errorShow" color="error" dismissible transition="scale-transition" class="mb-3">{{errorMessage}}</v-alert>
-            <v-text-field :readonly="formSubmissionInProgress" label="Username" v-model="username" :rules="usernameRules" required />
+            <v-text-field :readonly="formSubmissionInProgress" :label="usernameLabel" v-model="username" :rules="usernameRules" required />
           </v-card-text>
           <v-card-actions>
             <v-btn type="submit" :disabled="!valid || formSubmissionInProgress" block color="primary">
-              <span>Sign in</span>
+              <span v-translate>sign-in</span>
               <v-progress-linear v-if="formSubmissionInProgress" :indeterminate="true" :height="3" color="primary" class="user-signin__progress" />
             </v-btn>
           </v-card-actions>
@@ -30,13 +30,13 @@
 
   function checkUsername(username) {
     if (!username) {
-      return "Username is required";
+      return this.$gettext("username-is-required");
     }
     if (username.length < 4) {
-      return "Username too short, it should be 4 characters or more";
+      return this.$gettext("username-too-short");
     }
     if (!User.VALID_USERNAME.test(username)) {
-      return "Invalid username, it should contain only basic characters";
+      return this.$gettext("username-invalid");
     }
     return true;
   }
@@ -47,10 +47,11 @@
       return {
         valid: false,
         username: '',
-        usernameRules: [checkUsername],
+        usernameRules: [checkUsername.bind(this)],
         formSubmissionInProgress: false,
         errorShow: false,
         errorMessage: null,
+        usernameLabel: this.$gettext("username"),
       };
     },
 
@@ -73,7 +74,7 @@
             this.errorShow = true;
           }
           else {
-            Snackbar.enqueue("You have been signed in.", 'success');
+            Snackbar.enqueue(this.$gettext("signed-in-success"), 'success');
             // TODO: Redirect to the previous page and not just to the front page.
             //       See: https://github.com/vuejs/vue-router/issues/883
             this.$router.push({name: 'front-page'});

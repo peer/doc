@@ -7,7 +7,7 @@ import {schema} from '/lib/schema';
 import {Content} from '/lib/content';
 import {User} from '/lib/user';
 
-// A special case which is not using ValidatedMethod.
+// Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
   'Content.addSteps'(args) {
     check(args, {

@@ -1,0 +1,126 @@
+# English translations for peer-doc package.
+# Copyright (C) 2018 THE peer-doc'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the peer-doc package.
+# Automatically generated, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: peer-doc undefined\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-03-19 01:05-0700\n"
+"PO-Revision-Date: 2018-03-05 12:12-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: client/components/access-denied.vue:3
+msgid "access-denied"
+msgstr "Access denied."
+
+#: client/components/editor.vue:20
+msgid "cancel"
+msgstr "Cancel"
+
+#: client/components/sidebar.vue:14
+msgid "chat"
+msgstr "Chat"
+
+#: client/components/app-layout.vue:30
+msgid "close"
+msgstr "Close"
+
+#: client/components/sidebar.vue:13
+msgid "comments"
+msgstr "Comments"
+
+#: client/components/app-layout.vue:9
+msgid "documents"
+msgstr "Documents"
+
+#: client/components/documents.vue:15
+msgid "draft"
+msgstr "Draft"
+
+#: client/components/front-page.vue:1
+msgid "front-page"
+msgstr "Front page."
+
+#: client/components/sidebar.vue:15
+msgid "history"
+msgstr "History"
+
+#: client/components/editor.vue:22
+msgid "insert"
+msgstr "Insert"
+
+#: client/components/documents.vue:21
+msgid "no-documents"
+msgstr "No documents."
+
+#: client/components/not-found.vue:3
+msgid "not-found"
+msgstr "Not found."
+
+#: client/components/editor.vue:21
+msgid "remove"
+msgstr "Remove"
+
+#: client/components/app-layout.vue:20 client/components/user-signin.vue:13
+msgid "sign-in"
+msgstr "Sign In"
+
+#: client/components/app-layout.vue:16
+msgid "sign-out"
+msgstr "Sign Out"
+
+#: client/components/documents.vue:9
+msgid "untitled"
+msgstr "Untitled"
+
+#: client/components/editor.vue:208
+msgid "link-hint"
+msgstr "Enter a link"
+
+#: client/components/editor.vue:216
+msgid "invalid-url"
+msgstr "Invalid URL."
+
+#: client/components/user-signin.vue:33
+msgid "username-is-required"
+msgstr "Username is required"
+
+#: client/components/user-signin.vue:36
+msgid "username-too-short"
+msgstr "Username too short, it should be 4 characters or more"
+
+#: client/components/user-signin.vue:39
+msgid "username-invalid"
+msgstr "Invalid username, it should contain only basic characters"
+
+#: client/components/user-signin.vue:54
+msgid "username"
+msgstr "Username"
+
+#: client/components/user-signin.vue:77
+msgid "signed-in-success"
+msgstr "You have been signed in."
+
+#: client/components/documents.vue:72
+msgid "document-created-error"
+msgstr "Error creating a new document: %{error}"
+
+#: client/components/documents.vue:76
+msgid "document-created-success"
+msgstr "New document has been created."
+
+#: client/components/app-layout.vue:67
+msgid "signed-out-error"
+msgstr "Error signing out: %{error}"
+
+#: client/components/app-layout.vue:71
+msgid "signed-out-success"
+msgstr "You have been signed out."
