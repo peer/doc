@@ -61,11 +61,16 @@ const component = {
         this.documentPublishInProgress = false;
         return;
       }
-      Document.publish({documentId: this.documentId}, () => {
+      Document.publish({documentId: this.documentId}, (error) => {
+        if (error) {
+          this.documentPublishInProgress = false;
+          Snackbar.enqueue(this.$gettext("publish-error"), 'error');
+          return;
+        }
         this.documentPublishInProgress = false;
+        this.$router.push({name: 'document', params: {documentId: this.documentId}});
         Snackbar.enqueue(this.$gettext("publish-success"), 'success');
       });
-      this.$router.push({name: 'document', params: {documentId: this.documentId}});
     },
   },
 };

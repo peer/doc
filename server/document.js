@@ -2,6 +2,29 @@ import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
 import {Document} from '/lib/document';
+import {User} from '/lib/user';
+
+Meteor.methods({
+  'Document.publish'(args) {
+    check(args, {
+      documentId: String,
+    });
+
+    const user = Meteor.user(User.REFERENCE_FIELDS());
+    if (!user) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    }
+
+    Document.documents.update({
+      _id: args.documentId,
+    }, {
+      $set: {
+        publishedBy: user.getReference(),
+        publishedAt: new Date(),
+      },
+    });
+  },
+});
 
 Meteor.publish('Document.list', function documentList(args) {
   check(args, {});
