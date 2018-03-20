@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="app-layout__users">
+  <v-container fluid class="sidebar__users">
     <v-layout row wrap justify-start align-content-start>
-      <v-flex class="app-layout__user" v-for="cursor of cursors" :key="cursor._id">
+      <v-flex class="sidebar__user" v-for="cursor of cursors" :key="cursor._id">
         <v-btn flat icon :style="{borderColor: cursor.color}" @click="onAvatarClicked(cursor)">
           <v-avatar size="36px"><img :src="cursor.author.avatarUrl()" :alt="cursor.author.username" :title="cursor.author.username"></v-avatar>
         </v-btn>
@@ -32,8 +32,8 @@
 <script>
   import {_} from 'meteor/underscore';
 
-  import {Comment} from '/lib/comment';
-  import {Cursor} from '/lib/cursor';
+  import {Comment} from '/lib/documents/comment';
+  import {Cursor} from '/lib/documents/cursor';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
@@ -46,8 +46,8 @@
   function getElementByHighlightKey(elements, key) {
     for (let i = 0; i < elements.length; i += 1) {
       const commentMarkEl = elements[i];
-      const leys = commentMarkEl.attributes["data-highlight-keys"].value.split(",");
-      if (leys.find((commentId) => {
+      const keys = commentMarkEl.attributes["data-highlight-keys"].value.split(",");
+      if (keys.find((commentId) => {
         return commentId === key;
       })) {
         return commentMarkEl;
@@ -227,7 +227,7 @@
 </script>
 
 <style lang="scss">
-  .app-layout__user {
+  .sidebar__user {
     flex: 0 0 auto;
 
     button {
@@ -245,7 +245,7 @@
     }
   }
 
-  .app-layout__users {
+  .sidebar__users {
     padding-top: 0;
     padding-right: 0;
   }
