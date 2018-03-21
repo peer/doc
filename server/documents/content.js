@@ -35,11 +35,19 @@ Meteor.methods({
     let addedCount = 0;
     const latestContent = Content.documents.findOne({contentKey: args.contentKey}, {sort: {version: -1}, fields: {version: 1}});
     const document = Document.documents.findOne({contentKey: args.contentKey});
+    let stepsToProcess = args.steps;
     if (document.isPublished()) {
       // If the document is published we immediately discard this new step
-      // In the future, we should check if the content that they're trying
-      // to add is a comment, to allow that.
-      return addedCount;
+      // unless it contains highlight marks, in which case we just process those.
+      stepsToProcess = args.steps.filter((step) => {
+        if (step.mark && step.mark.type.name === 'highlight') {
+          return step;
+        }
+        return null;
+      });
+      if (!stepsToProcess || !stepsToProcess.length) {
+        return addedCount;
+      }
     }
     if (latestContent.version !== args.currentVersion) {
       return addedCount;
@@ -47,7 +55,7 @@ Meteor.methods({
 
     const createdAt = new Date();
 
-    for (const step of args.steps) {
+    for (const step of stepsToProcess) {
       const {numberAffected, insertedId} = Content.documents.upsert({ // eslint-disable-line no-unused-vars
         contentKey: args.contentKey,
         version: args.currentVersion + addedCount + 1,
