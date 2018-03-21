@@ -7,6 +7,18 @@ import randomColor from 'randomcolor';
 
 // Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
+
+  'Cursor.remove'(args) {
+    check(args, {
+      contentKey: Match.DocumentId,
+      clientId: Match.DocumentId,
+    });
+    Cursor.documents.remove({
+      contentKey: args.contentKey,
+      clientId: args.clientId,
+    });
+  },
+
   'Cursor.update'(args) {
     check(args, {
       contentKey: Match.DocumentId,
