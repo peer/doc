@@ -1,8 +1,8 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
-import {Document} from '/lib/document';
-import {User} from '/lib/user';
+import {Document} from '/lib/documents/document';
+import {User} from '/lib/documents/user';
 
 Meteor.methods({
   'Document.publish'(args) {

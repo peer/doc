@@ -4,9 +4,9 @@ import {Meteor} from 'meteor/meteor';
 import {Step} from 'prosemirror-transform';
 import {schema} from '/lib/schema';
 
-import {Content} from '/lib/content';
-import {Document} from '/lib/document';
-import {User} from '/lib/user';
+import {Document} from '/lib/documents/document';
+import {Content} from '/lib/documents/content';
+import {User} from '/lib/documents/user';
 
 // Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
