@@ -2,7 +2,7 @@ import {Accounts} from 'meteor/accounts-base';
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
-import {User} from '/lib/user';
+import {User} from '/lib/documents/user';
 
 Accounts.onCreateUser(function onCreateUser(options, user) {
   // We simply ignore options.profile because we do not use profile.

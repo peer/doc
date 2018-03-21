@@ -10,7 +10,7 @@ function getDecorations(doc, vueInstance) {
       return m.type.name === "highlight";
     });
     if (mark) {
-      keys.push(mark.attrs["data-highlight-keys"].split(","));
+      keys.push(mark.attrs["highlight-keys"].split(","));
       result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "highlight"}));
     }
   });

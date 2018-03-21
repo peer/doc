@@ -158,9 +158,9 @@
   import 'prosemirror-gapcursor/style/gapcursor.css';
 
   import {schema} from '/lib/schema.js';
-  import {Comment} from '/lib/comment';
-  import {Content} from '/lib/content';
-  import {Cursor} from '/lib/cursor';
+  import {Comment} from '/lib/documents/comment';
+  import {Content} from '/lib/documents/content';
+  import {Cursor} from '/lib/documents/cursor';
 
   import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
   import PlaceholderPlugin from './utils/placeholder.js';
@@ -230,7 +230,7 @@
     },
     created() {
       this.$autorun((computation) => {
-        this.subscriptionHandle = this.$subscribe('Content.feed', {contentKey: this.contentKey});
+        this.subscriptionHandle = this.$subscribe('Content.list', {contentKey: this.contentKey});
       });
 
       this.$autorun((computation) => {
@@ -318,7 +318,7 @@
             });
             if (commentMarks) {
               commentMarks.forEach((c) => {
-                const highlightKey = c.mark.attrs["data-highlight-keys"];
+                const highlightKey = c.mark.attrs["highlight-keys"];
                 Comment.setInitialVersion({
                   highlightKey,
                   version: sendable.version,
@@ -477,7 +477,7 @@
               newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             }
 
-            const currentKey = marks[0].attrs["data-highlight-keys"];
+            const currentKey = marks[0].attrs["highlight-keys"];
             removeHighlight(schema, this.state, start, end, this.dispatch);
             addHighlight(`${currentKey},${key}`, schema, this.state, start, end, this.dispatch);
           });

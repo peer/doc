@@ -4,8 +4,8 @@ import {Meteor} from 'meteor/meteor';
 import {Step} from 'prosemirror-transform';
 import {schema} from '/lib/schema';
 
-import {Content} from '/lib/content';
-import {User} from '/lib/user';
+import {Content} from '/lib/documents/content';
+import {User} from '/lib/documents/user';
 
 // Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
@@ -58,7 +58,7 @@ Meteor.methods({
   },
 });
 
-Meteor.publish('Content.feed', function contentFeed(args) {
+Meteor.publish('Content.list', function contentList(args) {
   check(args, {
     contentKey: Match.DocumentId,
   });
