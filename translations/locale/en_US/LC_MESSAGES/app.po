@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-19 16:57-0300\n"
+"POT-Creation-Date: 2018-03-21 15:52-0300\n"
 "PO-Revision-Date: 2018-03-05 12:12-0300\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -22,6 +22,7 @@ msgid "access-denied"
 msgstr "Access denied."
 
 #: client/components/editor.vue:20
+#: client/components/publish-confirmation.vue:13
 msgid "cancel"
 msgstr "Cancel"
 
@@ -64,6 +65,18 @@ msgstr "No documents."
 #: client/components/not-found.vue:3
 msgid "not-found"
 msgstr "Not found."
+
+#: client/components/publish-confirmation.vue:19
+msgid "publish"
+msgstr "Publish"
+
+#: client/components/publish-confirmation.vue:9
+msgid "publish-document-confirmation-body"
+msgstr "Once it is published it will not be editable anymore. it will become visible to other users and everyone will be able to comment."
+
+#: client/components/publish-confirmation.vue:8
+msgid "publish-document-confirmation-title"
+msgstr "Do you wish to publish this document now?"
 
 #: client/components/editor.vue:21
 msgid "remove"

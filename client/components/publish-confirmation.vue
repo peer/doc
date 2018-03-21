@@ -6,18 +6,18 @@
           <v-card>
             <v-card-title primary-title>
               <div>
-                <h3>Do you wish to publish this document now?</h3>
-                <div>Once it's published it will not be editable anymore.</div>
+                <h3><translate>publish-document-confirmation-title</translate></h3>
+                <div><translate>publish-document-confirmation-body</translate></div>
               </div>
             </v-card-title>
             <v-card-actions>
-              <v-btn flat color="primary" class="mx-0" @click="onCancelClick">Cancel</v-btn>
+              <v-btn flat color="primary" class="mx-0" @click="onCancelClick"><translate>cancel</translate></v-btn>
               <v-btn
                 flat
                 color="primary"
                 class="mx-0"
                 @click="onPublishClick"
-                :disabled="documentPublishInProgress">Publish</v-btn>
+                :disabled="documentPublishInProgress"><translate>publish</translate></v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
