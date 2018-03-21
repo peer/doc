@@ -1,5 +1,5 @@
 <template>
-  <v-layout row>
+  <v-layout row v-if="currentUser">
     <v-container fill-height>
       <v-layout fill-height>
         <v-flex>
@@ -24,6 +24,7 @@
       </v-layout>
     </v-container>
   </v-layout>
+  <access-denied v-else />
 </template>
 <script>
 import {Meteor} from 'meteor/meteor';
