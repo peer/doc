@@ -29,7 +29,7 @@
 import {Meteor} from 'meteor/meteor';
 import {RouterFactory} from 'meteor/akryum:vue-router2';
 
-import {Document} from '/lib/document';
+import {Document} from '/lib/documents/document';
 import {Snackbar} from '../snackbar';
 // @vue/component
 const component = {
