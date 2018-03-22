@@ -16,6 +16,7 @@ Meteor.methods({
     Cursor.documents.remove({
       contentKey: args.contentKey,
       clientId: args.clientId,
+      connectionId: this.connection.id,
     });
   },
 
