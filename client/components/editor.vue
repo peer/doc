@@ -406,6 +406,7 @@
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.handleWindowResize);
+      Cursor.remove({contentKey: this.contentKey, clientId: this.clientId});
     },
     methods: {
       onScroll(e) {
