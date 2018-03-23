@@ -3,6 +3,9 @@ import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import crypto from 'crypto';
 
+import {AppCivistNonce} from '/lib/documents/appcivist-nonce';
+import {User} from '/lib/documents/user';
+
 const baseToMap = {
   '-': '+',
   _: '/',
@@ -23,7 +26,7 @@ function decrypt(tokenBase, keyHex) {
 }
 
 // const keyHex = crypto.randomBytes(16).toString('hex');
-const keyHex = '960d1591462f289d6b5a748aca0eb9e4';
+const keyHex = 'adfb0f4077454862ee2062d3970c9c33';
 // A special case which is not using ValidatedMethod because client side
 // differs a lot from the server side and there is no client stub.
 Meteor.methods({
@@ -42,9 +45,30 @@ Meteor.methods({
 
       const {userToken} = args;
 
-      decrypt(userToken, keyHex);
+      const decryptedToken = decrypt(userToken, keyHex);
 
-      throw Error("Not yet implemented");
+      AppCivistNonce.addNonce({nonce: decryptedToken.nonce});
+      const {username} = decryptedToken;
+
+      check({username}, {
+        username: Match.RegexString(User.VALID_USERNAME),
+      });
+      // Does user already exists? Then we just sign the user in.
+      const user = Accounts.findUserByUsername(username);
+      if (user) {
+        return {userId: user._id};
+      }
+
+      // Otherwise we create a new user.
+      const userId = Accounts.createUser({username});
+
+      // Safety belt. createUser is supposed to throw on error.
+      if (!userId) {
+        throw new Error("Failed to insert a new user.");
+      }
+
+      // Client gets logged in as the new user afterwards.
+      return {userId};
     });
   },
 });
