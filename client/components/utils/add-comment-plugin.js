@@ -78,22 +78,20 @@ export default function addCommentPlugin(vueInstance) {
 }
 
 export function addHighlight(keys, schema, state, from, to, dispatch) {
-  const {doc, tr} = state;
-  let attrs = null;
-  if (!doc.rangeHasMark(from, to, schema.marks.highlight)) {
-    attrs = {"highlight-keys": keys};
-    if (!attrs["highlight-keys"]) {
-      return false;
-    }
+  const {tr: transaction} = state;
+  const attrs = {"highlight-keys": keys};
+  if (!attrs["highlight-keys"]) {
+    return false;
   }
-  return dispatch(tr.addMark(from, to, schema.marks.highlight.create(attrs)));
+
+  return dispatch(transaction.addMark(from, to, schema.marks.highlight.create(attrs)));
 }
 
 export function removeHighlight(schema, state, from, to, dispatch) {
-  const {doc, tr} = state;
+  const {doc, tr: transaction} = state;
   if (dispatch) {
     if (doc.rangeHasMark(from, to, schema.marks.highlight)) {
-      return dispatch(tr.removeMark(from, to, schema.marks.highlight));
+      return dispatch(transaction.removeMark(from, to, schema.marks.highlight));
     }
   }
   return null;
