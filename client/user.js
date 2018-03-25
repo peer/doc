@@ -1,5 +1,4 @@
 import {Accounts} from 'meteor/accounts-base';
-
 import {User} from '/lib/documents/user';
 
 // A special case which is not using ValidatedMethod because client side
