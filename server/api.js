@@ -24,8 +24,8 @@ Meteor.startup(function startup() {
   }
 });
 
-// TODO: Set common keyHex between AppCivist and PeerDoc and store it somewhere
-const keyHex = 'adfb0f4077454862ee2062d3970c9c33';
+// Obtaining common keyHex between AppCivist and PeerDoc from settings.json
+const {keyHex} = Meteor.settings;
 
 function createDocumentOfUserFromToken(userToken) {
   const decryptedToken = decrypt(userToken, keyHex);

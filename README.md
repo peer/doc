@@ -18,10 +18,16 @@ Install dependencies:
 $ meteor npm install
 ```
 
+Add and configure settings:
+
+```bash
+$ cp settings.example.json settings.json
+```
+
 Run it:
 
 ```bash
-$ meteor
+$ meteor npm start 
 ```
 
 And open [http://localhost:3000/](http://localhost:3000/).

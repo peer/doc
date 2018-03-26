@@ -25,8 +25,8 @@ export function decrypt(tokenBase, keyHex) {
   return JSON.parse(json);
 }
 
-// TODO: Set common keyHex between AppCivist and PeerDoc and store it somewhere
-const keyHex = crypto.randomBytes(16).toString('hex');
+// Obtaining common keyHex between AppCivist and PeerDoc from settings.json
+const {keyHex} = Meteor.settings;
 
 // A special case which is not using ValidatedMethod because client side
 // differs a lot from the server side and there is no client stub.
