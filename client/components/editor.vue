@@ -25,26 +25,6 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog hide-overlay v-model="commentDialog" max-width="500px">
-      <v-card>
-        <v-card-text>
-          <v-form @submit.prevent="insertComment">
-            <v-text-field
-              autofocus
-              multi-line
-              v-model="comment"
-              placeholder="Comment..."
-              required
-            />
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
-          <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <div id="tools" style="margin-bottom:25px">
       <v-toolbar
         :class="{'toolbar-fixed':fixToolbarToTop}"
@@ -117,19 +97,46 @@
         ref="editorDivider"
       />
       <div style="height: 64px;" v-if="fixToolbarToTop" />
-      <v-btn
-        class="btn-comment"
-        color="white"
-        small
-        bottom
-        right
-        fab
+      <v-menu
+        offset-x
+        :close-on-content-click="false"
+        :nudge-width="200"
+        nudge-right="10"
+        nudge-top="-20"
+        v-model="commentDialog"
         ref="addCommentButton"
-        :style="{opacity: 0, visibility: 'hidden'}"
-        @click="openCommentDialog"
+        class="btn-comment"
       >
-        <v-icon>comment</v-icon>
-      </v-btn>
+        <v-btn
+          color="white"
+          small
+          bottom
+          right
+          fab
+          slot="activator"
+        >
+          <v-icon>comment</v-icon>
+        </v-btn>
+        <v-card>
+          <v-card-text style="padding-bottom:0px">
+            <v-form @submit.prevent="insertComment">
+              <v-text-field
+                style="padding-top:0px"
+                autofocus
+                multi-line
+                rows="2"
+                v-model="comment"
+                placeholder="Comment..."
+                required
+              />
+            </v-form>
+          </v-card-text>
+          <v-card-actions style="padding-top:0px">
+            <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
+            <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
     </div>
 
     <div id="editor" ref="editor" class="editor" />
@@ -629,8 +636,9 @@
   }
 
   .btn-comment {
-    left: 99%;
+    left: 100%;
     z-index: 25;
+    margin-top: 33px;
   }
 
   .fade {
