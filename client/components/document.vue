@@ -43,12 +43,14 @@
         required: true,
       },
     },
+
     data() {
       return {
         clientId: Random.id(),
         cursor: null,
       };
     },
+
     computed: {
       document() {
         return Document.documents.findOne({
@@ -56,11 +58,13 @@
         });
       },
     },
+
     created() {
       this.$autorun((computation) => {
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
     },
+
     methods: {
       onAvatarClicked(cursor) {
         this.cursor = cursor;
