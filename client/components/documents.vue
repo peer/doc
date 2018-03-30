@@ -2,6 +2,13 @@
   <v-layout row>
     <v-flex xs12 sm10 offset-sm1 md8 offset-md2 xl6 offset-xl3>
       <v-card>
+        <v-toolbar card>
+          <v-spacer />
+          <v-btn v-if="canCreateDocument" :disabled="documentCreationInProgress" outline @click.native="onDocumentCreate">
+            <translate>document-create</translate>
+          </v-btn>
+        </v-toolbar>
+        <v-divider />
         <v-list v-if="documents.exists()" two-line>
           <template v-for="(document, index) in documents">
             <v-list-tile ripple :to="{name: 'document', params: {documentId: document._id}}" :key="document._id">
@@ -23,9 +30,6 @@
           no-documents
         </v-card-text>
       </v-card>
-      <v-btn v-if="canCreateDocument" :disabled="documentCreationInProgress" fab bottom right fixed color="primary" @click.native="onDocumentCreate">
-        <v-icon>add</v-icon>
-      </v-btn>
     </v-flex>
   </v-layout>
 </template>
