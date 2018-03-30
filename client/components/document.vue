@@ -4,12 +4,26 @@
       <v-card>
         <v-card-text>
           <!-- TODO: Display editor only if you have permissions. -->
-          <editor :document-id="document._id" :content-key="document.contentKey" :client-id="clientId" :focused-cursor="cursor" @scroll="onEditorScroll" @contentChanged="onContentChanged" />
+          <editor
+            :document-id="document._id"
+            :content-key="document.contentKey"
+            :client-id="clientId"
+            :focused-cursor="cursor"
+            @scroll="onEditorScroll"
+            @contentChanged="onContentChanged"
+            :read-only="document.isPublished()"
+          />
         </v-card-text>
       </v-card>
     </v-flex>
     <v-flex xs4>
-      <sidebar :document-id="document._id" :content-key="document.contentKey" :client-id="clientId" @click="onAvatarClicked" ref="sidebar" />
+      <sidebar
+        :document-id="document._id"
+        :content-key="document.contentKey"
+        :document-published="document.isPublished()"
+        :client-id="clientId"
+        @click="onAvatarClicked"
+        ref="sidebar" />
     </v-flex>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />
@@ -43,12 +57,36 @@
           _id: this.documentId,
         });
       },
+
+      shouldEmbed() {
+        return this.$route.query.embed === 'true';
+      },
+    },
+
+    watch: {
+      shouldEmbed: {
+        handler: function handler(value) {
+          this.$emit('embed', value);
+        },
+        immediate: true,
+      },
     },
 
     created() {
       this.$autorun((computation) => {
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
+    },
+
+    mounted() {
+      if (this.shouldEmbed) {
+        this.sendNewSizeToParentWindow();
+        window.addEventListener('resize', this.sendNewSizeToParentWindow);
+      }
+    },
+
+    beforeDestroy() {
+      window.removeEventListener('resize', this.sendNewSizeToParentWindow);
     },
 
     methods: {
@@ -64,6 +102,18 @@
 
       onContentChanged() {
         this.$refs.sidebar.layoutComments();
+      },
+
+      sendNewSizeToParentWindow() {
+        const width = window.innerWidth
+          || document.documentElement.clientWidth
+          || document.body.clientWidth;
+        const height = window.innerHeight
+          || document.documentElement.clientHeight
+          || document.body.clientHeight;
+        const size = {size: {width, height}};
+        const message = JSON.stringify(size);
+        window.postMessage(message, '*');
       },
     },
   };
@@ -81,3 +131,10 @@
 
   export default component;
 </script>
+
+<style lang="scss">
+  .doc_status__label {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+</style>
