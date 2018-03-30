@@ -60,9 +60,12 @@ Vue.prototype.DEFAULT_TIME_FORMAT = 'LT';
 // Example:
 //
 //   {{createdAt | formatDate(DEFAULT_DATETIME_FORMAT)}}
-Vue.filter('formatDate', function formatDate(date, format) {
+//   <span class="timestamp" :title="createdAt | formatDate(DEFAULT_DATETIME_FORMAT)">
+//   <span class="timestamp" :title="$formatDate(createdAt, DEFAULT_DATETIME_FORMAT)">
+Vue.prototype.$formatDate = function formatDate(date, format) {
   return moment(date).format(format);
-});
+};
+Vue.filter('formatDate', Vue.prototype.$formatDate);
 
 // Reactively format a datetime into a relative from now and localized string.
 // As times progresses, string is automatically updated. Strings are made using
@@ -75,7 +78,8 @@ Vue.filter('formatDate', function formatDate(date, format) {
 // Example:
 //
 //   <span class="timestamp" :title="createdAt | formatDate(DEFAULT_DATETIME_FORMAT)">{{createdAt | fromNow}}</span>
-Vue.filter('fromNow', function fromNow(date, withoutSuffix) {
+//   <span class="timestamp" :title="createdAt | formatDate(DEFAULT_DATETIME_FORMAT)">{{$fromNow(createdAt)}}</span>
+Vue.prototype.$fromNow = function fromNow(date, withoutSuffix) {
   const momentDate = moment(date);
 
   if (Tracker.active) {
@@ -85,7 +89,8 @@ Vue.filter('fromNow', function fromNow(date, withoutSuffix) {
   }
 
   return momentDate.fromNow(withoutSuffix);
-});
+};
+Vue.filter('fromNow', Vue.prototype.$fromNow);
 
 // Format a datetime into a relative from now and localized string using friendly day names.
 // Strings are made using moment.js "calendar" function (http://momentjs.com/docs/#/displaying/calendar-time/).
@@ -95,7 +100,8 @@ Vue.filter('fromNow', function fromNow(date, withoutSuffix) {
 // Example:
 //
 //   <span :title="playStart | formatDate(DEFAULT_DATETIME_FORMAT)">{{playStart | calendarDate}}</span>
-Vue.filter('calendarDate', function calendarDate(date) {
+//   <span :title="playStart | formatDate(DEFAULT_DATETIME_FORMAT)">{{$calendarDate(playStart)}}</span>
+Vue.prototype.$calendarDate = function calendarDate(date) {
   return moment(date).calendar(null, {
     lastDay: '[yesterday at] LT',
     sameDay: '[today at] LT',
@@ -104,7 +110,8 @@ Vue.filter('calendarDate', function calendarDate(date) {
     nextWeek: 'dddd [at] LT',
     sameElse: this.DEFAULT_DATETIME_FORMAT,
   });
-});
+};
+Vue.filter('calendarDate', Vue.prototype.$calendarDate);
 
 // Similar to moment.js "humanize" function (http://momentjs.com/docs/#/durations/humanize/) it returns
 // a friendly string representing the duration.
@@ -117,11 +124,11 @@ Vue.filter('calendarDate', function calendarDate(date) {
 //
 // Example:
 //
-//   <span title="{{formatDuration startedAt endedAt}}">{{formatDuration startedAt endedAt 2}}</span>
+//   <span title="{{$formatDuration(startedAt, endedAt)}}">{{$formatDuration(startedAt, endedAt, 2)}}</span>
 //
 // Example:
 //
-//   <span title="{{formatDuration startedAt null}}">{{formatDuration startedAt null 3}}</span>
+//   <span title="{{$formatDuration(startedAt, null)}}">{{$formatDuration(startedAt, null, 3)}}</span>
 //
 // TODO: Support localization.
 Vue.prototype.$formatDuration = function $formatDuration(from, to, size) {
