@@ -4,12 +4,26 @@
       <v-card>
         <v-card-text>
           <!-- TODO: Display editor only if you have permissions. -->
-          <editor :document-id="document._id" :content-key="document.contentKey" :client-id="clientId" :focused-cursor="cursor" @scroll="onEditorScroll" @contentChanged="onContentChanged" />
+          <editor
+            :document-id="document._id"
+            :content-key="document.contentKey"
+            :client-id="clientId"
+            :focused-cursor="cursor"
+            @scroll="onEditorScroll"
+            @contentChanged="onContentChanged"
+            :read-only="document.isPublished()"
+          />
         </v-card-text>
       </v-card>
     </v-flex>
     <v-flex xs4>
-      <sidebar :document-id="document._id" :content-key="document.contentKey" :client-id="clientId" @click="onAvatarClicked" ref="sidebar" />
+      <sidebar
+        :document-id="document._id"
+        :content-key="document.contentKey"
+        :document-published="document.isPublished()"
+        :client-id="clientId"
+        @click="onAvatarClicked"
+        ref="sidebar" />
     </v-flex>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />
@@ -110,3 +124,10 @@
 
   export default component;
 </script>
+
+<style lang="scss">
+  .doc_status__label {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+</style>

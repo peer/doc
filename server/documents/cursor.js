@@ -5,8 +5,21 @@ import {Cursor} from '/lib/documents/cursor';
 import {User} from '/lib/documents/user';
 import randomColor from 'randomcolor';
 
-// Server-side only method, so we are not using ValidatedMethod.
+// Server-side only methods, so we are not using ValidatedMethod.
 Meteor.methods({
+  'Cursor.remove'(args) {
+    check(args, {
+      contentKey: Match.DocumentId,
+      clientId: Match.DocumentId,
+    });
+
+    Cursor.documents.remove({
+      contentKey: args.contentKey,
+      clientId: args.clientId,
+      connectionId: this.connection.id,
+    });
+  },
+
   'Cursor.update'(args) {
     check(args, {
       contentKey: Match.DocumentId,

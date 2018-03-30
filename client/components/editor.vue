@@ -138,6 +138,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {Random} from 'meteor/random';
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
@@ -180,6 +181,10 @@
         type: String,
         required: true,
       },
+      readOnly: {
+        type: Boolean,
+        default: false,
+      },
       clientId: {
         type: String,
         required: true,
@@ -216,6 +221,11 @@
           return urlRegex.test(value) || this.$gettext("invalid-url");
         },
       };
+    },
+    computed: {
+      currentUser() {
+        return Meteor.user({username: 1, avatar: 1});
+      },
     },
     watch: {
       focusedCursor(newCursor, oldCursor) {
@@ -339,6 +349,9 @@
           }
           throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
+        editable: () => {
+          return Boolean(!this.readOnly && this.currentUser);
+        },
       });
       this.state = view.state;
       this.dispatch = view.dispatch;
@@ -406,6 +419,7 @@
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.handleWindowResize);
+      Cursor.remove({contentKey: this.contentKey, clientId: this.clientId});
     },
     methods: {
       onScroll(e) {
