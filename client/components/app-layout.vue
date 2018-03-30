@@ -75,6 +75,11 @@
           }
         });
       },
+
+      onEmbed(val) {
+        this.isEmbeded = val;
+      },
+
       clearSnackbarState() {
         if (this.snackbarTimeout) {
           Meteor.clearTimeout(this.snackbarTimeout);
@@ -86,9 +91,7 @@
           this.snackbarComputation = null;
         }
       },
-      onEmbed(val) {
-        this.isEmbeded = val;
-      },
+
       showNextSnackbar() {
         this.clearSnackbarState();
 
