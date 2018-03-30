@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "precommit": "lint-staged",
-    "start": "meteor run --settings settings.json",
+    "start": "meteor run",
     "lint": "eslint . --ext .js --ext .vue",
     "lint-ci": "eslint . --ext .js --ext .vue --format junit --output-file test-reports/js-lint-results.xml",
     "extract-strings": "make makemessages",
