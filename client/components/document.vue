@@ -57,10 +57,12 @@
           _id: this.documentId,
         });
       },
+
       shouldEmbed() {
         return this.$route.query.embed === 'true';
       },
     },
+
     watch: {
       shouldEmbed: {
         handler: function handler(value) {
@@ -69,20 +71,24 @@
         immediate: true,
       },
     },
+
     created() {
       this.$autorun((computation) => {
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
     },
+
     mounted() {
       if (this.shouldEmbed) {
         this.sendNewSizeToParentWindow();
         window.addEventListener('resize', this.sendNewSizeToParentWindow);
       }
     },
+
     beforeDestroy() {
       window.removeEventListener('resize', this.sendNewSizeToParentWindow);
     },
+
     methods: {
       onAvatarClicked(cursor) {
         this.cursor = cursor;
@@ -97,6 +103,7 @@
       onContentChanged() {
         this.$refs.sidebar.layoutComments();
       },
+
       sendNewSizeToParentWindow() {
         const width = window.innerWidth
           || document.documentElement.clientWidth
