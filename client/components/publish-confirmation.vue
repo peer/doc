@@ -27,65 +27,70 @@
   <access-denied v-else />
 </template>
 <script>
-import {Meteor} from 'meteor/meteor';
-import {RouterFactory} from 'meteor/akryum:vue-router2';
+  import {Meteor} from 'meteor/meteor';
+  import {RouterFactory} from 'meteor/akryum:vue-router2';
 
-import {Document} from '/lib/documents/document';
-import {Snackbar} from '../snackbar';
-// @vue/component
-const component = {
-  props: {
-    documentId: {
-      type: String,
-      required: true,
+  import {Document} from '/lib/documents/document';
+  import {Snackbar} from '../snackbar';
+
+  // @vue/component
+  const component = {
+    props: {
+      documentId: {
+        type: String,
+        required: true,
+      },
     },
-  },
-  data() {
-    return {
-      documentPublishInProgress: false,
-    };
-  },
-  computed: {
-    currentUser() {
-      return Meteor.user({username: 1, avatar: 1});
+
+    data() {
+      return {
+        documentPublishInProgress: false,
+      };
     },
-  },
-  methods: {
-    onCancelClick() {
-      this.$router.push({name: 'document', params: {documentId: this.documentId}});
+
+    computed: {
+      currentUser() {
+        return Meteor.user({username: 1, avatar: 1});
+      },
     },
-    onPublishClick() {
-      this.documentPublishInProgress = true;
-      if (!this.currentUser) {
-        // only publish article if current user is set
+
+    methods: {
+      onCancelClick() {
         this.$router.push({name: 'document', params: {documentId: this.documentId}});
-        this.documentPublishInProgress = false;
-        return;
-      }
-      Document.publish({documentId: this.documentId}, (error) => {
-        if (error) {
+      },
+
+      onPublishClick() {
+        this.documentPublishInProgress = true;
+        if (!this.currentUser) {
+          // only publish article if current user is set
+          this.$router.push({name: 'document', params: {documentId: this.documentId}});
           this.documentPublishInProgress = false;
-          Snackbar.enqueue(this.$gettext("publish-error"), 'error');
           return;
         }
-        this.documentPublishInProgress = false;
-        this.$router.push({name: 'document', params: {documentId: this.documentId}});
-        Snackbar.enqueue(this.$gettext("publish-success"), 'success');
-      });
+        Document.publish({documentId: this.documentId}, (error) => {
+          if (error) {
+            this.documentPublishInProgress = false;
+            Snackbar.enqueue(this.$gettext("publish-error"), 'error');
+            return;
+          }
+          this.documentPublishInProgress = false;
+          this.$router.push({name: 'document', params: {documentId: this.documentId}});
+          Snackbar.enqueue(this.$gettext("publish-success"), 'success');
+        });
+      },
     },
-  },
-};
+  };
 
-RouterFactory.configure((factory) => {
-  factory.addRoutes([
-    {
-      component,
-      path: '/document/publish/:documentId',
-      name: 'publishDocument',
-      props: true,
-    },
-  ]);
-});
+  RouterFactory.configure((factory) => {
+    factory.addRoutes([
+      {
+        component,
+        path: '/document/publish/:documentId',
+        name: 'publishDocument',
+        props: true,
+      },
+    ]);
+  });
 
-export default component;
+  export default component;
 </script>

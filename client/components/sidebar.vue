@@ -126,6 +126,7 @@
 
       window.addEventListener('resize', this.handleWindowResize);
     },
+
     methods: {
       onAvatarClicked(cursor) {
         this.$emit('click', cursor);
