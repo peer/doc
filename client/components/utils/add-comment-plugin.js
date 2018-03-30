@@ -78,20 +78,22 @@ export default function addCommentPlugin(vueInstance) {
 }
 
 export function addHighlight(keys, schema, state, from, to, dispatch) {
-  const {tr: transaction} = state;
+  // "tr" is a ProseMirror transaction.
+  const {tr} = state;
   const attrs = {"highlight-keys": keys};
   if (!attrs["highlight-keys"]) {
     return false;
   }
 
-  return dispatch(transaction.addMark(from, to, schema.marks.highlight.create(attrs)));
+  return dispatch(tr.addMark(from, to, schema.marks.highlight.create(attrs)));
 }
 
 export function removeHighlight(schema, state, from, to, dispatch) {
-  const {doc, tr: transaction} = state;
+  // "tr" is a ProseMirror transaction.
+  const {doc, tr} = state;
   if (dispatch) {
     if (doc.rangeHasMark(from, to, schema.marks.highlight)) {
-      return dispatch(transaction.removeMark(from, to, schema.marks.highlight));
+      return dispatch(tr.removeMark(from, to, schema.marks.highlight));
     }
   }
   return null;
