@@ -3,7 +3,7 @@ import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import crypto from 'crypto';
 
-import {AppCivistNonce} from '/lib/documents/appcivist-nonce';
+import {Nonce} from '/lib/documents/nonce';
 import {User} from '/lib/documents/user';
 
 const baseToMap = {
@@ -79,12 +79,12 @@ Meteor.methods({
 
       const {userToken} = args;
 
-      // Obtaining common keyHex between AppCivist and PeerDoc from settings.json
+      // Obtaining shared secret from "settings.json".
       const {keyHex} = Meteor.settings;
 
       const decryptedToken = decrypt(userToken, keyHex);
 
-      AppCivistNonce.addNonce({nonce: decryptedToken.nonce});
+      Nonce.addNonce({nonce: decryptedToken.nonce});
 
       return {userId: createUserAndSignIn({userToken: decryptedToken})._id};
     });
