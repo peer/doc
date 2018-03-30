@@ -4,6 +4,7 @@ import {Meteor} from 'meteor/meteor';
 import {Step} from 'prosemirror-transform';
 import {schema} from '/lib/schema';
 
+import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
 
@@ -24,16 +25,37 @@ Meteor.methods({
 
     // TODO: Check more permissions?
 
+    args.steps.forEach((step) => {
+      if (step.slice) {
+        step.slice.content.descendants((node) => {
+          node.check(); // will throw an error if node is not valid
+        });
+      }
+    });
     let addedCount = 0;
     const latestContent = Content.documents.findOne({contentKey: args.contentKey}, {sort: {version: -1}, fields: {version: 1}});
-
+    const document = Document.documents.findOne({contentKey: args.contentKey});
+    let stepsToProcess = args.steps;
+    if (document.isPublished()) {
+      // If the document is published we immediately discard this new step
+      // unless it contains highlight marks, in which case we just process those.
+      stepsToProcess = args.steps.filter((step) => {
+        if (step.mark && step.mark.type.name === 'highlight') {
+          return step;
+        }
+        return null;
+      });
+      if (!stepsToProcess || !stepsToProcess.length) {
+        return addedCount;
+      }
+    }
     if (latestContent.version !== args.currentVersion) {
       return addedCount;
     }
 
     const createdAt = new Date();
 
-    for (const step of args.steps) {
+    for (const step of stepsToProcess) {
       const {numberAffected, insertedId} = Content.documents.upsert({ // eslint-disable-line no-unused-vars
         contentKey: args.contentKey,
         version: args.currentVersion + addedCount + 1,
