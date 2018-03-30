@@ -45,7 +45,6 @@
     },
     data() {
       return {
-        publishDialog: false,
         clientId: Random.id(),
         cursor: null,
       };
