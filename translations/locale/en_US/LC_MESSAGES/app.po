@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 12:36-0700\n"
+"POT-Creation-Date: 2018-03-30 15:57-0700\n"
 "PO-Revision-Date: 2018-03-05 12:12-0300\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -42,11 +42,19 @@ msgstr "Comments"
 msgid "document-create"
 msgstr "New document"
 
+#: client/components/documents.vue:19
+msgid "document-created-at"
+msgstr "Created %{at}"
+
+#: client/components/documents.vue:18
+msgid "document-published-at"
+msgstr "Published %{at}"
+
 #: client/components/app-layout.vue:9
 msgid "documents"
 msgstr "Documents"
 
-#: client/components/documents.vue:22
+#: client/components/documents.vue:23
 msgid "draft"
 msgstr "Draft"
 
@@ -62,7 +70,7 @@ msgstr "History"
 msgid "insert"
 msgstr "Insert"
 
-#: client/components/documents.vue:28
+#: client/components/documents.vue:29
 msgid "no-documents"
 msgstr "No documents."
 
@@ -126,11 +134,11 @@ msgstr "Username"
 msgid "signed-in-success"
 msgstr "You have been signed in."
 
-#: client/components/documents.vue:76
+#: client/components/documents.vue:77
 msgid "document-created-error"
 msgstr "Error creating a new document: %{error}"
 
-#: client/components/documents.vue:80
+#: client/components/documents.vue:81
 msgid "document-created-success"
 msgstr "New document has been created."
 

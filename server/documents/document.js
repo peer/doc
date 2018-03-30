@@ -31,7 +31,9 @@ Meteor.publish('Document.list', function documentList(args) {
 
   this.enableScope();
 
-  return Document.documents.find({}, {fields: Document.PUBLISH_FIELDS()});
+  return Document.documents.find({
+    publishedAt: {$ne: null},
+  }, {fields: Document.PUBLISH_FIELDS()});
 });
 
 Meteor.publish('Document.one', function documentOne(args) {

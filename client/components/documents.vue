@@ -16,7 +16,8 @@
                 <v-list-tile-title v-if="document.title">{{document.title}}</v-list-tile-title>
                 <v-list-tile-title v-else class="documents__untitled" v-translate>untitled</v-list-tile-title>
                 <v-list-tile-sub-title>
-                  <span class="timestamp" :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)">{{document.createdAt | fromNow}}</span>
+                  <span class="timestamp" :title="document.publishedAt | formatDate(DEFAULT_DATETIME_FORMAT)" v-if="document.isPublished()" v-translate="{at: $fromNow(document.publishedAt)}">document-published-at</span>
+                  <span class="timestamp" :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)" v-else v-translate="{at: $fromNow(document.createdAt)}">document-created-at</span>
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
