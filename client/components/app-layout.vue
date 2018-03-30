@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-toolbar app absolute>
+    <v-toolbar app absolute v-if="!isEmbeded">
       <v-btn :to="{name: 'front-page'}" exact icon>
         <v-icon>apps</v-icon>
       </v-btn>
@@ -23,7 +23,9 @@
     </v-toolbar>
     <v-content>
       <v-container fluid>
-        <router-view />
+        <router-view
+          @embed="onEmbed"
+        />
       </v-container>
     </v-content>
     <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
@@ -44,6 +46,7 @@
         snackbarShow: false,
         snackbarMessage: null,
         snackbarColor: null,
+        isEmbeded: false,
       };
     },
 
@@ -71,6 +74,10 @@
             Snackbar.enqueue(this.$gettext("signed-out-success"), 'success');
           }
         });
+      },
+
+      onEmbed(val) {
+        this.isEmbeded = val;
       },
 
       clearSnackbarState() {

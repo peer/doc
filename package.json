@@ -26,6 +26,7 @@
     "prosemirror-schema-list": "^1.0.0",
     "prosemirror-state": "^1.1.1",
     "prosemirror-view": "^1.2.0",
+    "query-string": "^6.0.0",
     "randomcolor": "^0.5.3",
     "vue": "git://github.com/meteor-vue/vue.git#meteor",
     "vue-gettext": "^2.0.26",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^8.2.1",
+    "css-loader": "^0.28.11",
     "easygettext": "^2.3.0",
     "eslint": "^4.15.0",
     "eslint-config-airbnb-base": "^12.1.0",
@@ -43,8 +45,7 @@
     "eslint-plugin-vue": "^4.2.0",
     "husky": "^0.14.3",
     "lint-staged": "^6.0.1",
-    "vue-template-compiler": "^2.5.2",
-    "css-loader": "^0.28.11"
+    "vue-template-compiler": "^2.5.2"
   },
   "meteor": {
     "vueVersion": 2
