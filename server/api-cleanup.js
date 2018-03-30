@@ -3,6 +3,7 @@
 
 // There are also universal publish endpoints, but those are harder to
 // identify. See: https://github.com/meteor/meteor-feature-requests/issues/213
+
 import {Meteor} from 'meteor/meteor';
 
 Meteor.startup(function startup() {
