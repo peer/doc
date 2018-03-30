@@ -27,7 +27,7 @@ $ cp settings.example.json settings.json
 Run it:
 
 ```bash
-$ meteor npm start 
+$ meteor --settings settings.json
 ```
 
 And open [http://localhost:3000/](http://localhost:3000/).
