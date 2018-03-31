@@ -6,10 +6,10 @@ import {createUserAndSignIn, decrypt} from '/server/auth-token';
 import {Nonce} from '/lib/documents/nonce';
 
 // Obtaining shared secret from "settings.json".
-const {keyHex} = Meteor.settings;
+const {tokenSharedSecret} = Meteor.settings;
 
 function createDocumentOfUserFromToken(userToken) {
-  const decryptedToken = decrypt(userToken, keyHex);
+  const decryptedToken = decrypt(userToken, tokenSharedSecret);
   // store nonce on DB
   Nonce.addNonce({nonce: decryptedToken.nonce});
   const user = createUserAndSignIn({userToken: decryptedToken});

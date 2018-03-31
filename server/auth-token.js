@@ -80,9 +80,9 @@ Meteor.methods({
       const {userToken} = args;
 
       // Obtaining shared secret from "settings.json".
-      const {keyHex} = Meteor.settings;
+      const {tokenSharedSecret} = Meteor.settings;
 
-      const decryptedToken = decrypt(userToken, keyHex);
+      const decryptedToken = decrypt(userToken, tokenSharedSecret);
 
       Nonce.addNonce({nonce: decryptedToken.nonce});
 
