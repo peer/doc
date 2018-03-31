@@ -120,6 +120,10 @@
       window.addEventListener('resize', this.handleWindowResize);
     },
 
+    beforeDestroy() {
+      window.removeEventListener('resize', this.handleWindowResize);
+    },
+
     methods: {
       onAvatarClicked(cursor) {
         this.$emit('click', cursor);
