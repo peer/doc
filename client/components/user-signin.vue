@@ -10,10 +10,9 @@
             <v-text-field :readonly="formSubmissionInProgress" :label="usernameLabel" v-model="username" :rules="usernameRules" required />
           </v-card-text>
           <v-card-actions>
-            <v-btn type="submit" :disabled="!valid || formSubmissionInProgress" block color="primary">
-              <span v-translate>sign-in</span>
-              <v-progress-linear v-if="formSubmissionInProgress" :indeterminate="true" :height="3" color="primary" class="user-signin__progress" />
-            </v-btn>
+            <p-button type="submit" :progress="formSubmissionInProgress" :disabled="!valid || formSubmissionInProgress" block color="primary">
+              <translate>sign-in</translate>
+            </p-button>
           </v-card-actions>
         </v-card>
       </v-form>
