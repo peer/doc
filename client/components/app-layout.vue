@@ -1,5 +1,5 @@
 <template>
-  <v-app :class="embed">
+  <v-app :class="{embed: isEmbeded}">
     <v-toolbar app absolute v-if="!isEmbeded">
       <v-btn :to="{name: 'front-page'}" exact icon>
         <v-icon>apps</v-icon>
@@ -46,7 +46,6 @@
         snackbarMessage: null,
         snackbarColor: null,
         isEmbeded: isEmbedded(),
-        embed: isEmbedded() ? 'embed' : '',
         passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
     },
