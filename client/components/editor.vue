@@ -353,7 +353,7 @@
           throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
         editable: () => {
-          return !!(!this.readOnly && this.currentUserId);
+          return !!(!this.readOnly && this.$currentUserId);
         },
       });
       this.state = view.state;
