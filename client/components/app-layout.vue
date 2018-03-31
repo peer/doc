@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :class="embed">
     <v-toolbar app absolute v-if="!isEmbeded">
       <v-btn :to="{name: 'front-page'}" exact icon>
         <v-icon>apps</v-icon>
@@ -46,6 +46,7 @@
         snackbarMessage: null,
         snackbarColor: null,
         isEmbeded: isEmbedded(),
+        embed: isEmbedded() ? 'embed' : '',
         passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
     },
@@ -125,5 +126,10 @@
 <style lang="scss">
   .app-layout__avatar {
     margin-left: 8px;
+  }
+
+  // We disable min-height otherwise iframe does not shrink when embedded.
+  .embed .application--wrap {
+    min-height: 0;
   }
 </style>
