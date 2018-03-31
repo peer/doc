@@ -4,9 +4,9 @@ import {User} from '/lib/documents/user';
 
 // A special case which is not using ValidatedMethod because client side
 // differs a lot from the server side and there is no client stub.
-User.createUserAndSignIn = function createUserAndSignIn({username}, callback) {
+User.passwordlessSignIn = function passwordlessSignIn({username}, callback) {
   Accounts.callLoginMethod({
-    methodName: 'User.createUserAndSignIn',
+    methodName: 'User.passwordlessSignIn',
     methodArguments: [{username}],
     userCallback(error, userId) {
       if (error) {

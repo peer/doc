@@ -7,10 +7,10 @@ import {User} from '/lib/documents/user';
 // A special case which is not using ValidatedMethod because client side
 // differs a lot from the server side and there is no client stub.
 Meteor.methods({
-  'User.createUserAndSignIn'(...allArgs) {
+  'User.passwordlessSignIn'(...allArgs) {
     const args = allArgs[0];
 
-    return Accounts._loginMethod(this, 'User.createUserAndSignIn', allArgs, 'passwordless', () => {
+    return Accounts._loginMethod(this, 'User.passwordlessSignIn', allArgs, 'passwordless', () => {
       check(args, {
         username: Match.RegexString(User.VALID_USERNAME),
       });
