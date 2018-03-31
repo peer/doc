@@ -3,7 +3,7 @@
     <v-layout row>
       <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
       <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
-      <v-btn v-if="!documentPublished && currentUser" color="success" slot="activator" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
+      <v-btn v-if="!documentPublished && $currentUserId" color="success" slot="activator" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
     </v-layout>
     <v-layout row wrap justify-start align-content-start>
       <v-flex class="sidebar__user" v-for="cursor of cursors" :key="cursor._id">
@@ -35,7 +35,6 @@
 </template>
 
 <script>
-  import {Meteor} from 'meteor/meteor';
   import {_} from 'meteor/underscore';
 
   import {Comment} from '/lib/documents/comment';
@@ -90,12 +89,6 @@
         cursors: [],
         documentComments: [],
       };
-    },
-
-    computed: {
-      currentUser() {
-        return Meteor.user({username: 1, avatar: 1});
-      },
     },
 
     created() {

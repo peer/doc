@@ -145,7 +145,6 @@
 </template>
 
 <script>
-  import {Meteor} from 'meteor/meteor';
   import {Random} from 'meteor/random';
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
@@ -229,11 +228,7 @@
         },
       };
     },
-    computed: {
-      currentUser() {
-        return Meteor.user({username: 1, avatar: 1});
-      },
-    },
+
     watch: {
       focusedCursor(newCursor, oldCursor) {
         // If we receive a new focused cursor we scroll the editor to its position.
@@ -245,6 +240,7 @@
         }
       },
     },
+
     created() {
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.list', {contentKey: this.contentKey});
@@ -357,7 +353,7 @@
           throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
         editable: () => {
-          return Boolean(!this.readOnly && this.currentUser);
+          return !!(!this.readOnly && this.currentUserId);
         },
       });
       this.state = view.state;
@@ -424,10 +420,12 @@
         view.dispatch(tr);
       });
     },
+
     beforeDestroy() {
       window.removeEventListener('resize', this.handleWindowResize);
       Cursor.remove({contentKey: this.contentKey, clientId: this.clientId});
     },
+
     methods: {
       onScroll(e) {
         if (!this.$refs || !this.$refs.editorToolbar) {
@@ -444,9 +442,11 @@
         // emit scroll event to notify parent component
         this.$emit("scroll");
       },
+
       handleWindowResize(e) {
         this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       },
+
       insertLink() {
         let {link} = this;
         if (this.selectedExistingLinks) {
@@ -462,6 +462,7 @@
           this.link = '';
         }
       },
+
       insertComment() {
         const {comment} = this;
         const {selection} = this.state;
@@ -508,6 +509,7 @@
           addHighlight(key, schema, this.state, chunk.from, chunk.to, this.dispatch);
         });
       },
+
       removeLink() {
         this.clearLink();
         this.linkDialog = false;
@@ -519,6 +521,7 @@
         this.dispatch(tr);
         window.getSelection().empty();
       },
+
       clearLink() {
         const {tr} = this.state;
         const {from: currentFrom, to: currentTo} = this.state.selection;
@@ -545,14 +548,17 @@
         tr.setSelection(selection);
         this.dispatch(tr);
       },
+
       cancelLink() {
         this.linkDialog = false;
         this.link = '';
       },
+
       cancelComment() {
         this.commentDialog = false;
         this.comment = '';
       },
+
       openLinkDialog() {
         if (this.selectedExistingLinks.length &&
         this.selectedExistingLinks.length === 1) {
@@ -561,9 +567,11 @@
         }
         this.linkDialog = true;
       },
+
       openCommentDialog() {
         this.commentDialog = true;
       },
+
       filterComments(keys) {
         if (!this.state) {
           return;

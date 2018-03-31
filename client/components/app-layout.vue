@@ -8,9 +8,9 @@
       <v-spacer />
       <v-toolbar-items>
         <v-btn :to="{name: 'documents'}" flat><translate>documents</translate></v-btn>
-        <v-menu v-if="currentUser" offset-y bottom left origin="top right">
-          <v-btn slot="activator" flat>{{currentUser.username}}
-            <v-avatar size="36px" class="app-layout__avatar"><img :src="currentUser.avatarUrl()" alt=""></v-avatar>
+        <v-menu v-if="$currentUser" offset-y bottom left origin="top right">
+          <v-btn slot="activator" flat>{{$currentUser.username}}
+            <v-avatar size="36px" class="app-layout__avatar"><img :src="$currentUser.avatarUrl()" alt=""></v-avatar>
           </v-btn>
           <v-list>
             <v-list-tile @click="onSignOut">
@@ -55,12 +55,6 @@
       this.snackbarTimeout = null;
       this.snackbarComputation = null;
       this.showNextSnackbar();
-    },
-
-    computed: {
-      currentUser() {
-        return Meteor.user({username: 1, avatar: 1});
-      },
     },
 
     methods: {

@@ -1,5 +1,5 @@
 <template>
-  <access-denied v-if="currentUserId" />
+  <access-denied v-if="$currentUserId" />
   <v-layout v-else row>
     <v-flex xs12 sm8 offset-sm2 md4 offset-md4 xl2 offset-xl5>
       <v-form v-model="valid" @submit.prevent="onSubmit">
@@ -22,7 +22,6 @@
 </template>
 
 <script>
-  import {Meteor} from 'meteor/meteor';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {User} from '/lib/documents/user';
@@ -53,12 +52,6 @@
         errorMessage: null,
         usernameLabel: this.$gettext("username"),
       };
-    },
-
-    computed: {
-      currentUserId() {
-        return Meteor.userId();
-      },
     },
 
     methods: {

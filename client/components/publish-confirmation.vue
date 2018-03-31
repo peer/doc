@@ -1,5 +1,5 @@
 <template>
-  <v-layout row v-if="currentUser">
+  <v-layout row v-if="$currentUserId">
     <v-container fill-height>
       <v-layout fill-height>
         <v-flex>
@@ -27,7 +27,6 @@
   <access-denied v-else />
 </template>
 <script>
-  import {Meteor} from 'meteor/meteor';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {Document} from '/lib/documents/document';
@@ -48,12 +47,6 @@
       };
     },
 
-    computed: {
-      currentUser() {
-        return Meteor.user({username: 1, avatar: 1});
-      },
-    },
-
     methods: {
       onCancelClick() {
         this.$router.push({name: 'document', params: {documentId: this.documentId}});
@@ -61,7 +54,7 @@
 
       onPublishClick() {
         this.documentPublishInProgress = true;
-        if (!this.currentUser) {
+        if (!this.$currentUserId) {
           // only publish article if current user is set
           this.$router.push({name: 'document', params: {documentId: this.documentId}});
           this.documentPublishInProgress = false;
