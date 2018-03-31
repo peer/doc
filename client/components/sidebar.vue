@@ -258,4 +258,9 @@
     padding-top: 0;
     padding-right: 0;
   }
+
+  .doc_status__label {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
 </style>

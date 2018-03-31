@@ -95,10 +95,3 @@
 
   export default component;
 </script>
-
-<style lang="scss">
-  .doc_status__label {
-    text-transform: uppercase;
-    font-weight: bold;
-  }
-</style>
