@@ -88,11 +88,3 @@
 
   export default component;
 </script>
-
-<style lang="scss">
-  .user-signin__progress {
-    position: absolute;
-    bottom: 0;
-    margin-bottom: 0;
-  }
-</style>
