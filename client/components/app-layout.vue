@@ -18,7 +18,7 @@
             </v-list-tile>
           </v-list>
         </v-menu>
-        <v-btn v-else :to="{name: 'user-signin'}" flat><translate>sign-in</translate></v-btn>
+        <v-btn v-else-if="!passwordlessAuthDisabled" :to="{name: 'user-signin'}" flat><translate>sign-in</translate></v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
@@ -47,6 +47,7 @@
         snackbarMessage: null,
         snackbarColor: null,
         isEmbeded: false,
+        passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
     },
 

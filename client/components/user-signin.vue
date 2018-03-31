@@ -1,5 +1,6 @@
 <template>
-  <access-denied v-if="$currentUserId" />
+  <not-found v-if="passwordlessAuthDisabled" />
+  <access-denied v-else-if="$currentUserId" />
   <v-layout v-else row>
     <v-flex xs12 sm8 offset-sm2 md4 offset-md4 xl2 offset-xl5>
       <v-form v-model="valid" @submit.prevent="onSubmit">
@@ -21,6 +22,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {User} from '/lib/documents/user';
@@ -50,6 +52,7 @@
         errorShow: false,
         errorMessage: null,
         usernameLabel: this.$gettext("username"),
+        passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
     },
 
