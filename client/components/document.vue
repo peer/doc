@@ -57,36 +57,12 @@
           _id: this.documentId,
         });
       },
-
-      shouldEmbed() {
-        return this.$route.query.embed === 'true';
-      },
-    },
-
-    watch: {
-      shouldEmbed: {
-        handler: function handler(value) {
-          this.$emit('embed', value);
-        },
-        immediate: true,
-      },
     },
 
     created() {
       this.$autorun((computation) => {
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
-    },
-
-    mounted() {
-      if (this.shouldEmbed) {
-        this.sendNewSizeToParentWindow();
-        window.addEventListener('resize', this.sendNewSizeToParentWindow);
-      }
-    },
-
-    beforeDestroy() {
-      window.removeEventListener('resize', this.sendNewSizeToParentWindow);
     },
 
     methods: {
@@ -102,18 +78,6 @@
 
       onContentChanged() {
         this.$refs.sidebar.layoutComments();
-      },
-
-      sendNewSizeToParentWindow() {
-        const width = window.innerWidth
-          || document.documentElement.clientWidth
-          || document.body.clientWidth;
-        const height = window.innerHeight
-          || document.documentElement.clientHeight
-          || document.body.clientHeight;
-        const size = {size: {width, height}};
-        const message = JSON.stringify(size);
-        window.postMessage(message, '*');
       },
     },
   };

@@ -23,9 +23,7 @@
     </v-toolbar>
     <v-content>
       <v-container fluid>
-        <router-view
-          @embed="onEmbed"
-        />
+        <router-view />
       </v-container>
     </v-content>
     <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
@@ -38,6 +36,7 @@
 <script>
   import {Meteor} from 'meteor/meteor';
 
+  import {isEmbedded} from '../embed';
   import {Snackbar} from '../snackbar';
 
   const component = {
@@ -46,7 +45,7 @@
         snackbarShow: false,
         snackbarMessage: null,
         snackbarColor: null,
-        isEmbeded: false,
+        isEmbeded: isEmbedded(),
         passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
     },
@@ -69,10 +68,6 @@
             Snackbar.enqueue(this.$gettext("signed-out-success"), 'success');
           }
         });
-      },
-
-      onEmbed(val) {
-        this.isEmbeded = val;
       },
 
       clearSnackbarState() {

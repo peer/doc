@@ -1,6 +1,6 @@
 <template>
   <v-layout row>
-    <v-flex xs12 sm10 offset-sm1 md8 offset-md2 xl6 offset-xl3>
+    <v-flex v-bind="width">
       <v-card>
         <v-toolbar card>
           <v-spacer />
@@ -40,6 +40,7 @@
 
   import {Document} from '/lib/documents/document';
   import {User} from '/lib/documents/user';
+  import {isEmbedded} from '../embed';
   import {Snackbar} from '../snackbar';
 
   // @vue/component
@@ -48,6 +49,15 @@
       return {
         subscriptionHandle: null,
         documentCreationInProgress: false,
+        width: isEmbedded() ? {} : {
+          xs12: true,
+          sm10: true,
+          'offset-sm1': true,
+          md8: true,
+          'offset-md2': true,
+          xl6: true,
+          'offset-xl3': true,
+        },
       };
     },
 
