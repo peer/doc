@@ -1,68 +1,68 @@
 <template>
   <v-card>
-    <v-toolbar
-      card
-      class="editor-toolbar"
-      id="tools"
-    >
-      <v-btn id="undo" flat>
-        <v-icon>undo</v-icon>
-      </v-btn>
+    <div class="editor__toolbar">
+      <v-toolbar
+        card
+        id="tools"
+      >
+        <v-btn id="undo" flat>
+          <v-icon>undo</v-icon>
+        </v-btn>
 
-      <v-btn id="redo" flat>
-        <v-icon>redo</v-icon>
-      </v-btn>
+        <v-btn id="redo" flat>
+          <v-icon>redo</v-icon>
+        </v-btn>
 
-      <div class="toolbar-gap" />
+        <div class="toolbar-gap" />
 
-      <v-btn id="bold" flat>
-        <v-icon>format_bold</v-icon>
-      </v-btn>
+        <v-btn id="bold" flat>
+          <v-icon>format_bold</v-icon>
+        </v-btn>
 
-      <v-btn id="italic" flat>
-        <v-icon>format_italic</v-icon>
-      </v-btn>
+        <v-btn id="italic" flat>
+          <v-icon>format_italic</v-icon>
+        </v-btn>
 
-      <v-btn id="strikethrough" flat>
-        <v-icon>strikethrough_s</v-icon>
-      </v-btn>
+        <v-btn id="strikethrough" flat>
+          <v-icon>strikethrough_s</v-icon>
+        </v-btn>
 
-      <div class="toolbar-gap" />
+        <div class="toolbar-gap" />
 
-      <v-btn id="h1" flat>
-        h1
-      </v-btn>
+        <v-btn id="h1" flat>
+          h1
+        </v-btn>
 
-      <v-btn id="h2" flat>
-        h2
-      </v-btn>
+        <v-btn id="h2" flat>
+          h2
+        </v-btn>
 
-      <v-btn id="h3" flat>
-        h3
-      </v-btn>
+        <v-btn id="h3" flat>
+          h3
+        </v-btn>
 
-      <div class="toolbar-gap" />
+        <div class="toolbar-gap" />
 
-      <v-btn id="link" flat @click.stop="openLinkDialog">
-        <v-icon>insert_link</v-icon>
-      </v-btn>
+        <v-btn id="link" flat @click.stop="openLinkDialog">
+          <v-icon>insert_link</v-icon>
+        </v-btn>
 
-      <v-btn id="blockquote" flat>
-        <v-icon>format_quote</v-icon>
-      </v-btn>
+        <v-btn id="blockquote" flat>
+          <v-icon>format_quote</v-icon>
+        </v-btn>
 
-      <div class="toolbar-gap" />
+        <div class="toolbar-gap" />
 
-      <v-btn id="bullet" flat>
-        <v-icon>format_list_bulleted</v-icon>
-      </v-btn>
+        <v-btn id="bullet" flat>
+          <v-icon>format_list_bulleted</v-icon>
+        </v-btn>
 
-      <v-btn id="order" flat>
-        <v-icon>format_list_numbered</v-icon>
-      </v-btn>
-    </v-toolbar>
-
-    <v-divider />
+        <v-btn id="order" flat>
+          <v-icon>format_list_numbered</v-icon>
+        </v-btn>
+      </v-toolbar>
+      <v-divider />
+    </div>
 
     <v-card-text id="editor" ref="editor" class="editor" />
 
@@ -588,7 +588,11 @@
     }
   }
 
-  .editor-toolbar {
+  .editor__toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
     .btn--flat {
       height: 36px;
       width: 36px;
