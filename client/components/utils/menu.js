@@ -124,18 +124,12 @@ class MenuView {
       dom.className = btnClass; // eslint-disable-line no-param-reassign
     });
   }
-
-  destroy() {
-    this.dom.remove();
-  }
 }
 
 export function menuPlugin(items, vueInstance) {
   return new Plugin({
     view(editorView) {
-      const menuView = new MenuView(items, editorView, vueInstance);
-      editorView.dom.parentNode.insertBefore(menuView.dom, editorView.dom);
-      return menuView;
+      return new MenuView(items, editorView, vueInstance);
     },
   });
 }

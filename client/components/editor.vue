@@ -1,5 +1,112 @@
 <template>
-  <div>
+  <v-card>
+    <v-toolbar
+      card
+      class="editor-toolbar"
+      id="tools"
+    >
+      <v-btn id="undo" flat>
+        <v-icon>undo</v-icon>
+      </v-btn>
+
+      <v-btn id="redo" flat>
+        <v-icon>redo</v-icon>
+      </v-btn>
+
+      <div class="toolbar-gap" />
+
+      <v-btn id="bold" flat>
+        <v-icon>format_bold</v-icon>
+      </v-btn>
+
+      <v-btn id="italic" flat>
+        <v-icon>format_italic</v-icon>
+      </v-btn>
+
+      <v-btn id="strikethrough" flat>
+        <v-icon>strikethrough_s</v-icon>
+      </v-btn>
+
+      <div class="toolbar-gap" />
+
+      <v-btn id="h1" flat>
+        h1
+      </v-btn>
+
+      <v-btn id="h2" flat>
+        h2
+      </v-btn>
+
+      <v-btn id="h3" flat>
+        h3
+      </v-btn>
+
+      <div class="toolbar-gap" />
+
+      <v-btn id="link" flat @click.stop="openLinkDialog">
+        <v-icon>insert_link</v-icon>
+      </v-btn>
+
+      <v-btn id="blockquote" flat>
+        <v-icon>format_quote</v-icon>
+      </v-btn>
+
+      <div class="toolbar-gap" />
+
+      <v-btn id="bullet" flat>
+        <v-icon>format_list_bulleted</v-icon>
+      </v-btn>
+
+      <v-btn id="order" flat>
+        <v-icon>format_list_numbered</v-icon>
+      </v-btn>
+    </v-toolbar>
+
+    <v-divider />
+
+    <v-card-text id="editor" ref="editor" class="editor" />
+
+    <v-menu
+      offset-x
+      :close-on-content-click="false"
+      :nudge-width="200"
+      nudge-right="10"
+      nudge-top="-20"
+      v-model="commentDialog"
+      ref="addCommentButton"
+      class="btn-comment"
+    >
+      <v-btn
+        color="white"
+        small
+        bottom
+        right
+        fab
+        slot="activator"
+      >
+        <v-icon>comment</v-icon>
+      </v-btn>
+      <v-card>
+        <v-card-text style="padding-bottom:0px">
+          <v-form @submit.prevent="insertComment">
+            <v-text-field
+              style="padding-top:0px"
+              autofocus
+              multi-line
+              rows="2"
+              v-model="comment"
+              placeholder="Comment..."
+              required
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions style="padding-top:0px">
+          <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
+          <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-menu>
+
     <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
       <v-card>
         <v-card-text>
@@ -24,124 +131,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <div id="tools" style="margin-bottom:25px">
-      <v-toolbar
-        :class="{'toolbar-fixed':fixToolbarToTop}"
-        prominent
-        card color="white"
-        class="editor-toolbar"
-        v-scroll="onScroll"
-        :style="toolbarWidth"
-        ref="editorToolbar">
-        <v-btn id="undo" flat>
-          <v-icon>undo</v-icon>
-        </v-btn>
-
-        <v-btn id="redo" flat>
-          <v-icon>redo</v-icon>
-        </v-btn>
-
-        <div class="toolbar-gap" />
-
-        <v-btn id="bold" flat>
-          <v-icon>format_bold</v-icon>
-        </v-btn>
-
-        <v-btn id="italic" flat>
-          <v-icon>format_italic</v-icon>
-        </v-btn>
-
-        <v-btn id="strikethrough" flat>
-          <v-icon>strikethrough_s</v-icon>
-        </v-btn>
-
-        <div class="toolbar-gap" />
-
-        <v-btn id="h1" flat>
-          h1
-        </v-btn>
-
-        <v-btn id="h2" flat>
-          h2
-        </v-btn>
-
-        <v-btn id="h3" flat>
-          h3
-        </v-btn>
-
-        <div class="toolbar-gap" />
-
-        <v-btn id="link" flat @click.stop="openLinkDialog">
-          <v-icon>insert_link</v-icon>
-        </v-btn>
-
-        <v-btn id="blockquote" flat>
-          <v-icon>format_quote</v-icon>
-        </v-btn>
-
-        <div class="toolbar-gap" />
-
-        <v-btn id="bullet" flat>
-          <v-icon>format_list_bulleted</v-icon>
-        </v-btn>
-
-        <v-btn id="order" flat>
-          <v-icon>format_list_numbered</v-icon>
-        </v-btn>
-      </v-toolbar>
-      <v-divider
-        class="editor-divider"
-        :class="{'editor-divider-fixed':fixToolbarToTop}"
-        :style="toolbarWidth"
-        ref="editorDivider"
-      />
-      <div style="height: 64px;" v-if="fixToolbarToTop" />
-      <v-menu
-        offset-x
-        :close-on-content-click="false"
-        :nudge-width="200"
-        nudge-right="10"
-        nudge-top="-20"
-        v-model="commentDialog"
-        ref="addCommentButton"
-        class="btn-comment"
-      >
-        <v-btn
-          color="white"
-          small
-          bottom
-          right
-          fab
-          slot="activator"
-        >
-          <v-icon>comment</v-icon>
-        </v-btn>
-        <v-card>
-          <v-card-text style="padding-bottom:0px">
-            <v-form @submit.prevent="insertComment">
-              <v-text-field
-                style="padding-top:0px"
-                autofocus
-                multi-line
-                rows="2"
-                v-model="comment"
-                placeholder="Comment..."
-                required
-              />
-            </v-form>
-          </v-card-text>
-          <v-card-actions style="padding-top:0px">
-            <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
-            <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-menu>
-    </div>
-
-    <div id="editor" ref="editor" class="editor" />
-
-  </div>
+  </v-card>
 </template>
 
 <script>
@@ -174,7 +164,6 @@
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
-  import offsetY from './utils/sticky-scroll';
 
   // @vue/component
   const component = {
@@ -210,7 +199,6 @@
         addingCommentsInProgress: false,
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
-        toolbarWidth: {width: '100%'},
         cursorsHandle: null,
         dipatch: null,
         state: null,
@@ -359,10 +347,6 @@
       this.state = view.state;
       this.dispatch = view.dispatch;
 
-      this.dispatch = view.dispatch;
-      this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
-      window.addEventListener('resize', this.handleWindowResize);
-
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
           return;
@@ -422,29 +406,13 @@
     },
 
     beforeDestroy() {
-      window.removeEventListener('resize', this.handleWindowResize);
       Cursor.remove({contentKey: this.contentKey, clientId: this.clientId});
     },
 
     methods: {
       onScroll(e) {
-        if (!this.$refs || !this.$refs.editorToolbar) {
-          return;
-        }
-
-        if (!this.fixToolbarToTop && this.originalToolbarYPos < 0) {
-          this.originalToolbarYPos = offsetY(this.$refs.editorToolbar.$el);
-        }
-        const shouldFixToolbar = window.pageYOffset >= this.originalToolbarYPos;
-
-        this.fixToolbarToTop = shouldFixToolbar;
-
         // emit scroll event to notify parent component
         this.$emit("scroll");
-      },
-
-      handleWindowResize(e) {
-        this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
       },
 
       insertLink() {
@@ -620,15 +588,7 @@
     }
   }
 
-  .toolbar-fixed {
-    z-index: 2;
-    top: 0;
-    position: fixed;
-  }
-
   .editor-toolbar {
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-
     .btn--flat {
       height: 36px;
       width: 36px;
@@ -644,16 +604,6 @@
 
   .toolbar-gap {
     margin: 6px 12px;
-  }
-
-  .editor-divider-fixed {
-    position: fixed;
-    z-index: 2;
-    top: 64px;
-  }
-
-  .editor a {
-    cursor: text !important;
   }
 
   .btn-comment {
