@@ -1,5 +1,10 @@
 <template>
   <v-container fluid class="sidebar__users">
+    <v-layout row>
+      <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
+      <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
+      <v-btn v-if="!documentPublished && $currentUserId" color="success" slot="activator" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
+    </v-layout>
     <v-layout row wrap justify-start align-content-start>
       <v-flex class="sidebar__user" v-for="cursor of cursors" :key="cursor._id">
         <v-btn flat icon :style="{borderColor: cursor.color}" @click="onAvatarClicked(cursor)">
@@ -92,6 +97,10 @@
         type: String,
         required: true,
       },
+      documentPublished: {
+        type: Boolean,
+        default: false,
+      },
       contentKey: {
         type: String,
         required: true,
@@ -138,6 +147,10 @@
       });
 
       window.addEventListener('resize', this.handleWindowResize);
+    },
+
+    beforeDestroy() {
+      window.removeEventListener('resize', this.handleWindowResize);
     },
 
     methods: {
@@ -279,16 +292,22 @@
     padding-right: 0;
   }
 
-  .fade-enter{
+  .fade-enter {
     opacity: 0;
   }
 
-  .fade-enter-active{
+  .fade-enter-active {
     transition: opacity 0.5s;
   }
 
-  .fade-leave-active{
+  .fade-leave-active {
     transition: opacity 0.2s;
     opacity: 0;
   }
+
+  .doc_status__label {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+
 </style>

@@ -1,59 +1,10 @@
 <template>
-  <div>
-    <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
-      <v-card>
-        <v-card-text>
-          <v-form v-model="validLink" @submit.prevent="insertLink">
-            <v-text-field
-              autofocus
-              placeholder="http://"
-              v-model="link"
-              :hint="linkHint"
-              :hide-details="link === ''"
-              single-line
-              required
-              prepend-icon="link"
-              :rules="[linkValidationRule]"
-            />
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="secondary" flat @click="cancelLink"><translate>cancel</translate></v-btn>
-          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)"><translate>remove</translate></v-btn>
-          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink"><translate>insert</translate></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog hide-overlay v-model="commentDialog" max-width="500px">
-      <v-card>
-        <v-card-text>
-          <v-form @submit.prevent="insertComment">
-            <v-text-field
-              autofocus
-              multi-line
-              v-model="comment"
-              placeholder="Comment..."
-              required
-            />
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
-          <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <div id="tools" style="margin-bottom:25px">
+  <v-card>
+    <div class="editor__toolbar">
       <v-toolbar
-        :class="{'toolbar-fixed':fixToolbarToTop}"
-        prominent
-        card color="white"
-        class="editor-toolbar"
-        v-scroll="onScroll"
-        :style="toolbarWidth"
-        ref="editorToolbar">
+        card
+        id="tools"
+      >
         <v-btn id="undo" flat>
           <v-icon>undo</v-icon>
         </v-btn>
@@ -110,31 +61,77 @@
           <v-icon>format_list_numbered</v-icon>
         </v-btn>
       </v-toolbar>
-      <v-divider
-        class="editor-divider"
-        :class="{'editor-divider-fixed':fixToolbarToTop}"
-        :style="toolbarWidth"
-        ref="editorDivider"
-      />
-      <div style="height: 64px;" v-if="fixToolbarToTop" />
+      <v-divider />
+    </div>
+
+    <v-card-text id="editor" ref="editor" class="editor" />
+
+    <v-menu
+      offset-x
+      :close-on-content-click="false"
+      :nudge-width="200"
+      nudge-right="10"
+      nudge-top="-20"
+      v-model="commentDialog"
+      ref="addCommentButton"
+      class="btn-comment"
+    >
       <v-btn
-        class="btn-comment"
         color="white"
         small
         bottom
         right
         fab
-        ref="addCommentButton"
-        :style="{opacity: 0, visibility: 'hidden'}"
-        @click="openCommentDialog"
+        slot="activator"
       >
         <v-icon>comment</v-icon>
       </v-btn>
-    </div>
+      <v-card>
+        <v-card-text style="padding-bottom:0px">
+          <v-form @submit.prevent="insertComment">
+            <v-text-field
+              style="padding-top:0px"
+              autofocus
+              multi-line
+              rows="2"
+              v-model="comment"
+              placeholder="Comment..."
+              required
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions style="padding-top:0px">
+          <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
+          <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-menu>
 
-    <div id="editor" ref="editor" class="editor" />
-
-  </div>
+    <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
+      <v-card>
+        <v-card-text>
+          <v-form v-model="validLink" @submit.prevent="insertLink">
+            <v-text-field
+              autofocus
+              placeholder="http://"
+              v-model="link"
+              :hint="linkHint"
+              :hide-details="link === ''"
+              single-line
+              required
+              prepend-icon="link"
+              :rules="[linkValidationRule]"
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="secondary" flat @click="cancelLink"><translate>cancel</translate></v-btn>
+          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)"><translate>remove</translate></v-btn>
+          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink"><translate>insert</translate></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-card>
 </template>
 
 <script>
@@ -167,7 +164,6 @@
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
-  import offsetY from './utils/sticky-scroll';
 
   // @vue/component
   const component = {
@@ -179,6 +175,10 @@
       contentKey: {
         type: String,
         required: true,
+      },
+      readOnly: {
+        type: Boolean,
+        default: false,
       },
       clientId: {
         type: String,
@@ -199,7 +199,6 @@
         addingCommentsInProgress: false,
         fixToolbarToTop: false,
         originalToolbarYPos: -1,
-        toolbarWidth: {width: '100%'},
         cursorsHandle: null,
         dipatch: null,
         state: null,
@@ -217,6 +216,7 @@
         },
       };
     },
+
     watch: {
       focusedCursor(newCursor, oldCursor) {
         // If we receive a new focused cursor we scroll the editor to its position.
@@ -228,6 +228,7 @@
         }
       },
     },
+
     created() {
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.list', {contentKey: this.contentKey});
@@ -339,13 +340,12 @@
           }
           throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
+        editable: () => {
+          return !!(!this.readOnly && this.$currentUserId);
+        },
       });
       this.state = view.state;
       this.dispatch = view.dispatch;
-
-      this.dispatch = view.dispatch;
-      this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
-      window.addEventListener('resize', this.handleWindowResize);
 
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
@@ -404,29 +404,17 @@
         view.dispatch(tr);
       });
     },
+
     beforeDestroy() {
-      window.removeEventListener('resize', this.handleWindowResize);
       Cursor.remove({contentKey: this.contentKey, clientId: this.clientId});
     },
+
     methods: {
       onScroll(e) {
-        if (!this.$refs || !this.$refs.editorToolbar) {
-          return;
-        }
-
-        if (!this.fixToolbarToTop && this.originalToolbarYPos < 0) {
-          this.originalToolbarYPos = offsetY(this.$refs.editorToolbar.$el);
-        }
-        const shouldFixToolbar = window.pageYOffset >= this.originalToolbarYPos;
-
-        this.fixToolbarToTop = shouldFixToolbar;
-
         // emit scroll event to notify parent component
         this.$emit("scroll");
       },
-      handleWindowResize(e) {
-        this.toolbarWidth.width = `${this.$refs.editor.offsetWidth}px`;
-      },
+
       insertLink() {
         let {link} = this;
         if (this.selectedExistingLinks) {
@@ -442,6 +430,7 @@
           this.link = '';
         }
       },
+
       insertComment() {
         const {comment} = this;
         const {selection} = this.state;
@@ -488,6 +477,7 @@
           addHighlight(key, schema, this.state, chunk.from, chunk.to, this.dispatch);
         });
       },
+
       removeLink() {
         this.clearLink();
         this.linkDialog = false;
@@ -499,6 +489,7 @@
         this.dispatch(tr);
         window.getSelection().empty();
       },
+
       clearLink() {
         const {tr} = this.state;
         const {from: currentFrom, to: currentTo} = this.state.selection;
@@ -525,14 +516,17 @@
         tr.setSelection(selection);
         this.dispatch(tr);
       },
+
       cancelLink() {
         this.linkDialog = false;
         this.link = '';
       },
+
       cancelComment() {
         this.commentDialog = false;
         this.comment = '';
       },
+
       openLinkDialog() {
         if (this.selectedExistingLinks.length &&
         this.selectedExistingLinks.length === 1) {
@@ -541,9 +535,11 @@
         }
         this.linkDialog = true;
       },
+
       openCommentDialog() {
         this.commentDialog = true;
       },
+
       filterComments(keys) {
         if (!this.state) {
           return;
@@ -592,14 +588,10 @@
     }
   }
 
-  .toolbar-fixed {
-    z-index: 2;
+  .editor__toolbar {
+    position: sticky;
     top: 0;
-    position: fixed;
-  }
-
-  .editor-toolbar {
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    z-index: 10;
 
     .btn--flat {
       height: 36px;
@@ -618,19 +610,10 @@
     margin: 6px 12px;
   }
 
-  .editor-divider-fixed {
-    position: fixed;
-    z-index: 2;
-    top: 64px;
-  }
-
-  .editor a {
-    cursor: text !important;
-  }
-
   .btn-comment {
-    left: 99%;
+    left: 100%;
     z-index: 25;
+    margin-top: 33px;
   }
 
   .fade {

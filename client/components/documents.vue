@@ -1,7 +1,14 @@
 <template>
   <v-layout row>
-    <v-flex xs12 sm10 offset-sm1 md8 offset-md2 xl6 offset-xl3>
+    <v-flex v-bind="width">
       <v-card>
+        <v-toolbar card>
+          <v-spacer />
+          <v-btn v-if="canCreateDocument" :disabled="documentCreationInProgress" outline @click.native="onDocumentCreate">
+            <translate>document-create</translate>
+          </v-btn>
+        </v-toolbar>
+        <v-divider />
         <v-list v-if="documents.exists()" two-line>
           <template v-for="(document, index) in documents">
             <v-list-tile ripple :to="{name: 'document', params: {documentId: document._id}}" :key="document._id">
@@ -9,7 +16,8 @@
                 <v-list-tile-title v-if="document.title">{{document.title}}</v-list-tile-title>
                 <v-list-tile-title v-else class="documents__untitled" v-translate>untitled</v-list-tile-title>
                 <v-list-tile-sub-title>
-                  <span class="timestamp" :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)">{{document.createdAt | fromNow}}</span>
+                  <span class="timestamp" :title="document.publishedAt | formatDate(DEFAULT_DATETIME_FORMAT)" v-if="document.isPublished()" v-translate="{at: $fromNow(document.publishedAt)}">document-published-at</span>
+                  <span class="timestamp" :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)" v-else v-translate="{at: $fromNow(document.createdAt)}">document-created-at</span>
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
@@ -23,9 +31,6 @@
           no-documents
         </v-card-text>
       </v-card>
-      <v-btn v-if="canCreateDocument" :disabled="documentCreationInProgress" fab bottom right fixed color="primary" @click.native="onDocumentCreate">
-        <v-icon>add</v-icon>
-      </v-btn>
     </v-flex>
   </v-layout>
 </template>
@@ -35,6 +40,7 @@
 
   import {Document} from '/lib/documents/document';
   import {User} from '/lib/documents/user';
+  import {isEmbedded} from '../embed';
   import {Snackbar} from '../snackbar';
 
   // @vue/component
@@ -43,6 +49,15 @@
       return {
         subscriptionHandle: null,
         documentCreationInProgress: false,
+        width: isEmbedded() ? {} : {
+          xs12: true,
+          sm10: true,
+          'offset-sm1': true,
+          md8: true,
+          'offset-md2': true,
+          xl6: true,
+          'offset-xl3': true,
+        },
       };
     },
 

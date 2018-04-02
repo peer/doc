@@ -1,0 +1,6 @@
+{
+  "tokenSharedSecret": "adfb0f4077454862ee2062d3970c9c33",
+  "public": {
+    "passwordlessAuthDisabled": false
+  }
+}

@@ -1,5 +1,6 @@
 <template>
-  <access-denied v-if="currentUserId" />
+  <not-found v-if="passwordlessAuthDisabled" />
+  <access-denied v-else-if="$currentUserId" />
   <v-layout v-else row>
     <v-flex xs12 sm8 offset-sm2 md4 offset-md4 xl2 offset-xl5>
       <v-form v-model="valid" @submit.prevent="onSubmit">
@@ -10,10 +11,9 @@
             <v-text-field :readonly="formSubmissionInProgress" :label="usernameLabel" v-model="username" :rules="usernameRules" required />
           </v-card-text>
           <v-card-actions>
-            <v-btn type="submit" :disabled="!valid || formSubmissionInProgress" block color="primary">
-              <span v-translate>sign-in</span>
-              <v-progress-linear v-if="formSubmissionInProgress" :indeterminate="true" :height="3" color="primary" class="user-signin__progress" />
-            </v-btn>
+            <p-button type="submit" :progress="formSubmissionInProgress" :disabled="!valid || formSubmissionInProgress" block color="primary">
+              <translate>sign-in</translate>
+            </p-button>
           </v-card-actions>
         </v-card>
       </v-form>
@@ -52,13 +52,8 @@
         errorShow: false,
         errorMessage: null,
         usernameLabel: this.$gettext("username"),
+        passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
-    },
-
-    computed: {
-      currentUserId() {
-        return Meteor.userId();
-      },
     },
 
     methods: {
@@ -66,7 +61,7 @@
         this.errorShow = false;
         this.formSubmissionInProgress = true;
 
-        User.createUserAndSignIn({username: this.username}, (error, user) => {
+        User.passwordlessSignIn({username: this.username}, (error, user) => {
           this.formSubmissionInProgress = false;
 
           if (error) {
@@ -96,11 +91,3 @@
 
   export default component;
 </script>
-
-<style lang="scss">
-  .user-signin__progress {
-    position: absolute;
-    bottom: 0;
-    margin-bottom: 0;
-  }
-</style>

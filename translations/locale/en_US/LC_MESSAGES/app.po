@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-19 01:05-0700\n"
+"POT-Creation-Date: 2018-03-30 15:57-0700\n"
 "PO-Revision-Date: 2018-03-05 12:12-0300\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -22,26 +22,39 @@ msgid "access-denied"
 msgstr "Access denied."
 
 #: client/components/editor.vue:20
+#: client/components/publish-confirmation.vue:13
 msgid "cancel"
 msgstr "Cancel"
 
-#: client/components/sidebar.vue:14
+#: client/components/sidebar.vue:19
 msgid "chat"
 msgstr "Chat"
 
-#: client/components/app-layout.vue:30
+#: client/components/app-layout.vue:32
 msgid "close"
 msgstr "Close"
 
-#: client/components/sidebar.vue:13
+#: client/components/sidebar.vue:18
 msgid "comments"
 msgstr "Comments"
+
+#: client/components/documents.vue:7
+msgid "document-create"
+msgstr "New document"
+
+#: client/components/documents.vue:19
+msgid "document-created-at"
+msgstr "Created %{at}"
+
+#: client/components/documents.vue:18
+msgid "document-published-at"
+msgstr "Published %{at}"
 
 #: client/components/app-layout.vue:9
 msgid "documents"
 msgstr "Documents"
 
-#: client/components/documents.vue:15
+#: client/components/documents.vue:23
 msgid "draft"
 msgstr "Draft"
 
@@ -49,7 +62,7 @@ msgstr "Draft"
 msgid "front-page"
 msgstr "Front page."
 
-#: client/components/sidebar.vue:15
+#: client/components/sidebar.vue:20
 msgid "history"
 msgstr "History"
 
@@ -57,13 +70,25 @@ msgstr "History"
 msgid "insert"
 msgstr "Insert"
 
-#: client/components/documents.vue:21
+#: client/components/documents.vue:29
 msgid "no-documents"
 msgstr "No documents."
 
 #: client/components/not-found.vue:3
 msgid "not-found"
 msgstr "Not found."
+
+#: client/components/publish-confirmation.vue:19
+msgid "publish"
+msgstr "Publish"
+
+#: client/components/publish-confirmation.vue:9
+msgid "publish-document-confirmation-body"
+msgstr "Once it is published it will not be editable anymore. it will become visible to other users and everyone will be able to comment."
+
+#: client/components/publish-confirmation.vue:8
+msgid "publish-document-confirmation-title"
+msgstr "Do you wish to publish this document now?"
 
 #: client/components/editor.vue:21
 msgid "remove"
@@ -77,15 +102,15 @@ msgstr "Sign In"
 msgid "sign-out"
 msgstr "Sign Out"
 
-#: client/components/documents.vue:9
+#: client/components/documents.vue:16
 msgid "untitled"
 msgstr "Untitled"
 
-#: client/components/editor.vue:208
+#: client/components/editor.vue:220
 msgid "link-hint"
 msgstr "Enter a link"
 
-#: client/components/editor.vue:216
+#: client/components/editor.vue:228
 msgid "invalid-url"
 msgstr "Invalid URL."
 
@@ -109,18 +134,26 @@ msgstr "Username"
 msgid "signed-in-success"
 msgstr "You have been signed in."
 
-#: client/components/documents.vue:72
+#: client/components/documents.vue:77
 msgid "document-created-error"
 msgstr "Error creating a new document: %{error}"
 
-#: client/components/documents.vue:76
+#: client/components/documents.vue:81
 msgid "document-created-success"
 msgstr "New document has been created."
 
-#: client/components/app-layout.vue:67
+#: client/components/publish-confirmation.vue:73
+msgid "publish-error"
+msgstr "An error has occurred when trying to publish the document."
+
+#: client/components/publish-confirmation.vue:78
+msgid "publish-success"
+msgstr "The document was successfully published."
+
+#: client/components/app-layout.vue:70
 msgid "signed-out-error"
 msgstr "Error signing out: %{error}"
 
-#: client/components/app-layout.vue:71
+#: client/components/app-layout.vue:74
 msgid "signed-out-success"
 msgstr "You have been signed out."

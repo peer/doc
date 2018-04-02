@@ -12,8 +12,11 @@ import translations from '/translations/translations.json';
 //       See: https://github.com/meteor/meteor-feature-requests/issues/218
 import 'vuetify/dist/vuetify.css';
 
+import VueExtensions from './vue-extensions';
+
 Vue.use(Vuetify);
 Vue.use(GetTextPlugin, {translations});
+Vue.use(VueExtensions);
 
 Meteor.startup(() => {
   const router = new RouterFactory({
