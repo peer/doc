@@ -17,9 +17,27 @@
           <v-tabs-items>
             <v-tab-item id="comments">
               <v-card v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="commentsRef">
-                <v-card-text>
-                  {{comment.body}}
-                </v-card-text>
+                <v-layout row style="padding:10px">
+                  <v-flex xs2 class="text-xs-center">
+                    <v-avatar size="36px"><img :src="comment.author.avatarUrl()" :alt="comment.author.username" :title="comment.author.username"></v-avatar>
+                  </v-flex>
+                  <v-flex xs8>
+                    <div>
+                      <div style="min-height:36px">{{comment.body}}</div>
+                      <transition name="fade">
+                        <div v-show="comment.showDetails">
+                          <v-divider/>
+                          <v-chip>{{comment.author.username}}</v-chip> {{comment.createdAt | formatDate}}
+                        </div>
+                      </transition>
+                    </div>
+                  </v-flex>
+                  <v-flex xs1>
+                    <v-btn flat icon small @click="comment.showDetails=!comment.showDetails">
+                      <v-icon>more_vert</v-icon>
+                    </v-btn>
+                  </v-flex>
+                </v-layout>
               </v-card>
             </v-tab-item>
           </v-tabs-items>
@@ -31,6 +49,7 @@
 
 <script>
   import {_} from 'meteor/underscore';
+  import moment from 'moment';
 
   import {Comment} from '/lib/documents/comment';
   import {Cursor} from '/lib/documents/cursor';
@@ -58,6 +77,16 @@
 
   // @vue/component
   const component = {
+
+    filters: {
+      formatDate(value) {
+        if (value) {
+          return moment(String(value)).format('llll');
+        }
+        return "";
+      },
+    },
+
     props: {
       documentId: {
         type: String,
@@ -144,7 +173,7 @@
           if (!el) {
             return null;
           }
-          return Object.assign({}, c, {highlightTop: getOffset(el).top});
+          return Object.assign({}, c, {highlightTop: getOffset(el).top, showDetails: false});
         }).filter((c) => {
           return c;
         }).sort((a, b) => {
@@ -248,5 +277,18 @@
   .sidebar__users {
     padding-top: 0;
     padding-right: 0;
+  }
+
+  .fade-enter{
+    opacity: 0;
+  }
+
+  .fade-enter-active{
+    transition: opacity 0.5s;
+  }
+
+  .fade-leave-active{
+    transition: opacity 0.2s;
+    opacity: 0;
   }
 </style>
