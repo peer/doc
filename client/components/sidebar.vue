@@ -2,9 +2,9 @@
   <v-container fluid class="sidebar__users">
     <v-card>
       <v-toolbar dense card>
-        <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
-        <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
-        <v-btn v-if="!documentPublished && $currentUserId" color="success" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
+        <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label"><translate>document-draft</translate></v-chip>
+        <v-chip v-else label color="green" text-color="white" class="doc_status__label"><translate>document-published</translate></v-chip>
+        <v-btn v-if="!documentPublished && $currentUserId" color="success" :to="{name: 'publishDocument', params: {documentId}}"><translate>document-publish</translate></v-btn>
       </v-toolbar>
     </v-card>
     <v-layout row ref="commentsList">

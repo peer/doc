@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-02 12:41-0700\n"
+"POT-Creation-Date: 2018-04-03 02:51-0700\n"
 "PO-Revision-Date: 2018-03-05 12:12-0300\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -21,22 +21,14 @@ msgstr ""
 msgid "access-denied"
 msgstr "Access denied."
 
-#: client/components/editor.vue:95
+#: client/components/editor.vue:103
 #: client/components/publish-confirmation.vue:13
 msgid "cancel"
 msgstr "Cancel"
 
-#: client/components/sidebar.vue:19
-msgid "chat"
-msgstr "Chat"
-
 #: client/components/app-layout.vue:30
 msgid "close"
 msgstr "Close"
-
-#: client/components/sidebar.vue:18
-msgid "comments"
-msgstr "Comments"
 
 #: client/components/documents.vue:7
 msgid "document-create"
@@ -46,6 +38,18 @@ msgstr "New document"
 msgid "document-created-at"
 msgstr "Created %{at}"
 
+#: client/components/documents.vue:23 client/components/sidebar.vue:4
+msgid "document-draft"
+msgstr "draft"
+
+#: client/components/sidebar.vue:6
+msgid "document-publish"
+msgstr "Publish"
+
+#: client/components/sidebar.vue:5
+msgid "document-published"
+msgstr "published"
+
 #: client/components/documents.vue:18
 msgid "document-published-at"
 msgstr "Published %{at}"
@@ -54,19 +58,11 @@ msgstr "Published %{at}"
 msgid "documents"
 msgstr "Documents"
 
-#: client/components/documents.vue:23
-msgid "draft"
-msgstr "Draft"
-
 #: client/components/front-page.vue:1
 msgid "front-page"
 msgstr "Front page."
 
-#: client/components/sidebar.vue:20
-msgid "history"
-msgstr "History"
-
-#: client/components/editor.vue:97
+#: client/components/editor.vue:105
 msgid "insert"
 msgstr "Insert"
 
@@ -90,7 +86,7 @@ msgstr "Once it is published it will not be editable anymore. it will become vis
 msgid "publish-document-confirmation-title"
 msgstr "Do you wish to publish this document now?"
 
-#: client/components/editor.vue:96
+#: client/components/editor.vue:104
 msgid "remove"
 msgstr "Remove"
 
@@ -106,15 +102,15 @@ msgstr "Sign Out"
 msgid "untitled"
 msgstr "Untitled"
 
-#: client/components/editor.vue:97
+#: client/components/editor.vue:105
 msgid "update"
 msgstr "Update"
 
-#: client/components/editor.vue:175
+#: client/components/editor.vue:179
 msgid "link-hint"
 msgstr "Enter a link"
 
-#: client/components/editor.vue:192
+#: client/components/editor.vue:197
 msgid "invalid-url"
 msgstr "Invalid URL."
 
