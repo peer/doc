@@ -43,9 +43,10 @@ export function createUserAndSignIn({userToken}) {
 
   // Otherwise we create a new user.
   const userTokenWithoutNonce = Object.assign({}, userToken);
-  delete userTokenWithoutNonce.nonce; // we don't need to store the nonce
+  delete userTokenWithoutNonce.nonce; // We don't need to store the nonce.
   const userId = User.documents.insert({
     username: userToken.username,
+    avatar: userToken.avatar,
     services: {
       usertoken: userTokenWithoutNonce,
     },
