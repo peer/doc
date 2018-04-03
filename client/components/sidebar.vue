@@ -21,24 +21,45 @@
           <v-tab ripple href="#history" class="primary--text"><translate>history</translate></v-tab>
           <v-tabs-items>
             <v-tab-item id="comments">
-              <v-card v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="commentsRef">
-                <v-layout row style="padding:10px">
+              <v-card :class="{ 'comment' : comment.isReply, 'reply' : !comment.isReply}" v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="commentsRef">
+                <v-layout row @click="showReplyBox(comment)">
                   <v-flex xs2 class="text-xs-center">
                     <v-avatar size="36px"><img :src="comment.author.avatarUrl()" :alt="comment.author.username" :title="comment.author.username"></v-avatar>
                   </v-flex>
                   <v-flex xs8>
                     <div>
-                      <div style="min-height:36px">{{comment.body}}</div>
+                      <div class="comment__body">{{comment.body}}</div>
                       <transition name="fade">
                         <div v-show="comment.showDetails">
                           <v-divider/>
                           <v-chip>{{comment.author.username}}</v-chip> {{comment.createdAt | formatDate}}
                         </div>
                       </transition>
+                      <transition>
+                        <div v-show="comment.showAddCommentForm">
+                          <v-card-text style="padding-bottom:0px">
+                            <v-form @submit.prevent="onReply">
+                              <v-text-field
+                                style="padding-top:0px"
+                                autofocus
+                                multi-line
+                                rows="2"
+                                v-model="comment.reply"
+                                placeholder="Comment..."
+                                required
+                              />
+                            </v-form>
+                          </v-card-text>
+                          <v-card-actions style="padding-top:0px">
+                            <v-btn color="secondary" flat @click.stop="hideReplyBox(comment)">Cancel</v-btn>
+                            <v-btn color="primary" flat @click.stop="onReply(comment)">Insert</v-btn>
+                          </v-card-actions>
+                        </div>
+                      </transition>
                     </div>
                   </v-flex>
                   <v-flex xs1>
-                    <v-btn flat icon small @click="comment.showDetails=!comment.showDetails">
+                    <v-btn flat icon small @click.stop="comment.showDetails=!comment.showDetails">
                       <v-icon>more_vert</v-icon>
                     </v-btn>
                   </v-flex>
@@ -154,6 +175,37 @@
     },
 
     methods: {
+
+      showReplyBox(comment) {
+        const id = comment.isReply ? comment._id : comment.replyTo;
+        let lastReply;
+        const filtered = _.filter(this.documentComments, (x) => {
+          return id === x.replyTo;
+        });
+        if (filtered.length === 0) {
+          lastReply = comment;
+        }
+        else {
+          lastReply = filtered[filtered.length - 1];
+        }
+        lastReply.showAddCommentForm = true;
+      },
+
+      hideReplyBox(comment) {
+        comment.showAddCommentForm = false; // eslint-disable-line no-param-reassign
+      },
+
+      onReply(comment) {
+        const replyTo = comment.isReply ? comment._id : comment.replyTo;
+        Comment.create({
+          highlightKey: comment.highlightKey,
+          body: comment.reply,
+          documentId: this.documentId,
+          replyTo,
+        });
+        comment.showAddCommentForm = false; // eslint-disable-line no-param-reassign
+      },
+
       onAvatarClicked(cursor) {
         this.$emit('click', cursor);
       },
@@ -186,7 +238,12 @@
           if (!el) {
             return null;
           }
-          return Object.assign({}, c, {highlightTop: getOffset(el).top, showDetails: false});
+          return Object.assign({}, c, {
+            highlightTop: getOffset(el).top,
+            showDetails: false,
+            showAddCommentForm: false,
+            isReply: c.replyTo === null,
+          });
         }).filter((c) => {
           return c;
         }).sort((a, b) => {
@@ -308,6 +365,24 @@
   .doc_status__label {
     text-transform: uppercase;
     font-weight: bold;
+  }
+
+  .reply{
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 20px;
+    cursor:pointer;
+  }
+
+  .comment{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    cursor:pointer;
+  }
+
+  .comment__body{
+    min-height:36px;
+    padding-top:5px
   }
 
 </style>
