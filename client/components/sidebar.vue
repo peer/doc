@@ -1,28 +1,18 @@
 <template>
   <v-container fluid class="sidebar__users">
-    <v-layout row>
-      <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
-      <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
-      <v-btn v-if="!documentPublished && $currentUserId" color="success" slot="activator" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
-    </v-layout>
-    <v-layout row class="mt-3">
-      <v-flex>
-        <v-tabs grow light show-arrows color="grey lighten-4" id="tab-sidebar">
-          <v-tabs-slider color="primary" />
-          <v-tab ripple href="#comments" class="primary--text"><translate>comments</translate></v-tab>
-          <v-tab ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span><translate>chat</translate></v-badge></v-tab>
-          <v-tab ripple href="#history" class="primary--text"><translate>history</translate></v-tab>
-          <v-tabs-items>
-            <v-tab-item id="comments">
-              <v-card v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="commentsRef">
-                <v-card-text>
-                  {{comment.body}}
-                </v-card-text>
-              </v-card>
-            </v-tab-item>
-          </v-tabs-items>
-        </v-tabs>
-      </v-flex>
+    <v-card>
+      <v-toolbar dense card>
+        <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
+        <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
+        <v-btn v-if="!documentPublished && $currentUserId" color="success" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
+      </v-toolbar>
+    </v-card>
+    <v-layout row ref="commentsList">
+      <v-card v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="comments">
+        <v-card-text>
+          {{comment.body}}
+        </v-card-text>
+      </v-card>
     </v-layout>
   </v-container>
 </template>
@@ -166,7 +156,7 @@
       },
 
       layoutComments() {
-        if (!this.$refs.commentsRef) {
+        if (!this.$refs.comments) {
           return;
         }
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
@@ -180,7 +170,7 @@
           return getOffset(el).top;
         });
 
-        const heights = this.$refs.commentsRef.map((ref) => {
+        const heights = this.$refs.comments.map((ref) => {
           return ref.$el.offsetHeight;
         });
 
@@ -190,11 +180,11 @@
           let bottom = 0;
           let {marginTop} = c;
           if (i === 0) {
-            const el2 = document.querySelector("#tab-sidebar .tabs__container");
+            const el2 = this.$refs.commentsList;
             const el2Y = getOffset(el2).top + el2.offsetHeight;
             const elY = highlightTops[0];
             marginTop = elY - el2Y > 0 ? elY - el2Y : 0;
-            // const {top} = getOffset(this.$refs.commentsRef[i].$el);
+            // const {top} = getOffset(this.$refs.comments[i].$el);
             bottom = el2Y + marginTop + height;
           }
           else {
