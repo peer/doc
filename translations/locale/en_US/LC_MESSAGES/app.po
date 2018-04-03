@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 15:57-0700\n"
+"POT-Creation-Date: 2018-04-02 12:41-0700\n"
 "PO-Revision-Date: 2018-03-05 12:12-0300\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "access-denied"
 msgstr "Access denied."
 
-#: client/components/editor.vue:20
+#: client/components/editor.vue:95
 #: client/components/publish-confirmation.vue:13
 msgid "cancel"
 msgstr "Cancel"
@@ -30,7 +30,7 @@ msgstr "Cancel"
 msgid "chat"
 msgstr "Chat"
 
-#: client/components/app-layout.vue:32
+#: client/components/app-layout.vue:30
 msgid "close"
 msgstr "Close"
 
@@ -66,7 +66,7 @@ msgstr "Front page."
 msgid "history"
 msgstr "History"
 
-#: client/components/editor.vue:22
+#: client/components/editor.vue:97
 msgid "insert"
 msgstr "Insert"
 
@@ -90,11 +90,11 @@ msgstr "Once it is published it will not be editable anymore. it will become vis
 msgid "publish-document-confirmation-title"
 msgstr "Do you wish to publish this document now?"
 
-#: client/components/editor.vue:21
+#: client/components/editor.vue:96
 msgid "remove"
 msgstr "Remove"
 
-#: client/components/app-layout.vue:20 client/components/user-signin.vue:13
+#: client/components/app-layout.vue:20 client/components/user-signin.vue:14
 msgid "sign-in"
 msgstr "Sign In"
 
@@ -106,11 +106,15 @@ msgstr "Sign Out"
 msgid "untitled"
 msgstr "Untitled"
 
-#: client/components/editor.vue:220
+#: client/components/editor.vue:97
+msgid "update"
+msgstr "Update"
+
+#: client/components/editor.vue:175
 msgid "link-hint"
 msgstr "Enter a link"
 
-#: client/components/editor.vue:228
+#: client/components/editor.vue:192
 msgid "invalid-url"
 msgstr "Invalid URL."
 
@@ -130,30 +134,30 @@ msgstr "Invalid username, it should contain only basic characters"
 msgid "username"
 msgstr "Username"
 
-#: client/components/user-signin.vue:77
+#: client/components/user-signin.vue:72
 msgid "signed-in-success"
 msgstr "You have been signed in."
 
-#: client/components/documents.vue:77
+#: client/components/documents.vue:87
 msgid "document-created-error"
 msgstr "Error creating a new document: %{error}"
 
-#: client/components/documents.vue:81
+#: client/components/documents.vue:91
 msgid "document-created-success"
 msgstr "New document has been created."
 
-#: client/components/publish-confirmation.vue:73
+#: client/components/publish-confirmation.vue:66
 msgid "publish-error"
 msgstr "An error has occurred when trying to publish the document."
 
-#: client/components/publish-confirmation.vue:78
+#: client/components/publish-confirmation.vue:71
 msgid "publish-success"
 msgstr "The document was successfully published."
 
-#: client/components/app-layout.vue:70
+#: client/components/app-layout.vue:64
 msgid "signed-out-error"
 msgstr "Error signing out: %{error}"
 
-#: client/components/app-layout.vue:74
+#: client/components/app-layout.vue:68
 msgid "signed-out-success"
 msgstr "You have been signed out."

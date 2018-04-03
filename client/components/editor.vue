@@ -1,70 +1,38 @@
 <template>
   <v-card>
     <div class="editor__toolbar">
-      <v-toolbar
-        card
-        id="tools"
-      >
-        <v-btn id="undo" flat>
-          <v-icon>undo</v-icon>
-        </v-btn>
+      <v-toolbar card dense>
+        <v-btn-toggle>
+          <v-btn ref="buttonUndo" flat :disabled="disabledButtons.undo"><v-icon>undo</v-icon></v-btn>
+          <v-btn ref="buttonRedo" flat :disabled="disabledButtons.redo"><v-icon>redo</v-icon></v-btn>
+        </v-btn-toggle>
 
-        <v-btn id="redo" flat>
-          <v-icon>redo</v-icon>
-        </v-btn>
+        <v-btn-toggle ref="formatting" :class="{'btn-toggle--selected': formattingIsActive}">
+          <v-btn ref="buttonStrong" flat :disabled="disabledButtons.strong" @input="onButtonChange('formatting')"><v-icon>format_bold</v-icon></v-btn>
+          <v-btn ref="buttonEm" flat :disabled="disabledButtons.em" @input="onButtonChange('formatting')"><v-icon>format_italic</v-icon></v-btn>
+          <v-btn ref="buttonStrikethrough" flat :disabled="disabledButtons.strikethrough" @input="onButtonChange('formatting')"><v-icon>strikethrough_s</v-icon></v-btn>
+        </v-btn-toggle>
 
-        <div class="toolbar-gap" />
+        <v-btn-toggle ref="link" :class="{'btn-toggle--selected': linkIsActive}">
+          <v-btn ref="buttonLink" flat :disabled="disabledButtons.link" @input="onButtonChange('link')"><v-icon>insert_link</v-icon></v-btn>
+        </v-btn-toggle>
 
-        <v-btn id="bold" flat>
-          <v-icon>format_bold</v-icon>
-        </v-btn>
+        <v-btn-toggle ref="heading" :class="{'btn-toggle--selected': headingIsActive}">
+          <v-btn ref="buttonH1" flat :disabled="disabledButtons.h1" @input="onButtonChange('heading')">h1</v-btn>
+          <v-btn ref="buttonH2" flat :disabled="disabledButtons.h2" @input="onButtonChange('heading')">h2</v-btn>
+          <v-btn ref="buttonH3" flat :disabled="disabledButtons.h3" @input="onButtonChange('heading')">h3</v-btn>
+        </v-btn-toggle>
 
-        <v-btn id="italic" flat>
-          <v-icon>format_italic</v-icon>
-        </v-btn>
-
-        <v-btn id="strikethrough" flat>
-          <v-icon>strikethrough_s</v-icon>
-        </v-btn>
-
-        <div class="toolbar-gap" />
-
-        <v-btn id="h1" flat>
-          h1
-        </v-btn>
-
-        <v-btn id="h2" flat>
-          h2
-        </v-btn>
-
-        <v-btn id="h3" flat>
-          h3
-        </v-btn>
-
-        <div class="toolbar-gap" />
-
-        <v-btn id="link" flat @click.stop="openLinkDialog">
-          <v-icon>insert_link</v-icon>
-        </v-btn>
-
-        <v-btn id="blockquote" flat>
-          <v-icon>format_quote</v-icon>
-        </v-btn>
-
-        <div class="toolbar-gap" />
-
-        <v-btn id="bullet" flat>
-          <v-icon>format_list_bulleted</v-icon>
-        </v-btn>
-
-        <v-btn id="order" flat>
-          <v-icon>format_list_numbered</v-icon>
-        </v-btn>
+        <v-btn-toggle ref="block" :class="{'btn-toggle--selected': blockIsActive}">
+          <v-btn ref="buttonQuote" flat :disabled="disabledButtons.quote" @input="onButtonChange('block')"><v-icon>format_quote</v-icon></v-btn>
+          <v-btn ref="buttonBulletedList" flat :disabled="disabledButtons.bulletedList" @input="onButtonChange('block')"><v-icon>format_list_bulleted</v-icon></v-btn>
+          <v-btn ref="buttonNumberedList" flat :disabled="disabledButtons.numberedList" @input="onButtonChange('block')"><v-icon>format_list_numbered</v-icon></v-btn>
+        </v-btn-toggle>
       </v-toolbar>
       <v-divider />
     </div>
 
-    <v-card-text id="editor" ref="editor" class="editor" />
+    <v-card-text ref="editor" class="editor" />
 
     <v-menu
       offset-x
@@ -125,9 +93,9 @@
           </v-form>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="secondary" flat @click="cancelLink"><translate>cancel</translate></v-btn>
-          <v-btn color="error" flat @click="removeLink" v-if="Boolean(selectedExistingLinks.length)"><translate>remove</translate></v-btn>
-          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink"><translate>insert</translate></v-btn>
+          <v-btn color="secondary" flat @click="closeLinkDialog"><translate>cancel</translate></v-btn>
+          <v-btn color="error" flat @click="removeLink" v-if="!!selectedExistingLinks.length"><translate>remove</translate></v-btn>
+          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink"><translate v-if="!!selectedExistingLinks.length">update</translate><translate v-else>insert</translate></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -139,7 +107,8 @@
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
-  import {wrapInList, sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
+  import assert from "assert";
+  import {sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
   import {EditorState, TextSelection} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {undo, redo, history} from 'prosemirror-history';
@@ -159,7 +128,7 @@
   import {Content} from '/lib/documents/content';
   import {Cursor} from '/lib/documents/cursor';
 
-  import {menuPlugin, heading, toggleBlockquote, toggleLink} from './utils/menu.js';
+  import {menuPlugin, isMarkActive, hasMark, toggleHeading, isHeadingActive, toggleBlockquote, isBlockquoteActive, toggleList, isListActive} from './utils/menu.js';
   import PlaceholderPlugin from './utils/placeholder.js';
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
@@ -209,7 +178,16 @@
         comment: '',
         selectedExistingLinks: [],
         selectedExistingHighlights: [],
+        toolbarMarks: [],
+        buttonLink: null,
+        toolbarHeadings: null,
+        toolbarNodes: null,
+        disabledButtons: {},
         validLink: false,
+        formattingIsActive: null,
+        linkIsActive: null,
+        headingIsActive: null,
+        blockIsActive: null,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
           return urlRegex.test(value) || this.$gettext("invalid-url");
@@ -221,10 +199,10 @@
       focusedCursor(newCursor, oldCursor) {
         // If we receive a new focused cursor we scroll the editor to its position.
         if (newCursor) {
-          const {tr} = this.state;
+          const {tr} = this.$editorView.state;
           tr.setSelection(TextSelection.create(tr.doc, newCursor.head));
           tr.scrollIntoView();
-          this.dispatch(tr);
+          this.$editorView.dispatch(tr);
         }
       },
     },
@@ -244,25 +222,23 @@
     },
 
     mounted() {
-      const menu = menuPlugin([
-        {command: toggleMark(schema.marks.strong), dom: document.getElementById("bold"), mark: schema.marks.strong},
-        {command: toggleMark(schema.marks.em), dom: document.getElementById("italic"), mark: schema.marks.em},
-        {command: undo, dom: document.getElementById("undo")},
-        {command: redo, dom: document.getElementById("redo")},
-        heading(1, schema),
-        heading(2, schema),
-        heading(3, schema),
-        {command: toggleMark(schema.marks.strikethrough), dom: document.getElementById("strikethrough"), mark: schema.marks.strikethrough},
-        {command: toggleBlockquote(), dom: document.getElementById("blockquote"), node: schema.nodes.blockquote},
-        {
-          command: toggleLink(schema, false),
-          dom: document.getElementById("link"),
-          mark: schema.marks.link,
-          attr: {link: true},
-        },
-        {command: wrapInList(schema.nodes.bullet_list), dom: document.getElementById("bullet"), node: schema.nodes.bullet_list},
-        {command: wrapInList(schema.nodes.ordered_list), dom: document.getElementById("order"), node: schema.nodes.ordered_list},
-      ], this);
+      const menuItems = [
+        // "node" is used to attach a click event handler and set "isActive" if a button is active.
+        // "isActive" is used to check if button is active. "name" is used to know which value in
+        // "disabledButtons" to control.
+        {command: undo, node: this.$refs.buttonUndo, name: 'undo'},
+        {command: redo, node: this.$refs.buttonRedo, name: 'redo'},
+        {command: toggleMark(schema.marks.strong), node: this.$refs.buttonStrong, isActive: isMarkActive(schema.marks.strong), name: 'strong'},
+        {command: toggleMark(schema.marks.em), node: this.$refs.buttonEm, isActive: isMarkActive(schema.marks.em), name: 'em'},
+        {command: toggleMark(schema.marks.strikethrough), node: this.$refs.buttonStrikethrough, isActive: isMarkActive(schema.marks.strikethrough), name: 'strikethrough'},
+        {command: this._toggleLink.bind(this), node: this.$refs.buttonLink, isActive: this._isLinkActive.bind(this), name: 'link'},
+        {command: toggleHeading(1), node: this.$refs.buttonH1, isActive: isHeadingActive(1), name: 'h1'},
+        {command: toggleHeading(2), node: this.$refs.buttonH2, isActive: isHeadingActive(2), name: 'h2'},
+        {command: toggleHeading(3), node: this.$refs.buttonH3, isActive: isHeadingActive(3), name: 'h3'},
+        {command: toggleBlockquote(), node: this.$refs.buttonQuote, isActive: isBlockquoteActive(), name: 'quote'},
+        {command: toggleList(schema.nodes.bullet_list), node: this.$refs.buttonBulletedList, isActive: isListActive(schema.nodes.bullet_list), name: 'bulletedList'},
+        {command: toggleList(schema.nodes.ordered_list), node: this.$refs.buttonNumberedList, isActive: isListActive(schema.nodes.ordered_list), name: 'numberedList'},
+      ];
 
       const state = EditorState.create({
         schema,
@@ -279,7 +255,7 @@
           gapCursor(),
           history(),
           commentPlugin(this),
-          menu,
+          menuPlugin(menuItems, this.disabledButtons),
           addCommentPlugin(this),
           PlaceholderPlugin,
           collab.collab({
@@ -305,12 +281,12 @@
 
       const throttledUpdateUserPosition = _.throttle(updateUserPosition, 500);
 
-      const view = new EditorView({mount: this.$refs.editor}, {
+      this.$editorView = new EditorView({mount: this.$refs.editor}, {
         state,
         dispatchTransaction: (transaction) => {
-          const newState = view.state.apply(transaction);
-          view.updateState(newState);
-          this.state = newState;
+          const newState = this.$editorView.state.apply(transaction);
+          this.$editorView.updateState(newState);
+          this.$editorView.state = newState;
           const sendable = collab.sendableSteps(newState);
           const {clientId} = this;
           if (sendable) {
@@ -344,8 +320,6 @@
           return !!(!this.readOnly && this.$currentUserId);
         },
       });
-      this.state = view.state;
-      this.dispatch = view.dispatch;
 
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
@@ -369,7 +343,7 @@
         Tracker.nonreactive(() => {
           const newContents = Content.documents.find(_.extend(this.subscriptionHandle.scopeQuery(), {
             version: {
-              $gt: collab.getVersion(view.state),
+              $gt: collab.getVersion(this.$editorView.state),
             },
           }), {
             sort: {
@@ -378,7 +352,7 @@
           }).fetch();
 
           if (newContents.length) {
-            view.dispatch(collab.receiveTransaction(view.state, _.pluck(newContents, 'step'), _.pluck(newContents, 'clientId')));
+            this.$editorView.dispatch(collab.receiveTransaction(this.$editorView.state, _.pluck(newContents, 'step'), _.pluck(newContents, 'clientId')));
           }
         });
       });
@@ -398,42 +372,175 @@
           };
         });
 
-        const {tr} = view.state;
+        const {tr} = this.$editorView.state;
         positions = positions || [];
         tr.setMeta(cursorsPlugin, positions);
-        view.dispatch(tr);
+        this.$editorView.dispatch(tr);
       });
     },
 
     beforeDestroy() {
+      this.$editorView.destroy();
       Cursor.remove({contentKey: this.contentKey, clientId: this.clientId});
     },
 
     methods: {
-      onScroll(e) {
-        // emit scroll event to notify parent component
+      onButtonChange(reference) {
+        this[`${reference}IsActive`] = _.some(this.$refs[reference].buttons, (button) => {
+          return button.isActive;
+        });
+      },
+
+      onScroll(event) {
+        // Emit scroll event to notify parent component.
         this.$emit("scroll");
       },
 
       insertLink() {
         let {link} = this;
-        if (this.selectedExistingLinks) {
-          // ProseMirror requires for the previous mark to be removed
-          // before adding a new mark
-          this.clearLink();
-          this.selectedExistingLinks = [];
+
+        assert(link !== '');
+        assert(this.linkValidationRule(link), link);
+
+        // Then we clear any link in the selection.
+        this._clearLink();
+
+        // TODO: Rethink if we want to be user friendly here or in UI and autoprefix there.
+        link = link.match(/^[a-zA-Z]+:\/\//) ? link : `http://${link}`;
+        toggleMark(this.$editorView.state.schema.marks.link, {href: link})(this.$editorView.state, this.$editorView.dispatch);
+
+        this.closeLinkDialog();
+      },
+
+      removeLink() {
+        this._clearLink();
+        this.closeLinkDialog();
+      },
+
+      _expandLinkSelection() {
+        const {from, to} = this.$editorView.state.selection;
+
+        if (to > from) {
+          // Nothing to do. A non-empty selection.
+          return;
         }
-        if (link !== '' && this.linkValidationRule(link) === true) {
-          link = link.match(/^[a-zA-Z]+:\/\//) ? link : `http://${link}`;
-          toggleLink(schema, true, link)(this.state, this.dispatch);
-          this.linkDialog = false;
-          this.link = '';
+
+        const $pos = this.$editorView.state.doc.resolve(from);
+
+        const start = $pos.parent.childAfter($pos.parentOffset);
+        if (!start.node) {
+          return;
         }
+
+        const link = start.node.marks.find((mark) => {
+          return mark.type === this.$editorView.state.schema.marks.link;
+        });
+        if (!link) {
+          return;
+        }
+
+        let startIndex = $pos.index();
+        let startPos = $pos.start() + start.offset;
+        while (startIndex > 0 && link.isInSet($pos.parent.child(startIndex - 1).marks)) {
+          startIndex -= 1;
+          startPos -= $pos.parent.child(startIndex).nodeSize;
+        }
+
+        let endIndex = $pos.indexAfter();
+        let endPos = startPos + start.node.nodeSize;
+        while (endIndex < $pos.parent.childCount && link.isInSet($pos.parent.child(endIndex).marks)) {
+          endPos += $pos.parent.child(endIndex).nodeSize;
+          endIndex += 1;
+        }
+
+        const {tr} = this.$editorView.state;
+        tr.setSelection(TextSelection.create(tr.doc, startPos, endPos));
+        this.$editorView.dispatch(tr);
+      },
+
+      _clearLink() {
+        if (isMarkActive(this.$editorView.state.schema.marks.link)(this.$editorView.state)) {
+          toggleMark(this.$editorView.state.schema.marks.link)(this.$editorView.state, this.$editorView.dispatch);
+        }
+      },
+
+      _getAllHrefs(state) {
+        const {from, to} = state.selection;
+        const hrefs = new Set();
+
+        function processNode(node) {
+          if (node === null) {
+            // Not necessary, but to match the other return.
+            return true;
+          }
+
+          const link = node.marks.find((mark) => {
+            return mark.type === state.schema.marks.link;
+          });
+          if (link && link.attrs.href) {
+            hrefs.add(link.attrs.href);
+          }
+
+          // For "nodesBetween" to continue traversing.
+          return true;
+        }
+
+        if (to > from) {
+          state.doc.nodesBetween(from, to, processNode);
+        }
+        else {
+          processNode(state.doc.nodeAt(from));
+        }
+
+        return Array.from(hrefs);
+      },
+
+      _toggleLink(state, dispatch, editorView) {
+        if (state.selection.empty && !hasMark(state, state.schema.marks.link)) {
+          return false;
+        }
+        if (dispatch) {
+          this._expandLinkSelection();
+          const selectedExistingLinks = this._getAllHrefs(this.$editorView.state);
+          this.openLinkDialog(selectedExistingLinks);
+          return true;
+        }
+        else {
+          return toggleMark(state.schema.marks.link)(state);
+        }
+      },
+
+      _isLinkActive(state) {
+        return !!hasMark(state, state.schema.marks.link);
+      },
+
+      openLinkDialog(selectedExistingLinks) {
+        // TODO: Support handling the case where the are multiple different links selected.
+        //       Then UI could allow them to pick one of those values, set a new one, or remove all.
+        this.selectedExistingLinks = selectedExistingLinks || [];
+        this.link = selectedExistingLinks[0] || '';
+
+        // Open the dialog.
+        this.linkDialog = true;
+      },
+
+      closeLinkDialog() {
+        // Close the dialog.
+        this.linkDialog = false;
+
+        this.link = '';
+        this.selectedExistingLinks = [];
+
+        this.$editorView.focus();
+      },
+
+      openCommentDialog() {
+        this.commentDialog = true;
       },
 
       insertComment() {
         const {comment} = this;
-        const {selection} = this.state;
+        const {selection} = this.$editorView.state;
         if (selection.empty) {
           return;
         }
@@ -467,59 +574,15 @@
             }
 
             const currentKey = marks[0].attrs["highlight-keys"];
-            removeHighlight(schema, this.state, start, end, this.dispatch);
-            addHighlight(`${currentKey},${key}`, schema, this.state, start, end, this.dispatch);
+            removeHighlight(schema, this.$editorView.state, start, end, this.$editorView.dispatch);
+            addHighlight(`${currentKey},${key}`, schema, this.$editorView.state, start, end, this.$editorView.dispatch);
           });
         }
         newChunks.filter((chunk) => {
           return chunk.empty; // only add a new highlight mark to segments with no previous highlight marks
         }).forEach((chunk) => {
-          addHighlight(key, schema, this.state, chunk.from, chunk.to, this.dispatch);
+          addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
         });
-      },
-
-      removeLink() {
-        this.clearLink();
-        this.linkDialog = false;
-        this.link = '';
-        // prevent bug where the whole paragraph is selected after removing
-        // links from a certain selected area of a paragraph
-        const {tr} = this.state;
-        tr.setSelection(TextSelection.create(this.state.doc, 0));
-        this.dispatch(tr);
-        window.getSelection().empty();
-      },
-
-      clearLink() {
-        const {tr} = this.state;
-        const {from: currentFrom, to: currentTo} = this.state.selection;
-        this.selectedExistingLinks.forEach(({position}) => {
-          const {from: fromPos, to: toPos} = position;
-          // only remove full link if the user did not make a selection
-          // and just left the cursor over a single character of the link
-          // otherwise, just remove selected portion
-          if (this.state.selection.$cursor) {
-            tr.removeMark(fromPos, toPos);
-          }
-          else {
-            tr.removeMark(currentFrom, currentTo);
-          }
-        });
-        let selection = TextSelection.create(this.state.doc, currentFrom, currentTo);
-        if (
-          this.state.selection.$cursor &&
-          this.selectedExistingLinks.length > 0) {
-          const {position} = this.selectedExistingLinks[0];
-          const {from: fromPos, to: toPos} = position;
-          selection = TextSelection.create(this.state.doc, fromPos, toPos);
-        }
-        tr.setSelection(selection);
-        this.dispatch(tr);
-      },
-
-      cancelLink() {
-        this.linkDialog = false;
-        this.link = '';
       },
 
       cancelComment() {
@@ -527,28 +590,15 @@
         this.comment = '';
       },
 
-      openLinkDialog() {
-        if (this.selectedExistingLinks.length &&
-        this.selectedExistingLinks.length === 1) {
-          // preload link value if a single existing link is selected
-          this.link = this.selectedExistingLinks[0].href;
-        }
-        this.linkDialog = true;
-      },
-
-      openCommentDialog() {
-        this.commentDialog = true;
-      },
-
       filterComments(keys) {
-        if (!this.state) {
+        if (!this.$editorView.state) {
           return;
         }
-        // Set final version for any orphan Comment that could stay in db.
+        // Set final version for any orphan comment that could stay in database.
         Comment.filterOrphan({
           documentId: this.documentId,
           highlightKeys: keys,
-          version: collab.getVersion(this.state),
+          version: collab.getVersion(this.$editorView.state),
         });
       },
     },
@@ -593,16 +643,21 @@
     top: 0;
     z-index: 10;
 
-    .btn--flat {
-      height: 36px;
-      width: 36px;
-      justify-content: center;
-      min-width: 0;
-      opacity: 0.4;
+    .btn-toggle {
+      margin: 0 4px;
     }
 
-    .btn--flat.btn--active {
-      opacity: 1;
+    .toolbar__content {
+      overflow: hidden;
+      transition: none;
+    }
+
+    .toolbar__content > *:not(.btn):not(.menu):first-child:not(:only-child) {
+      margin-left: 8px;
+    }
+
+    .toolbar__content > *:not(.btn):not(.menu):last-child:not(:only-child) {
+      margin-right: 8px;
     }
   }
 

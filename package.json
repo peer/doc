@@ -96,6 +96,13 @@
         "error",
         "never"
       ],
+      "object-curly-newline": [
+        "error",
+        {
+          "multiline": true,
+          "consistent": true
+        }
+      ],
       "max-len": [
         "error",
         {
