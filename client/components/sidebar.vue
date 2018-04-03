@@ -5,13 +5,6 @@
       <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
       <v-btn v-if="!documentPublished && $currentUserId" color="success" slot="activator" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
     </v-layout>
-    <v-layout row wrap justify-start align-content-start>
-      <v-flex class="sidebar__user" v-for="cursor of cursors" :key="cursor._id">
-        <v-btn flat icon :style="{borderColor: cursor.color}" @click="onAvatarClicked(cursor)">
-          <v-avatar size="36px"><img :src="cursor.author.avatarUrl()" :alt="cursor.author.username" :title="cursor.author.username"></v-avatar>
-        </v-btn>
-      </v-flex>
-    </v-layout>
     <v-layout row class="mt-3">
       <v-flex>
         <v-tabs grow light show-arrows color="grey lighten-4" id="tab-sidebar">
@@ -35,10 +28,7 @@
 </template>
 
 <script>
-  import {_} from 'meteor/underscore';
-
   import {Comment} from '/lib/documents/comment';
-  import {Cursor} from '/lib/documents/cursor';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
@@ -85,8 +75,6 @@
     data() {
       return {
         commentsHandle: null,
-        cursorsHandle: null,
-        cursors: [],
         documentComments: [],
       };
     },
@@ -95,21 +83,9 @@
       this.$autorun((computation) => {
         this.commentsHandle = this.$subscribe('Comment.list', {documentId: this.documentId});
       });
-
-      this.$autorun((computation) => {
-        this.cursorsHandle = this.$subscribe('Cursor.list', {contentKey: this.contentKey});
-      });
     },
 
     mounted() {
-      this.$autorun((computation) => {
-        this.cursors = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
-          clientId: {
-            $ne: this.clientId,
-          },
-        })).fetch();
-      });
-
       this.$autorun((computation) => {
         const comments = Comment.documents.find(this.commentsHandle.scopeQuery()).fetch();
         if (comments.length) {
@@ -125,10 +101,6 @@
     },
 
     methods: {
-      onAvatarClicked(cursor) {
-        this.$emit('click', cursor);
-      },
-
       handleWindowResize(e) {
         this.layoutComments();
       },
@@ -240,24 +212,6 @@
 </script>
 
 <style lang="scss">
-  .sidebar__user {
-    flex: 0 0 auto;
-
-    button {
-      margin: 2px;
-      border-radius: 50%;
-      height: 42px;
-      width: 42px;
-      border-width: 2px;
-      border-style: solid;
-      padding: 1px;
-
-      .btn__content {
-        height: 100%;
-      }
-    }
-  }
-
   .sidebar__users {
     padding-top: 0;
     padding-right: 0;

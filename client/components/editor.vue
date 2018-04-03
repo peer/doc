@@ -28,6 +28,14 @@
           <v-btn ref="buttonBulletedList" flat :disabled="disabledButtons.bulletedList" @input="onButtonChange('block')"><v-icon>format_list_bulleted</v-icon></v-btn>
           <v-btn ref="buttonNumberedList" flat :disabled="disabledButtons.numberedList" @input="onButtonChange('block')"><v-icon>format_list_numbered</v-icon></v-btn>
         </v-btn-toggle>
+
+        <v-spacer />
+
+        <div class="editor__users">
+          <v-btn flat icon v-for="cursor of cursors" :key="cursor._id" :style="{borderColor: cursor.color}" @click="onAvatarClicked(cursor)">
+            <v-avatar size="36px"><img :src="cursor.author.avatarUrl()" :alt="cursor.author.username" :title="cursor.author.username"></v-avatar>
+          </v-btn>
+        </div>
       </v-toolbar>
       <v-divider />
     </div>
@@ -153,11 +161,6 @@
         type: String,
         required: true,
       },
-      focusedCursor: {
-        type: Object,
-        required: false,
-        default: null,
-      },
     },
 
     data() {
@@ -188,23 +191,12 @@
         linkIsActive: null,
         headingIsActive: null,
         blockIsActive: null,
+        cursors: [],
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
           return urlRegex.test(value) || this.$gettext("invalid-url");
         },
       };
-    },
-
-    watch: {
-      focusedCursor(newCursor, oldCursor) {
-        // If we receive a new focused cursor we scroll the editor to its position.
-        if (newCursor) {
-          const {tr} = this.$editorView.state;
-          tr.setSelection(TextSelection.create(tr.doc, newCursor.head));
-          tr.scrollIntoView();
-          this.$editorView.dispatch(tr);
-        }
-      },
     },
 
     created() {
@@ -377,6 +369,14 @@
         tr.setMeta(cursorsPlugin, positions);
         this.$editorView.dispatch(tr);
       });
+
+      this.$autorun((computation) => {
+        this.cursors = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
+          clientId: {
+            $ne: this.clientId,
+          },
+        })).fetch();
+      });
     },
 
     beforeDestroy() {
@@ -394,6 +394,13 @@
       onScroll(event) {
         // Emit scroll event to notify parent component.
         this.$emit("scroll");
+      },
+
+      onAvatarClicked(cursor) {
+        const {tr} = this.$editorView.state;
+        tr.setSelection(TextSelection.create(tr.doc, cursor.head));
+        tr.scrollIntoView();
+        this.$editorView.dispatch(tr);
       },
 
       insertLink() {
@@ -762,5 +769,25 @@
 
   .editor p.empty-node:first-of-type::before {
     content: 'Edit content';
+  }
+
+  .editor__users {
+    display: flex;
+    margin-left: 4px;
+
+    button {
+      margin: 2px;
+      border-radius: 50%;
+      height: 42px;
+      width: 42px;
+      border-width: 2px;
+      border-style: solid;
+      padding: 1px;
+      flex: 0 0 auto;
+
+      .btn__content {
+        height: 100%;
+      }
+    }
   }
 </style>
