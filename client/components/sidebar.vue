@@ -1,6 +1,5 @@
 <template>
   <v-container fluid class="sidebar__users">
-
     <v-card>
       <v-toolbar dense card>
         <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label"><translate>document-draft</translate></v-chip>
@@ -10,7 +9,7 @@
     </v-card>
     <v-layout row wrap ref="commentsList">
       <v-flex xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
-        <v-card :class="{ 'comment' : comment.isReply, 'reply' : !comment.isReply}" ref="comments">
+        <v-card :class="{ 'sidebar__comment' : comment.isReply, 'sidebar__reply' : !comment.isReply}" ref="comments">
           <v-layout row @click="showReplyBox(comment)">
             <v-flex xs2 class="text-xs-center">
               <v-avatar size="36px"><img :src="comment.author.avatarUrl()" :alt="comment.author.username" :title="comment.author.username"></v-avatar>
@@ -21,7 +20,7 @@
                 <transition name="fade">
                   <div v-show="comment.showDetails">
                     <v-divider/>
-                    <v-chip>{{comment.author.username}}</v-chip> {{comment.createdAt | formatDate}}
+                    <v-chip>{{comment.author.username}}</v-chip> <span class="timestamp" :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)" v-translate="{at: $fromNow(comment.createdAt)}">comment-created-at</span>
                   </div>
                 </transition>
               </div>
@@ -93,16 +92,6 @@
 
   // @vue/component
   const component = {
-
-    filters: {
-      formatDate(value) {
-        if (value) {
-          return moment(String(value)).format('llll');
-        }
-        return "";
-      },
-    },
-
     props: {
       documentId: {
         type: String,
@@ -230,7 +219,7 @@
             return -1;
           }
           else if (a.createdAt > b.createdAt) {
-              return 1;
+            return 1;
           }
           else if (a.createdAt < b.createdAt) {
             return -1;
@@ -327,19 +316,19 @@
     font-weight: bold;
   }
 
-  .reply{
+  .sidebar__reply {
     padding-top: 5px;
     padding-bottom: 5px;
     cursor:pointer;
   }
 
-  .comment{
+  .sidebar__comment {
     padding-top: 10px;
     padding-bottom: 10px;
     cursor:pointer;
   }
 
-  .comment__body{
+  .comment__body {
     min-height:36px;
     padding-top:5px
   }

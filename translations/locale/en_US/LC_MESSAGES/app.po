@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-03 02:51-0700\n"
+"POT-Creation-Date: 2018-04-04 17:18-0400\n"
 "PO-Revision-Date: 2018-03-05 12:12-0300\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -29,6 +29,10 @@ msgstr "Cancel"
 #: client/components/app-layout.vue:30
 msgid "close"
 msgstr "Close"
+
+#: client/components/sidebar.vue:22
+msgid "comment-created-at"
+msgstr "Created %{at}"
 
 #: client/components/documents.vue:7
 msgid "document-create"
@@ -106,14 +110,6 @@ msgstr "Untitled"
 msgid "update"
 msgstr "Update"
 
-#: client/components/editor.vue:179
-msgid "link-hint"
-msgstr "Enter a link"
-
-#: client/components/editor.vue:197
-msgid "invalid-url"
-msgstr "Invalid URL."
-
 #: client/components/user-signin.vue:33
 msgid "username-is-required"
 msgstr "Username is required"
@@ -134,13 +130,21 @@ msgstr "Username"
 msgid "signed-in-success"
 msgstr "You have been signed in."
 
-#: client/components/documents.vue:87
-msgid "document-created-error"
-msgstr "Error creating a new document: %{error}"
+#: client/components/editor.vue:179
+msgid "link-hint"
+msgstr "Enter a link"
 
-#: client/components/documents.vue:91
-msgid "document-created-success"
-msgstr "New document has been created."
+#: client/components/editor.vue:197
+msgid "invalid-url"
+msgstr "Invalid URL."
+
+#: client/components/app-layout.vue:64
+msgid "signed-out-error"
+msgstr "Error signing out: %{error}"
+
+#: client/components/app-layout.vue:68
+msgid "signed-out-success"
+msgstr "You have been signed out."
 
 #: client/components/publish-confirmation.vue:66
 msgid "publish-error"
@@ -150,10 +154,10 @@ msgstr "An error has occurred when trying to publish the document."
 msgid "publish-success"
 msgstr "The document was successfully published."
 
-#: client/components/app-layout.vue:64
-msgid "signed-out-error"
-msgstr "Error signing out: %{error}"
+#: client/components/documents.vue:87
+msgid "document-created-error"
+msgstr "Error creating a new document: %{error}"
 
-#: client/components/app-layout.vue:68
-msgid "signed-out-success"
-msgstr "You have been signed out."
+#: client/components/documents.vue:91
+msgid "document-created-success"
+msgstr "New document has been created."
