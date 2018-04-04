@@ -182,10 +182,6 @@
         comment.showAddCommentForm = false; // eslint-disable-line no-param-reassign
       },
 
-      onAvatarClicked(cursor) {
-        this.$emit('click', cursor);
-      },
-
       handleWindowResize(e) {
         this.layoutComments();
       },
@@ -231,6 +227,12 @@
             return 1;
           }
           else if (a.highlightTop < b.highlightTop) {
+            return -1;
+          }
+          else if (a.createdAt > b.createdAt) {
+              return 1;
+          }
+          else if (a.createdAt < b.createdAt) {
             return -1;
           }
           else {
@@ -281,7 +283,7 @@
           let {marginTop} = c;
           if (i === 0) {
             const el2 = this.$refs.commentsList;
-            const el2Y = getOffset(el2).top + el2.offsetHeight;
+            const el2Y = getOffset(el2).top;
             const elY = highlightTops[0];
             marginTop = elY - el2Y > 0 ? elY - el2Y : 0;
             // const {top} = getOffset(this.$refs.comments[i].$el);
