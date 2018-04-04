@@ -65,7 +65,6 @@
 <script>
 
   import {_} from 'meteor/underscore';
-  import moment from 'moment';
 
   import {Comment} from '/lib/documents/comment';
 
