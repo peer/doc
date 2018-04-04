@@ -24,33 +24,37 @@
                     <v-chip>{{comment.author.username}}</v-chip> {{comment.createdAt | formatDate}}
                   </div>
                 </transition>
-                <transition>
-                  <div v-show="comment.showAddCommentForm">
-                    <v-card-text style="padding-bottom:0px">
-                      <v-form @submit.prevent="onReply">
-                        <v-text-field
-                          style="padding-top:0px"
-                          autofocus
-                          multi-line
-                          rows="2"
-                          v-model="comment.reply"
-                          placeholder="Comment..."
-                          required
-                        />
-                      </v-form>
-                    </v-card-text>
-                    <v-card-actions style="padding-top:0px">
-                      <v-btn color="secondary" flat @click.stop="hideReplyBox(comment)">Cancel</v-btn>
-                      <v-btn color="primary" flat @click.stop="onReply(comment)">Insert</v-btn>
-                    </v-card-actions>
-                  </div>
-                </transition>
               </div>
             </v-flex>
             <v-flex xs1>
               <v-btn flat icon small @click.stop="comment.showDetails=!comment.showDetails">
                 <v-icon>more_vert</v-icon>
               </v-btn>
+            </v-flex>
+          </v-layout>
+          <v-layout row @click="showReplyBox(comment)">
+            <v-flex xs10 offset-xs1>
+              <transition>
+                <div v-show="comment.showAddCommentForm">
+                  <v-form @submit.prevent="onReply">
+                    <v-text-field
+                      autofocus
+                      multi-line
+                      rows="1"
+                      v-model="comment.reply"
+                      auto-grow
+                      placeholder="Comment..."
+                      required
+                      hide-details
+                      style="padding-top: 0px; padding-bottom: 5px;"
+                    />
+                  </v-form>
+                  <v-card-actions v-show="comment.reply != undefined && comment.reply.length > 0" style="padding-top:5px; padding-bottom:0px">
+                    <v-btn small color="secondary" flat @click.stop="hideReplyBox(comment)">Cancel</v-btn>
+                    <v-btn small color="primary" flat @click.stop="onReply(comment)">Insert</v-btn>
+                  </v-card-actions>
+                </div>
+              </transition>
             </v-flex>
           </v-layout>
         </v-card>
@@ -324,7 +328,6 @@
   .reply{
     padding-top: 5px;
     padding-bottom: 5px;
-    padding-left: 20px;
     cursor:pointer;
   }
 
