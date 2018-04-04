@@ -29,8 +29,18 @@ if (!Meteor.settings.public.passwordlessAuthDisabled) {
           return {userId: user._id};
         }
 
+        let hash = 0;
+        for (let i = 0; i < username.length; i += 1) {
+          hash += username.charCodeAt(i);
+        }
+        const type = hash % 2 === 0 ? 'men' : 'women';
+        hash >>= 1; // eslint-disable-line no-bitwise
+
         // Otherwise we create a new user.
-        const userId = Accounts.createUser({username});
+        const userId = Accounts.createUser({
+          username,
+          avatar: `https://randomuser.me/api/portraits/${type}/${hash % 100}.jpg`,
+        });
 
         // Safety belt. createUser is supposed to throw on error.
         if (!userId) {

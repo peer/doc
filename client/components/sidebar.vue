@@ -1,84 +1,70 @@
 <template>
   <v-container fluid class="sidebar__users">
-    <v-layout row>
-      <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
-      <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
-      <v-btn v-if="!documentPublished && $currentUserId" color="success" slot="activator" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
-    </v-layout>
-    <v-layout row wrap justify-start align-content-start>
-      <v-flex class="sidebar__user" v-for="cursor of cursors" :key="cursor._id">
-        <v-btn flat icon :style="{borderColor: cursor.color}" @click="onAvatarClicked(cursor)">
-          <v-avatar size="36px"><img :src="cursor.author.avatarUrl()" :alt="cursor.author.username" :title="cursor.author.username"></v-avatar>
-        </v-btn>
-      </v-flex>
-    </v-layout>
-    <v-layout row class="mt-3">
-      <v-flex>
-        <v-tabs grow light show-arrows color="grey lighten-4" id="tab-sidebar">
-          <v-tabs-slider color="primary" />
-          <v-tab ripple href="#comments" class="primary--text"><translate>comments</translate></v-tab>
-          <v-tab ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span><translate>chat</translate></v-badge></v-tab>
-          <v-tab ripple href="#history" class="primary--text"><translate>history</translate></v-tab>
-          <v-tabs-items>
-            <v-tab-item id="comments">
-              <v-card :class="{ 'comment' : comment.isReply, 'reply' : !comment.isReply}" v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="commentsRef">
-                <v-layout row @click="showReplyBox(comment)">
-                  <v-flex xs2 class="text-xs-center">
-                    <v-avatar size="36px"><img :src="comment.author.avatarUrl()" :alt="comment.author.username" :title="comment.author.username"></v-avatar>
-                  </v-flex>
-                  <v-flex xs8>
-                    <div>
-                      <div class="comment__body">{{comment.body}}</div>
-                      <transition name="fade">
-                        <div v-show="comment.showDetails">
-                          <v-divider/>
-                          <v-chip>{{comment.author.username}}</v-chip> {{comment.createdAt | formatDate}}
-                        </div>
-                      </transition>
-                      <transition>
-                        <div v-show="comment.showAddCommentForm">
-                          <v-card-text style="padding-bottom:0px">
-                            <v-form @submit.prevent="onReply">
-                              <v-text-field
-                                style="padding-top:0px"
-                                autofocus
-                                multi-line
-                                rows="2"
-                                v-model="comment.reply"
-                                placeholder="Comment..."
-                                required
-                              />
-                            </v-form>
-                          </v-card-text>
-                          <v-card-actions style="padding-top:0px">
-                            <v-btn color="secondary" flat @click.stop="hideReplyBox(comment)">Cancel</v-btn>
-                            <v-btn color="primary" flat @click.stop="onReply(comment)">Insert</v-btn>
-                          </v-card-actions>
-                        </div>
-                      </transition>
-                    </div>
-                  </v-flex>
-                  <v-flex xs1>
-                    <v-btn flat icon small @click.stop="comment.showDetails=!comment.showDetails">
-                      <v-icon>more_vert</v-icon>
-                    </v-btn>
-                  </v-flex>
-                </v-layout>
-              </v-card>
-            </v-tab-item>
-          </v-tabs-items>
-        </v-tabs>
+
+    <v-card>
+      <v-toolbar dense card>
+        <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label"><translate>document-draft</translate></v-chip>
+        <v-chip v-else label color="green" text-color="white" class="doc_status__label"><translate>document-published</translate></v-chip>
+        <v-btn v-if="!documentPublished && $currentUserId" color="success" :to="{name: 'publishDocument', params: {documentId}}"><translate>document-publish</translate></v-btn>
+      </v-toolbar>
+    </v-card>
+    <v-layout row wrap ref="commentsList">
+      <v-flex xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
+        <v-card :class="{ 'comment' : comment.isReply, 'reply' : !comment.isReply}" ref="comments">
+          <v-layout row @click="showReplyBox(comment)">
+            <v-flex xs2 class="text-xs-center">
+              <v-avatar size="36px"><img :src="comment.author.avatarUrl()" :alt="comment.author.username" :title="comment.author.username"></v-avatar>
+            </v-flex>
+            <v-flex xs8>
+              <div>
+                <div class="comment__body">{{comment.body}}</div>
+                <transition name="fade">
+                  <div v-show="comment.showDetails">
+                    <v-divider/>
+                    <v-chip>{{comment.author.username}}</v-chip> {{comment.createdAt | formatDate}}
+                  </div>
+                </transition>
+                <transition>
+                  <div v-show="comment.showAddCommentForm">
+                    <v-card-text style="padding-bottom:0px">
+                      <v-form @submit.prevent="onReply">
+                        <v-text-field
+                          style="padding-top:0px"
+                          autofocus
+                          multi-line
+                          rows="2"
+                          v-model="comment.reply"
+                          placeholder="Comment..."
+                          required
+                        />
+                      </v-form>
+                    </v-card-text>
+                    <v-card-actions style="padding-top:0px">
+                      <v-btn color="secondary" flat @click.stop="hideReplyBox(comment)">Cancel</v-btn>
+                      <v-btn color="primary" flat @click.stop="onReply(comment)">Insert</v-btn>
+                    </v-card-actions>
+                  </div>
+                </transition>
+              </div>
+            </v-flex>
+            <v-flex xs1>
+              <v-btn flat icon small @click.stop="comment.showDetails=!comment.showDetails">
+                <v-icon>more_vert</v-icon>
+              </v-btn>
+            </v-flex>
+          </v-layout>
+        </v-card>
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script>
+
   import {_} from 'meteor/underscore';
   import moment from 'moment';
 
   import {Comment} from '/lib/documents/comment';
-  import {Cursor} from '/lib/documents/cursor';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
@@ -135,8 +121,6 @@
     data() {
       return {
         commentsHandle: null,
-        cursorsHandle: null,
-        cursors: [],
         documentComments: [],
       };
     },
@@ -145,21 +129,9 @@
       this.$autorun((computation) => {
         this.commentsHandle = this.$subscribe('Comment.list', {documentId: this.documentId});
       });
-
-      this.$autorun((computation) => {
-        this.cursorsHandle = this.$subscribe('Cursor.list', {contentKey: this.contentKey});
-      });
     },
 
     mounted() {
-      this.$autorun((computation) => {
-        this.cursors = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
-          clientId: {
-            $ne: this.clientId,
-          },
-        })).fetch();
-      });
-
       this.$autorun((computation) => {
         const comments = Comment.documents.find(this.commentsHandle.scopeQuery()).fetch();
         if (comments.length) {
@@ -280,7 +252,7 @@
       },
 
       layoutComments() {
-        if (!this.$refs.commentsRef) {
+        if (!this.$refs.comments) {
           return;
         }
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
@@ -294,7 +266,7 @@
           return getOffset(el).top;
         });
 
-        const heights = this.$refs.commentsRef.map((ref) => {
+        const heights = this.$refs.comments.map((ref) => {
           return ref.$el.offsetHeight;
         });
 
@@ -304,11 +276,11 @@
           let bottom = 0;
           let {marginTop} = c;
           if (i === 0) {
-            const el2 = document.querySelector("#tab-sidebar .tabs__container");
+            const el2 = this.$refs.commentsList;
             const el2Y = getOffset(el2).top + el2.offsetHeight;
             const elY = highlightTops[0];
             marginTop = elY - el2Y > 0 ? elY - el2Y : 0;
-            // const {top} = getOffset(this.$refs.commentsRef[i].$el);
+            // const {top} = getOffset(this.$refs.comments[i].$el);
             bottom = el2Y + marginTop + height;
           }
           else {
@@ -326,24 +298,6 @@
 </script>
 
 <style lang="scss">
-  .sidebar__user {
-    flex: 0 0 auto;
-
-    button {
-      margin: 2px;
-      border-radius: 50%;
-      height: 42px;
-      width: 42px;
-      border-width: 2px;
-      border-style: solid;
-      padding: 1px;
-
-      .btn__content {
-        height: 100%;
-      }
-    }
-  }
-
   .sidebar__users {
     padding-top: 0;
     padding-right: 0;

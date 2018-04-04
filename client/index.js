@@ -15,7 +15,14 @@ import 'vuetify/dist/vuetify.css';
 import VueExtensions from './vue-extensions';
 
 Vue.use(Vuetify);
-Vue.use(GetTextPlugin, {translations});
+Vue.use(GetTextPlugin, {
+  availableLanguages: {
+    en_US: "American English",
+    pt_BR: "Português do Brasil",
+  },
+  defaultLanguage: Meteor.settings.public.defaultLanguage || 'en_US',
+  translations,
+});
 Vue.use(VueExtensions);
 
 Meteor.startup(() => {

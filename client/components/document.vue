@@ -6,8 +6,6 @@
         :document-id="document._id"
         :content-key="document.contentKey"
         :client-id="clientId"
-        :focused-cursor="cursor"
-        @scroll="onEditorScroll"
         @contentChanged="onContentChanged"
         :read-only="document.isPublished()"
       />
@@ -18,7 +16,6 @@
         :content-key="document.contentKey"
         :document-published="document.isPublished()"
         :client-id="clientId"
-        @click="onAvatarClicked"
         ref="sidebar" />
     </v-flex>
   </v-layout>
@@ -43,7 +40,6 @@
     data() {
       return {
         clientId: Random.id(),
-        cursor: null,
       };
     },
 
@@ -62,16 +58,6 @@
     },
 
     methods: {
-      onAvatarClicked(cursor) {
-        this.cursor = cursor;
-      },
-
-      onEditorScroll() {
-        // We just remove the reference to the previously clicked cursor because all we needed
-        // was the `Editor` component to scroll to it.
-        this.cursor = null;
-      },
-
       onContentChanged() {
         this.$refs.sidebar.layoutComments();
       },

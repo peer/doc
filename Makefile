@@ -9,7 +9,7 @@ OUTPUT_DIR = translations
 # Source directories.
 SRC_DIRS = client lib server
 # Available locales for the app.
-LOCALES = en_US
+LOCALES = en_US pt_BR
 
 # Name of the generated .po files for each available locale.
 LOCALE_FILES ?= $(patsubst %,$(OUTPUT_DIR)/locale/%/LC_MESSAGES/app.po,$(LOCALES))
