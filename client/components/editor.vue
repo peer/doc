@@ -192,6 +192,7 @@
         headingIsActive: null,
         blockIsActive: null,
         cursors: [],
+        currentHighlightKey: null,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
           return urlRegex.test(value) || this.$gettext("invalid-url");
@@ -306,6 +307,17 @@
             });
             this.$emit("contentChanged");
           }
+          if (newState.selection.$anchor.marks()) {
+            const highlightkeys = newState.selection.$anchor.marks().find((x) => {
+              return x.attrs["highlight-keys"];
+            });
+            const current = highlightkeys ? highlightkeys.attrs["highlight-keys"].split(",")[0] : undefined;
+            if (this.currentHighlightKey !== current) {
+              this.currentHighlightKey = current;
+              this.$emit("highlightSelected", current);
+            }
+          }
+
           throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
         editable: () => {

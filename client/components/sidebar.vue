@@ -9,7 +9,7 @@
     </v-card>
     <v-layout row wrap ref="commentsList">
       <v-flex @click.stop="comment.showAddCommentForm = !comment.showAddCommentForm" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
-        <v-card hover class="sidebar__comment" ref="comments">
+        <v-card hover :class="['sidebar__comment', {'elevation-10':comment.focus}]" ref="comments">
           <comment :comment="comment"/>
           <v-container style="padding-top:5px; padding-bottom:5px" v-show="comment.hasManyReplies">
             <v-divider/>
@@ -221,6 +221,7 @@
             showAllReplies: c.replies.length <= 1,
             hasManyReplies: c.replies.length > 1,
             isReply: c.replyTo === null,
+            focus: false,
           });
         }).filter((c) => {
           return c;
@@ -302,6 +303,12 @@
           }
           this.documentComments.splice(i, 1, Object.assign({}, c, {bottom, marginTop}));
         }
+      },
+
+      focusComment(highlightKey) {
+        this.documentComments = this.documentComments.map((x) => {
+          return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
+        });
       },
     },
   };
