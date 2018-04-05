@@ -2,7 +2,10 @@ import {Plugin} from "prosemirror-state";
 
 class AddComment {
   constructor(view, vueInstance) {
-    view.dom.parentNode.appendChild(vueInstance.$refs.addCommentButton.$el);
+    const form = vueInstance.$refs.addCommentForm.$el;
+    form.style.opacity = 0;
+    form.style.visibility = 'hidden';
+    view.dom.parentNode.appendChild(form);
     this.update(view, null);
     this.vueInstance = vueInstance;
   }
@@ -49,23 +52,23 @@ class AddComment {
         }),
       });
     });
-    const button = this.vueInstance.$refs.addCommentButton;
-    // Hide the comment button if the selection is empty or the selection
+    const commentForm = this.vueInstance.$refs.addCommentForm;
+    // Hide the comment form if the selection is empty or the selection
     // only contains highlight marks.
     if (state.selection.empty || onlyHighlightMarkInRange) {
-      button.$el.style.opacity = 0;
-      button.$el.style.visibility = 'hidden';
+      commentForm.$el.style.opacity = 0;
+      commentForm.$el.style.visibility = 'hidden';
       return;
     }
 
-    button.$el.style.opacity = 0.75;
-    button.$el.style.visibility = 'visible';
+    commentForm.$el.style.opacity = 1;
+    commentForm.$el.style.visibility = 'visible';
     const {from} = state.selection;
     // These are in screen coordinates
     const start = view.coordsAtPos(from);
-    // The box in which the comment button is positioned, to use as base
-    const box = button.$el.offsetParent.getBoundingClientRect();
-    button.$el.style.bottom = `${(box.bottom - start.bottom)}px`;
+    // The box in which the comment form is positioned, to use as base
+    const box = commentForm.$el.offsetParent.getBoundingClientRect();
+    commentForm.$el.style.bottom = `${(box.bottom - start.bottom)}px`;
   }
 }
 
