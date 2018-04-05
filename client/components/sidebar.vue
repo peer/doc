@@ -8,35 +8,29 @@
       </v-toolbar>
     </v-card>
     <v-layout row wrap ref="commentsList">
-      <v-flex xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
-        <v-card :class="{ 'sidebar__comment' : comment.isReply, 'sidebar__reply' : !comment.isReply}" ref="comments">
-          <v-layout row @click="showReplyBox(comment)">
-            <v-flex xs2 class="text-xs-center">
-              <v-avatar size="36px"><img :src="comment.author.avatarUrl()" :alt="comment.author.username" :title="comment.author.username"></v-avatar>
-            </v-flex>
-            <v-flex xs8>
-              <div>
-                <div class="comment__body">{{comment.body}}</div>
-                <transition name="fade">
-                  <div v-show="comment.showDetails">
-                    <v-divider/>
-                    <v-chip>{{comment.author.username}}</v-chip> <span class="timestamp" :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)" v-translate="{at: $fromNow(comment.createdAt)}">comment-created-at</span>
-                  </div>
-                </transition>
-              </div>
-            </v-flex>
-            <v-flex xs1>
-              <v-btn flat icon small @click.stop="comment.showDetails=!comment.showDetails">
-                <v-icon>more_vert</v-icon>
-              </v-btn>
-            </v-flex>
+      <v-flex @click.stop="comment.showAddCommentForm = !comment.showAddCommentForm" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
+        <v-card hover class="sidebar__comment" ref="comments">
+          <comment :comment="comment"/>
+          <v-container style="padding-top:5px; padding-bottom:5px" v-show="comment.hasManyReplies">
+            <v-divider/>
+            <v-layout row>
+              <v-flex text-xs-center>
+                <v-btn flat small @click.stop="comment.showAllReplies=true" v-show="!comment.showAllReplies">view all replies</v-btn>
+                <v-btn flat small @click.stop="comment.showAllReplies=false" v-show="comment.showAllReplies">show less</v-btn>
+              </v-flex>
+            </v-layout>
+            <v-divider/>
+          </v-container>
+          <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
+            <comment style="padding-top:5px" v-show="comment.showAllReplies || (!comment.showAllReplies && index==comment.replies.length-1)" :comment="reply"/>
           </v-layout>
-          <v-layout row @click="showReplyBox(comment)">
+          <v-layout row>
             <v-flex xs10 offset-xs1>
               <transition>
                 <div v-show="comment.showAddCommentForm">
                   <v-form @submit.prevent="onReply">
                     <v-text-field
+                      @click.stop
                       autofocus
                       multi-line
                       rows="1"
@@ -49,7 +43,7 @@
                     />
                   </v-form>
                   <v-card-actions v-show="comment.reply != undefined && comment.reply.length > 0" style="padding-top:5px; padding-bottom:0px">
-                    <v-btn small color="secondary" flat @click.stop="hideReplyBox(comment)">Cancel</v-btn>
+                    <v-btn small color="secondary" flat @click.stop="comment.showAddCommentForm = false">Cancel</v-btn>
                     <v-btn small color="primary" flat @click.stop="onReply(comment)">Insert</v-btn>
                   </v-card-actions>
                 </div>
@@ -140,32 +134,17 @@
 
     methods: {
 
-      showReplyBox(comment) {
-        const id = comment.isReply ? comment._id : comment.replyTo;
-        let lastReply;
-        const filtered = _.filter(this.documentComments, (x) => {
-          return id === x.replyTo;
-        });
-        if (filtered.length === 0) {
-          lastReply = comment;
-        }
-        else {
-          lastReply = filtered[filtered.length - 1];
-        }
-        lastReply.showAddCommentForm = true;
-      },
-
-      hideReplyBox(comment) {
-        comment.showAddCommentForm = false; // eslint-disable-line no-param-reassign
+      toggleReplies(comment) {
+        comment.showAllReplies = !comment.showAllReplies; // eslint-disable-line no-param-reassign
+        this.layoutComments();
       },
 
       onReply(comment) {
-        const replyTo = comment.isReply ? comment._id : comment.replyTo;
         Comment.create({
           highlightKey: comment.highlightKey,
           body: comment.reply,
           documentId: this.documentId,
-          replyTo,
+          replyTo: comment._id,
         });
         comment.showAddCommentForm = false; // eslint-disable-line no-param-reassign
       },
@@ -180,15 +159,52 @@
        * the comments text.
       */
       showComments(comments) {
-        const currentComments = comments
-        .filter((c) => {
-          return !c.versionTo;
+        let currentComments = comments
+        .filter((comment) => {
+          return !comment.versionTo;
         });
 
         if (!currentComments.length) {
           this.documentComments = currentComments;
           return;
         }
+
+        const replies = currentComments.filter((comment) => {
+          return comment.replyTo !== null;
+        });
+
+        const groupedReplies = _.groupBy(replies, (reply) => {
+          return reply.highlightKey;
+        });
+
+        currentComments = currentComments.filter((comment) => {
+          return comment.replyTo === null;
+        }).map((comment) => {
+          let commentReplies = groupedReplies[comment.highlightKey];
+          if (commentReplies) {
+            commentReplies = commentReplies.sort((a, b) => {
+              if (a.createdAt > b.createdAt) {
+                return 1;
+              }
+              else if (a.createdAt < b.createdAt) {
+                return -1;
+              }
+              else {
+                return 0;
+              }
+            }).map((reply) => {
+              return Object.assign({}, reply, {
+                showDetails: false,
+              });
+            });
+          }
+          else {
+            commentReplies = [];
+          }
+          return Object.assign({}, comment, {
+            replies: commentReplies,
+          });
+        });
 
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
         this.documentComments = currentComments.map((c, i) => {
@@ -202,6 +218,8 @@
             highlightTop: getOffset(el).top,
             showDetails: false,
             showAddCommentForm: false,
+            showAllReplies: c.replies.length <= 1,
+            hasManyReplies: c.replies.length > 1,
             isReply: c.replyTo === null,
           });
         }).filter((c) => {
@@ -279,7 +297,7 @@
           }
           else {
             const previousBottom = this.documentComments[i - 1].bottom;
-            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : 0;
+            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : 5;
             bottom = previousBottom + marginTop + height;
           }
           this.documentComments.splice(i, 1, Object.assign({}, c, {bottom, marginTop}));
@@ -297,39 +315,15 @@
     padding-right: 0;
   }
 
-  .fade-enter {
-    opacity: 0;
-  }
-
-  .fade-enter-active {
-    transition: opacity 0.5s;
-  }
-
-  .fade-leave-active {
-    transition: opacity 0.2s;
-    opacity: 0;
-  }
-
   .doc_status__label {
     text-transform: uppercase;
     font-weight: bold;
-  }
-
-  .sidebar__reply {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    cursor:pointer;
   }
 
   .sidebar__comment {
     padding-top: 10px;
     padding-bottom: 10px;
     cursor:pointer;
-  }
-
-  .comment__body {
-    min-height:36px;
-    padding-top:5px
   }
 
 </style>
