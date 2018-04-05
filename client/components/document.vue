@@ -1,5 +1,5 @@
 <template>
-  <v-layout v-if="document" row>
+  <v-layout v-if="document" row @click="onDocumentClicked">
     <v-flex xs8>
       <!-- TODO: Display editor only if you have permissions. -->
       <editor
@@ -59,6 +59,9 @@
     },
 
     methods: {
+      onDocumentClicked(event) {
+        this.$refs.sidebar.collapseComments();
+      },
       onContentChanged() {
         this.$refs.sidebar.layoutComments();
       },

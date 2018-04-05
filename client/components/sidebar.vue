@@ -11,12 +11,11 @@
       <v-flex @click.stop="comment.showAddCommentForm = !comment.showAddCommentForm" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
         <v-card hover :class="['sidebar__comment', {'elevation-10':comment.focus}]" ref="comments">
           <comment :comment="comment"/>
-          <v-container style="padding-top:5px; padding-bottom:5px" v-show="comment.hasManyReplies">
+          <v-container style="padding-top:5px; padding-bottom:5px" v-show="comment.hasManyReplies && !comment.showAllReplies">
             <v-divider/>
             <v-layout row>
               <v-flex text-xs-center>
-                <v-btn flat small @click.stop="comment.showAllReplies=true" v-show="!comment.showAllReplies">view all replies</v-btn>
-                <v-btn flat small @click.stop="comment.showAllReplies=false" v-show="comment.showAllReplies">show less</v-btn>
+                <v-btn flat small @click.stop="comment.showAllReplies=true">view all replies</v-btn>
               </v-flex>
             </v-layout>
             <v-divider/>
@@ -137,6 +136,14 @@
       toggleReplies(comment) {
         comment.showAllReplies = !comment.showAllReplies; // eslint-disable-line no-param-reassign
         this.layoutComments();
+      },
+
+      collapseComments() {
+        this.documentComments = this.documentComments.map((c) => {
+          return Object.assign({}, c, {
+            showAllReplies: false,
+          });
+        });
       },
 
       onReply(comment) {
