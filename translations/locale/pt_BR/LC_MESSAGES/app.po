@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-03 02:51-0700\n"
+"POT-Creation-Date: 2018-04-05 11:22-0700\n"
 "PO-Revision-Date: 2018-03-05 12:12-0300\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -38,6 +38,14 @@ msgstr "Novo documento"
 msgid "document-created-at"
 msgstr "Criado %{at}"
 
+#: client/components/documents.vue:87
+msgid "document-created-error"
+msgstr "Erro na criação do documento: %{error}"
+
+#: client/components/documents.vue:91
+msgid "document-created-success"
+msgstr "O novo documento foi criado."
+
 #: client/components/documents.vue:23 client/components/sidebar.vue:4
 msgid "document-draft"
 msgstr "Rascunho"
@@ -66,6 +74,14 @@ msgstr "Página inicial."
 msgid "insert"
 msgstr "Inserir"
 
+#: client/components/editor.vue:197
+msgid "invalid-url"
+msgstr "Endereço inválido."
+
+#: client/components/editor.vue:179
+msgid "link-hint"
+msgstr "Insira um link"
+
 #: client/components/documents.vue:29
 msgid "no-documents"
 msgstr "Nenhum documento."
@@ -86,6 +102,14 @@ msgstr "Uma vez publicado, o documento não será mais editável. O documento se
 msgid "publish-document-confirmation-title"
 msgstr "Você gostaria de publicar o documento agora?"
 
+#: client/components/publish-confirmation.vue:66
+msgid "publish-error"
+msgstr "Um erro ocorreu na publicação do documento."
+
+#: client/components/publish-confirmation.vue:71
+msgid "publish-success"
+msgstr "O documento foi publicado com sucesso."
+
 #: client/components/editor.vue:104
 msgid "remove"
 msgstr "Remover"
@@ -98,57 +122,9 @@ msgstr "Entrar"
 msgid "sign-out"
 msgstr "Sair"
 
-#: client/components/documents.vue:16
-msgid "untitled"
-msgstr "Sem título"
-
-#: client/components/editor.vue:105
-msgid "update"
-msgstr "Atualizar"
-
-#: client/components/editor.vue:179
-msgid "link-hint"
-msgstr "Insira um link"
-
-#: client/components/editor.vue:197
-msgid "invalid-url"
-msgstr "Endereço inválido."
-
-#: client/components/user-signin.vue:33
-msgid "username-is-required"
-msgstr "O nome de usuário é obrigatório"
-
-#: client/components/user-signin.vue:36
-msgid "username-too-short"
-msgstr "O nome de usuário é muito curto, deve ser pelo menos 4 caracteres"
-
-#: client/components/user-signin.vue:39
-msgid "username-invalid"
-msgstr "O nome de usuário é inválido, it should contain only basic characters"
-
-#: client/components/user-signin.vue:54
-msgid "username"
-msgstr "Username"
-
 #: client/components/user-signin.vue:72
 msgid "signed-in-success"
 msgstr "Você entrou com sucesso."
-
-#: client/components/documents.vue:87
-msgid "document-created-error"
-msgstr "Erro na criação do documento: %{error}"
-
-#: client/components/documents.vue:91
-msgid "document-created-success"
-msgstr "O novo documento foi criado."
-
-#: client/components/publish-confirmation.vue:66
-msgid "publish-error"
-msgstr "Um erro ocorreu na publicação do documento."
-
-#: client/components/publish-confirmation.vue:71
-msgid "publish-success"
-msgstr "O documento foi publicado com sucesso."
 
 #: client/components/app-layout.vue:64
 msgid "signed-out-error"
@@ -157,3 +133,27 @@ msgstr "Erro durante a saída: %{error}"
 #: client/components/app-layout.vue:68
 msgid "signed-out-success"
 msgstr "Você saiu com sucesso."
+
+#: client/components/documents.vue:16
+msgid "untitled"
+msgstr "Sem título"
+
+#: client/components/editor.vue:105
+msgid "update"
+msgstr "Atualizar"
+
+#: client/components/user-signin.vue:54
+msgid "username"
+msgstr "Username"
+
+#: client/components/user-signin.vue:39
+msgid "username-invalid"
+msgstr "O nome de usuário é inválido, it should contain only basic characters"
+
+#: client/components/user-signin.vue:33
+msgid "username-is-required"
+msgstr "O nome de usuário é obrigatório"
+
+#: client/components/user-signin.vue:36
+msgid "username-too-short"
+msgstr "O nome de usuário é muito curto, deve ser pelo menos 4 caracteres"
