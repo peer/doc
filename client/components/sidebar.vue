@@ -16,7 +16,7 @@
               <v-divider/>
               <v-layout row>
                 <v-flex text-xs-center>
-                  <v-btn flat small @click.stop="showReplies(comment)">view all replies</v-btn>
+                  <v-btn flat small @click.stop="showReplies(comment)"><translate>view-all-replies</translate></v-btn>
                 </v-flex>
               </v-layout>
               <v-divider/>
@@ -38,7 +38,7 @@
                         rows="1"
                         v-model="comment.reply"
                         auto-grow
-                        placeholder="Comment..."
+                        :placeholder="commentHint"
                         required
                         hide-details
                         style="padding-top: 0px; padding-bottom: 5px;"
@@ -113,6 +113,7 @@
         documentComments: [],
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
+        commentHint: this.$gettext("comment-hint"),
       };
     },
 

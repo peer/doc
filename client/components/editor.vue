@@ -71,7 +71,7 @@
               multi-line
               rows="2"
               v-model="comment"
-              placeholder="Comment..."
+              :placeholder="commentHint"
               required
             />
           </v-form>
@@ -197,6 +197,7 @@
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
           return urlRegex.test(value) || this.$gettext("invalid-url");
         },
+        commentHint: this.$gettext("comment-hint"),
       };
     },
 
