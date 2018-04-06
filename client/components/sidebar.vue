@@ -9,46 +9,50 @@
     </v-card>
     <v-layout row wrap ref="commentsList">
       <v-flex @click.stop="comment.showAddCommentForm = !comment.showAddCommentForm" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
-        <v-card hover :class="['sidebar__comment', {'elevation-10':comment.focus}]" ref="comments">
-          <comment :comment="comment"/>
-          <v-container style="padding-top:5px; padding-bottom:5px" v-show="comment.hasManyReplies && !comment.showAllReplies">
-            <v-divider/>
+        <v-card hover :class="['sidebar__comment', {'elevation-10':comment.focus}]" :style="{'padding-top':`${commentCardPaddingTop}px`, 'padding-bottom':`${commentCardPaddingBottom}px`}" ref="comments">
+          <v-container style="padding:0px">
+            <comment :comment="comment"/>
+            <v-container style="padding-top:5px; padding-bottom:5px" v-show="comment.hasManyReplies && !comment.showAllReplies">
+              <v-divider/>
+              <v-layout row>
+                <v-flex text-xs-center>
+                  <v-btn flat small @click.stop="showReplies(comment)">view all replies</v-btn>
+                </v-flex>
+              </v-layout>
+              <v-divider/>
+            </v-container>
+            <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
+              <comment style="padding-top:5px" v-show="comment.showAllReplies || (!comment.showAllReplies && index==comment.replies.length-1)" :comment="reply"/>
+            </v-layout>
+          </v-container>
+          <v-container style="padding:0px">
             <v-layout row>
-              <v-flex text-xs-center>
-                <v-btn flat small @click.stop="comment.showAllReplies=true">view all replies</v-btn>
+              <v-flex xs10 offset-xs1>
+                <transition>
+                  <div v-show="comment.showAddCommentForm">
+                    <v-form @submit.prevent="onReply">
+                      <v-text-field
+                        @click.stop
+                        autofocus
+                        multi-line
+                        rows="1"
+                        v-model="comment.reply"
+                        auto-grow
+                        placeholder="Comment..."
+                        required
+                        hide-details
+                        style="padding-top: 0px; padding-bottom: 5px;"
+                      />
+                    </v-form>
+                    <v-card-actions v-show="comment.reply != undefined && comment.reply.length > 0" style="padding-top:5px; padding-bottom:0px">
+                      <v-btn small color="secondary" flat @click.stop="comment.showAddCommentForm = false">Cancel</v-btn>
+                      <v-btn small color="primary" flat @click.stop="onReply(comment)">Insert</v-btn>
+                    </v-card-actions>
+                  </div>
+                </transition>
               </v-flex>
             </v-layout>
-            <v-divider/>
           </v-container>
-          <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
-            <comment style="padding-top:5px" v-show="comment.showAllReplies || (!comment.showAllReplies && index==comment.replies.length-1)" :comment="reply"/>
-          </v-layout>
-          <v-layout row>
-            <v-flex xs10 offset-xs1>
-              <transition>
-                <div v-show="comment.showAddCommentForm">
-                  <v-form @submit.prevent="onReply">
-                    <v-text-field
-                      @click.stop
-                      autofocus
-                      multi-line
-                      rows="1"
-                      v-model="comment.reply"
-                      auto-grow
-                      placeholder="Comment..."
-                      required
-                      hide-details
-                      style="padding-top: 0px; padding-bottom: 5px;"
-                    />
-                  </v-form>
-                  <v-card-actions v-show="comment.reply != undefined && comment.reply.length > 0" style="padding-top:5px; padding-bottom:0px">
-                    <v-btn small color="secondary" flat @click.stop="comment.showAddCommentForm = false">Cancel</v-btn>
-                    <v-btn small color="primary" flat @click.stop="onReply(comment)">Insert</v-btn>
-                  </v-card-actions>
-                </div>
-              </transition>
-            </v-flex>
-          </v-layout>
         </v-card>
       </v-flex>
     </v-layout>
@@ -107,6 +111,8 @@
       return {
         commentsHandle: null,
         documentComments: [],
+        commentCardPaddingTop: 10,
+        commentCardPaddingBottom: 10,
       };
     },
 
@@ -133,9 +139,9 @@
 
     methods: {
 
-      toggleReplies(comment) {
-        comment.showAllReplies = !comment.showAllReplies; // eslint-disable-line no-param-reassign
-        this.layoutComments();
+      showReplies(comment) {
+        comment.showAllReplies = true; // eslint-disable-line no-param-reassign
+        this.layoutCommentsAfterRender();
       },
 
       collapseComments() {
@@ -144,6 +150,7 @@
             showAllReplies: false,
           });
         });
+        this.layoutCommentsAfterRender();
       },
 
       onReply(comment) {
@@ -263,6 +270,10 @@
           return Object.assign({}, c, {marginTop: 0});
         });
 
+        this.layoutCommentsAfterRender();
+      },
+
+      layoutCommentsAfterRender() {
         this.$nextTick().then(() => {
           // After the cards have been rendered we can start measuring the
           // distance between each cards with the next, and adjust the margins
@@ -287,7 +298,8 @@
         });
 
         const heights = this.$refs.comments.map((ref) => {
-          return ref.$el.offsetHeight;
+          // comment and replies container height (without comment input container) + comment card paddings
+          return ref.$el.firstChild.offsetHeight + this.commentCardPaddingTop + this.commentCardPaddingBottom;
         });
 
         for (let i = 0; i < this.documentComments.length; i += 1) {
@@ -335,8 +347,6 @@
   }
 
   .sidebar__comment {
-    padding-top: 10px;
-    padding-bottom: 10px;
     cursor:pointer;
   }
 
