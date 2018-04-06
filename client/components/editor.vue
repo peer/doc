@@ -77,8 +77,8 @@
           </v-form>
         </v-card-text>
         <v-card-actions style="padding-top:0px">
-          <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
-          <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
+          <v-btn color="secondary" flat @click="cancelComment"><translate>cancel</translate></v-btn>
+          <v-btn color="primary" flat @click="insertComment"><translate>insert</translate></v-btn>
         </v-card-actions>
       </v-card>
     </v-menu>
