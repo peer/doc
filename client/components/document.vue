@@ -7,7 +7,7 @@
         :content-key="document.contentKey"
         :client-id="clientId"
         @contentChanged="onContentChanged"
-        @highlightSelected="onhighlightSelected"
+        @highlightSelected="onHighlightSelected"
         :read-only="document.isPublished()"
       />
     </v-flex>
@@ -65,7 +65,7 @@
       onContentChanged() {
         this.$refs.sidebar.layoutComments();
       },
-      onhighlightSelected(highlightKey) {
+      onHighlightSelected(highlightKey) {
         this.$refs.sidebar.focusComment(highlightKey);
       },
     },

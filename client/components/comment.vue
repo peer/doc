@@ -23,7 +23,6 @@
 </template>
 
 <script>
-
   // @vue/component
   const component = {
     props: {
@@ -32,9 +31,6 @@
         required: true,
       },
     },
-    data() {
-      return {};
-    },
   };
 
   export default component;
@@ -42,8 +38,8 @@
 
 <style>
   .comment__body {
-    min-height:36px;
-    padding-top:5px
+    min-height: 36px;
+    padding-top: 5px;
   }
 
   .comment__details-enter {

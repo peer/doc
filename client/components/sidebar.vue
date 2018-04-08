@@ -9,10 +9,10 @@
     </v-card>
     <v-layout row wrap ref="commentsList">
       <v-flex @click.stop="comment.showAddCommentForm = !comment.showAddCommentForm" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
-        <v-card hover :class="['sidebar__comment', {'elevation-10':comment.focus}]" :style="{'padding-top':`${commentCardPaddingTop}px`, 'padding-bottom':`${commentCardPaddingBottom}px`}" ref="comments">
-          <v-container style="padding:0px">
+        <v-card hover :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
+          <v-container style="padding: 0px;">
             <comment :comment="comment"/>
-            <v-container style="padding-top:5px; padding-bottom:5px" v-show="comment.hasManyReplies && !comment.showAllReplies">
+            <v-container style="padding-top: 5px; padding-bottom: 5px" v-show="comment.hasManyReplies && !comment.showAllReplies">
               <v-divider/>
               <v-layout row>
                 <v-flex text-xs-center>
@@ -25,7 +25,7 @@
               <comment style="padding-top:5px" v-show="comment.showAllReplies || (!comment.showAllReplies && index==comment.replies.length-1)" :comment="reply"/>
             </v-layout>
           </v-container>
-          <v-container style="padding:0px">
+          <v-container style="padding: 0px;">
             <v-layout row>
               <v-flex xs10 offset-xs1>
                 <transition>
@@ -44,7 +44,7 @@
                         style="padding-top: 0px; padding-bottom: 5px;"
                       />
                     </v-form>
-                    <v-card-actions v-show="comment.reply != undefined && comment.reply.length > 0" style="padding-top:5px; padding-bottom:0px">
+                    <v-card-actions v-show="comment.reply != undefined && comment.reply.length > 0" style="padding-top: 5px; padding-bottom: 0px">
                       <v-btn small color="secondary" flat @click.stop="comment.showAddCommentForm = false"><translate>cancel</translate></v-btn>
                       <v-btn small color="primary" flat @click.stop="onReply(comment)"><translate>insert</translate></v-btn>
                     </v-card-actions>
@@ -299,7 +299,7 @@
         });
 
         const heights = this.$refs.comments.map((ref) => {
-          // comment and replies container height (without comment input container) + comment card paddings
+          // Comment and replies container height (without comment input container) + comment card padding.
           return ref.$el.firstChild.offsetHeight + this.commentCardPaddingTop + this.commentCardPaddingBottom;
         });
 
@@ -348,7 +348,6 @@
   }
 
   .sidebar__comment {
-    cursor:pointer;
+    cursor: pointer;
   }
-
 </style>
