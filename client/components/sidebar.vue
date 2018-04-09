@@ -9,7 +9,7 @@
     </v-card>
     <v-layout row wrap ref="commentsList">
       <v-flex @click.stop="comment.showAddCommentForm = !comment.showAddCommentForm" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
-        <v-card hover :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
+        <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
           <v-container style="padding: 0px;">
             <comment :comment="comment"/>
             <v-container style="padding-top: 5px; padding-bottom: 5px" v-show="comment.hasManyReplies && !comment.showAllReplies">
