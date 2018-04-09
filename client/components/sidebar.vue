@@ -198,15 +198,7 @@
           let commentReplies = groupedReplies[comment.highlightKey];
           if (commentReplies) {
             commentReplies = commentReplies.sort((a, b) => {
-              if (a.createdAt > b.createdAt) {
-                return 1;
-              }
-              else if (a.createdAt < b.createdAt) {
-                return -1;
-              }
-              else {
-                return 0;
-              }
+              return a.createdAt - b.createdAt;
             }).map((reply) => {
               return Object.assign({}, reply, {
                 showDetails: false,
