@@ -8,7 +8,7 @@
       </v-toolbar>
     </v-card>
     <v-layout row wrap ref="commentsList">
-      <v-flex @click.stop="comment.showAddCommentForm = !comment.showAddCommentForm" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
+      <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
         <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
           <v-container style="padding: 0px;">
             <comment :comment="comment"/>
@@ -33,7 +33,6 @@
                     <v-form @submit.prevent="onReply">
                       <v-text-field
                         @click.stop
-                        autofocus
                         multi-line
                         rows="1"
                         v-model="comment.reply"
@@ -139,6 +138,11 @@
     },
 
     methods: {
+
+      commentClick(comment) {
+        comment.showAddCommentForm = !comment.showAddCommentForm; // eslint-disable-line no-param-reassign
+        this.$emit("commentClicked", comment.highlightKey);
+      },
 
       showReplies(comment) {
         comment.showAllReplies = true; // eslint-disable-line no-param-reassign

@@ -398,6 +398,30 @@
     },
 
     methods: {
+
+      updateCursor(highlightKey) {
+        let highlightPos;
+        let keepSearching = true;
+        // Highlighted selection position search.
+        this.$editorView.state.doc.descendants((node, pos) => {
+          if (keepSearching) {
+            node.marks.forEach((x) => {
+              if (x.attrs["highlight-keys"] && x.attrs["highlight-keys"].split(',').indexOf(highlightKey) >= 0) {
+                highlightPos = pos;
+                keepSearching = false;
+              }
+            });
+          }
+          return keepSearching;
+        });
+        // Cursor position update.
+        const {tr} = this.$editorView.state;
+        tr.setSelection(TextSelection.create(tr.doc, highlightPos));
+        tr.scrollIntoView();
+        this.$editorView.focus();
+        this.$editorView.dispatch(tr);
+      },
+
       onButtonChange(reference) {
         this[`${reference}IsActive`] = _.some(this.$refs[reference].buttons, (button) => {
           return button.isActive;

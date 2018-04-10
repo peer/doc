@@ -9,6 +9,7 @@
         @contentChanged="onContentChanged"
         @highlightSelected="onHighlightSelected"
         :read-only="document.isPublished()"
+        ref="editor"
       />
     </v-flex>
     <v-flex xs4>
@@ -17,6 +18,7 @@
         :content-key="document.contentKey"
         :document-published="document.isPublished()"
         :client-id="clientId"
+        @commentClicked="onCommentClicked"
         ref="sidebar" />
     </v-flex>
   </v-layout>
@@ -67,6 +69,9 @@
       },
       onHighlightSelected(highlightKey) {
         this.$refs.sidebar.focusComment(highlightKey);
+      },
+      onCommentClicked(highlightKey) {
+        this.$refs.editor.updateCursor(highlightKey);
       },
     },
   };
