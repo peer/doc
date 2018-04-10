@@ -150,7 +150,13 @@
       collapseComments() {
         this.documentComments = this.documentComments.map((c) => {
           return Object.assign({}, c, {
+            replies: c.replies.map((x) => {
+              return Object.assign({}, x, {
+                showDetails: false,
+              });
+            }),
             showAllReplies: false,
+            showDetails: false,
           });
         });
         this.layoutCommentsAfterRender();
