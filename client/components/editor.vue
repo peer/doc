@@ -308,8 +308,9 @@
             });
             this.$emit("contentChanged");
           }
-          if (newState.selection.$anchor.marks()) {
-            const highlightkeys = newState.selection.$anchor.marks().find((x) => {
+          const currentMarks = newState.selection.$cursor ? newState.selection.$cursor.marks() : undefined;
+          if (currentMarks) {
+            const highlightkeys = currentMarks.find((x) => {
               return x.attrs["highlight-keys"];
             });
             const current = highlightkeys ? highlightkeys.attrs["highlight-keys"].split(",")[0] : undefined;
