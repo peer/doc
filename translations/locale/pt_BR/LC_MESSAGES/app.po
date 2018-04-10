@@ -36,8 +36,8 @@ msgid "comment-created-at"
 msgstr "Criado %{at}"
 
 #: client/components/sidebar.vue:116 client/components/editor.vue:200
-msgid "comment-hint"
-msgstr "Insira um comentário"
+msgid "comment-reply-hint"
+msgstr "Insira uma resposta"
 
 #: client/components/documents.vue:7
 msgid "document-create"
