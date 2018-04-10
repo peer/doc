@@ -60,8 +60,6 @@
 
 <script>
 
-  import {_} from 'meteor/underscore';
-
   import {Comment} from '/lib/documents/comment';
 
   function getOffset(el) {
@@ -192,26 +190,18 @@
           return comment.replyTo !== null;
         });
 
-        const groupedReplies = _.groupBy(replies, (reply) => {
-          return reply.highlightKey;
-        });
-
         currentComments = currentComments.filter((comment) => {
           return comment.replyTo === null;
         }).map((comment) => {
-          let commentReplies = groupedReplies[comment.highlightKey];
-          if (commentReplies) {
-            commentReplies = commentReplies.sort((a, b) => {
-              return a.createdAt - b.createdAt;
-            }).map((reply) => {
-              return Object.assign({}, reply, {
-                showDetails: false,
-              });
+          const commentReplies = replies.filter((x) => {
+            return x.replyTo === comment._id;
+          }).sort((a, b) => {
+            return a.createdAt - b.createdAt;
+          }).map((reply) => {
+            return Object.assign({}, reply, {
+              showDetails: false,
             });
-          }
-          else {
-            commentReplies = [];
-          }
+          });
           return Object.assign({}, comment, {
             replies: commentReplies,
           });
