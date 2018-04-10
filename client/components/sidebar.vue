@@ -37,7 +37,7 @@
                         rows="1"
                         v-model="comment.reply"
                         auto-grow
-                        :placeholder="commentHint"
+                        :placeholder="commentReplyHint"
                         required
                         hide-details
                         style="padding-top: 0px; padding-bottom: 5px;"
@@ -110,7 +110,7 @@
         documentComments: [],
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
-        commentHint: this.$gettext("comment-hint"),
+        commentReplyHint: this.$gettext("comment-reply-hint"),
       };
     },
 
