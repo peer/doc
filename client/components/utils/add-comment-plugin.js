@@ -34,8 +34,8 @@ class AddComment {
       if (!marksObj.marks.length) {
         onlyHighlightMarkInRange = false;
       }
-      if (marksObj.marks.filter((m) => {
-        return m.type.name !== 'highlight';
+      if (!marksObj.marks.filter((m) => {
+        return m.type.name === 'highlight';
       }).length) {
         onlyHighlightMarkInRange = false;
       }
@@ -48,6 +48,8 @@ class AddComment {
           return m.type.name === "highlight";
         }),
       });
+    }).filter((marksObj) => {
+      return marksObj.marks.length;
     });
     const button = this.vueInstance.$refs.addCommentButton;
     // Hide the comment button if the selection is empty or the selection
