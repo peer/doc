@@ -404,7 +404,6 @@
     },
 
     methods: {
-
       updateCursor(highlightKey) {
         this.currentHighlightKey = highlightKey;
         this.currentHighlightKeyChanged = true;
