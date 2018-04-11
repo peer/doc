@@ -308,15 +308,18 @@
             });
             this.$emit("contentChanged");
           }
-          const currentMarks = newState.selection.$cursor ? newState.selection.$cursor.marks() : undefined;
-          if (currentMarks) {
-            const highlightkeys = currentMarks.find((x) => {
-              return x.attrs["highlight-keys"];
-            });
-            const current = highlightkeys ? highlightkeys.attrs["highlight-keys"].split(",")[0] : undefined;
-            if (this.currentHighlightKey !== current) {
-              this.currentHighlightKey = current;
-              this.$emit("highlightSelected", current);
+          if (newState.selection.$cursor) {
+            const cursorPos = newState.doc.resolve(newState.selection.$cursor.pos);
+            const afterPosMarks = cursorPos.nodeAfter ? cursorPos.nodeAfter.marks : [];
+            if (afterPosMarks) {
+              const highlightkeys = afterPosMarks.find((x) => {
+                return x.attrs["highlight-keys"];
+              });
+              const current = highlightkeys ? highlightkeys.attrs["highlight-keys"].split(",")[0] : undefined;
+              if (this.currentHighlightKey !== current) {
+                this.currentHighlightKey = current;
+                this.$emit("highlightSelected", current);
+              }
             }
           }
 
