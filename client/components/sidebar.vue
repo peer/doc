@@ -237,7 +237,12 @@
           // For example, you could have a newer comment positioned on top
           // of an older one, so we have to sort the positions accordinglys
           // before Vue tries to render them.
-          return a.highlightTop - b.highlightTop;
+          if (a.highlightTop !== b.highlightTop) {
+            return a.highlightTop - b.highlightTop;
+          }
+          else {
+            return a.createdAt - b.createdAt;
+          }
         }).map((c) => {
           /*
             We add a `marginTop` property to the comments that indicates how much
