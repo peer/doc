@@ -25,13 +25,6 @@ Meteor.methods({
 
     // TODO: Check more permissions?
 
-    args.steps.forEach((step) => {
-      if (step.slice) {
-        step.slice.content.descendants((node) => {
-          node.check(); // will throw an error if node is not valid
-        });
-      }
-    });
     let addedCount = 0;
     const latestContent = Content.documents.findOne({contentKey: args.contentKey}, {sort: {version: -1}, fields: {version: 1}});
     const document = Document.documents.findOne({contentKey: args.contentKey});
