@@ -193,6 +193,7 @@
         blockIsActive: null,
         cursors: [],
         currentHighlightKey: null,
+        currentHighlightKeyChanged: false,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
           return urlRegex.test(value) || this.$gettext("invalid-url");
@@ -318,6 +319,7 @@
               const current = highlightkeys ? highlightkeys.attrs["highlight-keys"].split(",")[0] : undefined;
               if (this.currentHighlightKey !== current) {
                 this.currentHighlightKey = current;
+                this.currentHighlightKeyChanged = true;
                 this.$emit("highlightSelected", current);
               }
             }
@@ -404,6 +406,8 @@
     methods: {
 
       updateCursor(highlightKey) {
+        this.currentHighlightKey = highlightKey;
+        this.currentHighlightKeyChanged = true;
         let highlightPos;
         let keepSearching = true;
         // Highlighted selection position search.
@@ -725,7 +729,12 @@
   }
 
   .highlight {
-    background: #ffe168;
+    background: #f9e48e;
+    margin-bottom: -1px;
+  }
+
+  .highlight--selected {
+    background: #f9d543;
     border-bottom: 1px solid #f22;
     margin-bottom: -1px;
   }
