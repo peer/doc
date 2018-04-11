@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 10:49-0400\n"
+"POT-Creation-Date: 2018-04-10 22:41-0400\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -23,7 +23,7 @@ msgstr "Acesso negado."
 
 #: client/components/editor.vue:79 client/components/editor.vue:103
 #: client/components/publish-confirmation.vue:13
-#: client/components/sidebar.vue:47
+#: client/components/sidebar.vue:46
 msgid "cancel"
 msgstr "Cancelar"
 
@@ -35,7 +35,11 @@ msgstr "Fechar"
 msgid "comment-created-at"
 msgstr "Criado %{at}"
 
-#: client/components/sidebar.vue:116 client/components/editor.vue:200
+#: client/components/editor.vue:201
+msgid "comment-hint"
+msgstr "Insira um comentário"
+
+#: client/components/sidebar.vue:113
 msgid "comment-reply-hint"
 msgstr "Insira uma resposta"
 
@@ -80,11 +84,11 @@ msgid "front-page"
 msgstr "Página inicial."
 
 #: client/components/editor.vue:80 client/components/editor.vue:105
-#: client/components/sidebar.vue:48
+#: client/components/sidebar.vue:47
 msgid "insert"
 msgstr "Inserir"
 
-#: client/components/editor.vue:198
+#: client/components/editor.vue:199
 msgid "invalid-url"
 msgstr "Endereço inválido."
 
