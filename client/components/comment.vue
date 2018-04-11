@@ -1,11 +1,11 @@
 <template>
   <v-layout row>
-    <v-flex xs2 class="text-xs-center">
+    <v-flex hidden-xs-only sm3 md2 class="text-xs-center">
       <v-avatar size="36px"><img :src="comment.author.avatarUrl()" :alt="comment.author.username" :title="comment.author.username"></v-avatar>
     </v-flex>
-    <v-flex xs8>
+    <v-flex xs6 sm6 md8>
       <div>
-        <div class="comment__body">{{comment.body}}</div>
+        <div style="word-wrap: break-word;" class="comment__body">{{comment.body}}</div>
         <transition name="comment__details">
           <div v-show="comment.showDetails">
             <v-divider/>
@@ -14,7 +14,7 @@
         </transition>
       </div>
     </v-flex>
-    <v-flex xs1>
+    <v-flex xs6 sm1 md1>
       <v-btn flat icon small @click.stop="comment.showDetails=!comment.showDetails">
         <v-icon>more_horiz</v-icon>
       </v-btn>
