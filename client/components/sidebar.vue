@@ -138,6 +138,7 @@
     methods: {
 
       commentClick(comment) {
+        comment.focus = true; // eslint-disable-line no-param-reassign
         comment.showAddCommentForm = !comment.showAddCommentForm; // eslint-disable-line no-param-reassign
         this.$emit("commentClicked", comment.highlightKey);
       },
@@ -157,6 +158,7 @@
             }),
             showAllReplies: false,
             showDetails: false,
+            showAddCommentForm: false,
           });
         });
         this.layoutCommentsAfterRender();
