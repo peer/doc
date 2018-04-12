@@ -62,7 +62,9 @@
 
     methods: {
       onDocumentClicked(event) {
-        this.$refs.sidebar.collapseComments();
+        if (event.target.className !== 'highlight--selected') {
+          this.$refs.sidebar.collapseComments();
+        }
       },
       onContentChanged() {
         this.$refs.sidebar.layoutComments();

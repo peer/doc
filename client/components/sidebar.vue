@@ -29,7 +29,7 @@
             <v-layout row>
               <v-flex xs10 offset-xs1>
                 <transition>
-                  <div v-show="comment.showAddCommentForm">
+                  <div v-show="comment.focus">
                     <v-form @submit.prevent="onReply">
                       <v-text-field
                         @click.stop
@@ -44,7 +44,7 @@
                       />
                     </v-form>
                     <v-card-actions v-show="comment.reply != undefined && comment.reply.length > 0" style="padding-top: 5px; padding-bottom: 0px">
-                      <v-btn small color="secondary" flat @click.stop="comment.showAddCommentForm = false"><translate>cancel</translate></v-btn>
+                      <v-btn small color="secondary" flat @click.stop="comment.focus = false"><translate>cancel</translate></v-btn>
                       <v-btn small color="primary" flat @click.stop="onReply(comment)"><translate>insert</translate></v-btn>
                     </v-card-actions>
                   </div>
@@ -138,8 +138,12 @@
     methods: {
 
       commentClick(comment) {
+        this.documentComments = this.documentComments.map((c) => {
+          return Object.assign({}, c, {
+            focus: c._id === comment._id,
+          });
+        });
         comment.focus = true; // eslint-disable-line no-param-reassign
-        comment.showAddCommentForm = !comment.showAddCommentForm; // eslint-disable-line no-param-reassign
         this.$emit("commentClicked", comment.highlightKey);
       },
 
@@ -158,7 +162,7 @@
             }),
             showAllReplies: false,
             showDetails: false,
-            showAddCommentForm: false,
+            focus: false,
           });
         });
         this.layoutCommentsAfterRender();
@@ -171,7 +175,7 @@
           documentId: this.documentId,
           replyTo: comment._id,
         });
-        comment.showAddCommentForm = false; // eslint-disable-line no-param-reassign
+        comment.focus = false; // eslint-disable-line no-param-reassign
       },
 
       handleWindowResize(e) {
@@ -226,7 +230,6 @@
           return Object.assign({}, c, {
             highlightTop: getOffset(el).top,
             showDetails: false,
-            showAddCommentForm: false,
             showAllReplies: c.replies.length <= 1,
             hasManyReplies: c.replies.length > 1,
             isReply: c.replyTo === null,
