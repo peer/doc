@@ -194,6 +194,7 @@
         cursors: [],
         currentHighlightKey: null,
         currentHighlightKeyChanged: false,
+        currentVersion: null,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
           return urlRegex.test(value) || this.$gettext("invalid-url");
@@ -297,17 +298,20 @@
                 });
               });
             }
-            this.addingStepsInProgress = true;
-            Content.addSteps({
-              contentKey: this.contentKey,
-              currentVersion: sendable.version,
-              steps: sendable.steps,
-              clientId,
-            }, (error, stepsAdded) => {
-              this.addingStepsInProgress = false;
-              // TODO: Error handling.
-            });
-            this.$emit("contentChanged");
+            if (this.currentVersion !== sendable.version) {
+              this.addingStepsInProgress = true;
+              Content.addSteps({
+                contentKey: this.contentKey,
+                currentVersion: sendable.version,
+                steps: sendable.steps,
+                clientId,
+              }, (error, stepsAdded) => {
+                this.addingStepsInProgress = false;
+                // TODO: Error handling.
+              });
+              this.currentVersion = sendable.version;
+              this.$emit("contentChanged");
+            }
           }
           if (newState.selection.$cursor) {
             const cursorPos = newState.doc.resolve(newState.selection.$cursor.pos);
@@ -405,24 +409,26 @@
 
     methods: {
       updateCursor(highlightKey) {
+        const {tr} = this.$editorView.state;
         this.currentHighlightKey = highlightKey;
         this.currentHighlightKeyChanged = true;
-        let highlightPos;
+        let highlightPos = tr.selection.from;
         let keepSearching = true;
         // Highlighted selection position search.
-        this.$editorView.state.doc.descendants((node, pos) => {
-          if (keepSearching) {
-            node.marks.forEach((x) => {
-              if (x.attrs["highlight-keys"] && x.attrs["highlight-keys"].split(',').indexOf(highlightKey) >= 0) {
-                highlightPos = pos;
-                keepSearching = false;
-              }
-            });
-          }
-          return keepSearching;
-        });
+        if (highlightKey) {
+          this.$editorView.state.doc.descendants((node, pos) => {
+            if (keepSearching) {
+              node.marks.forEach((x) => {
+                if (x.attrs["highlight-keys"] && x.attrs["highlight-keys"].split(',').indexOf(highlightKey) >= 0) {
+                  highlightPos = pos;
+                  keepSearching = false;
+                }
+              });
+            }
+            return keepSearching;
+          });
+        }
         // Cursor position update.
-        const {tr} = this.$editorView.state;
         tr.setSelection(TextSelection.create(tr.doc, highlightPos));
         tr.scrollIntoView();
         this.$editorView.focus();
@@ -634,6 +640,8 @@
         }).forEach((chunk) => {
           addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
         });
+        this.$emit("commentAdded", key);
+        this.updateCursor();
       },
 
       cancelComment() {

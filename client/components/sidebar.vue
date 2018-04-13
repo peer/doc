@@ -111,6 +111,7 @@
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
         commentReplyHint: this.$gettext("comment-reply-hint"),
+        lastCommentAdded: null,
       };
     },
 
@@ -136,6 +137,10 @@
     },
 
     methods: {
+
+      commentAdded(highlightKey) {
+        this.lastCommentAdded = highlightKey;
+      },
 
       commentClick(comment) {
         this.documentComments = this.documentComments.map((c) => {
@@ -165,6 +170,7 @@
             focus: false,
           });
         });
+        this.lastCommentAdded = null;
         this.layoutCommentsAfterRender();
       },
 
@@ -175,7 +181,8 @@
           documentId: this.documentId,
           replyTo: comment._id,
         });
-        comment.focus = false; // eslint-disable-line no-param-reassign
+        comment.focus = true; // eslint-disable-line no-param-reassign
+        this.$emit("commentClicked", comment.highlightKey);
       },
 
       handleWindowResize(e) {
@@ -220,6 +227,7 @@
         });
 
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
+        const lastCommentKey = this.lastCommentAdded;
         this.documentComments = currentComments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
@@ -233,7 +241,7 @@
             showAllReplies: c.replies.length <= 1,
             hasManyReplies: c.replies.length > 1,
             isReply: c.replyTo === null,
-            focus: false,
+            focus: lastCommentKey === c.highlightKey,
           });
         }).filter((c) => {
           return c;
@@ -258,7 +266,6 @@
           */
           return Object.assign({}, c, {marginTop: 0});
         });
-
         this.layoutCommentsAfterRender();
       },
 

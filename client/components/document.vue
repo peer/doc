@@ -8,6 +8,7 @@
         :client-id="clientId"
         @contentChanged="onContentChanged"
         @highlightSelected="onHighlightSelected"
+        @commentAdded="onCommentAdded"
         :read-only="document.isPublished()"
         ref="editor"
       />
@@ -74,6 +75,9 @@
       },
       onCommentClicked(highlightKey) {
         this.$refs.editor.updateCursor(highlightKey);
+      },
+      onCommentAdded(highlightKey) {
+        this.$refs.sidebar.commentAdded(highlightKey);
       },
     },
   };
