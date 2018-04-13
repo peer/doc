@@ -111,7 +111,7 @@
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
         commentReplyHint: this.$gettext("comment-reply-hint"),
-        lastCommentAdded: null,
+        currentHighlightKey: null,
       };
     },
 
@@ -139,7 +139,7 @@
     methods: {
 
       commentAdded(highlightKey) {
-        this.lastCommentAdded = highlightKey;
+        this.currentHighlightKey = highlightKey;
       },
 
       commentClick(comment) {
@@ -148,6 +148,7 @@
             focus: c._id === comment._id,
           });
         });
+        this.currentHighlightKey = comment.highlightKey;
         comment.focus = true; // eslint-disable-line no-param-reassign
         this.$emit("commentClicked", comment.highlightKey);
         this.layoutCommentsAfterRender();
@@ -165,7 +166,7 @@
             focus: false,
           });
         });
-        this.lastCommentAdded = null;
+        this.currentHighlightKey = null;
         this.layoutCommentsAfterRender();
       },
 
@@ -178,7 +179,7 @@
         });
         comment.focus = true; // eslint-disable-line no-param-reassign
         this.$emit("commentClicked", comment.highlightKey);
-        this.lastCommentAdded = comment.highlightKey;
+        this.currentHighlightKey = comment.highlightKey;
       },
 
       handleWindowResize(e) {
@@ -223,7 +224,7 @@
         });
 
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
-        const lastCommentKey = this.lastCommentAdded;
+        const {currentHighlightKey} = this;
         this.documentComments = currentComments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
@@ -236,7 +237,7 @@
             showDetails: false,
             hasManyReplies: c.replies.length > 1,
             isReply: c.replyTo === null,
-            focus: lastCommentKey === c.highlightKey,
+            focus: currentHighlightKey === c.highlightKey,
           });
         }).filter((c) => {
           return c;
@@ -320,6 +321,7 @@
           return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
         });
         this.layoutCommentsAfterRender();
+        this.currentHighlightKey = highlightKey;
       },
     },
   };
