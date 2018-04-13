@@ -7,17 +7,59 @@
         <v-btn v-if="!documentPublished && $currentUserId" color="success" :to="{name: 'publishDocument', params: {documentId}}"><translate>document-publish</translate></v-btn>
       </v-toolbar>
     </v-card>
-    <v-layout row ref="commentsList">
-      <v-card v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="comments">
-        <v-card-text>
-          {{comment.body}}
-        </v-card-text>
-      </v-card>
+    <v-layout row wrap ref="commentsList">
+      <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
+        <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
+          <v-container style="padding: 0px;">
+            <comment :comment="comment"/>
+            <v-container style="padding-top: 5px; padding-bottom: 5px" v-show="!comment.focus && comment.hasManyReplies">
+              <v-divider/>
+              <v-layout row>
+                <v-flex text-xs-center>
+                  <v-btn flat small @click="commentClick(comment)"><translate>view-all-replies</translate></v-btn>
+                </v-flex>
+              </v-layout>
+              <v-divider/>
+            </v-container>
+            <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
+              <comment style="padding-top:5px" v-show="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
+            </v-layout>
+          </v-container>
+          <v-container style="padding: 0px;">
+            <v-layout row>
+              <v-flex xs10 offset-xs1>
+                <transition>
+                  <div v-show="comment.focus">
+                    <v-form @submit.prevent="onReply">
+                      <v-text-field
+                        @click.stop
+                        multi-line
+                        rows="1"
+                        v-model="comment.reply"
+                        auto-grow
+                        :placeholder="commentReplyHint"
+                        required
+                        hide-details
+                        style="padding-top: 0px; padding-bottom: 5px;"
+                      />
+                    </v-form>
+                    <v-card-actions v-show="comment.reply != undefined && comment.reply.length > 0" style="padding-top: 5px; padding-bottom: 0px">
+                      <v-btn small color="secondary" flat @click.stop="comment.focus = false"><translate>cancel</translate></v-btn>
+                      <v-btn small color="primary" flat @click.stop="onReply(comment)"><translate>insert</translate></v-btn>
+                    </v-card-actions>
+                  </div>
+                </transition>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card>
+      </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script>
+
   import {Comment} from '/lib/documents/comment';
 
   function getOffset(el) {
@@ -66,6 +108,10 @@
       return {
         commentsHandle: null,
         documentComments: [],
+        commentCardPaddingTop: 10,
+        commentCardPaddingBottom: 10,
+        commentReplyHint: this.$gettext("comment-reply-hint"),
+        currentHighlightKey: null,
       };
     },
 
@@ -91,6 +137,55 @@
     },
 
     methods: {
+
+      commentAdded(highlightKey) {
+        this.currentHighlightKey = highlightKey;
+      },
+
+      commentClick(comment) {
+        this.documentComments = this.documentComments.map((c) => {
+          return Object.assign({}, c, {
+            focus: c._id === comment._id,
+          });
+        });
+        this.currentHighlightKey = comment.highlightKey;
+        comment.focus = true; // eslint-disable-line no-param-reassign
+        // Notify to parent component that a comment is focused and the
+        // cursor position on the editor component should be updated.
+        this.$emit("commentClicked", comment.highlightKey);
+        this.layoutCommentsAfterRender();
+      },
+
+      collapseComments() {
+        this.documentComments = this.documentComments.map((c) => {
+          return Object.assign({}, c, {
+            replies: c.replies.map((x) => {
+              return Object.assign({}, x, {
+                showDetails: false,
+              });
+            }),
+            showDetails: false,
+            focus: false,
+          });
+        });
+        this.currentHighlightKey = null;
+        this.layoutCommentsAfterRender();
+      },
+
+      onReply(comment) {
+        Comment.create({
+          highlightKey: comment.highlightKey,
+          body: comment.reply,
+          documentId: this.documentId,
+          replyTo: comment._id,
+        });
+        comment.focus = true; // eslint-disable-line no-param-reassign
+        // Notify to parent component that a comment is focused and the
+        // cursor position on the editor component should be updated.
+        this.$emit("commentClicked", comment.highlightKey);
+        this.currentHighlightKey = comment.highlightKey;
+      },
+
       handleWindowResize(e) {
         this.layoutComments();
       },
@@ -101,9 +196,9 @@
        * the comments text.
       */
       showComments(comments) {
-        const currentComments = comments
-        .filter((c) => {
-          return !c.versionTo;
+        let currentComments = comments
+        .filter((comment) => {
+          return !comment.versionTo;
         });
 
         if (!currentComments.length) {
@@ -111,7 +206,29 @@
           return;
         }
 
+        const replies = currentComments.filter((comment) => {
+          return comment.replyTo !== null;
+        });
+
+        currentComments = currentComments.filter((comment) => {
+          return comment.replyTo === null;
+        }).map((comment) => {
+          const commentReplies = replies.filter((x) => {
+            return x.replyTo === comment._id;
+          }).sort((a, b) => {
+            return a.createdAt - b.createdAt;
+          }).map((reply) => {
+            return Object.assign({}, reply, {
+              showDetails: false,
+            });
+          });
+          return Object.assign({}, comment, {
+            replies: commentReplies,
+          });
+        });
+
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
+        const {currentHighlightKey} = this;
         this.documentComments = currentComments.map((c, i) => {
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
@@ -119,7 +236,13 @@
           if (!el) {
             return null;
           }
-          return Object.assign({}, c, {highlightTop: getOffset(el).top});
+          return Object.assign({}, c, {
+            highlightTop: getOffset(el).top,
+            showDetails: false,
+            hasManyReplies: c.replies.length > 1,
+            isReply: c.replyTo === null,
+            focus: currentHighlightKey === c.highlightKey,
+          });
         }).filter((c) => {
           return c;
         }).sort((a, b) => {
@@ -127,14 +250,11 @@
           // For example, you could have a newer comment positioned on top
           // of an older one, so we have to sort the positions accordinglys
           // before Vue tries to render them.
-          if (a.highlightTop > b.highlightTop) {
-            return 1;
-          }
-          else if (a.highlightTop < b.highlightTop) {
-            return -1;
+          if (a.highlightTop !== b.highlightTop) {
+            return a.highlightTop - b.highlightTop;
           }
           else {
-            return 0;
+            return a.createdAt - b.createdAt;
           }
         }).map((c) => {
           /*
@@ -146,7 +266,10 @@
           */
           return Object.assign({}, c, {marginTop: 0});
         });
+        this.layoutCommentsAfterRender();
+      },
 
+      layoutCommentsAfterRender() {
         this.$nextTick().then(() => {
           // After the cards have been rendered we can start measuring the
           // distance between each cards with the next, and adjust the margins
@@ -171,7 +294,8 @@
         });
 
         const heights = this.$refs.comments.map((ref) => {
-          return ref.$el.offsetHeight;
+          // Comment and replies container height (without comment input container) + comment card padding.
+          return ref.$el.firstChild.offsetHeight + this.commentCardPaddingTop + this.commentCardPaddingBottom;
         });
 
         for (let i = 0; i < this.documentComments.length; i += 1) {
@@ -181,7 +305,7 @@
           let {marginTop} = c;
           if (i === 0) {
             const el2 = this.$refs.commentsList;
-            const el2Y = getOffset(el2).top + el2.offsetHeight;
+            const el2Y = getOffset(el2).top;
             const elY = highlightTops[0];
             marginTop = elY - el2Y > 0 ? elY - el2Y : 0;
             // const {top} = getOffset(this.$refs.comments[i].$el);
@@ -189,11 +313,19 @@
           }
           else {
             const previousBottom = this.documentComments[i - 1].bottom;
-            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : 0;
+            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : 5;
             bottom = previousBottom + marginTop + height;
           }
           this.documentComments.splice(i, 1, Object.assign({}, c, {bottom, marginTop}));
         }
+      },
+
+      focusComment(highlightKey) {
+        this.documentComments = this.documentComments.map((x) => {
+          return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
+        });
+        this.layoutCommentsAfterRender();
+        this.currentHighlightKey = highlightKey;
       },
     },
   };
@@ -210,5 +342,9 @@
   .doc_status__label {
     text-transform: uppercase;
     font-weight: bold;
+  }
+
+  .sidebar__comment {
+    cursor: pointer;
   }
 </style>
