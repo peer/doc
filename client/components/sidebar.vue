@@ -12,17 +12,17 @@
         <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
           <v-container style="padding: 0px;">
             <comment :comment="comment"/>
-            <v-container style="padding-top: 5px; padding-bottom: 5px" v-show="comment.hasManyReplies && !comment.showAllReplies">
+            <v-container style="padding-top: 5px; padding-bottom: 5px" v-show="!comment.focus && comment.hasManyReplies">
               <v-divider/>
               <v-layout row>
                 <v-flex text-xs-center>
-                  <v-btn flat small @click.stop="showReplies(comment)"><translate>view-all-replies</translate></v-btn>
+                  <v-btn flat small @click="commentClick(comment)"><translate>view-all-replies</translate></v-btn>
                 </v-flex>
               </v-layout>
               <v-divider/>
             </v-container>
             <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
-              <comment style="padding-top:5px" v-show="comment.showAllReplies || (!comment.showAllReplies && index==comment.replies.length-1)" :comment="reply"/>
+              <comment style="padding-top:5px" v-show="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
             </v-layout>
           </v-container>
           <v-container style="padding: 0px;">
@@ -150,10 +150,6 @@
         });
         comment.focus = true; // eslint-disable-line no-param-reassign
         this.$emit("commentClicked", comment.highlightKey);
-      },
-
-      showReplies(comment) {
-        comment.showAllReplies = true; // eslint-disable-line no-param-reassign
         this.layoutCommentsAfterRender();
       },
 
@@ -165,7 +161,6 @@
                 showDetails: false,
               });
             }),
-            showAllReplies: false,
             showDetails: false,
             focus: false,
           });
@@ -183,6 +178,7 @@
         });
         comment.focus = true; // eslint-disable-line no-param-reassign
         this.$emit("commentClicked", comment.highlightKey);
+        this.lastCommentAdded = comment.highlightKey;
       },
 
       handleWindowResize(e) {
@@ -238,7 +234,6 @@
           return Object.assign({}, c, {
             highlightTop: getOffset(el).top,
             showDetails: false,
-            showAllReplies: c.replies.length <= 1,
             hasManyReplies: c.replies.length > 1,
             isReply: c.replyTo === null,
             focus: lastCommentKey === c.highlightKey,
@@ -324,6 +319,7 @@
         this.documentComments = this.documentComments.map((x) => {
           return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
         });
+        this.layoutCommentsAfterRender();
       },
     },
   };
