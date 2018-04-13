@@ -150,6 +150,8 @@
         });
         this.currentHighlightKey = comment.highlightKey;
         comment.focus = true; // eslint-disable-line no-param-reassign
+        // Notify to parent component that a comment is focused and the
+        // cursor position on the editor component should be updated.
         this.$emit("commentClicked", comment.highlightKey);
         this.layoutCommentsAfterRender();
       },
@@ -178,6 +180,8 @@
           replyTo: comment._id,
         });
         comment.focus = true; // eslint-disable-line no-param-reassign
+        // Notify to parent component that a comment is focused and the
+        // cursor position on the editor component should be updated.
         this.$emit("commentClicked", comment.highlightKey);
         this.currentHighlightKey = comment.highlightKey;
       },

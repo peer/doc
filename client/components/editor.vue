@@ -298,6 +298,9 @@
                 });
               });
             }
+            // Steps are added to the content and the "contentChanged" event is emited
+            // only if the content version really changed. This prevents layoutComments
+            // from running unnecessarily on the sidebar component.
             if (this.currentVersion !== sendable.version) {
               this.addingStepsInProgress = true;
               Content.addSteps({
@@ -313,6 +316,8 @@
               this.$emit("contentChanged");
             }
           }
+          // Evaluate if the cursor is over a highlighted text and if the
+          // related comment should be focused on the sidebar.
           if (newState.selection.$cursor) {
             const cursorPos = newState.doc.resolve(newState.selection.$cursor.pos);
             const afterPosMarks = cursorPos.nodeAfter ? cursorPos.nodeAfter.marks : [];
@@ -640,6 +645,8 @@
         }).forEach((chunk) => {
           addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
         });
+        // Notify to parent component that a new comment is added and layoutComments should be executed on
+        // sidebar component.
         this.$emit("commentAdded", key);
         this.updateCursor();
       },
