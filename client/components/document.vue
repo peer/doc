@@ -8,7 +8,7 @@
         :client-id="clientId"
         @contentChanged="onContentChanged"
         @highlightSelected="onHighlightSelected"
-        @commentAdded="onCommentAdded"
+        @showNewCommentForm="onShowNewCommentForm"
         :read-only="document.isPublished()"
         ref="editor"
       />
@@ -20,6 +20,7 @@
         :document-published="document.isPublished()"
         :client-id="clientId"
         @commentClicked="onCommentClicked"
+        @commentAdded="onCommentAdded"
         ref="sidebar" />
     </v-flex>
   </v-layout>
@@ -76,8 +77,11 @@
       onCommentClicked(highlightKey) {
         this.$refs.editor.updateCursor(highlightKey);
       },
+      onShowNewCommentForm(show, start) {
+        this.$refs.sidebar.showNewCommentForm(show, start);
+      },
       onCommentAdded(highlightKey) {
-        this.$refs.sidebar.commentAdded(highlightKey);
+        this.$refs.editor.onCommentAdded(highlightKey);
       },
     },
   };

@@ -10,7 +10,7 @@
     <v-layout row wrap ref="commentsList">
       <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
         <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
-          <v-container style="padding: 0px;">
+          <v-container v-if="!comment.dummy" style="padding: 0px;">
             <comment :comment="comment"/>
             <v-container style="padding-top: 5px; padding-bottom: 5px" v-show="!comment.focus && comment.hasManyReplies">
               <v-divider/>
@@ -59,6 +59,7 @@
 </template>
 
 <script>
+  import {Random} from 'meteor/random';
 
   import {Comment} from '/lib/documents/comment';
 
@@ -67,6 +68,7 @@
     return {
       left: e.left + window.scrollX,
       top: e.top + window.scrollY,
+      bottom: e.bottom + window.scrollY,
     };
   }
 
@@ -137,9 +139,64 @@
     },
 
     methods: {
+      moveComments(dummy) {
+        const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
+        this.documentComments = this.documentComments.map((x) => {
+          if (x.dummy) {
+            return x;
+          }
 
-      commentAdded(highlightKey) {
-        this.currentHighlightKey = highlightKey;
+          // `highlightTop` will indicate the Y position of each text segment inside
+          // the editor that contains each comment.
+          const el = getElementByHighlightKey(commentMarksEls, x.highlightKey);
+
+          let highlightTop;
+
+          if (getOffset(el).top <= dummy.highlightTop && getOffset(el).bottom >= dummy.highlightTop) {
+            highlightTop = getOffset(el).top - (getOffset(el).bottom - dummy.highlightTop);
+          }
+          else {
+            highlightTop = getOffset(el).top;
+          }
+
+          return Object.assign({}, x, {
+            highlightTop,
+          });
+        });
+      },
+
+      showNewCommentForm(show, start, selection) {
+        this.documentComments = this.documentComments.filter((x) => {
+          return !x.dummy;
+        });
+        if (show) {
+          const dummyComment = {
+            dummy: true,
+            selection,
+            highlightTop: start.top + window.scrollY,
+            focus: true,
+            createdAt: new Date(),
+            replyTo: null,
+            showDetails: false,
+            showAllReplies: false,
+            hasManyReplies: false,
+            isReply: false,
+          };
+          this.documentComments.push(dummyComment);
+          this.moveComments(dummyComment);
+          this.documentComments.sort((a, b) => {
+            if (a.highlightTop !== b.highlightTop) {
+              return a.highlightTop - b.highlightTop;
+            }
+            else {
+              return a.createdAt - b.createdAt;
+            }
+          });
+          this.layoutCommentsAfterRender();
+        }
+        else {
+          this.layoutCommentsAfterRender();
+        }
       },
 
       commentClick(comment) {
@@ -173,12 +230,24 @@
       },
 
       onReply(comment) {
-        Comment.create({
-          highlightKey: comment.highlightKey,
-          body: comment.reply,
-          documentId: this.documentId,
-          replyTo: comment._id,
-        });
+        if (comment.dummy) {
+          const key = Random.id();
+          Comment.create({
+            highlightKey: key,
+            body: comment.reply,
+            documentId: this.documentId,
+          });
+          this.$emit("commentAdded", key);
+          return;
+        }
+        else {
+          Comment.create({
+            highlightKey: comment.highlightKey,
+            body: comment.reply,
+            documentId: this.documentId,
+            replyTo: comment._id,
+          });
+        }
         comment.focus = true; // eslint-disable-line no-param-reassign
         // Notify to parent component that a comment is focused and the
         // cursor position on the editor component should be updated.
@@ -222,6 +291,7 @@
               showDetails: false,
             });
           });
+
           return Object.assign({}, comment, {
             replies: commentReplies,
           });
@@ -230,6 +300,9 @@
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
         const {currentHighlightKey} = this;
         this.documentComments = currentComments.map((c, i) => {
+          if (c.dummy) {
+            return c;
+          }
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
           const el = getElementByHighlightKey(commentMarksEls, c.highlightKey);
@@ -284,6 +357,9 @@
         }
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
         const highlightTops = this.documentComments.map((c, i) => {
+          if (c.dummy) {
+            return c.highlightTop;
+          }
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
           const el = getElementByHighlightKey(commentMarksEls, c.highlightKey);
