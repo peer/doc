@@ -71,14 +71,14 @@
               multi-line
               rows="2"
               v-model="comment"
-              placeholder="Comment..."
+              :placeholder="commentHint"
               required
             />
           </v-form>
         </v-card-text>
         <v-card-actions style="padding-top:0px">
-          <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
-          <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
+          <v-btn color="secondary" flat @click="cancelComment"><translate>cancel</translate></v-btn>
+          <v-btn color="primary" flat @click="insertComment"><translate>insert</translate></v-btn>
         </v-card-actions>
       </v-card>
     </v-menu>
@@ -192,10 +192,14 @@
         headingIsActive: null,
         blockIsActive: null,
         cursors: [],
+        currentHighlightKey: null,
+        currentHighlightKeyChanged: false,
+        currentVersion: null,
         linkValidationRule: (value) => {
           const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
           return urlRegex.test(value) || this.$gettext("invalid-url");
         },
+        commentHint: this.$gettext("comment-hint"),
       };
     },
 
@@ -294,18 +298,42 @@
                 });
               });
             }
-            this.addingStepsInProgress = true;
-            Content.addSteps({
-              contentKey: this.contentKey,
-              currentVersion: sendable.version,
-              steps: sendable.steps,
-              clientId,
-            }, (error, stepsAdded) => {
-              this.addingStepsInProgress = false;
-              // TODO: Error handling.
-            });
-            this.$emit("contentChanged");
+            // Steps are added to the content and the "contentChanged" event is emited
+            // only if the content version really changed. This prevents layoutComments
+            // from running unnecessarily on the sidebar component.
+            if (this.currentVersion !== sendable.version) {
+              this.addingStepsInProgress = true;
+              Content.addSteps({
+                contentKey: this.contentKey,
+                currentVersion: sendable.version,
+                steps: sendable.steps,
+                clientId,
+              }, (error, stepsAdded) => {
+                this.addingStepsInProgress = false;
+                // TODO: Error handling.
+              });
+              this.currentVersion = sendable.version;
+              this.$emit("contentChanged");
+            }
           }
+          // Evaluate if the cursor is over a highlighted text and if the
+          // related comment should be focused on the sidebar.
+          if (newState.selection.$cursor) {
+            const cursorPos = newState.doc.resolve(newState.selection.$cursor.pos);
+            const afterPosMarks = cursorPos.nodeAfter ? cursorPos.nodeAfter.marks : [];
+            if (afterPosMarks) {
+              const highlightkeys = afterPosMarks.find((x) => {
+                return x.attrs["highlight-keys"];
+              });
+              const current = highlightkeys ? highlightkeys.attrs["highlight-keys"].split(",")[0] : undefined;
+              if (this.currentHighlightKey !== current) {
+                this.currentHighlightKey = current;
+                this.currentHighlightKeyChanged = true;
+                this.$emit("highlightSelected", current);
+              }
+            }
+          }
+
           throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
         },
         editable: () => {
@@ -385,6 +413,33 @@
     },
 
     methods: {
+      updateCursor(highlightKey) {
+        const {tr} = this.$editorView.state;
+        this.currentHighlightKey = highlightKey;
+        this.currentHighlightKeyChanged = true;
+        let highlightPos = tr.selection.from;
+        let keepSearching = true;
+        // Highlighted selection position search.
+        if (highlightKey) {
+          this.$editorView.state.doc.descendants((node, pos) => {
+            if (keepSearching) {
+              node.marks.forEach((x) => {
+                if (x.attrs["highlight-keys"] && x.attrs["highlight-keys"].split(',').indexOf(highlightKey) >= 0) {
+                  highlightPos = pos;
+                  keepSearching = false;
+                }
+              });
+            }
+            return keepSearching;
+          });
+        }
+        // Cursor position update.
+        tr.setSelection(TextSelection.create(tr.doc, highlightPos));
+        tr.scrollIntoView();
+        this.$editorView.focus();
+        this.$editorView.dispatch(tr);
+      },
+
       onButtonChange(reference) {
         this[`${reference}IsActive`] = _.some(this.$refs[reference].buttons, (button) => {
           return button.isActive;
@@ -590,6 +645,10 @@
         }).forEach((chunk) => {
           addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
         });
+        // Notify to parent component that a new comment is added and layoutComments should be executed on
+        // sidebar component.
+        this.$emit("commentAdded", key);
+        this.updateCursor();
       },
 
       cancelComment() {
@@ -684,7 +743,12 @@
   }
 
   .highlight {
-    background: #ffe168;
+    background: #f9e48e;
+    margin-bottom: -1px;
+  }
+
+  .highlight--selected {
+    background: #f9d543;
     border-bottom: 1px solid #f22;
     margin-bottom: -1px;
   }

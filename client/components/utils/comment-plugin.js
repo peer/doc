@@ -11,10 +11,16 @@ function getDecorations(doc, vueInstance) {
     });
     if (mark) {
       keys.push(mark.attrs["highlight-keys"].split(","));
-      result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "highlight"}));
+      if (vueInstance.currentHighlightKey && mark.attrs["highlight-keys"].split(",").indexOf(vueInstance.currentHighlightKey) >= 0) {
+        result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "highlight--selected"}));
+      }
+      else {
+        result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "highlight"}));
+      }
     }
   });
   vueInstance.filterComments(_.flatten(keys));
+  vueInstance.currentHighlightKeyChanged = false; // eslint-disable-line no-param-reassign
   return DecorationSet.create(doc, result);
 }
 export const commentPlugin = (vueInstance) => {
@@ -24,7 +30,7 @@ export const commentPlugin = (vueInstance) => {
         return DecorationSet.empty;
       },
       apply(tr, old) {
-        return tr.docChanged ? getDecorations(tr.doc, vueInstance) : old;
+        return tr.docChanged || vueInstance.currentHighlightKeyChanged ? getDecorations(tr.doc, vueInstance) : old;
       },
     },
     props: {

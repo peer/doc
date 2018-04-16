@@ -1,4 +1,4 @@
-# English translations for peer-doc package.
+# Portuguese translations for peer-doc package.
 # Copyright (C) 2018 THE peer-doc'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the peer-doc package.
 # Automatically generated, 2018.
@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-05 11:22-0700\n"
-"PO-Revision-Date: 2018-03-05 12:12-0300\n"
+"POT-Creation-Date: 2018-04-10 22:41-0400\n"
+"PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "Language: pt_BR\n"
@@ -21,14 +21,27 @@ msgstr ""
 msgid "access-denied"
 msgstr "Acesso negado."
 
-#: client/components/editor.vue:103
+#: client/components/editor.vue:79 client/components/editor.vue:103
 #: client/components/publish-confirmation.vue:13
+#: client/components/sidebar.vue:46
 msgid "cancel"
 msgstr "Cancelar"
 
 #: client/components/app-layout.vue:30
 msgid "close"
 msgstr "Fechar"
+
+#: client/components/comment.vue:11
+msgid "comment-created-at"
+msgstr "Criado %{at}"
+
+#: client/components/editor.vue:201
+msgid "comment-hint"
+msgstr "Insira um comentário"
+
+#: client/components/sidebar.vue:113
+msgid "comment-reply-hint"
+msgstr "Insira uma resposta"
 
 #: client/components/documents.vue:7
 msgid "document-create"
@@ -70,11 +83,12 @@ msgstr "Documentos"
 msgid "front-page"
 msgstr "Página inicial."
 
-#: client/components/editor.vue:105
+#: client/components/editor.vue:80 client/components/editor.vue:105
+#: client/components/sidebar.vue:47
 msgid "insert"
 msgstr "Inserir"
 
-#: client/components/editor.vue:197
+#: client/components/editor.vue:199
 msgid "invalid-url"
 msgstr "Endereço inválido."
 
@@ -157,3 +171,7 @@ msgstr "O nome de usuário é obrigatório"
 #: client/components/user-signin.vue:36
 msgid "username-too-short"
 msgstr "O nome de usuário é muito curto, deve ser pelo menos 4 caracteres"
+
+#: client/components/sidebar.vue:18
+msgid "view-all-replies"
+msgstr "Ver todas as respostas"
