@@ -42,26 +42,46 @@
 
     <v-card-text ref="editor" class="editor" />
 
-    <v-card ref="addCommentForm" class="comment__form elevation-10" width="250px">
-      <v-card-text style="padding-bottom:0px">
-        <v-form @submit.prevent="insertComment">
-          <v-text-field
-            style="padding-top:0px"
-            autofocus
-            multi-line
-            rows="1"
-            hide-details
-            v-model="comment"
-            placeholder="Comment..."
-            required
-          />
-        </v-form>
-      </v-card-text>
-      <v-card-actions style="padding-top:5px; padding-bottom:10px">
-        <v-btn small color="secondary" flat @click="cancelComment">Cancel</v-btn>
-        <v-btn small color="primary" flat @click="insertComment">Insert</v-btn>
-      </v-card-actions>
-    </v-card>
+    <v-menu
+      offset-x
+      :close-on-content-click="false"
+      :nudge-width="200"
+      nudge-right="10"
+      nudge-top="-20"
+      v-model="commentDialog"
+      ref="addCommentButton"
+      class="btn-comment"
+    >
+      <v-btn
+        color="white"
+        small
+        bottom
+        right
+        fab
+        slot="activator"
+      >
+        <v-icon>comment</v-icon>
+      </v-btn>
+      <v-card>
+        <v-card-text style="padding-bottom:0px">
+          <v-form @submit.prevent="insertComment">
+            <v-text-field
+              style="padding-top:0px"
+              autofocus
+              multi-line
+              rows="2"
+              v-model="comment"
+              placeholder="Comment..."
+              required
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions style="padding-top:0px">
+          <v-btn color="secondary" flat @click="cancelComment">Cancel</v-btn>
+          <v-btn color="primary" flat @click="insertComment">Insert</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-menu>
 
     <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
       <v-card>
@@ -157,6 +177,7 @@
         link: '',
         linkDialog: false,
         linkHint: this.$gettext("link-hint"),
+        commentDialog: false,
         comment: '',
         selectedExistingLinks: [],
         selectedExistingHighlights: [],
@@ -520,6 +541,10 @@
         this.$editorView.focus();
       },
 
+      openCommentDialog() {
+        this.commentDialog = true;
+      },
+
       insertComment() {
         const {comment} = this;
         const {selection} = this.$editorView.state;
@@ -528,6 +553,7 @@
         }
 
         const key = Random.id();
+        this.commentDialog = false;
         this.comment = '';
         Comment.create({
           highlightKey: key,
@@ -564,13 +590,10 @@
         }).forEach((chunk) => {
           addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
         });
-        this.$refs.addCommentForm.$el.style.opacity = 0;
-        this.$refs.addCommentForm.$el.style.visibility = 'hidden';
       },
 
       cancelComment() {
-        this.$refs.addCommentForm.$el.style.opacity = 0;
-        this.$refs.addCommentForm.$el.style.visibility = 'hidden';
+        this.commentDialog = false;
         this.comment = '';
       },
 
@@ -649,8 +672,8 @@
     margin: 6px 12px;
   }
 
-  .comment__form {
-    left: 102%;
+  .btn-comment {
+    left: 100%;
     z-index: 25;
     margin-top: 33px;
   }
