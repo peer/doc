@@ -7,7 +7,7 @@
         <v-btn v-if="!documentPublished && $currentUserId" color="success" :to="{name: 'publishDocument', params: {documentId}}"><translate>document-publish</translate></v-btn>
       </v-toolbar>
     </v-card>
-    <v-layout row wrap ref="commentsList">
+    <v-layout row wrap ref="commentsList" class="sidebar__comments_container">
       <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
         <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
           <v-container v-if="!comment.dummy" style="padding: 0px;">
@@ -112,6 +112,7 @@
         documentComments: [],
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
+        minCommentMargin: 5,
         commentReplyHint: this.$gettext("comment-reply-hint"),
         currentHighlightKey: null,
       };
@@ -183,7 +184,7 @@
             isReply: false,
           };
           this.documentComments.push(dummyComment);
-          this.moveComments(dummyComment);
+          // this.moveComments(dummyComment);
           this.documentComments.sort((a, b) => {
             if (a.highlightTop !== b.highlightTop) {
               return a.highlightTop - b.highlightTop;
@@ -374,10 +375,15 @@
           return ref.$el.firstChild.offsetHeight + this.commentCardPaddingTop + this.commentCardPaddingBottom;
         });
 
+        let focusedCommentIndex = 0;
         for (let i = 0; i < this.documentComments.length; i += 1) {
           const c = this.documentComments[i];
+          if (c.highlightKey === this.currentHighlightKey) {
+            focusedCommentIndex = i;
+          }
           const height = heights[i];
           let bottom = 0;
+          let top = 0;
           let {marginTop} = c;
           if (i === 0) {
             const el2 = this.$refs.commentsList;
@@ -386,13 +392,72 @@
             marginTop = elY - el2Y > 0 ? elY - el2Y : 0;
             // const {top} = getOffset(this.$refs.comments[i].$el);
             bottom = el2Y + marginTop + height;
+            top = el2Y + marginTop;
           }
           else {
             const previousBottom = this.documentComments[i - 1].bottom;
-            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : 5;
+            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : this.minCommentMargin;
             bottom = previousBottom + marginTop + height;
+            top = previousBottom + this.commentCardPaddingTop + marginTop;
           }
-          this.documentComments.splice(i, 1, Object.assign({}, c, {bottom, marginTop}));
+          this.documentComments.splice(i, 1, Object.assign({}, c, {height, bottom, marginTop, top}));
+        }
+
+        const focused = this.documentComments[focusedCommentIndex];
+        const distance = Math.abs(focused.top - focused.highlightTop);
+
+        // If the focused comment is the first comment of the document
+        // or the first comment of the line, there's no need to move
+        // the comments.
+        if (focusedCommentIndex === 0 || focused.marginTop > this.minCommentMargin) {
+          return;
+        }
+
+        // Move the focused comment to the highlight position. If necesary,
+        // also move the other comments.
+        for (let i = 0; i < this.documentComments.length; i += 1) {
+          const c = this.documentComments[i];
+
+          // New position for the first comment of the document.
+          if (i === 0) {
+            c.marginTop -= distance;
+            c.top -= distance;
+            c.bottom -= distance;
+          }
+          else {
+            const last = this.documentComments[i - 1];
+            // If the last comment is outside the visible area.
+            if (last.marginTop + last.height < 0) {
+              c.top = c.marginTop - last.marginTop - last.height;
+              c.bottom = c.top + c.height;
+              c.marginTop = last.marginTop + last.height;
+            }
+            // If actual comment is the first of the line.
+            else if (c.marginTop > this.minCommentMargin || c.highlightTop !== last.highlightTop) {
+              // If any comment is focused.
+              if (this.currentHighlightKey) {
+                c.top = c.highlightTop;
+                c.bottom = c.top + c.height;
+                // And if the current comment is focused.
+                if (this.currentHighlightKey === c.highlightKey) {
+                  c.marginTop = c.highlightTop - last.bottom;
+                }
+                else {
+                  c.marginTop = c.highlightTop - last.bottom - 37;
+                }
+              }
+              else {
+                c.top = c.marginTop - (c.highlightTop - last.bottom);
+                c.bottom = c.top + c.height;
+                c.marginTop = c.highlightTop - last.bottom;
+              }
+            }
+            else {
+              c.top -= distance;
+              c.bottom -= distance;
+            }
+          }
+          this.documentComments.splice(i, 1, c);
         }
       },
 
@@ -400,8 +465,8 @@
         this.documentComments = this.documentComments.map((x) => {
           return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
         });
-        this.layoutCommentsAfterRender();
         this.currentHighlightKey = highlightKey;
+        this.layoutCommentsAfterRender();
       },
     },
   };
@@ -422,5 +487,12 @@
 
   .sidebar__comment {
     cursor: pointer;
+  }
+
+  .sidebar__comments_container {
+    overflow-y:hidden;
+    padding-left:12px;
+    padding-right:12px;
+    padding-bottom:12px;
   }
 </style>
