@@ -140,32 +140,6 @@
     },
 
     methods: {
-      moveComments(dummy) {
-        const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
-        this.documentComments = this.documentComments.map((x) => {
-          if (x.dummy) {
-            return x;
-          }
-
-          // `highlightTop` will indicate the Y position of each text segment inside
-          // the editor that contains each comment.
-          const el = getElementByHighlightKey(commentMarksEls, x.highlightKey);
-
-          let highlightTop;
-
-          if (getOffset(el).top <= dummy.highlightTop && getOffset(el).bottom >= dummy.highlightTop) {
-            highlightTop = getOffset(el).top - (getOffset(el).bottom - dummy.highlightTop);
-          }
-          else {
-            highlightTop = getOffset(el).top;
-          }
-
-          return Object.assign({}, x, {
-            highlightTop,
-          });
-        });
-      },
-
       showNewCommentForm(show, start, selection) {
         this.documentComments = this.documentComments.filter((x) => {
           return !x.dummy;
@@ -184,7 +158,6 @@
             isReply: false,
           };
           this.documentComments.push(dummyComment);
-          // this.moveComments(dummyComment);
           this.documentComments.sort((a, b) => {
             if (a.highlightTop !== b.highlightTop) {
               return a.highlightTop - b.highlightTop;
