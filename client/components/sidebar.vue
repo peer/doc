@@ -44,7 +44,7 @@
                       />
                     </v-form>
                     <v-card-actions v-if="comment.reply != undefined && comment.reply.length > 0" style="padding-top: 5px; padding-bottom: 0px">
-                      <v-btn small color="secondary" flat @click.stop="comment.focus = false"><translate>cancel</translate></v-btn>
+                      <v-btn small color="secondary" flat @click.stop="showNewCommentForm(false)"><translate>cancel</translate></v-btn>
                       <v-btn small color="primary" flat @click.stop="onReply(comment)"><translate>insert</translate></v-btn>
                     </v-card-actions>
                   </div>
