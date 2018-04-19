@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="sidebar__users">
+  <v-container @mousedown.stop fluid class="sidebar__users">
     <v-card>
       <v-toolbar dense card>
         <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label"><translate>document-draft</translate></v-chip>
