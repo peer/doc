@@ -12,7 +12,7 @@
         <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
           <v-container v-if="!comment.dummy" style="padding: 0px;">
             <comment :comment="comment"/>
-            <v-container style="padding-top: 5px; padding-bottom: 5px" v-show="!comment.focus && comment.hasManyReplies">
+            <v-container style="padding-top: 5px; padding-bottom: 5px" v-if="!comment.focus && comment.hasManyReplies">
               <v-divider/>
               <v-layout row>
                 <v-flex text-xs-center>
@@ -22,14 +22,14 @@
               <v-divider/>
             </v-container>
             <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
-              <comment style="padding-top:5px" v-show="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
+              <comment style="padding-top:5px" v-if="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
             </v-layout>
           </v-container>
           <v-container style="padding: 0px;">
             <v-layout row>
               <v-flex xs10 offset-xs1>
                 <transition>
-                  <div v-show="comment.focus">
+                  <div v-if="comment.focus">
                     <v-form @submit.prevent="onReply">
                       <v-text-field
                         @click.stop
@@ -43,7 +43,7 @@
                         style="padding-top: 0px; padding-bottom: 5px;"
                       />
                     </v-form>
-                    <v-card-actions v-show="comment.reply != undefined && comment.reply.length > 0" style="padding-top: 5px; padding-bottom: 0px">
+                    <v-card-actions v-if="comment.reply != undefined && comment.reply.length > 0" style="padding-top: 5px; padding-bottom: 0px">
                       <v-btn small color="secondary" flat @click.stop="comment.focus = false"><translate>cancel</translate></v-btn>
                       <v-btn small color="primary" flat @click.stop="onReply(comment)"><translate>insert</translate></v-btn>
                     </v-card-actions>
@@ -325,6 +325,78 @@
         });
       },
 
+      // Moves the comments above the focused comment if necessary.
+      moveUpwards(from, distance) {
+        for (let i = from; i > 0; i -= 1) {
+          const c = this.documentComments[i];
+          // If the current comment is aligned with the related highlighted text or if it's the second comment.
+          if (c.marginTop > this.minCommentMargin || i === 1) {
+            const last = this.documentComments[i - 1];
+            // If after moving the comments, the current comment overlaps with other comments
+            // and it isn't the second comment.
+            if (c.marginTop - distance < this.minCommentMargin && i !== 1) {
+              c.top -= c.marginTop - this.minCommentMargin;
+              const newDistance = distance - c.marginTop;
+              c.marginTop = this.minCommentMargin;
+              // Move upwards the comments that are above the current one
+              this.moveUpwards(i, newDistance);
+              break;
+            }
+            // If the current comment isn't aligned with the related highlighted text and
+            // its the second comment.
+            else if (i === 1 && c.marginTop <= this.minCommentMargin) {
+              last.top -= distance;
+              last.marginTop -= distance;
+              // Update modified comments.
+              for (let j = 1; j <= from; j += 1) {
+                const marginTop = this.documentComments[j - 1].marginTop + this.documentComments[j - 1].height + (this.commentCardPaddingBottom / 2);
+                // The comment will be on visible area.
+                if (marginTop > 0) {
+                  this.documentComments[j].top -= this.documentComments[j].marginTop - this.minCommentMargin;
+                  this.documentComments[j].marginTop = this.minCommentMargin;
+                }
+                // The comment will be outside visible area.
+                else {
+                  this.documentComments[j].top -= this.documentComments[j].marginTop - marginTop;
+                  this.documentComments[j].marginTop = marginTop;
+                }
+              }
+              break;
+            }
+            else {
+              c.top -= distance;
+              c.marginTop -= distance;
+              break;
+            }
+          }
+          else {
+            c.top -= distance;
+          }
+        }
+      },
+
+      // Moves the comments below the focused comment if necessary.
+      moveDownwards(from, distance) {
+        let currentDistance = distance;
+        for (let i = from; i < this.documentComments.length; i += 1) {
+          const c = this.documentComments[i];
+          // If the current comment is aligned with the related highlighted text.
+          if (c.marginTop > this.minCommentMargin) {
+            c.marginTop += (currentDistance);
+            break;
+          }
+          // Else if the current comment isn't aligned with the related highlighted text
+          // and after moving the comments, the comment is above the related highlighted text.
+          else if (c.marginTop <= this.minCommentMargin && c.top - (currentDistance) < c.highlightTop && c.highlightTop !== this.documentComments[from].highlightTop) {
+            const newDistance = c.top - c.highlightTop;
+            c.marginTop = c.highlightTop - (c.top - (currentDistance));
+            c.top = c.highlightTop;
+            currentDistance = newDistance;
+          }
+          // Else, the marginTop is not modified.
+        }
+      },
+
       layoutComments() {
         if (!this.$refs.comments) {
           return;
@@ -344,8 +416,8 @@
         });
 
         const heights = this.$refs.comments.map((ref) => {
-          // Comment and replies container height (without comment input container) + comment card padding.
-          return ref.$el.firstChild.offsetHeight + this.commentCardPaddingTop + this.commentCardPaddingBottom;
+          // Comment thread container height.
+          return ref.$el.offsetHeight;
         });
 
         let focusedCommentIndex = 0;
@@ -371,7 +443,7 @@
             const previousBottom = this.documentComments[i - 1].bottom;
             marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : this.minCommentMargin;
             bottom = previousBottom + marginTop + height;
-            top = previousBottom + this.commentCardPaddingTop + marginTop;
+            top = previousBottom + marginTop;
           }
           this.documentComments.splice(i, 1, Object.assign({}, c, {height, bottom, marginTop, top}));
         }
@@ -379,58 +451,11 @@
         const focused = this.documentComments[focusedCommentIndex];
         const distance = Math.abs(focused.top - focused.highlightTop);
 
-        // If the focused comment is the first comment of the document
-        // or the first comment of the line, there's no need to move
-        // the comments.
-        if (focusedCommentIndex === 0 || focused.marginTop > this.minCommentMargin) {
-          return;
-        }
-
-        // Move the focused comment to the highlight position. If necesary,
-        // also move the other comments.
-        for (let i = 0; i < this.documentComments.length; i += 1) {
-          const c = this.documentComments[i];
-
-          // New position for the first comment of the document.
-          if (i === 0) {
-            c.marginTop -= distance;
-            c.top -= distance;
-            c.bottom -= distance;
-          }
-          else {
-            const last = this.documentComments[i - 1];
-            // If the last comment is outside the visible area.
-            if (last.marginTop + last.height < 0) {
-              c.top = c.marginTop - last.marginTop - last.height;
-              c.bottom = c.top + c.height;
-              c.marginTop = last.marginTop + last.height;
-            }
-            // If actual comment is the first of the line.
-            else if (c.marginTop > this.minCommentMargin || c.highlightTop !== last.highlightTop) {
-              // If any comment is focused.
-              if (this.currentHighlightKey) {
-                c.top = c.highlightTop;
-                c.bottom = c.top + c.height;
-                // And if the current comment is focused.
-                if (this.currentHighlightKey === c.highlightKey) {
-                  c.marginTop = c.highlightTop - last.bottom;
-                }
-                else {
-                  c.marginTop = c.highlightTop - last.bottom - 37;
-                }
-              }
-              else {
-                c.top = c.marginTop - (c.highlightTop - last.bottom);
-                c.bottom = c.top + c.height;
-                c.marginTop = c.highlightTop - last.bottom;
-              }
-            }
-            else {
-              c.top -= distance;
-              c.bottom -= distance;
-            }
-          }
-          this.documentComments.splice(i, 1, c);
+        // If there is a focused comment, move the focused comment next to the
+        // related highlight. Also move the other comments if necessary.
+        if (this.currentHighlightKey) {
+          this.moveUpwards(focusedCommentIndex, distance);
+          this.moveDownwards(focusedCommentIndex, distance);
         }
       },
 
