@@ -1,5 +1,5 @@
 <template>
-  <v-layout v-if="document" row @click="onDocumentClicked">
+  <v-layout v-if="document" row @mousedown="onMouseDown">
     <v-flex xs8>
       <!-- TODO: Display editor only if you have permissions. -->
       <editor
@@ -63,7 +63,7 @@
     },
 
     methods: {
-      onDocumentClicked(event) {
+      onMouseDown(event) {
         if (event.target.className !== 'highlight--selected') {
           this.$refs.sidebar.collapseComments();
         }
