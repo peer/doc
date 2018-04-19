@@ -156,6 +156,7 @@
             showAllReplies: false,
             hasManyReplies: false,
             isReply: false,
+            replies: [],
           };
           this.documentComments.push(dummyComment);
           this.documentComments.sort((a, b) => {
@@ -420,10 +421,10 @@
           return ref.$el.offsetHeight;
         });
 
-        let focusedCommentIndex = 0;
+        let focusedCommentIndex = -1;
         for (let i = 0; i < this.documentComments.length; i += 1) {
           const c = this.documentComments[i];
-          if (c.highlightKey === this.currentHighlightKey) {
+          if (c.highlightKey === this.currentHighlightKey || c.dummy) {
             focusedCommentIndex = i;
           }
           const height = heights[i];
@@ -448,12 +449,11 @@
           this.documentComments.splice(i, 1, Object.assign({}, c, {height, bottom, marginTop, top}));
         }
 
-        const focused = this.documentComments[focusedCommentIndex];
-        const distance = Math.abs(focused.top - focused.highlightTop);
-
         // If there is a focused comment, move the focused comment next to the
         // related highlight. Also move the other comments if necessary.
-        if (this.currentHighlightKey) {
+        if (focusedCommentIndex > -1) {
+          const focused = this.documentComments[focusedCommentIndex];
+          const distance = Math.abs(focused.top - focused.highlightTop);
           this.moveUpwards(focusedCommentIndex, distance);
           this.moveDownwards(focusedCommentIndex, distance);
         }
