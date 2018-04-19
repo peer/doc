@@ -37,7 +37,7 @@
                         rows="1"
                         v-model="comment.reply"
                         auto-grow
-                        :placeholder="commentReplyHint"
+                        :placeholder="comment.dummy ? commentHint : commentReplyHint"
                         required
                         hide-details
                         style="padding-top: 0px; padding-bottom: 5px;"
@@ -114,6 +114,7 @@
         commentCardPaddingBottom: 10,
         minCommentMargin: 5,
         commentReplyHint: this.$gettext("comment-reply-hint"),
+        commentHint: this.$gettext("comment-hint"),
         currentHighlightKey: null,
       };
     },
