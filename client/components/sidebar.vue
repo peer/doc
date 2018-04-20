@@ -11,9 +11,9 @@
       <transition-group :name="transitionName" class="layout row wrap">
         <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id ? comment._id : 'dummy'" :style="{marginTop: `${comment.marginTop}px`}">
           <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
-            <v-container v-if="!comment.dummy" style="padding: 0px;">
+            <v-container v-if="!comment.dummy" class="comment__container">
               <comment :comment="comment"/>
-              <v-container style="padding-top: 5px; padding-bottom: 5px" v-if="!comment.focus && comment.hasManyReplies">
+              <v-container class="comment__show_replies" v-if="!comment.focus && comment.hasManyReplies">
                 <v-divider/>
                 <v-layout row>
                   <v-flex text-xs-center>
@@ -23,10 +23,10 @@
                 <v-divider/>
               </v-container>
               <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
-                <comment style="padding-top:5px" v-if="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
+                <comment class="comment__reply" v-if="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
               </v-layout>
             </v-container>
-            <v-container style="padding: 0px;">
+            <v-container class="comment__input_container">
               <v-layout row>
                 <v-flex xs10 offset-xs1>
                   <transition name="comment__form">
@@ -41,10 +41,10 @@
                           :placeholder="comment.dummy ? commentHint : commentReplyHint"
                           required
                           hide-details
-                          style="padding-top: 0px; padding-bottom: 5px;"
+                          class="comment__input"
                         />
                       </v-form>
-                      <v-card-actions v-if="comment.reply != undefined && comment.reply.length > 0" style="padding-top: 5px; padding-bottom: 0px">
+                      <v-card-actions v-if="comment.reply != undefined && comment.reply.length > 0" class="comment__actions" >
                         <v-btn small color="secondary" flat @click.stop="showNewCommentForm(false)"><translate>cancel</translate></v-btn>
                         <v-btn small color="primary" flat @click.stop="onReply(comment)"><translate>insert</translate></v-btn>
                       </v-card-actions>
@@ -541,6 +541,33 @@
     transition: opacity 0.5s;
     -webkit-transition: opacity 0.5s;
     opacity: 0;
+  }
+
+  .comment__container {
+    padding: 0px;
+  }
+
+  .comment__show_replies {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  .comment__reply {
+    padding-top:5px;
+  }
+
+  .comment__input_container {
+    padding: 0px;
+  }
+
+  .comment__input {
+    padding-top: 0px;
+    padding-bottom: 5px;
+  }
+
+  .comment__actions {
+    padding-top: 5px;
+    padding-bottom: 0px;
   }
 
 </style>
