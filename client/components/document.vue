@@ -69,7 +69,7 @@
         }
       },
       onContentChanged() {
-        this.$refs.sidebar.layoutComments();
+        this.$refs.sidebar.onContentChanged();
       },
       onHighlightSelected(highlightKey) {
         this.$refs.sidebar.focusComment(highlightKey);

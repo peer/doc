@@ -7,53 +7,55 @@
         <v-btn v-if="!documentPublished && $currentUserId" color="success" :to="{name: 'publishDocument', params: {documentId}}"><translate>document-publish</translate></v-btn>
       </v-toolbar>
     </v-card>
-    <v-layout row wrap ref="commentsList" class="sidebar__comments_container">
-      <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
-        <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
-          <v-container v-if="!comment.dummy" style="padding: 0px;">
-            <comment :comment="comment"/>
-            <v-container style="padding-top: 5px; padding-bottom: 5px" v-if="!comment.focus && comment.hasManyReplies">
-              <v-divider/>
+    <v-layout ref="commentsList" class="sidebar__comments_container">
+      <transition-group :name="transitionName" class="layout row wrap">
+        <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id ? comment._id : 'dummy'" :style="{marginTop: `${comment.marginTop}px`}">
+          <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
+            <v-container v-if="!comment.dummy" style="padding: 0px;">
+              <comment :comment="comment"/>
+              <v-container style="padding-top: 5px; padding-bottom: 5px" v-if="!comment.focus && comment.hasManyReplies">
+                <v-divider/>
+                <v-layout row>
+                  <v-flex text-xs-center>
+                    <v-btn flat small @click="commentClick(comment)"><translate>view-all-replies</translate></v-btn>
+                  </v-flex>
+                </v-layout>
+                <v-divider/>
+              </v-container>
+              <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
+                <comment style="padding-top:5px" v-if="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
+              </v-layout>
+            </v-container>
+            <v-container style="padding: 0px;">
               <v-layout row>
-                <v-flex text-xs-center>
-                  <v-btn flat small @click="commentClick(comment)"><translate>view-all-replies</translate></v-btn>
+                <v-flex xs10 offset-xs1>
+                  <transition name="comment__form">
+                    <div v-if="comment.focus">
+                      <v-form @submit.prevent="onReply">
+                        <v-text-field
+                          @click.stop
+                          multi-line
+                          rows="1"
+                          v-model="comment.reply"
+                          auto-grow
+                          :placeholder="comment.dummy ? commentHint : commentReplyHint"
+                          required
+                          hide-details
+                          style="padding-top: 0px; padding-bottom: 5px;"
+                        />
+                      </v-form>
+                      <v-card-actions v-if="comment.reply != undefined && comment.reply.length > 0" style="padding-top: 5px; padding-bottom: 0px">
+                        <v-btn small color="secondary" flat @click.stop="showNewCommentForm(false)"><translate>cancel</translate></v-btn>
+                        <v-btn small color="primary" flat @click.stop="onReply(comment)"><translate>insert</translate></v-btn>
+                      </v-card-actions>
+                    </div>
+                  </transition>
                 </v-flex>
               </v-layout>
-              <v-divider/>
             </v-container>
-            <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
-              <comment style="padding-top:5px" v-if="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
-            </v-layout>
-          </v-container>
-          <v-container style="padding: 0px;">
-            <v-layout row>
-              <v-flex xs10 offset-xs1>
-                <transition>
-                  <div v-if="comment.focus">
-                    <v-form @submit.prevent="onReply">
-                      <v-text-field
-                        @click.stop
-                        multi-line
-                        rows="1"
-                        v-model="comment.reply"
-                        auto-grow
-                        :placeholder="comment.dummy ? commentHint : commentReplyHint"
-                        required
-                        hide-details
-                        style="padding-top: 0px; padding-bottom: 5px;"
-                      />
-                    </v-form>
-                    <v-card-actions v-if="comment.reply != undefined && comment.reply.length > 0" style="padding-top: 5px; padding-bottom: 0px">
-                      <v-btn small color="secondary" flat @click.stop="showNewCommentForm(false)"><translate>cancel</translate></v-btn>
-                      <v-btn small color="primary" flat @click.stop="onReply(comment)"><translate>insert</translate></v-btn>
-                    </v-card-actions>
-                  </div>
-                </transition>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card>
-      </v-flex>
+          </v-card>
+        </v-flex>
+      </transition-group>
     </v-layout>
   </v-container>
 </template>
@@ -116,7 +118,14 @@
         commentReplyHint: this.$gettext("comment-reply-hint"),
         commentHint: this.$gettext("comment-hint"),
         currentHighlightKey: null,
+        animate: true,
       };
+    },
+
+    computed: {
+      transitionName() {
+        return this.animate ? 'sidebar__comments_slow' : 'sidebar__comments_fast';
+      },
     },
 
     created() {
@@ -168,11 +177,17 @@
               return a.createdAt - b.createdAt;
             }
           });
-          this.layoutCommentsAfterRender();
+          this.animate = true;
         }
         else {
-          this.layoutCommentsAfterRender();
+          this.animate = false;
         }
+        this.layoutCommentsAfterRender();
+      },
+
+      onContentChanged() {
+        this.animate = false;
+        this.layoutComments();
       },
 
       commentClick(comment) {
@@ -186,6 +201,7 @@
         // Notify to parent component that a comment is focused and the
         // cursor position on the editor component should be updated.
         this.$emit("commentClicked", comment.highlightKey);
+        this.animate = true;
         this.layoutCommentsAfterRender();
       },
 
@@ -202,6 +218,7 @@
           });
         });
         this.currentHighlightKey = null;
+        this.animate = false;
         this.layoutCommentsAfterRender();
       },
 
@@ -214,6 +231,7 @@
             documentId: this.documentId,
           });
           this.$emit("commentAdded", key);
+          this.animate = false;
           return;
         }
         else {
@@ -465,6 +483,7 @@
           return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
         });
         this.currentHighlightKey = highlightKey;
+        this.animate = true;
         this.layoutCommentsAfterRender();
       },
     },
@@ -494,4 +513,34 @@
     padding-right:12px;
     padding-bottom:12px;
   }
+
+  .sidebar__comments_slow-move {
+    transition: transform 1s;
+    -webkit-transition: transform 1s;
+    transition-delay: 0.17s;
+    -webkit-transition-delay: 0.17s;
+  }
+
+  .sidebar__comments_fast-move {
+    transition: transform 0.0000000001s;
+    -webkit-transition: transform 0.0000000001s;
+    transition-delay: 0.0000000001s;
+    -webkit-transition-delay: 0.0000000001s;
+  }
+
+  .comment__form-enter {
+    opacity: 0;
+  }
+
+  .comment__form-enter-active {
+    transition: opacity 0.5s;
+    -webkit-transition: opacity 0.5s;
+  }
+
+  .comment__form-leave-active {
+    transition: opacity 0.5s;
+    -webkit-transition: opacity 0.5s;
+    opacity: 0;
+  }
+
 </style>
