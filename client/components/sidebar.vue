@@ -31,12 +31,12 @@
                 <v-flex xs10 offset-xs1>
                   <transition name="comment__form">
                     <div v-if="comment.focus">
-                      <v-form @submit.prevent="onReply">
+                      <v-form @submit.prevent="insertComment">
                         <v-text-field
                           @click.stop
                           multi-line
                           rows="1"
-                          v-model="comment.reply"
+                          v-model="comment.input"
                           auto-grow
                           :placeholder="comment.dummy ? commentHint : commentReplyHint"
                           required
@@ -44,9 +44,9 @@
                           class="comment__input"
                         />
                       </v-form>
-                      <v-card-actions v-if="comment.reply != undefined && comment.reply.length > 0" class="comment__actions" >
+                      <v-card-actions v-if="comment.input != undefined && comment.input.length > 0" class="comment__actions" >
                         <v-btn small color="secondary" flat @click.stop="showNewCommentForm(false)"><translate>cancel</translate></v-btn>
-                        <v-btn small color="primary" flat @click.stop="onReply(comment)"><translate>insert</translate></v-btn>
+                        <v-btn small color="primary" flat @click.stop="insertComment(comment)"><translate>insert</translate></v-btn>
                       </v-card-actions>
                     </div>
                   </transition>
@@ -222,12 +222,12 @@
         this.layoutCommentsAfterRender();
       },
 
-      onReply(comment) {
+      insertComment(comment) {
         if (comment.dummy) {
           const key = Random.id();
           Comment.create({
             highlightKey: key,
-            body: comment.reply,
+            body: comment.input,
             documentId: this.documentId,
           });
           this.$emit("commentAdded", key);
@@ -237,7 +237,7 @@
         else {
           Comment.create({
             highlightKey: comment.highlightKey,
-            body: comment.reply,
+            body: comment.input,
             documentId: this.documentId,
             replyTo: comment._id,
           });
