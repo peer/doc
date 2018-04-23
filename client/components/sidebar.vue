@@ -225,12 +225,12 @@
       insertComment(comment) {
         if (comment.dummy) {
           const key = Random.id();
+          this.$emit("commentAdded", key);
           Comment.create({
             highlightKey: key,
             body: comment.input,
             documentId: this.documentId,
           });
-          this.$emit("commentAdded", key);
           this.animate = false;
           return;
         }
