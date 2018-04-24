@@ -225,6 +225,10 @@
       insertComment(comment) {
         if (comment.dummy) {
           const key = Random.id();
+          // Emit commentAdded event first (for adding highlight to selected text) and then persist the comment.
+          // This way, the highlight marks will be rendered before the comments. It must be in this order, because
+          // when a comment is rendered on sidebar it must be related to a highlighted text (which should already be
+          // rendered on the editor). This fixes a bug related to new comments that are not shown in other tabs.
           this.$emit("commentAdded", key);
           Comment.create({
             highlightKey: key,
