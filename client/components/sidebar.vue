@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="sidebar__users">
+  <v-container @mousedown.stop fluid class="sidebar__users">
     <v-card>
       <v-toolbar dense card>
         <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label"><translate>document-draft</translate></v-chip>
@@ -7,15 +7,18 @@
         <v-btn v-if="!documentPublished && $currentUserId" color="success" :to="{name: 'publishDocument', params: {documentId}}"><translate>document-publish</translate></v-btn>
       </v-toolbar>
     </v-card>
-    <v-layout row wrap ref="commentsList">
-      <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
-        <thread :comment="comment" @commentClick="commentClick($event)" @reply="onReply($event)" ref="comments"/>
-      </v-flex>
+    <v-layout ref="commentsList" class="sidebar__comments_container">
+      <transition-group :name="transitionName" class="layout row wrap">
+        <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id ? comment._id : 'dummy'" :style="{marginTop: `${comment.marginTop}px`}">
+          <thread :comment="comment" @commentClick="commentClick($event)" @commentSubmitted="insertComment($event)" @hideNewCommentForm="showNewCommentForm(false)" ref="comments"/>
+        </v-flex>
+      </transition-group>
     </v-layout>
   </v-container>
 </template>
 
 <script>
+  import {Random} from 'meteor/random';
 
   import {Comment} from '/lib/documents/comment';
 
@@ -24,6 +27,7 @@
     return {
       left: e.left + window.scrollX,
       top: e.top + window.scrollY,
+      bottom: e.bottom + window.scrollY,
     };
   }
 
@@ -67,9 +71,18 @@
         documentComments: [],
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
+        minCommentMargin: 5,
         commentReplyHint: this.$gettext("comment-reply-hint"),
+        commentHint: this.$gettext("comment-hint"),
         currentHighlightKey: null,
+        animate: true,
       };
+    },
+
+    computed: {
+      transitionName() {
+        return this.animate ? 'sidebar__comments_slow' : 'sidebar__comments_fast';
+      },
     },
 
     created() {
@@ -94,9 +107,44 @@
     },
 
     methods: {
+      showNewCommentForm(show, start, selection) {
+        this.documentComments = this.documentComments.filter((x) => {
+          return !x.dummy;
+        });
+        if (show) {
+          const dummyComment = {
+            dummy: true,
+            selection,
+            highlightTop: start.top + window.scrollY,
+            focus: true,
+            createdAt: new Date(),
+            replyTo: null,
+            showDetails: false,
+            showAllReplies: false,
+            hasManyReplies: false,
+            isReply: false,
+            replies: [],
+          };
+          this.documentComments.push(dummyComment);
+          this.documentComments.sort((a, b) => {
+            if (a.highlightTop !== b.highlightTop) {
+              return a.highlightTop - b.highlightTop;
+            }
+            else {
+              return a.createdAt - b.createdAt;
+            }
+          });
+          this.animate = true;
+        }
+        else {
+          this.animate = false;
+        }
+        this.layoutCommentsAfterRender();
+      },
 
-      commentAdded(highlightKey) {
-        this.currentHighlightKey = highlightKey;
+      onContentChanged() {
+        this.animate = false;
+        this.layoutComments();
       },
 
       commentClick(comment) {
@@ -111,6 +159,7 @@
           // Notify to parent component that a comment is focused and the
           // cursor position on the editor component should be updated.
           this.$emit("commentClicked", comment.highlightKey);
+          this.animate = true;
           this.layoutCommentsAfterRender();
         }
       },
@@ -128,16 +177,34 @@
           });
         });
         this.currentHighlightKey = null;
+        this.animate = false;
         this.layoutCommentsAfterRender();
       },
 
-      onReply(comment) {
-        Comment.create({
-          highlightKey: comment.highlightKey,
-          body: comment.reply,
-          documentId: this.documentId,
-          replyTo: comment._id,
-        });
+      insertComment(comment) {
+        if (comment.dummy) {
+          const key = Random.id();
+          // Emit commentAdded event first (for adding highlight to selected text) and then persist the comment.
+          // This way, the highlight marks will be rendered before the comments. It must be in this order, because
+          // when a comment is rendered on sidebar it must be related to a highlighted text (which should already be
+          // rendered on the editor). This fixes a bug related to new comments that are not shown in other tabs.
+          this.$emit("commentAdded", key);
+          Comment.create({
+            highlightKey: key,
+            body: comment.input,
+            documentId: this.documentId,
+          });
+          this.animate = false;
+          return;
+        }
+        else {
+          Comment.create({
+            highlightKey: comment.highlightKey,
+            body: comment.input,
+            documentId: this.documentId,
+            replyTo: comment._id,
+          });
+        }
         comment.focus = true; // eslint-disable-line no-param-reassign
         // Notify to parent component that a comment is focused and the
         // cursor position on the editor component should be updated.
@@ -181,6 +248,7 @@
               showDetails: false,
             });
           });
+
           return Object.assign({}, comment, {
             replies: commentReplies,
           });
@@ -189,6 +257,9 @@
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
         const {currentHighlightKey} = this;
         this.documentComments = currentComments.map((c, i) => {
+          if (c.dummy) {
+            return c;
+          }
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
           const el = getElementByHighlightKey(commentMarksEls, c.highlightKey);
@@ -237,12 +308,87 @@
         });
       },
 
+      // Moves the comments above the focused comment if necessary.
+      moveUpwards(from, distance) {
+        for (let i = from; i > 0; i -= 1) {
+          const c = this.documentComments[i];
+          // If the current comment is aligned with the related highlighted text or if it's the second comment.
+          if (c.marginTop > this.minCommentMargin || i === 1) {
+            const last = this.documentComments[i - 1];
+            // If after moving the comments, the current comment overlaps with other comments
+            // and it isn't the second comment.
+            if (c.marginTop - distance < this.minCommentMargin && i !== 1) {
+              c.top -= c.marginTop - this.minCommentMargin;
+              const newDistance = distance - c.marginTop;
+              c.marginTop = this.minCommentMargin;
+              // Move upwards the comments that are above the current one
+              this.moveUpwards(i, newDistance);
+              break;
+            }
+            // If the current comment isn't aligned with the related highlighted text and
+            // its the second comment.
+            else if (i === 1 && c.marginTop <= this.minCommentMargin) {
+              last.top -= distance;
+              last.marginTop -= distance;
+              // Update modified comments.
+              for (let j = 1; j <= from; j += 1) {
+                const marginTop = this.documentComments[j - 1].marginTop + this.documentComments[j - 1].height + (this.commentCardPaddingBottom / 2);
+                // The comment will be on visible area.
+                if (marginTop > 0) {
+                  this.documentComments[j].top -= this.documentComments[j].marginTop - this.minCommentMargin;
+                  this.documentComments[j].marginTop = this.minCommentMargin;
+                }
+                // The comment will be outside visible area.
+                else {
+                  this.documentComments[j].top -= this.documentComments[j].marginTop - marginTop;
+                  this.documentComments[j].marginTop = marginTop;
+                }
+              }
+              break;
+            }
+            else {
+              c.top -= distance;
+              c.marginTop -= distance;
+              break;
+            }
+          }
+          else {
+            c.top -= distance;
+          }
+        }
+      },
+
+      // Moves the comments below the focused comment if necessary.
+      moveDownwards(from, distance) {
+        let currentDistance = distance;
+        for (let i = from; i < this.documentComments.length; i += 1) {
+          const c = this.documentComments[i];
+          // If the current comment is aligned with the related highlighted text.
+          if (c.marginTop > this.minCommentMargin) {
+            c.marginTop += (currentDistance);
+            break;
+          }
+          // Else if the current comment isn't aligned with the related highlighted text
+          // and after moving the comments, the comment is above the related highlighted text.
+          else if (c.marginTop <= this.minCommentMargin && c.top - (currentDistance) < c.highlightTop && c.highlightTop !== this.documentComments[from].highlightTop) {
+            const newDistance = c.top - c.highlightTop;
+            c.marginTop = c.highlightTop - (c.top - (currentDistance));
+            c.top = c.highlightTop;
+            currentDistance = newDistance;
+          }
+          // Else, the marginTop is not modified.
+        }
+      },
+
       layoutComments() {
         if (!this.$refs.comments) {
           return;
         }
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
         const highlightTops = this.documentComments.map((c, i) => {
+          if (c.dummy) {
+            return c.highlightTop;
+          }
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
           const el = getElementByHighlightKey(commentMarksEls, c.highlightKey);
@@ -253,14 +399,19 @@
         });
 
         const heights = this.$refs.comments.map((ref) => {
-          // Comment and replies container height (without comment input container) + comment card padding.
-          return ref.$el.firstChild.offsetHeight + this.commentCardPaddingTop + this.commentCardPaddingBottom;
+          // Comment thread container height.
+          return ref.$el.offsetHeight;
         });
 
+        let focusedCommentIndex = -1;
         for (let i = 0; i < this.documentComments.length; i += 1) {
           const c = this.documentComments[i];
+          if (c.highlightKey === this.currentHighlightKey || c.dummy) {
+            focusedCommentIndex = i;
+          }
           const height = heights[i];
           let bottom = 0;
+          let top = 0;
           let {marginTop} = c;
           if (i === 0) {
             const el2 = this.$refs.commentsList;
@@ -269,13 +420,24 @@
             marginTop = elY - el2Y > 0 ? elY - el2Y : 0;
             // const {top} = getOffset(this.$refs.comments[i].$el);
             bottom = el2Y + marginTop + height;
+            top = el2Y + marginTop;
           }
           else {
             const previousBottom = this.documentComments[i - 1].bottom;
-            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : 5;
+            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : this.minCommentMargin;
             bottom = previousBottom + marginTop + height;
+            top = previousBottom + marginTop;
           }
-          this.documentComments.splice(i, 1, Object.assign({}, c, {bottom, marginTop}));
+          this.documentComments.splice(i, 1, Object.assign({}, c, {height, bottom, marginTop, top}));
+        }
+
+        // If there is a focused comment, move the focused comment next to the
+        // related highlight. Also move the other comments if necessary.
+        if (focusedCommentIndex > -1) {
+          const focused = this.documentComments[focusedCommentIndex];
+          const distance = Math.abs(focused.top - focused.highlightTop);
+          this.moveUpwards(focusedCommentIndex, distance);
+          this.moveDownwards(focusedCommentIndex, distance);
         }
       },
 
@@ -283,8 +445,9 @@
         this.documentComments = this.documentComments.map((x) => {
           return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
         });
-        this.layoutCommentsAfterRender();
         this.currentHighlightKey = highlightKey;
+        this.animate = true;
+        this.layoutCommentsAfterRender();
       },
     },
   };
@@ -303,4 +466,24 @@
     font-weight: bold;
   }
 
+  .sidebar__comments_container {
+    overflow-y:hidden;
+    padding-left:12px;
+    padding-right:12px;
+    padding-bottom:12px;
+  }
+
+  .sidebar__comments_slow-move {
+    transition: transform 1s;
+    -webkit-transition: transform 1s;
+    transition-delay: 0.17s;
+    -webkit-transition-delay: 0.17s;
+  }
+
+  .sidebar__comments_fast-move {
+    transition: transform 0.0000000001s;
+    -webkit-transition: transform 0.0000000001s;
+    transition-delay: 0.0000000001s;
+    -webkit-transition-delay: 0.0000000001s;
+  }
 </style>

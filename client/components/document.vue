@@ -1,5 +1,5 @@
 <template>
-  <v-layout v-if="document" row @click="onDocumentClicked">
+  <v-layout v-if="document" row @mousedown="onMouseDown">
     <v-flex xs8>
       <!-- TODO: Display editor only if you have permissions. -->
       <editor
@@ -8,7 +8,7 @@
         :client-id="clientId"
         @contentChanged="onContentChanged"
         @highlightSelected="onHighlightSelected"
-        @commentAdded="onCommentAdded"
+        @showNewCommentForm="onShowNewCommentForm"
         :read-only="document.isPublished()"
         ref="editor"
       />
@@ -20,6 +20,7 @@
         :document-published="document.isPublished()"
         :client-id="clientId"
         @commentClicked="onCommentClicked"
+        @commentAdded="onCommentAdded"
         ref="sidebar" />
     </v-flex>
   </v-layout>
@@ -62,13 +63,13 @@
     },
 
     methods: {
-      onDocumentClicked(event) {
+      onMouseDown(event) {
         if (event.target.className !== 'highlight--selected') {
           this.$refs.sidebar.collapseComments();
         }
       },
       onContentChanged() {
-        this.$refs.sidebar.layoutComments();
+        this.$refs.sidebar.onContentChanged();
       },
       onHighlightSelected(highlightKey) {
         this.$refs.sidebar.focusComment(highlightKey);
@@ -76,8 +77,11 @@
       onCommentClicked(highlightKey) {
         this.$refs.editor.updateCursor(highlightKey);
       },
+      onShowNewCommentForm(show, start) {
+        this.$refs.sidebar.showNewCommentForm(show, start);
+      },
       onCommentAdded(highlightKey) {
-        this.$refs.sidebar.commentAdded(highlightKey);
+        this.$refs.editor.onCommentAdded(highlightKey);
       },
     },
   };
