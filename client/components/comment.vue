@@ -43,7 +43,7 @@
       // A dummy html node is created to parse the comment body.
       const domNode = document.createElement("div");
       // For the moment, paragraph tags are appended to have valid content, according to the schema.
-      domNode.innerHTML = `<p>${this.comment.body}</p>`;
+      domNode.innerHTML = this.comment.body;
       const state = EditorState.create({
         schema,
         doc: DOMParser.fromSchema(schema).parse(domNode),

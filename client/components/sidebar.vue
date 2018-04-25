@@ -9,50 +9,7 @@
     </v-card>
     <v-layout row wrap ref="commentsList">
       <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}">
-        <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
-          <v-container style="padding: 0px;">
-            <comment :comment="comment"/>
-            <v-container style="padding-top: 5px; padding-bottom: 5px" v-show="!comment.focus && comment.hasManyReplies">
-              <v-divider/>
-              <v-layout row>
-                <v-flex text-xs-center>
-                  <v-btn flat small @click="commentClick(comment)"><translate>view-all-replies</translate></v-btn>
-                </v-flex>
-              </v-layout>
-              <v-divider/>
-            </v-container>
-            <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
-              <comment style="padding-top:5px" v-show="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
-            </v-layout>
-          </v-container>
-          <v-container style="padding: 0px;">
-            <v-layout row>
-              <v-flex xs10 offset-xs1>
-                <transition>
-                  <div v-show="comment.focus">
-                    <v-form @submit.prevent="onReply">
-                      <v-text-field
-                        @click.stop
-                        multi-line
-                        rows="1"
-                        v-model="comment.reply"
-                        auto-grow
-                        :placeholder="commentReplyHint"
-                        required
-                        hide-details
-                        style="padding-top: 0px; padding-bottom: 5px;"
-                      />
-                    </v-form>
-                    <v-card-actions v-show="comment.reply != undefined && comment.reply.length > 0" style="padding-top: 5px; padding-bottom: 0px">
-                      <v-btn small color="secondary" flat @click.stop="comment.focus = false"><translate>cancel</translate></v-btn>
-                      <v-btn small color="primary" flat @click.stop="onReply(comment)"><translate>insert</translate></v-btn>
-                    </v-card-actions>
-                  </div>
-                </transition>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card>
+        <thread :comment="comment" @commentClick="commentClick($event)" @reply="onReply($event)" ref="comments"/>
       </v-flex>
     </v-layout>
   </v-container>
@@ -346,7 +303,4 @@
     font-weight: bold;
   }
 
-  .sidebar__comment {
-    cursor: pointer;
-  }
 </style>
