@@ -143,17 +143,19 @@
       },
 
       commentClick(comment) {
-        this.documentComments = this.documentComments.map((c) => {
-          return Object.assign({}, c, {
-            focus: c._id === comment._id,
+        if (this.currentHighlightKey !== comment.highlightKey) {
+          this.documentComments = this.documentComments.map((c) => {
+            return Object.assign({}, c, {
+              focus: c._id === comment._id,
+            });
           });
-        });
-        this.currentHighlightKey = comment.highlightKey;
-        comment.focus = true; // eslint-disable-line no-param-reassign
-        // Notify to parent component that a comment is focused and the
-        // cursor position on the editor component should be updated.
-        this.$emit("commentClicked", comment.highlightKey);
-        this.layoutCommentsAfterRender();
+          this.currentHighlightKey = comment.highlightKey;
+          comment.focus = true; // eslint-disable-line no-param-reassign
+          // Notify to parent component that a comment is focused and the
+          // cursor position on the editor component should be updated.
+          this.$emit("commentClicked", comment.highlightKey);
+          this.layoutCommentsAfterRender();
+        }
       },
 
       collapseComments() {
