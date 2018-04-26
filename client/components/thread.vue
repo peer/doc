@@ -20,8 +20,7 @@
         <v-flex xs10 offset-xs1>
           <transition name="thread__form">
             <div v-show="comment.focus">
-              <div ref="commentEditor"/>
-              {{comment.input}}
+              <div class="thread__input" ref="commentEditor"/>
               <!-- <v-card-actions v-if="comment.input != undefined && comment.input.length > 0" class="thread__actions" > -->
               <v-card-actions v-if="true" class="thread__actions" >
                 <v-btn small color="secondary" flat @click.stop="hideNewCommentForm()"><translate>cancel</translate></v-btn>
@@ -154,6 +153,7 @@
   .thread__input {
     padding-top: 0px;
     padding-bottom: 5px;
+    border-bottom: 1px solid gray;
   }
 
   .thread__actions {
