@@ -19,10 +19,9 @@
       <v-layout row>
         <v-flex xs10 offset-xs1>
           <transition name="thread__form">
-            <div v-show="comment.focus">
-              <div class="thread__input" ref="commentEditor"/>
-              <!-- <v-card-actions v-if="comment.input != undefined && comment.input.length > 0" class="thread__actions" > -->
-              <v-card-actions v-if="true" class="thread__actions" >
+            <div @click.stop v-show="comment.focus">
+              <comment-editor class="thread__input" :comment="comment" :read-only="false" @empty="showActions=false" @contentDetected="showActions=true"/>
+              <v-card-actions v-if="showActions" class="thread__actions" >
                 <v-btn small color="secondary" flat @click.stop="hideNewCommentForm()"><translate>cancel</translate></v-btn>
                 <v-btn small color="primary" flat @click.stop="submitComment(comment)"><translate>insert</translate></v-btn>
               </v-card-actions>
@@ -35,11 +34,6 @@
 </template>
 
 <script>
-
-  import {EditorState} from 'prosemirror-state';
-  import {EditorView} from 'prosemirror-view';
-  import {DOMSerializer} from "prosemirror-model";
-  import {schema} from './utils/comment-schema.js';
 
   // @vue/component
   const component = {
@@ -54,29 +48,8 @@
       return {
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
+        showActions: false,
       };
-    },
-
-    mounted() {
-      const state = EditorState.create({
-        schema,
-      });
-      this.$editorView = new EditorView({mount: this.$refs.commentEditor}, {
-        state,
-        dispatchTransaction: (transaction) => {
-          const newState = this.$editorView.state.apply(transaction);
-          this.$editorView.updateState(newState);
-          this.$editorView.state = newState;
-
-          const fragment = DOMSerializer.fromSchema(schema).serializeFragment(newState.doc.content);
-          const tmp = document.createElement("div");
-          tmp.appendChild(fragment);
-          this.comment.input = tmp.innerHTML;
-        },
-        editable: () => {
-          return true;
-        },
-      });
     },
 
     methods: {

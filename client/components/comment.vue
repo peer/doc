@@ -5,7 +5,7 @@
     </v-flex>
     <v-flex xs6 sm6 md8>
       <div>
-        <div class="comment__body" ref="commentBody">{{comment.body}}</div>
+        <comment-editor class="comment__body" :comment="comment" :read-only="true"/>
         <transition name="comment__details">
           <div v-show="comment.showDetails">
             <v-divider/>
@@ -24,11 +24,6 @@
 
 <script>
 
-  import {EditorState} from 'prosemirror-state';
-  import {EditorView} from 'prosemirror-view';
-  import {DOMParser} from "prosemirror-model";
-  import {schema} from './utils/comment-schema.js';
-
   // @vue/component
   const component = {
     props: {
@@ -36,24 +31,6 @@
         type: Object,
         required: true,
       },
-    },
-
-    mounted() {
-      // Prosemirror editor is prepared to show the comment body.
-      // A dummy html node is created to parse the comment body.
-      const domNode = document.createElement("div");
-      // For the moment, paragraph tags are appended to have valid content, according to the schema.
-      domNode.innerHTML = this.comment.body;
-      const state = EditorState.create({
-        schema,
-        doc: DOMParser.fromSchema(schema).parse(domNode),
-      });
-      this.$editorView = new EditorView({mount: this.$refs.commentBody}, {
-        state,
-        editable: () => {
-          return false;
-        },
-      });
     },
   };
 
