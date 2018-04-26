@@ -1,5 +1,5 @@
 <template>
-  <div ref="commentBody">{{comment.body}}</div>
+  <div ref="commentBody"/>
 </template>
 
 <script>
@@ -7,6 +7,9 @@
   import {EditorState} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {DOMParser, DOMSerializer} from "prosemirror-model";
+  import {baseKeymap, toggleMark} from "prosemirror-commands";
+  import {undo, redo, history} from 'prosemirror-history';
+  import {keymap} from 'prosemirror-keymap';
   import {schema} from './utils/comment-schema.js';
 
   // @vue/component
@@ -40,6 +43,17 @@
       createEditor() {
         const state = EditorState.create({
           schema,
+          plugins: [
+            keymap({
+              'Mod-z': undo,
+              'Shift-Mod-z': redo,
+              'Mod-b': toggleMark(schema.marks.strong),
+              'Mod-i': toggleMark(schema.marks.em),
+              'Mod-u': toggleMark(schema.marks.strikethrough),
+            }),
+            keymap(baseKeymap),
+            history(),
+          ],
         });
         this.$editorView = new EditorView({mount: this.$refs.commentBody}, {
           state,
