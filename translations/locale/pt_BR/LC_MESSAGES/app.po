@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 22:41-0400\n"
+"POT-Creation-Date: 2018-04-26 15:06-0400\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -27,6 +27,10 @@ msgstr "Acesso negado."
 msgid "cancel"
 msgstr "Cancelar"
 
+#: client/components/utils/placeholder.js:26
+msgid "choose-title"
+msgstr "Escolha um título"
+
 #: client/components/app-layout.vue:30
 msgid "close"
 msgstr "Fechar"
@@ -35,7 +39,7 @@ msgstr "Fechar"
 msgid "comment-created-at"
 msgstr "Criado %{at}"
 
-#: client/components/editor.vue:201
+#: client/components/editor.vue:202
 msgid "comment-hint"
 msgstr "Insira um comentário"
 
@@ -79,6 +83,10 @@ msgstr "Publicado %{at}"
 msgid "documents"
 msgstr "Documentos"
 
+#: client/components/utils/placeholder.js:40
+msgid "edit-content"
+msgstr "Edite o conteúdo"
+
 #: client/components/front-page.vue:1
 msgid "front-page"
 msgstr "Página inicial."
@@ -88,7 +96,7 @@ msgstr "Página inicial."
 msgid "insert"
 msgstr "Inserir"
 
-#: client/components/editor.vue:199
+#: client/components/editor.vue:200
 msgid "invalid-url"
 msgstr "Endereço inválido."
 
