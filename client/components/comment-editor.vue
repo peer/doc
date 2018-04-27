@@ -1,5 +1,5 @@
 <template>
-  <div ref="commentBody"/>
+  <div ref="commentBody" class="comment-editor"/>
 </template>
 
 <script>
@@ -11,6 +11,7 @@
   import {undo, redo, history} from 'prosemirror-history';
   import {keymap} from 'prosemirror-keymap';
   import {schema} from './utils/comment-schema.js';
+  import {PlaceholderPlugin} from './utils/placeholder.js';
 
   // @vue/component
   const component = {
@@ -53,6 +54,7 @@
             }),
             keymap(baseKeymap),
             history(),
+            PlaceholderPlugin(this, "", this.comment.dummy ? this.$gettext("comment-hint") : this.$gettext("comment-reply-hint")),
           ],
         });
         this.$editorView = new EditorView({mount: this.$refs.commentBody}, {
@@ -108,3 +110,23 @@
 
   export default component;
 </script>
+<style>
+  .comment-editor .empty-node::before {
+    float: left;
+    color: #aaa;
+    pointer-events: none;
+    height: 0;
+  }
+
+  .comment-editor .empty-node:hover::before {
+    color: #777;
+  }
+
+  .comment-editor h1.empty-node::before {
+    content: attr(data-text);
+  }
+
+  .comment-editor p.empty-node:first-of-type::before {
+    content: attr(data-text);
+  }
+</style>
