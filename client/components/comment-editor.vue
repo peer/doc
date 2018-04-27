@@ -105,6 +105,13 @@
           }
         }
       },
+
+      clearEditor() {
+        const {tr} = this.$editorView.state;
+        tr.delete(0, tr.doc.content.size);
+        this.$editorView.dispatch(tr);
+      },
+
     },
   };
 

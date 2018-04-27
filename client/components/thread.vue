@@ -20,7 +20,7 @@
         <v-flex xs10 offset-xs1>
           <transition name="thread__form">
             <div @click.stop v-show="comment.focus">
-              <comment-editor class="thread__input" :comment="comment" :read-only="false" @empty="showActions=false" @contentDetected="showActions=true"/>
+              <comment-editor ref="threadInput" class="thread__input" :comment="comment" :read-only="false" @empty="showActions=false" @contentDetected="showActions=true"/>
               <v-card-actions v-if="showActions" class="thread__actions" >
                 <v-btn small color="secondary" flat @click.stop="hideNewCommentForm()"><translate>cancel</translate></v-btn>
                 <v-btn small color="primary" flat @click.stop="submitComment(comment)"><translate>insert</translate></v-btn>
@@ -58,6 +58,7 @@
       },
       submitComment(comment) {
         this.$emit("commentSubmitted", comment);
+        this.$refs.threadInput.clearEditor();
       },
       hideNewCommentForm() {
         this.$emit("hideNewCommentForm");
