@@ -62,6 +62,7 @@
       },
       hideNewCommentForm() {
         this.$emit("hideNewCommentForm");
+        this.$refs.threadInput.clearEditor();
       },
     },
   };
