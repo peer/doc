@@ -42,30 +42,8 @@
 
     <v-card-text ref="editor" class="editor" />
 
-    <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
-      <v-card>
-        <v-card-text>
-          <v-form v-model="validLink" @submit.prevent="insertLink">
-            <v-text-field
-              autofocus
-              placeholder="http://"
-              v-model="link"
-              :hint="linkHint"
-              :hide-details="link === ''"
-              single-line
-              required
-              prepend-icon="link"
-              :rules="[linkValidationRule]"
-            />
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="secondary" flat @click="closeLinkDialog"><translate>cancel</translate></v-btn>
-          <v-btn color="error" flat @click="removeLink" v-if="!!selectedExistingLinks.length"><translate>remove</translate></v-btn>
-          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink"><translate v-if="!!selectedExistingLinks.length">update</translate><translate v-else>insert</translate></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <link-dialog ref="linkDialog" @insertLink="onLinkInserted($event)" @removeLink="onLinkRemoved()"/>
+
   </v-card>
 </template>
 
@@ -73,7 +51,6 @@
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
-  import assert from "assert";
   import {sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
   import {EditorState, TextSelection} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
@@ -99,6 +76,8 @@
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
+  import {_toggleLink, _clearLink} from './utils/link.js';
+
 
   // @vue/component
   const component = {
@@ -185,7 +164,7 @@
         {command: toggleMark(schema.marks.strong), node: this.$refs.buttonStrong, isActive: isMarkActive(schema.marks.strong), name: 'strong'},
         {command: toggleMark(schema.marks.em), node: this.$refs.buttonEm, isActive: isMarkActive(schema.marks.em), name: 'em'},
         {command: toggleMark(schema.marks.strikethrough), node: this.$refs.buttonStrikethrough, isActive: isMarkActive(schema.marks.strikethrough), name: 'strikethrough'},
-        {command: this._toggleLink.bind(this), node: this.$refs.buttonLink, isActive: this._isLinkActive.bind(this), name: 'link'},
+        {command: _toggleLink(this.$refs.linkDialog), node: this.$refs.buttonLink, isActive: this._isLinkActive.bind(this), name: 'link'},
         {command: toggleHeading(1), node: this.$refs.buttonH1, isActive: isHeadingActive(1), name: 'h1'},
         {command: toggleHeading(2), node: this.$refs.buttonH2, isActive: isHeadingActive(2), name: 'h2'},
         {command: toggleHeading(3), node: this.$refs.buttonH3, isActive: isHeadingActive(3), name: 'h3'},
@@ -421,142 +400,17 @@
         this.$editorView.dispatch(tr);
       },
 
-      insertLink() {
-        let {link} = this;
-
-        assert(link !== '');
-        assert(this.linkValidationRule(link), link);
-
-        // Then we clear any link in the selection.
-        this._clearLink();
-
-        // TODO: Rethink if we want to be user friendly here or in UI and autoprefix there.
-        link = link.match(/^[a-zA-Z]+:\/\//) ? link : `http://${link}`;
+      onLinkInserted(link) {
+        _clearLink(this.$editorView);
         toggleMark(this.$editorView.state.schema.marks.link, {href: link})(this.$editorView.state, this.$editorView.dispatch);
-
-        this.closeLinkDialog();
       },
 
-      removeLink() {
-        this._clearLink();
-        this.closeLinkDialog();
-      },
-
-      _expandLinkSelection() {
-        const {from, to} = this.$editorView.state.selection;
-
-        if (to > from) {
-          // Nothing to do. A non-empty selection.
-          return;
-        }
-
-        const $pos = this.$editorView.state.doc.resolve(from);
-
-        const start = $pos.parent.childAfter($pos.parentOffset);
-        if (!start.node) {
-          return;
-        }
-
-        const link = start.node.marks.find((mark) => {
-          return mark.type === this.$editorView.state.schema.marks.link;
-        });
-        if (!link) {
-          return;
-        }
-
-        let startIndex = $pos.index();
-        let startPos = $pos.start() + start.offset;
-        while (startIndex > 0 && link.isInSet($pos.parent.child(startIndex - 1).marks)) {
-          startIndex -= 1;
-          startPos -= $pos.parent.child(startIndex).nodeSize;
-        }
-
-        let endIndex = $pos.indexAfter();
-        let endPos = startPos + start.node.nodeSize;
-        while (endIndex < $pos.parent.childCount && link.isInSet($pos.parent.child(endIndex).marks)) {
-          endPos += $pos.parent.child(endIndex).nodeSize;
-          endIndex += 1;
-        }
-
-        const {tr} = this.$editorView.state;
-        tr.setSelection(TextSelection.create(tr.doc, startPos, endPos));
-        this.$editorView.dispatch(tr);
-      },
-
-      _clearLink() {
-        if (isMarkActive(this.$editorView.state.schema.marks.link)(this.$editorView.state)) {
-          toggleMark(this.$editorView.state.schema.marks.link)(this.$editorView.state, this.$editorView.dispatch);
-        }
-      },
-
-      _getAllHrefs(state) {
-        const {from, to} = state.selection;
-        const hrefs = new Set();
-
-        function processNode(node) {
-          if (node === null) {
-            // Not necessary, but to match the other return.
-            return true;
-          }
-
-          const link = node.marks.find((mark) => {
-            return mark.type === state.schema.marks.link;
-          });
-          if (link && link.attrs.href) {
-            hrefs.add(link.attrs.href);
-          }
-
-          // For "nodesBetween" to continue traversing.
-          return true;
-        }
-
-        if (to > from) {
-          state.doc.nodesBetween(from, to, processNode);
-        }
-        else {
-          processNode(state.doc.nodeAt(from));
-        }
-
-        return Array.from(hrefs);
-      },
-
-      _toggleLink(state, dispatch, editorView) {
-        if (state.selection.empty && !hasMark(state, state.schema.marks.link)) {
-          return false;
-        }
-        if (dispatch) {
-          this._expandLinkSelection();
-          const selectedExistingLinks = this._getAllHrefs(this.$editorView.state);
-          this.openLinkDialog(selectedExistingLinks);
-          return true;
-        }
-        else {
-          return toggleMark(state.schema.marks.link)(state);
-        }
+      onLinkRemoved() {
+        _clearLink(this.$editorView);
       },
 
       _isLinkActive(state) {
         return !!hasMark(state, state.schema.marks.link);
-      },
-
-      openLinkDialog(selectedExistingLinks) {
-        // TODO: Support handling the case where the are multiple different links selected.
-        //       Then UI could allow them to pick one of those values, set a new one, or remove all.
-        this.selectedExistingLinks = selectedExistingLinks || [];
-        this.link = selectedExistingLinks[0] || '';
-
-        // Open the dialog.
-        this.linkDialog = true;
-      },
-
-      closeLinkDialog() {
-        // Close the dialog.
-        this.linkDialog = false;
-
-        this.link = '';
-        this.selectedExistingLinks = [];
-
-        this.$editorView.focus();
       },
 
       openCommentDialog() {
