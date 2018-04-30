@@ -23,7 +23,6 @@
 </template>
 
 <script>
-
   // @vue/component
   const component = {
     props: {
@@ -37,7 +36,7 @@
   export default component;
 </script>
 
-<style>
+<style lang="scss">
   .comment__body {
     min-height: 36px;
     padding-top: 5px;

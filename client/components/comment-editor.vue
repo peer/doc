@@ -131,23 +131,26 @@
 
   export default component;
 </script>
-<style>
-  .comment-editor .empty-node::before {
-    float: left;
-    color: #aaa;
-    pointer-events: none;
-    height: 0;
-  }
 
-  .comment-editor .empty-node:hover::before {
-    color: #777;
-  }
+<style lang="scss">
+  .comment-editor {
+    .empty-node::before {
+      float: left;
+      color: #aaa;
+      pointer-events: none;
+      height: 0;
+    }
 
-  .comment-editor h1.empty-node::before {
-    content: attr(data-text);
-  }
+    .empty-node:hover::before {
+      color: #777;
+    }
 
-  .comment-editor p.empty-node:first-of-type::before {
-    content: attr(data-text);
+    h1.empty-node::before {
+      content: attr(data-text);
+    }
+
+    p.empty-node:first-of-type::before {
+      content: attr(data-text);
+    }
   }
 </style>

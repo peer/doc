@@ -28,7 +28,6 @@
 </template>
 
 <script>
-
   import assert from "assert";
 
   // @vue/component
@@ -47,6 +46,7 @@
         },
       };
     },
+
     methods: {
       insertLink() {
         let {link} = this;
@@ -85,13 +85,8 @@
         this.link = '';
         this.selectedExistingLinks = [];
       },
-
     },
   };
 
   export default component;
 </script>
-
-<style>
-
-</style>

@@ -42,8 +42,7 @@
 
     <v-card-text ref="editor" class="editor" />
 
-    <link-dialog ref="linkDialog" @insertLink="onLinkInserted" @removeLink="onLinkRemoved"/>
-
+    <link-dialog ref="linkDialog" @insertLink="onLinkInserted" @removeLink="onLinkRemoved" />
   </v-card>
 </template>
 
@@ -77,7 +76,6 @@
   import {commentPlugin} from './utils/comment-plugin';
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
   import {toggleLink, clearLink} from './utils/link.js';
-
 
   // @vue/component
   const component = {
@@ -614,23 +612,25 @@
     user-select: none;
   }
 
-  .editor .empty-node::before {
-    float: left;
-    color: #aaa;
-    pointer-events: none;
-    height: 0;
-  }
+  .editor {
+    .empty-node::before {
+      float: left;
+      color: #aaa;
+      pointer-events: none;
+      height: 0;
+    }
 
-  .editor .empty-node:hover::before {
-    color: #777;
-  }
+    .empty-node:hover::before {
+      color: #777;
+    }
 
-  .editor h1.empty-node::before {
-    content: attr(data-text);
-  }
+    h1.empty-node::before {
+      content: attr(data-text);
+    }
 
-  .editor p.empty-node:first-of-type::before {
-    content: attr(data-text);
+    p.empty-node:first-of-type::before {
+      content: attr(data-text);
+    }
   }
 
   .editor__users {
