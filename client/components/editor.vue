@@ -42,7 +42,7 @@
 
     <v-card-text ref="editor" class="editor" />
 
-    <link-dialog ref="linkDialog" @insertLink="onLinkInserted($event)" @removeLink="onLinkRemoved()"/>
+    <link-dialog ref="linkDialog" @insertLink="onLinkInserted" @removeLink="onLinkRemoved"/>
 
   </v-card>
 </template>

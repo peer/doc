@@ -10,7 +10,7 @@
     <v-layout ref="commentsList" class="sidebar__comments_container">
       <transition-group :name="transitionName" class="layout row wrap">
         <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id ? comment._id : 'dummy'" :style="{marginTop: `${comment.marginTop}px`}">
-          <thread :comment="comment" @commentClick="commentClick($event)" @commentSubmitted="insertComment($event)" @hideNewCommentForm="showNewCommentForm(false)" ref="comments"/>
+          <thread :comment="comment" @commentClick="commentClick" @commentSubmitted="insertComment" @hideNewCommentForm="showNewCommentForm(false)" ref="comments"/>
         </v-flex>
       </transition-group>
     </v-layout>

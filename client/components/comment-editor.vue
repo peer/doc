@@ -1,7 +1,7 @@
 <template>
   <div>
     <div ref="commentBody" class="comment-editor"/>
-    <link-dialog ref="linkDialog" @insertLink="onLinkInserted($event)" @removeLink="onLinkRemoved()"/>
+    <link-dialog ref="linkDialog" @insertLink="onLinkInserted" @removeLink="onLinkRemoved"/>
   </div>
 </template>
 
