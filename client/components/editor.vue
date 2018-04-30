@@ -76,7 +76,7 @@
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
-  import {_toggleLink, _clearLink} from './utils/link.js';
+  import {toggleLink, clearLink} from './utils/link.js';
 
 
   // @vue/component
@@ -164,7 +164,7 @@
         {command: toggleMark(schema.marks.strong), node: this.$refs.buttonStrong, isActive: isMarkActive(schema.marks.strong), name: 'strong'},
         {command: toggleMark(schema.marks.em), node: this.$refs.buttonEm, isActive: isMarkActive(schema.marks.em), name: 'em'},
         {command: toggleMark(schema.marks.strikethrough), node: this.$refs.buttonStrikethrough, isActive: isMarkActive(schema.marks.strikethrough), name: 'strikethrough'},
-        {command: _toggleLink(this.$refs.linkDialog), node: this.$refs.buttonLink, isActive: this._isLinkActive.bind(this), name: 'link'},
+        {command: toggleLink(this.$refs.linkDialog), node: this.$refs.buttonLink, isActive: this._isLinkActive.bind(this), name: 'link'},
         {command: toggleHeading(1), node: this.$refs.buttonH1, isActive: isHeadingActive(1), name: 'h1'},
         {command: toggleHeading(2), node: this.$refs.buttonH2, isActive: isHeadingActive(2), name: 'h2'},
         {command: toggleHeading(3), node: this.$refs.buttonH3, isActive: isHeadingActive(3), name: 'h3'},
@@ -401,12 +401,12 @@
       },
 
       onLinkInserted(link) {
-        _clearLink(this.$editorView);
+        clearLink(this.$editorView);
         toggleMark(this.$editorView.state.schema.marks.link, {href: link})(this.$editorView.state, this.$editorView.dispatch);
       },
 
       onLinkRemoved() {
-        _clearLink(this.$editorView);
+        clearLink(this.$editorView);
       },
 
       _isLinkActive(state) {

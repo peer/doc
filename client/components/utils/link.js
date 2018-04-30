@@ -2,7 +2,7 @@ import {toggleMark} from "prosemirror-commands";
 import {TextSelection} from 'prosemirror-state';
 import {isMarkActive, hasMark} from './menu.js';
 
-function _expandLinkSelection(editorView) {
+function expandLinkSelection(editorView) {
   const {from, to} = editorView.state.selection;
 
   if (to > from) {
@@ -43,7 +43,7 @@ function _expandLinkSelection(editorView) {
   editorView.dispatch(tr);
 }
 
-function _getAllHrefs(state) {
+function getAllHrefs(state) {
   const {from, to} = state.selection;
   const hrefs = new Set();
 
@@ -74,14 +74,14 @@ function _getAllHrefs(state) {
   return Array.from(hrefs);
 }
 
-export function _toggleLink(linkDialogRef) {
+export function toggleLink(linkDialogRef) {
   return function onToggle(state, dispatch, editorView) {
     if (state.selection.empty && !hasMark(state, state.schema.marks.link)) {
       return false;
     }
     if (dispatch) {
-      _expandLinkSelection(editorView);
-      const selectedExistingLinks = _getAllHrefs(editorView.state);
+      expandLinkSelection(editorView);
+      const selectedExistingLinks = getAllHrefs(editorView.state);
       linkDialogRef.openLinkDialog(selectedExistingLinks);
       return true;
     }
@@ -91,7 +91,7 @@ export function _toggleLink(linkDialogRef) {
   };
 }
 
-export function _clearLink(editorView) {
+export function clearLink(editorView) {
   if (isMarkActive(editorView.state.schema.marks.link)(editorView.state)) {
     toggleMark(editorView.state.schema.marks.link)(editorView.state, editorView.dispatch);
   }

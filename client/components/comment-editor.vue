@@ -14,7 +14,7 @@
   import {keymap} from 'prosemirror-keymap';
   import {schema} from './utils/comment-schema.js';
   import {placeholderPlugin} from './utils/placeholder.js';
-  import {_toggleLink, _clearLink} from './utils/link.js';
+  import {toggleLink, clearLink} from './utils/link.js';
 
   // @vue/component
   const component = {
@@ -55,7 +55,7 @@
               'Mod-b': toggleMark(schema.marks.strong),
               'Mod-i': toggleMark(schema.marks.em),
               'Mod-u': toggleMark(schema.marks.strikethrough),
-              'Mod-k': _toggleLink(this.$refs.linkDialog),
+              'Mod-k': toggleLink(this.$refs.linkDialog),
             }),
             keymap(baseKeymap),
             history(),
@@ -119,12 +119,12 @@
       },
 
       onLinkInserted(link) {
-        _clearLink(this.$commentEditorView);
+        clearLink(this.$commentEditorView);
         toggleMark(this.$commentEditorView.state.schema.marks.link, {href: link})(this.$commentEditorView.state, this.$commentEditorView.dispatch);
       },
 
       onLinkRemoved() {
-        _clearLink(this.$commentEditorView);
+        clearLink(this.$commentEditorView);
       },
     },
   };
