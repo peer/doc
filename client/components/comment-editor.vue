@@ -11,7 +11,7 @@
   import {undo, redo, history} from 'prosemirror-history';
   import {keymap} from 'prosemirror-keymap';
   import {schema} from './utils/comment-schema.js';
-  import {PlaceholderPlugin} from './utils/placeholder.js';
+  import {placeholderPlugin} from './utils/placeholder.js';
 
   // @vue/component
   const component = {
@@ -54,7 +54,7 @@
             }),
             keymap(baseKeymap),
             history(),
-            PlaceholderPlugin(this, "", this.comment.dummy ? this.$gettext("comment-hint") : this.$gettext("comment-reply-hint")),
+            placeholderPlugin(this, "", this.comment.dummy ? this.$gettext("comment-hint") : this.$gettext("comment-reply-hint")),
           ],
         });
         this.$editorView = new EditorView({mount: this.$refs.commentBody}, {
