@@ -1,7 +1,7 @@
 import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
-export const PlaceholderPlugin = (vueInstance, titlePlaceholder, paragraphPlaceholder) => {
+export function placeholderPlugin(vueInstance, titlePlaceholder, paragraphPlaceholder) {
   return new Plugin({
     props: {
       decorations: (state) => {
@@ -45,4 +45,4 @@ export const PlaceholderPlugin = (vueInstance, titlePlaceholder, paragraphPlaceh
       },
     },
   });
-};
+}
