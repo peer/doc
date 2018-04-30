@@ -175,6 +175,8 @@
             showDetails: false,
             focus: false,
           });
+        }).filter((x) => {
+          return !x.dummy;
         });
         this.currentHighlightKey = null;
         this.animate = false;
