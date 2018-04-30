@@ -137,7 +137,7 @@
   import {Cursor} from '/lib/documents/cursor';
 
   import {menuPlugin, isMarkActive, hasMark, toggleHeading, isHeadingActive, toggleBlockquote, isBlockquoteActive, toggleList, isListActive} from './utils/menu.js';
-  import {PlaceholderPlugin} from './utils/placeholder.js';
+  import {placeholderPlugin} from './utils/placeholder.js';
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
@@ -253,7 +253,7 @@
           commentPlugin(this),
           menuPlugin(menuItems, this.disabledButtons),
           addCommentPlugin(this),
-          PlaceholderPlugin(this),
+          placeholderPlugin(this),
           collab.collab({
             clientID: this.clientId,
           }),
