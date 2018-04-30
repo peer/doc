@@ -42,47 +42,6 @@
 
     <v-card-text ref="editor" class="editor" />
 
-    <v-menu
-      offset-x
-      :close-on-content-click="false"
-      :nudge-width="200"
-      nudge-right="10"
-      nudge-top="-20"
-      v-model="commentDialog"
-      ref="addCommentButton"
-      class="btn-comment"
-    >
-      <v-btn
-        color="white"
-        small
-        bottom
-        right
-        fab
-        slot="activator"
-      >
-        <v-icon>comment</v-icon>
-      </v-btn>
-      <v-card>
-        <v-card-text style="padding-bottom:0px">
-          <v-form @submit.prevent="insertComment">
-            <v-text-field
-              style="padding-top:0px"
-              autofocus
-              multi-line
-              rows="2"
-              v-model="comment"
-              :placeholder="commentHint"
-              required
-            />
-          </v-form>
-        </v-card-text>
-        <v-card-actions style="padding-top:0px">
-          <v-btn color="secondary" flat @click="cancelComment"><translate>cancel</translate></v-btn>
-          <v-btn color="primary" flat @click="insertComment"><translate>insert</translate></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-menu>
-
     <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
       <v-card>
         <v-card-text>
@@ -111,7 +70,6 @@
 </template>
 
 <script>
-  import {Random} from 'meteor/random';
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
@@ -413,6 +371,11 @@
     },
 
     methods: {
+
+      showNewCommentForm(show, start) {
+        this.$emit('showNewCommentForm', show, start, this.$editorView.state.selection);
+      },
+
       updateCursor(highlightKey) {
         const {tr} = this.$editorView.state;
         this.currentHighlightKey = highlightKey;
@@ -600,28 +563,13 @@
         this.commentDialog = true;
       },
 
-      insertComment() {
-        const {comment} = this;
+      onCommentAdded(key) {
         const {selection} = this.$editorView.state;
-        if (selection.empty) {
-          return;
-        }
-
-        const key = Random.id();
-        this.commentDialog = false;
-        this.comment = '';
-        Comment.create({
-          highlightKey: key,
-          body: comment,
-          documentId: this.documentId,
-        });
-
         let newChunks = [{
           from: selection.from,
           to: selection.to,
           empty: true,
         }];
-
         if (this.selectedExistingHighlights) {
           // Change existing highlight marks to add the new highlight-key after their current highlight-keys.
           this.selectedExistingHighlights.forEach((highlightMark) => {
@@ -634,7 +582,6 @@
               // update collection to reflect new segments of the selection with previous highlight marks
               newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             }
-
             const currentKey = marks[0].attrs["highlight-keys"];
             removeHighlight(schema, this.$editorView.state, start, end, this.$editorView.dispatch);
             addHighlight(`${currentKey},${key}`, schema, this.$editorView.state, start, end, this.$editorView.dispatch);
@@ -645,9 +592,6 @@
         }).forEach((chunk) => {
           addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
         });
-        // Notify to parent component that a new comment is added and layoutComments should be executed on
-        // sidebar component.
-        this.$emit("commentAdded", key);
         this.updateCursor();
       },
 

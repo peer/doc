@@ -5,7 +5,7 @@
     </v-flex>
     <v-flex xs6 sm6 md8>
       <div>
-        <div style="word-wrap: break-word;" class="comment__body">{{comment.body}}</div>
+        <div class="comment__body">{{comment.body}}</div>
         <transition name="comment__details">
           <div v-show="comment.showDetails">
             <v-divider/>
@@ -40,6 +40,7 @@
   .comment__body {
     min-height: 36px;
     padding-top: 5px;
+    word-wrap: break-word;
   }
 
   .comment__details-enter {
