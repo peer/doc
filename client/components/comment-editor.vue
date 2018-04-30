@@ -62,12 +62,12 @@
             placeholderPlugin(this, "", this.comment.dummy ? this.$gettext("comment-hint") : this.$gettext("comment-reply-hint")),
           ],
         });
-        this.commentEditorView = new EditorView({mount: this.$refs.commentBody}, {
+        this.$commentEditorView = new EditorView({mount: this.$refs.commentBody}, {
           state,
           dispatchTransaction: (transaction) => {
-            const newState = this.commentEditorView.state.apply(transaction);
-            this.commentEditorView.updateState(newState);
-            this.commentEditorView.state = newState;
+            const newState = this.$commentEditorView.state.apply(transaction);
+            this.$commentEditorView.updateState(newState);
+            this.$commentEditorView.state = newState;
 
             const fragment = DOMSerializer.fromSchema(schema).serializeFragment(newState.doc.content);
             const tmp = document.createElement("div");
@@ -90,7 +90,7 @@
           schema,
           doc: DOMParser.fromSchema(schema).parse(domNode),
         });
-        this.commentEditorView = new EditorView({mount: this.$refs.commentBody}, {
+        this.$commentEditorView = new EditorView({mount: this.$refs.commentBody}, {
           state,
           editable: () => {
             return false;
@@ -112,18 +112,18 @@
       },
 
       clearEditor() {
-        const {tr} = this.commentEditorView.state;
+        const {tr} = this.$commentEditorView.state;
         tr.delete(0, tr.doc.content.size);
-        this.commentEditorView.dispatch(tr);
+        this.$commentEditorView.dispatch(tr);
       },
 
       onLinkInserted(link) {
-        _clearLink(this.commentEditorView);
-        toggleMark(this.commentEditorView.state.schema.marks.link, {href: link})(this.commentEditorView.state, this.commentEditorView.dispatch);
+        _clearLink(this.$commentEditorView);
+        toggleMark(this.$commentEditorView.state.schema.marks.link, {href: link})(this.$commentEditorView.state, this.$commentEditorView.dispatch);
       },
 
       onLinkRemoved() {
-        _clearLink(this.commentEditorView);
+        _clearLink(this.$commentEditorView);
       },
 
     },
