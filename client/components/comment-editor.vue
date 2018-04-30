@@ -1,12 +1,11 @@
 <template>
   <div>
-    <div ref="commentBody" class="comment-editor"/>
-    <link-dialog ref="linkDialog" @insertLink="onLinkInserted" @removeLink="onLinkRemoved"/>
+    <div ref="commentBody" class="comment-editor" />
+    <link-dialog ref="linkDialog" @insertLink="onLinkInserted" @removeLink="onLinkRemoved" />
   </div>
 </template>
 
 <script>
-
   import {EditorState} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {DOMParser, DOMSerializer} from "prosemirror-model";
@@ -44,6 +43,7 @@
         this.createEditor();
       }
     },
+
     methods: {
       createEditor() {
         const state = EditorState.create({
@@ -80,8 +80,9 @@
           },
         });
       },
+
       createReadOnlyEditor() {
-        // Prosemirror editor is prepared to show the comment body.
+        // ProseMirror editor is prepared to show the comment body.
         // A dummy html node is created to parse the comment body.
         const domNode = document.createElement("div");
         domNode.innerHTML = this.comment.body;
@@ -125,7 +126,6 @@
       onLinkRemoved() {
         _clearLink(this.$commentEditorView);
       },
-
     },
   };
 
