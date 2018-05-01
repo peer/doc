@@ -8,36 +8,42 @@
             v-if="canCreateDocument"
             :disabled="documentCreationInProgress"
             outline
-            @click.native="onDocumentCreate">
+            @click.native="onDocumentCreate"
+          >
             <translate>document-create</translate>
           </v-btn>
         </v-toolbar>
         <v-divider />
         <v-list
           v-if="documents.exists()"
-          two-line>
+          two-line
+        >
           <template v-for="(document, index) in documents">
             <v-list-tile
               :to="{name: 'document', params: {documentId: document._id}}"
               :key="document._id"
-              ripple>
+              ripple
+            >
               <v-list-tile-content>
                 <v-list-tile-title v-if="document.title">{{document.title}}</v-list-tile-title>
                 <v-list-tile-title
                   v-translate
                   v-else
-                  class="documents__untitled">untitled</v-list-tile-title>
+                  class="documents__untitled"
+                >untitled</v-list-tile-title>
                 <v-list-tile-sub-title>
                   <span
                     v-translate="{at: $fromNow(document.publishedAt)}"
                     v-if="document.isPublished()"
                     :title="document.publishedAt | formatDate(DEFAULT_DATETIME_FORMAT)"
-                    class="timestamp">document-published-at</span>
+                    class="timestamp"
+                  >document-published-at</span>
                   <span
                     v-translate="{at: $fromNow(document.createdAt)}"
                     v-else
                     :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
-                    class="timestamp">document-created-at</span>
+                    class="timestamp"
+                  >document-created-at</span>
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
@@ -45,18 +51,21 @@
                   v-if="!document.isPublished()"
                   label
                   color="yellow lighten-2"
-                  class="documents__label"><translate>document-draft</translate></v-chip>
+                  class="documents__label"
+                ><translate>document-draft</translate></v-chip>
               </v-list-tile-action>
             </v-list-tile>
             <v-divider
               v-if="index + 1 < documents.count()"
-              :key="document._id" />
+              :key="document._id"
+            />
           </template>
         </v-list>
         <v-card-text
           v-translate
           v-else-if="$subscriptionsReady()"
-          class="text-xs-center documents__none">
+          class="text-xs-center documents__none"
+        >
           no-documents
         </v-card-text>
       </v-card>

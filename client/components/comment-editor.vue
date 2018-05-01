@@ -2,11 +2,13 @@
   <div>
     <div
       ref="commentBody"
-      class="comment-editor" />
+      class="comment-editor"
+    />
     <link-dialog
       ref="linkDialog"
       @insertLink="onLinkInserted"
-      @removeLink="onLinkRemoved" />
+      @removeLink="onLinkRemoved"
+    />
   </div>
 </template>
 

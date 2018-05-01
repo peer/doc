@@ -3,12 +3,14 @@
     <v-dialog
       v-model="linkDialog"
       hide-overlay
-      max-width="500px">
+      max-width="500px"
+    >
       <v-card>
         <v-card-text>
           <v-form
             v-model="validLink"
-            @submit.prevent="insertLink">
+            @submit.prevent="insertLink"
+          >
             <v-text-field
               v-model="link"
               :hint="linkHint"
@@ -26,17 +28,20 @@
           <v-btn
             color="secondary"
             flat
-            @click="closeLinkDialog"><translate>cancel</translate></v-btn>
+            @click="closeLinkDialog"
+          ><translate>cancel</translate></v-btn>
           <v-btn
             v-if="!!selectedExistingLinks.length"
             color="error"
             flat
-            @click="removeLink"><translate>remove</translate></v-btn>
+            @click="removeLink"
+          ><translate>remove</translate></v-btn>
           <v-btn
             :disabled="!validLink"
             color="primary"
             flat
-            @click="insertLink"><translate v-if="!!selectedExistingLinks.length">update</translate><translate v-else>insert</translate></v-btn>
+            @click="insertLink"
+          ><translate v-if="!!selectedExistingLinks.length">update</translate><translate v-else>insert</translate></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

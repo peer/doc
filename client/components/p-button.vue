@@ -12,7 +12,8 @@ hide the content of the button).
       :indeterminate="true"
       :height="3"
       color="primary"
-      class="p-button__progress" />
+      class="p-button__progress"
+    />
   </v-btn>
 </template>
 

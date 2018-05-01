@@ -3,86 +3,103 @@
     <div class="editor__toolbar">
       <v-toolbar
         card
-        dense>
+        dense
+      >
         <v-btn-toggle>
           <v-btn
             ref="buttonUndo"
             :disabled="disabledButtons.undo"
-            flat><v-icon>undo</v-icon></v-btn>
+            flat
+          ><v-icon>undo</v-icon></v-btn>
           <v-btn
             ref="buttonRedo"
             :disabled="disabledButtons.redo"
-            flat><v-icon>redo</v-icon></v-btn>
+            flat
+          ><v-icon>redo</v-icon></v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle
           ref="formatting"
-          :class="{'btn-toggle--selected': formattingIsActive}">
+          :class="{'btn-toggle--selected': formattingIsActive}"
+        >
           <v-btn
             ref="buttonStrong"
             :disabled="disabledButtons.strong"
             flat
-            @input="onButtonChange('formatting')"><v-icon>format_bold</v-icon></v-btn>
+            @input="onButtonChange('formatting')"
+          ><v-icon>format_bold</v-icon></v-btn>
           <v-btn
             ref="buttonEm"
             :disabled="disabledButtons.em"
             flat
-            @input="onButtonChange('formatting')"><v-icon>format_italic</v-icon></v-btn>
+            @input="onButtonChange('formatting')"
+          ><v-icon>format_italic</v-icon></v-btn>
           <v-btn
             ref="buttonStrikethrough"
             :disabled="disabledButtons.strikethrough"
             flat
-            @input="onButtonChange('formatting')"><v-icon>strikethrough_s</v-icon></v-btn>
+            @input="onButtonChange('formatting')"
+          ><v-icon>strikethrough_s</v-icon></v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle
           ref="link"
-          :class="{'btn-toggle--selected': linkIsActive}">
+          :class="{'btn-toggle--selected': linkIsActive}"
+        >
           <v-btn
             ref="buttonLink"
             :disabled="disabledButtons.link"
             flat
-            @input="onButtonChange('link')"><v-icon>insert_link</v-icon></v-btn>
+            @input="onButtonChange('link')"
+          ><v-icon>insert_link</v-icon></v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle
           ref="heading"
-          :class="{'btn-toggle--selected': headingIsActive}">
+          :class="{'btn-toggle--selected': headingIsActive}"
+        >
           <v-btn
             ref="buttonH1"
             :disabled="disabledButtons.h1"
             flat
-            @input="onButtonChange('heading')">h1</v-btn>
+            @input="onButtonChange('heading')"
+          >h1</v-btn>
           <v-btn
             ref="buttonH2"
             :disabled="disabledButtons.h2"
             flat
-            @input="onButtonChange('heading')">h2</v-btn>
+            @input="onButtonChange('heading')"
+          >h2</v-btn>
           <v-btn
             ref="buttonH3"
             :disabled="disabledButtons.h3"
             flat
-            @input="onButtonChange('heading')">h3</v-btn>
+            @input="onButtonChange('heading')"
+          >h3</v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle
           ref="block"
-          :class="{'btn-toggle--selected': blockIsActive}">
+          :class="{'btn-toggle--selected': blockIsActive}"
+        >
           <v-btn
             ref="buttonQuote"
             :disabled="disabledButtons.quote"
             flat
-            @input="onButtonChange('block')"><v-icon>format_quote</v-icon></v-btn>
+            @input="onButtonChange('block')"
+          ><v-icon>format_quote</v-icon></v-btn>
           <v-btn
             ref="buttonBulletedList"
             :disabled="disabledButtons.bulletedList"
             flat
-            @input="onButtonChange('block')"><v-icon>format_list_bulleted</v-icon></v-btn>
+            @input="onButtonChange('block')"
+          ><v-icon>format_list_bulleted</v-icon></v-btn>
           <v-btn
             ref="buttonNumberedList"
             :disabled="disabledButtons.numberedList"
             flat
-            @input="onButtonChange('block')"><v-icon>format_list_numbered</v-icon></v-btn>
+            @input="onButtonChange('block')"
+          ><v-icon>format_list_numbered</v-icon></v-btn>
         </v-btn-toggle>
 
         <v-spacer />
@@ -94,11 +111,13 @@
             :style="{borderColor: cursor.color}"
             flat
             icon
-            @click="onAvatarClicked(cursor)">
+            @click="onAvatarClicked(cursor)"
+          >
             <v-avatar size="36px"><img
               :src="cursor.author.avatarUrl()"
               :alt="cursor.author.username"
-              :title="cursor.author.username"></v-avatar>
+              :title="cursor.author.username"
+            ></v-avatar>
           </v-btn>
         </div>
       </v-toolbar>
@@ -107,12 +126,14 @@
 
     <v-card-text
       ref="editor"
-      class="editor" />
+      class="editor"
+    />
 
     <link-dialog
       ref="linkDialog"
       @insertLink="onLinkInserted"
-      @removeLink="onLinkRemoved" />
+      @removeLink="onLinkRemoved"
+    />
   </v-card>
 </template>
 

@@ -2,7 +2,8 @@
   <v-layout
     v-if="document"
     row
-    @mousedown="onMouseDown">
+    @mousedown="onMouseDown"
+  >
     <v-flex xs8>
       <!-- TODO: Display editor only if you have permissions. -->
       <editor
