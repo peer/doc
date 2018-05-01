@@ -7,11 +7,14 @@
     "lint": "eslint . --ext .js --ext .vue",
     "lint-ci": "eslint . --ext .js --ext .vue --format junit --output-file test-reports/js-lint-results.xml",
     "extract-strings": "make makemessages",
-    "translations": "make translations"
+    "translations": "make translations",
+    "chimp-watch": "chimp --ddp=http://localhost:3000 --watch --mocha --path=tests/acceptance",
+    "chimp-test": "chimp --mocha --path=tests/acceptance"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
     "bcrypt": "^1.0.3",
+    "chimp": "^0.51.1",
     "core-js": "^2.5.5",
     "meteor-node-stubs": "^0.2.11",
     "moment": "^2.22.1",

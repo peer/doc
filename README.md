@@ -60,3 +60,19 @@ To generate translations:
 2. Go to `translations/locale` and find the `.po` file associated with the language you want to translate.
 3. Update the `.po` file with translations for extracted strings.
 4. Generate an updated translations JSON file by running `meteor npm run translations`.
+
+## Testing
+
+### Acceptance tests
+
+Run in one terminal:
+
+```
+$ meteor test --full-app --driver-package tmeasday:acceptance-test-driver
+```
+
+And in another:
+
+```
+$ meteor npm run chimp-watch
+```
