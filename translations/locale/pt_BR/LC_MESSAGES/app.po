@@ -182,4 +182,4 @@ msgstr "O nome de usuário é muito curto, deve ser pelo menos 4 caracteres"
 
 #: client/components/sidebar.vue:18
 msgid "view-all-replies"
-msgstr "Ver todas as respostas"
+msgstr "Ver todas as respostas (%{count})"

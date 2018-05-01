@@ -6,7 +6,7 @@
         <v-divider/>
         <v-layout row>
           <v-flex text-xs-center>
-            <v-btn flat small @click="commentClick(comment)"><translate>view-all-replies</translate></v-btn>
+            <v-btn flat small @click="commentClick(comment)"><translate :translate-params="{count: comment.replies.length}">view-all-replies</translate></v-btn>
           </v-flex>
         </v-layout>
         <v-divider/>

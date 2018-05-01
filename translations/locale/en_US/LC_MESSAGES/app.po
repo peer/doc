@@ -182,4 +182,4 @@ msgstr "Username too short, it should be 4 characters or more"
 
 #: client/components/sidebar.vue:18
 msgid "view-all-replies"
-msgstr "View all replies"
+msgstr "View all replies (%{count})"
