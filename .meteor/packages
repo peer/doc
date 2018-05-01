@@ -33,3 +33,5 @@ akryum:vue-sass
 fourseven:scss
 seba:minifiers-autoprefixer
 tmeasday:acceptance-test-driver
+meteortesting:mocha
+lmieulet:meteor-coverage

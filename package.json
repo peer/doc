@@ -8,8 +8,11 @@
     "lint-ci": "eslint . --ext .js --ext .vue --format junit --output-file test-reports/js-lint-results.xml",
     "extract-strings": "make makemessages",
     "translations": "make translations",
+    "test": "TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha --port 3100",
+    "test-watch": "TEST_WATCH=1 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100",
+    "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000",
     "chimp-watch": "chimp --ddp=http://localhost:3000 --watch --mocha --path=tests/acceptance",
-    "chimp-test": "chimp --mocha --path=tests/acceptance"
+    "chimp-test": "chimp --ddp=http://localhost:3000 --mocha --path=tests/acceptance"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.46",
@@ -40,6 +43,7 @@
     "babel-eslint": "^8.2.3",
     "chai": "^3.5.0",
     "chimp": "^0.51.1",
+    "chromedriver": "^2.38.2",
     "css-loader": "^0.28.11",
     "easygettext": "^2.3.0",
     "eslint": "^4.15.0",
@@ -50,6 +54,7 @@
     "eslint-plugin-vue": "^4.5.0",
     "husky": "^0.14.3",
     "lint-staged": "^7.0.5",
+    "selenium-webdriver": "^3.6.0",
     "vue-template-compiler": "2.5.2"
   },
   "meteor": {

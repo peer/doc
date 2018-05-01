@@ -63,16 +63,40 @@ To generate translations:
 
 ## Testing
 
+### Unit tests
+
+```
+$ meteor npm run test-watch
+```
+
+This will watch for any changes and rerun unit tests. Test results are in the terminal.
+
+If you want to run unit tests only once, run:
+
+```
+$ meteor npm run test
+```
+
 ### Acceptance tests
 
 Run in one terminal:
 
 ```
-$ meteor test --full-app --driver-package tmeasday:acceptance-test-driver
+$ meteor npm run test-app
 ```
 
-And in another:
+This will run the full app in test mode on [http://localhost:3000/](http://localhost:3000/),
+but you do not have to open it. Run in another terminal:
 
 ```
 $ meteor npm run chimp-watch
+```
+
+This will then connect to the app and run acceptance tests. It will watch for any changes and
+rerun tests, too. Test results are in the terminal.
+
+If you want to run acceptance tests only once, run:
+
+```
+$ meteor npm run chimp-test
 ```
