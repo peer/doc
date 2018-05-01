@@ -1,4 +1,5 @@
 import {Meteor} from 'meteor/meteor';
+import {Tracker} from 'meteor/tracker';
 
 import {nativeScrollBehavior, RouterFactory} from 'meteor/akryum:vue-router2';
 
@@ -39,3 +40,7 @@ Meteor.startup(() => {
     },
   });
 });
+
+if (!Tracker._vue) {
+  console.error("Not running using a Vue-enabled Tracker. Have you cloned repository recursively?");
+}
