@@ -5,7 +5,7 @@
     </v-flex>
     <v-flex xs6 sm6 md8>
       <div>
-        <div class="comment__body">{{comment.body}}</div>
+        <comment-editor class="comment__body" :comment="comment" :read-only="true"/>
         <transition name="comment__details">
           <div v-show="comment.showDetails">
             <v-divider/>
@@ -36,7 +36,7 @@
   export default component;
 </script>
 
-<style>
+<style lang="scss">
   .comment__body {
     min-height: 36px;
     padding-top: 5px;

@@ -10,50 +10,7 @@
     <v-layout ref="commentsList" class="sidebar__comments_container">
       <transition-group :name="transitionName" class="layout row wrap">
         <v-flex @click.stop="commentClick(comment)" xs12 v-for="comment of documentComments" :key="comment._id ? comment._id : 'dummy'" :style="{marginTop: `${comment.marginTop}px`}">
-          <v-card :class="['sidebar__comment', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" ref="comments">
-            <v-container v-if="!comment.dummy" class="comment__container">
-              <comment :comment="comment"/>
-              <v-container class="comment__show_replies" v-if="!comment.focus && comment.hasManyReplies">
-                <v-divider/>
-                <v-layout row>
-                  <v-flex text-xs-center>
-                    <v-btn flat small @click="commentClick(comment)"><translate>view-all-replies</translate></v-btn>
-                  </v-flex>
-                </v-layout>
-                <v-divider/>
-              </v-container>
-              <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
-                <comment class="comment__reply" v-if="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
-              </v-layout>
-            </v-container>
-            <v-container class="comment__input_container">
-              <v-layout row>
-                <v-flex xs10 offset-xs1>
-                  <transition name="comment__form">
-                    <div v-if="comment.focus">
-                      <v-form @submit.prevent="insertComment">
-                        <v-text-field
-                          @click.stop
-                          multi-line
-                          rows="1"
-                          v-model="comment.input"
-                          auto-grow
-                          :placeholder="comment.dummy ? commentHint : commentReplyHint"
-                          required
-                          hide-details
-                          class="comment__input"
-                        />
-                      </v-form>
-                      <v-card-actions v-if="comment.input != undefined && comment.input.length > 0" class="comment__actions" >
-                        <v-btn small color="secondary" flat @click.stop="showNewCommentForm(false)"><translate>cancel</translate></v-btn>
-                        <v-btn small color="primary" flat @click.stop="insertComment(comment)"><translate>insert</translate></v-btn>
-                      </v-card-actions>
-                    </div>
-                  </transition>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-card>
+          <thread :comment="comment" @commentClick="commentClick" @commentSubmitted="insertComment" @hideNewCommentForm="showNewCommentForm(false)" ref="comments"/>
         </v-flex>
       </transition-group>
     </v-layout>
@@ -191,18 +148,20 @@
       },
 
       commentClick(comment) {
-        this.documentComments = this.documentComments.map((c) => {
-          return Object.assign({}, c, {
-            focus: c._id === comment._id,
+        if (this.currentHighlightKey !== comment.highlightKey) {
+          this.documentComments = this.documentComments.map((c) => {
+            return Object.assign({}, c, {
+              focus: c._id === comment._id,
+            });
           });
-        });
-        this.currentHighlightKey = comment.highlightKey;
-        comment.focus = true; // eslint-disable-line no-param-reassign
-        // Notify to parent component that a comment is focused and the
-        // cursor position on the editor component should be updated.
-        this.$emit("commentClicked", comment.highlightKey);
-        this.animate = true;
-        this.layoutCommentsAfterRender();
+          this.currentHighlightKey = comment.highlightKey;
+          comment.focus = true; // eslint-disable-line no-param-reassign
+          // Notify to parent component that a comment is focused and the
+          // cursor position on the editor component should be updated.
+          this.$emit("commentClicked", comment.highlightKey);
+          this.animate = true;
+          this.layoutCommentsAfterRender();
+        }
       },
 
       collapseComments() {
@@ -216,6 +175,8 @@
             showDetails: false,
             focus: false,
           });
+        }).filter((x) => {
+          return !x.dummy;
         });
         this.currentHighlightKey = null;
         this.animate = false;
@@ -507,10 +468,6 @@
     font-weight: bold;
   }
 
-  .sidebar__comment {
-    cursor: pointer;
-  }
-
   .sidebar__comments_container {
     overflow-y:hidden;
     padding-left:12px;
@@ -531,47 +488,4 @@
     transition-delay: 0.0000000001s;
     -webkit-transition-delay: 0.0000000001s;
   }
-
-  .comment__form-enter {
-    opacity: 0;
-  }
-
-  .comment__form-enter-active {
-    transition: opacity 0.5s;
-    -webkit-transition: opacity 0.5s;
-  }
-
-  .comment__form-leave-active {
-    transition: opacity 0.5s;
-    -webkit-transition: opacity 0.5s;
-    opacity: 0;
-  }
-
-  .comment__container {
-    padding: 0px;
-  }
-
-  .comment__show_replies {
-    padding-top: 5px;
-    padding-bottom: 5px;
-  }
-
-  .comment__reply {
-    padding-top:5px;
-  }
-
-  .comment__input_container {
-    padding: 0px;
-  }
-
-  .comment__input {
-    padding-top: 0px;
-    padding-bottom: 5px;
-  }
-
-  .comment__actions {
-    padding-top: 5px;
-    padding-bottom: 0px;
-  }
-
 </style>
