@@ -79,20 +79,6 @@
       "prefer-arrow-callback": 0,
       "no-else-return": 0,
       "no-continue": 0,
-      "vue/prop-name-casing": [
-        "error",
-        "camelCase"
-      ],
-      "vue/html-closing-bracket-newline": [
-        "error",
-        {
-          "singleline": "never",
-          "multiline": "always"
-        }
-      ],
-      "vue/html-closing-bracket-spacing": [
-        "error"
-      ],
       "object-shorthand": [
         "error",
         "always",
@@ -153,6 +139,20 @@
       "vue/mustache-interpolation-spacing": [
         "error",
         "never"
+      ],
+      "vue/prop-name-casing": [
+        "error",
+        "camelCase"
+      ],
+      "vue/html-closing-bracket-newline": [
+        "error",
+        {
+          "singleline": "never",
+          "multiline": "always"
+        }
+      ],
+      "vue/html-closing-bracket-spacing": [
+        "error"
       ],
       "indent": 0,
       "indent-legacy": [
