@@ -12,7 +12,7 @@ Meteor.methods({
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
 
-    Document.documents.update(Document.restrictQuery({
+    return Document.documents.update(Document.restrictQuery({
       _id: args.documentId,
     }, Document.PERMISSIONS.ADMIN, user), {
       $set: {

@@ -283,7 +283,7 @@
           return comment.replyTo === null;
         }).map((comment) => {
           const commentReplies = replies.filter((x) => {
-            return x.replyTo === comment._id;
+            return x.replyTo._id === comment._id;
           }).sort((a, b) => {
             return a.createdAt - b.createdAt;
           }).map((reply) => {

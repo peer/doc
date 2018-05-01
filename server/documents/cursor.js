@@ -19,7 +19,7 @@ Meteor.methods({
       contentKey: args.contentKey,
     }, Document.PERMISSIONS.UPDATE));
     if (!documentExists) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
+      throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
 
     Cursor.documents.remove({
@@ -39,11 +39,16 @@ Meteor.methods({
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
 
+    // We need user reference.
+    if (!user) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    }
+
     const documentExists = Document.documents.exists(Document.restrictQuery({
       contentKey: args.contentKey,
     }, Document.PERMISSIONS.UPDATE, user));
     if (!documentExists) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
+      throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
 
     Cursor.documents.update({
