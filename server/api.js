@@ -10,7 +10,7 @@ const {tokenSharedSecret} = Meteor.settings;
 
 function createDocumentOfUserFromToken(userToken) {
   const decryptedToken = decrypt(userToken, tokenSharedSecret);
-  // store nonce on DB
+  // Store nonce into database. This fails if nonce already exists.
   Nonce.addNonce({nonce: decryptedToken.nonce});
   const user = createUserAndSignIn({userToken: decryptedToken});
   return Document._create(user, false);
