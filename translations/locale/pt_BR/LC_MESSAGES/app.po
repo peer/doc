@@ -29,7 +29,7 @@ msgstr "Cancelar"
 
 #: client/components/utils/placeholder.js:26
 msgid "choose-title"
-msgstr "Escolha um título"
+msgstr "Escolher um titúlo"
 
 #: client/components/app-layout.vue:68
 msgid "close"
@@ -86,7 +86,7 @@ msgstr "Documentos"
 
 #: client/components/utils/placeholder.js:40
 msgid "edit-content"
-msgstr "Edite o conteúdo"
+msgstr "Editar conteúdo"
 
 #: client/components/front-page.vue:1
 msgid "front-page"
