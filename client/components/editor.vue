@@ -150,6 +150,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
@@ -568,6 +569,9 @@
       },
 
       filterComments(keys) {
+        if (!Meteor.userId()) {
+          return;
+        }
         if (!this.$editorView.state) {
           return;
         }
