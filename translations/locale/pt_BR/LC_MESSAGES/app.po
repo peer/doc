@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-26 15:06-0400\n"
+"POT-Creation-Date: 2018-04-30 21:57-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -21,9 +21,9 @@ msgstr ""
 msgid "access-denied"
 msgstr "Acesso negado."
 
-#: client/components/editor.vue:79 client/components/editor.vue:103
-#: client/components/publish-confirmation.vue:13
-#: client/components/sidebar.vue:46
+#: client/components/link-dialog.vue:31
+#: client/components/publish-confirmation.vue:21
+#: client/components/thread.vue:67
 msgid "cancel"
 msgstr "Cancelar"
 
@@ -31,55 +31,56 @@ msgstr "Cancelar"
 msgid "choose-title"
 msgstr "Escolha um título"
 
-#: client/components/app-layout.vue:30
+#: client/components/app-layout.vue:68
 msgid "close"
 msgstr "Fechar"
 
-#: client/components/comment.vue:11
+#: client/components/comment.vue:28
 msgid "comment-created-at"
 msgstr "Criado %{at}"
 
-#: client/components/editor.vue:202
+#: client/components/editor.vue:228 client/components/comment-editor.vue:69
+#: client/components/sidebar.vue:117
 msgid "comment-hint"
 msgstr "Insira um comentário"
 
-#: client/components/sidebar.vue:113
+#: client/components/comment-editor.vue:69 client/components/sidebar.vue:116
 msgid "comment-reply-hint"
 msgstr "Insira uma resposta"
 
-#: client/components/documents.vue:7
+#: client/components/documents.vue:12
 msgid "document-create"
 msgstr "Novo documento"
 
-#: client/components/documents.vue:19
+#: client/components/documents.vue:40
 msgid "document-created-at"
 msgstr "Criado %{at}"
 
-#: client/components/documents.vue:87
+#: client/components/documents.vue:125
 msgid "document-created-error"
 msgstr "Erro na criação do documento: %{error}"
 
-#: client/components/documents.vue:91
+#: client/components/documents.vue:129
 msgid "document-created-success"
 msgstr "O novo documento foi criado."
 
-#: client/components/documents.vue:23 client/components/sidebar.vue:4
+#: client/components/documents.vue:54 client/components/sidebar.vue:17
 msgid "document-draft"
 msgstr "Rascunho"
 
-#: client/components/sidebar.vue:6
+#: client/components/sidebar.vue:29
 msgid "document-publish"
 msgstr "Publicar"
 
-#: client/components/sidebar.vue:5
+#: client/components/sidebar.vue:24
 msgid "document-published"
 msgstr "publicado"
 
-#: client/components/documents.vue:18
+#: client/components/documents.vue:34
 msgid "document-published-at"
 msgstr "Publicado %{at}"
 
-#: client/components/app-layout.vue:9
+#: client/components/app-layout.vue:20
 msgid "documents"
 msgstr "Documentos"
 
@@ -91,20 +92,19 @@ msgstr "Edite o conteúdo"
 msgid "front-page"
 msgstr "Página inicial."
 
-#: client/components/editor.vue:80 client/components/editor.vue:105
-#: client/components/sidebar.vue:47
+#: client/components/link-dialog.vue:43 client/components/thread.vue:73
 msgid "insert"
 msgstr "Inserir"
 
-#: client/components/editor.vue:200
+#: client/components/editor.vue:226 client/components/link-dialog.vue:66
 msgid "invalid-url"
 msgstr "Endereço inválido."
 
-#: client/components/editor.vue:179
+#: client/components/editor.vue:205 client/components/link-dialog.vue:60
 msgid "link-hint"
 msgstr "Insira um link"
 
-#: client/components/documents.vue:29
+#: client/components/documents.vue:63
 msgid "no-documents"
 msgstr "Nenhum documento."
 
@@ -112,74 +112,74 @@ msgstr "Nenhum documento."
 msgid "not-found"
 msgstr "Não encontrado."
 
-#: client/components/publish-confirmation.vue:19
+#: client/components/publish-confirmation.vue:28
 msgid "publish"
 msgstr "Publicar"
 
-#: client/components/publish-confirmation.vue:9
+#: client/components/publish-confirmation.vue:12
 msgid "publish-document-confirmation-body"
 msgstr "Uma vez publicado, o documento não será mais editável. O documento se tornará visível a outrxs usuárixs e todxs poderão comentar."
 
-#: client/components/publish-confirmation.vue:8
+#: client/components/publish-confirmation.vue:11
 msgid "publish-document-confirmation-title"
 msgstr "Você gostaria de publicar o documento agora?"
 
-#: client/components/publish-confirmation.vue:66
+#: client/components/publish-confirmation.vue:75
 msgid "publish-error"
 msgstr "Um erro ocorreu na publicação do documento."
 
-#: client/components/publish-confirmation.vue:71
+#: client/components/publish-confirmation.vue:80
 msgid "publish-success"
 msgstr "O documento foi publicado com sucesso."
 
-#: client/components/editor.vue:104
+#: client/components/link-dialog.vue:37
 msgid "remove"
 msgstr "Remover"
 
-#: client/components/app-layout.vue:20 client/components/user-signin.vue:14
+#: client/components/app-layout.vue:50 client/components/user-signin.vue:46
 msgid "sign-in"
 msgstr "Entrar"
 
-#: client/components/app-layout.vue:16
+#: client/components/app-layout.vue:42
 msgid "sign-out"
 msgstr "Sair"
 
-#: client/components/user-signin.vue:72
+#: client/components/user-signin.vue:104
 msgid "signed-in-success"
 msgstr "Você entrou com sucesso."
 
-#: client/components/app-layout.vue:64
+#: client/components/app-layout.vue:102
 msgid "signed-out-error"
 msgstr "Erro durante a saída: %{error}"
 
-#: client/components/app-layout.vue:68
+#: client/components/app-layout.vue:106
 msgid "signed-out-success"
 msgstr "Você saiu com sucesso."
 
-#: client/components/documents.vue:16
+#: client/components/documents.vue:28
 msgid "untitled"
 msgstr "Sem título"
 
-#: client/components/editor.vue:105
+#: client/components/link-dialog.vue:43
 msgid "update"
 msgstr "Atualizar"
 
-#: client/components/user-signin.vue:54
+#: client/components/user-signin.vue:86
 msgid "username"
 msgstr "Username"
 
-#: client/components/user-signin.vue:39
+#: client/components/user-signin.vue:71
 msgid "username-invalid"
 msgstr "O nome de usuário é inválido, it should contain only basic characters"
 
-#: client/components/user-signin.vue:33
+#: client/components/user-signin.vue:65
 msgid "username-is-required"
 msgstr "O nome de usuário é obrigatório"
 
-#: client/components/user-signin.vue:36
+#: client/components/user-signin.vue:68
 msgid "username-too-short"
 msgstr "O nome de usuário é muito curto, deve ser pelo menos 4 caracteres"
 
-#: client/components/sidebar.vue:18
+#: client/components/thread.vue:22
 msgid "view-all-replies"
 msgstr "Ver todas as respostas (%{count})"
