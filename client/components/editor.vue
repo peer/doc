@@ -200,19 +200,13 @@
         cursorsHandle: null,
         dipatch: null,
         state: null,
-        link: '',
-        linkDialog: false,
-        linkHint: this.$gettext("link-hint"),
         commentDialog: false,
         comment: '',
-        selectedExistingLinks: [],
         selectedExistingHighlights: [],
         toolbarMarks: [],
-        buttonLink: null,
         toolbarHeadings: null,
         toolbarNodes: null,
         disabledButtons: {},
-        validLink: false,
         formattingIsActive: null,
         linkIsActive: null,
         headingIsActive: null,
@@ -221,10 +215,6 @@
         currentHighlightKey: null,
         currentHighlightKeyChanged: false,
         currentVersion: null,
-        linkValidationRule: (value) => {
-          const urlRegex = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(#[-a-z\d_]*)?$/i;
-          return urlRegex.test(value) || this.$gettext("invalid-url");
-        },
         commentHint: this.$gettext("comment-hint"),
       };
     },

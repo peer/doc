@@ -58,7 +58,6 @@
         link: '',
         linkDialog: false,
         linkHint: this.$gettext("link-hint"),
-        buttonLink: null,
         validLink: false,
         selectedExistingLinks: [],
         linkValidationRule: (value) => {
