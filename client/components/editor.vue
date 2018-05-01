@@ -3,36 +3,36 @@
     <div class="editor__toolbar">
       <v-toolbar card dense>
         <v-btn-toggle>
-          <v-btn ref="buttonUndo" flat :disabled="disabledButtons.undo"><v-icon>undo</v-icon></v-btn>
-          <v-btn ref="buttonRedo" flat :disabled="disabledButtons.redo"><v-icon>redo</v-icon></v-btn>
+          <v-btn ref="buttonUndo" :disabled="disabledButtons.undo" flat><v-icon>undo</v-icon></v-btn>
+          <v-btn ref="buttonRedo" :disabled="disabledButtons.redo" flat><v-icon>redo</v-icon></v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle ref="formatting" :class="{'btn-toggle--selected': formattingIsActive}">
-          <v-btn ref="buttonStrong" flat :disabled="disabledButtons.strong" @input="onButtonChange('formatting')"><v-icon>format_bold</v-icon></v-btn>
-          <v-btn ref="buttonEm" flat :disabled="disabledButtons.em" @input="onButtonChange('formatting')"><v-icon>format_italic</v-icon></v-btn>
-          <v-btn ref="buttonStrikethrough" flat :disabled="disabledButtons.strikethrough" @input="onButtonChange('formatting')"><v-icon>strikethrough_s</v-icon></v-btn>
+          <v-btn ref="buttonStrong" :disabled="disabledButtons.strong" flat @input="onButtonChange('formatting')"><v-icon>format_bold</v-icon></v-btn>
+          <v-btn ref="buttonEm" :disabled="disabledButtons.em" flat @input="onButtonChange('formatting')"><v-icon>format_italic</v-icon></v-btn>
+          <v-btn ref="buttonStrikethrough" :disabled="disabledButtons.strikethrough" flat @input="onButtonChange('formatting')"><v-icon>strikethrough_s</v-icon></v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle ref="link" :class="{'btn-toggle--selected': linkIsActive}">
-          <v-btn ref="buttonLink" flat :disabled="disabledButtons.link" @input="onButtonChange('link')"><v-icon>insert_link</v-icon></v-btn>
+          <v-btn ref="buttonLink" :disabled="disabledButtons.link" flat @input="onButtonChange('link')"><v-icon>insert_link</v-icon></v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle ref="heading" :class="{'btn-toggle--selected': headingIsActive}">
-          <v-btn ref="buttonH1" flat :disabled="disabledButtons.h1" @input="onButtonChange('heading')">h1</v-btn>
-          <v-btn ref="buttonH2" flat :disabled="disabledButtons.h2" @input="onButtonChange('heading')">h2</v-btn>
-          <v-btn ref="buttonH3" flat :disabled="disabledButtons.h3" @input="onButtonChange('heading')">h3</v-btn>
+          <v-btn ref="buttonH1" :disabled="disabledButtons.h1" flat @input="onButtonChange('heading')">h1</v-btn>
+          <v-btn ref="buttonH2" :disabled="disabledButtons.h2" flat @input="onButtonChange('heading')">h2</v-btn>
+          <v-btn ref="buttonH3" :disabled="disabledButtons.h3" flat @input="onButtonChange('heading')">h3</v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle ref="block" :class="{'btn-toggle--selected': blockIsActive}">
-          <v-btn ref="buttonQuote" flat :disabled="disabledButtons.quote" @input="onButtonChange('block')"><v-icon>format_quote</v-icon></v-btn>
-          <v-btn ref="buttonBulletedList" flat :disabled="disabledButtons.bulletedList" @input="onButtonChange('block')"><v-icon>format_list_bulleted</v-icon></v-btn>
-          <v-btn ref="buttonNumberedList" flat :disabled="disabledButtons.numberedList" @input="onButtonChange('block')"><v-icon>format_list_numbered</v-icon></v-btn>
+          <v-btn ref="buttonQuote" :disabled="disabledButtons.quote" flat @input="onButtonChange('block')"><v-icon>format_quote</v-icon></v-btn>
+          <v-btn ref="buttonBulletedList" :disabled="disabledButtons.bulletedList" flat @input="onButtonChange('block')"><v-icon>format_list_bulleted</v-icon></v-btn>
+          <v-btn ref="buttonNumberedList" :disabled="disabledButtons.numberedList" flat @input="onButtonChange('block')"><v-icon>format_list_numbered</v-icon></v-btn>
         </v-btn-toggle>
 
         <v-spacer />
 
         <div class="editor__users">
-          <v-btn flat icon v-for="cursor of cursors" :key="cursor._id" :style="{borderColor: cursor.color}" @click="onAvatarClicked(cursor)">
+          <v-btn v-for="cursor of cursors" :key="cursor._id" :style="{borderColor: cursor.color}" flat icon @click="onAvatarClicked(cursor)">
             <v-avatar size="36px"><img :src="cursor.author.avatarUrl()" :alt="cursor.author.username" :title="cursor.author.username"></v-avatar>
           </v-btn>
         </div>

@@ -5,11 +5,11 @@
     </v-flex>
     <v-flex xs6 sm6 md8>
       <div>
-        <comment-editor class="comment__body" :comment="comment" :read-only="true"/>
+        <comment-editor :comment="comment" :read-only="true" class="comment__body" />
         <transition name="comment__details">
           <div v-show="comment.showDetails">
             <v-divider/>
-            <v-chip>{{comment.author.username}}</v-chip> <span class="timestamp" :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)" v-translate="{at: $fromNow(comment.createdAt)}">comment-created-at</span>
+            <v-chip>{{comment.author.username}}</v-chip> <span v-translate="{at: $fromNow(comment.createdAt)}" :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)" class="timestamp">comment-created-at</span>
           </div>
         </transition>
       </div>

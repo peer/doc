@@ -11,13 +11,13 @@
         <v-divider />
         <v-list v-if="documents.exists()" two-line>
           <template v-for="(document, index) in documents">
-            <v-list-tile ripple :to="{name: 'document', params: {documentId: document._id}}" :key="document._id">
+            <v-list-tile :to="{name: 'document', params: {documentId: document._id}}" :key="document._id" ripple>
               <v-list-tile-content>
                 <v-list-tile-title v-if="document.title">{{document.title}}</v-list-tile-title>
-                <v-list-tile-title v-else class="documents__untitled" v-translate>untitled</v-list-tile-title>
+                <v-list-tile-title v-translate v-else class="documents__untitled">untitled</v-list-tile-title>
                 <v-list-tile-sub-title>
-                  <span class="timestamp" :title="document.publishedAt | formatDate(DEFAULT_DATETIME_FORMAT)" v-if="document.isPublished()" v-translate="{at: $fromNow(document.publishedAt)}">document-published-at</span>
-                  <span class="timestamp" :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)" v-else v-translate="{at: $fromNow(document.createdAt)}">document-created-at</span>
+                  <span v-translate="{at: $fromNow(document.publishedAt)}" v-if="document.isPublished()" :title="document.publishedAt | formatDate(DEFAULT_DATETIME_FORMAT)" class="timestamp">document-published-at</span>
+                  <span v-translate="{at: $fromNow(document.createdAt)}" v-else :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)" class="timestamp">document-created-at</span>
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
@@ -27,7 +27,7 @@
             <v-divider v-if="index + 1 < documents.count()" :key="document._id" />
           </template>
         </v-list>
-        <v-card-text v-else-if="$subscriptionsReady()" class="text-xs-center documents__none" v-translate>
+        <v-card-text v-translate v-else-if="$subscriptionsReady()" class="text-xs-center documents__none">
           no-documents
         </v-card-text>
       </v-card>

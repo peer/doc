@@ -3,25 +3,26 @@
     <v-flex xs8>
       <!-- TODO: Display editor only if you have permissions. -->
       <editor
+        ref="editor"
         :document-id="document._id"
         :content-key="document.contentKey"
         :client-id="clientId"
+        :read-only="document.isPublished()"
         @contentChanged="onContentChanged"
         @highlightSelected="onHighlightSelected"
         @showNewCommentForm="onShowNewCommentForm"
-        :read-only="document.isPublished()"
-        ref="editor"
       />
     </v-flex>
     <v-flex xs4>
       <sidebar
+        ref="sidebar"
         :document-id="document._id"
         :content-key="document.contentKey"
         :document-published="document.isPublished()"
         :client-id="clientId"
         @commentClicked="onCommentClicked"
         @commentAdded="onCommentAdded"
-        ref="sidebar" />
+      />
     </v-flex>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />

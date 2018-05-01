@@ -1,6 +1,6 @@
 <template>
   <v-app :class="{embed: isEmbeded}">
-    <v-toolbar app absolute v-if="!isEmbeded">
+    <v-toolbar v-if="!isEmbeded" app absolute>
       <v-btn :to="{name: 'front-page'}" exact icon>
         <v-icon>apps</v-icon>
       </v-btn>
