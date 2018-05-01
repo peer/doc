@@ -6,7 +6,7 @@ The application uses [Meteor](https://www.meteor.com/) web framework. Install it
 $ curl https://install.meteor.com/ | sh
 ```
 
-Clone the repository:
+Clone the repository **recursively**:
 
 ```bash
 $ git clone --recursive https://github.com/peer/doc.git
