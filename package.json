@@ -34,7 +34,7 @@
     "randomcolor": "^0.5.3",
     "vue": "git://github.com/meteor-vue/vue.git#meteor",
     "vue-gettext": "^2.0.31",
-    "vue-router": "^2.8.1",
+    "vue-router": "^3.0.1",
     "vuetify": "^1.0.17"
   },
   "devDependencies": {
