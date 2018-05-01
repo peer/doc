@@ -90,6 +90,9 @@
           "multiline": "always"
         }
       ],
+      "vue/html-closing-bracket-spacing": [
+        "error"
+      ],
       "object-shorthand": [
         "error",
         "always",

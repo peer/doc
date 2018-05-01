@@ -8,12 +8,12 @@
       v-if="!comment.dummy"
       class="thread__container"
     >
-      <comment :comment="comment"/>
+      <comment :comment="comment" />
       <v-container
         v-if="!comment.focus && comment.hasManyReplies"
         class="thread__show_replies"
       >
-        <v-divider/>
+        <v-divider />
         <v-layout row>
           <v-flex text-xs-center>
             <v-btn
@@ -23,7 +23,7 @@
             ><translate :translate-params="{count: comment.replies.length}">view-all-replies</translate></v-btn>
           </v-flex>
         </v-layout>
-        <v-divider/>
+        <v-divider />
       </v-container>
       <v-layout
         v-for="(reply, index) of comment.replies"

@@ -25,7 +25,7 @@
         />
         <transition name="comment__details">
           <div v-show="comment.showDetails">
-            <v-divider/>
+            <v-divider />
             <v-chip>{{comment.author.username}}</v-chip> <span
               v-translate="{at: $fromNow(comment.createdAt)}"
               :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
