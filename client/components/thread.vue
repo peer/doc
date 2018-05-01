@@ -1,8 +1,8 @@
 <template>
-  <v-card @mousedown.stop :class="['thread__card', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}">
+  <v-card :class="['thread__card', {'elevation-10': comment.focus}]" :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}" @mousedown.stop>
     <v-container v-if="!comment.dummy" class="thread__container">
       <comment :comment="comment"/>
-      <v-container class="thread__show_replies" v-if="!comment.focus && comment.hasManyReplies">
+      <v-container v-if="!comment.focus && comment.hasManyReplies" class="thread__show_replies">
         <v-divider/>
         <v-layout row>
           <v-flex text-xs-center>
@@ -11,16 +11,16 @@
         </v-layout>
         <v-divider/>
       </v-container>
-      <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
-        <comment class="thread__reply" v-if="comment.focus || (!comment.focus && index == comment.replies.length - 1)" :comment="reply"/>
+      <v-layout v-for="(reply, index) of comment.replies" :key="reply._id" row>
+        <comment v-if="comment.focus || (!comment.focus && index == comment.replies.length - 1)" :comment="reply" class="thread__reply"/>
       </v-layout>
     </v-container>
     <v-container class="thread__input_container">
       <v-layout row>
         <v-flex xs10 offset-xs1>
           <transition name="thread__form">
-            <div @click.stop v-show="comment.focus">
-              <comment-editor ref="threadInput" class="thread__input" :comment="comment" :read-only="false" @empty="showActions=false" @contentDetected="showActions=true"/>
+            <div v-show="comment.focus" @click.stop>
+              <comment-editor ref="threadInput" :comment="comment" :read-only="false" class="thread__input" @empty="showActions=false" @contentDetected="showActions=true"/>
               <v-card-actions v-if="showActions" class="thread__actions" >
                 <v-btn small color="secondary" flat @click.stop="hideNewCommentForm"><translate>cancel</translate></v-btn>
                 <v-btn small color="primary" flat @click.stop="submitComment(comment)"><translate>insert</translate></v-btn>

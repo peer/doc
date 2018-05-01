@@ -1,5 +1,5 @@
 <template>
-  <v-layout row v-if="$currentUserId">
+  <v-layout v-if="$currentUserId" row>
     <v-container fill-height>
       <v-layout fill-height>
         <v-flex>
@@ -13,11 +13,11 @@
             <v-card-actions>
               <v-btn flat color="primary" class="mx-0" @click="onCancelClick"><translate>cancel</translate></v-btn>
               <v-btn
+                :disabled="documentPublishInProgress"
                 flat
                 color="primary"
                 class="mx-0"
-                @click="onPublishClick"
-                :disabled="documentPublishInProgress"><translate>publish</translate></v-btn>
+                @click="onPublishClick"><translate>publish</translate></v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>

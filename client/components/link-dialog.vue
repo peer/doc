@@ -1,26 +1,26 @@
 <template>
   <div>
-    <v-dialog hide-overlay v-model="linkDialog" max-width="500px">
+    <v-dialog v-model="linkDialog" hide-overlay max-width="500px">
       <v-card>
         <v-card-text>
           <v-form v-model="validLink" @submit.prevent="insertLink">
             <v-text-field
-              autofocus
-              placeholder="http://"
               v-model="link"
               :hint="linkHint"
               :hide-details="link === ''"
+              :rules="[linkValidationRule]"
+              autofocus
+              placeholder="http://"
               single-line
               required
               prepend-icon="link"
-              :rules="[linkValidationRule]"
             />
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-btn color="secondary" flat @click="closeLinkDialog"><translate>cancel</translate></v-btn>
-          <v-btn color="error" flat @click="removeLink" v-if="!!selectedExistingLinks.length"><translate>remove</translate></v-btn>
-          <v-btn color="primary" flat @click="insertLink" :disabled="!validLink"><translate v-if="!!selectedExistingLinks.length">update</translate><translate v-else>insert</translate></v-btn>
+          <v-btn v-if="!!selectedExistingLinks.length" color="error" flat @click="removeLink"><translate>remove</translate></v-btn>
+          <v-btn :disabled="!validLink" color="primary" flat @click="insertLink"><translate v-if="!!selectedExistingLinks.length">update</translate><translate v-else>insert</translate></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

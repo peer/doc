@@ -11,7 +11,7 @@
             <v-text-field :readonly="formSubmissionInProgress" :label="usernameLabel" v-model="username" :rules="usernameRules" required />
           </v-card-text>
           <v-card-actions>
-            <p-button type="submit" :progress="formSubmissionInProgress" :disabled="!valid || formSubmissionInProgress" block color="primary">
+            <p-button :progress="formSubmissionInProgress" :disabled="!valid || formSubmissionInProgress" type="submit" block color="primary">
               <translate>sign-in</translate>
             </p-button>
           </v-card-actions>
