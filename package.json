@@ -14,10 +14,10 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.46",
     "babel-runtime": "^6.26.0",
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^2.0.1",
     "chimp": "^0.51.1",
     "core-js": "^2.5.5",
-    "meteor-node-stubs": "^0.2.11",
+    "meteor-node-stubs": "^0.3.3",
     "moment": "^2.22.1",
     "prosemirror-collab": "^1.0.0",
     "prosemirror-commands": "^1.0.7",
@@ -45,10 +45,10 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-import-resolver-meteor": "^0.4.0",
     "eslint-plugin-import": "^2.11.0",
-    "eslint-plugin-meteor": "^4.2.1",
+    "eslint-plugin-meteor": "^4.2.0",
     "eslint-plugin-vue": "^4.5.0",
     "husky": "^0.14.3",
-    "lint-staged": "^6.0.1",
+    "lint-staged": "^7.0.5",
     "vue-template-compiler": "2.5.2"
   },
   "meteor": {
