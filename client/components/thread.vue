@@ -12,7 +12,7 @@
         <v-divider/>
       </v-container>
       <v-layout row v-for="(reply, index) of comment.replies" :key="reply._id">
-        <comment class="thread__reply" v-if="comment.focus || (!comment.focus && index==comment.replies.length-1)" :comment="reply"/>
+        <comment class="thread__reply" v-if="comment.focus || (!comment.focus && index == comment.replies.length - 1)" :comment="reply"/>
       </v-layout>
     </v-container>
     <v-container class="thread__input_container">
