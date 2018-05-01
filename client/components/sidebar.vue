@@ -1,16 +1,48 @@
 <template>
-  <v-container fluid class="sidebar__users" @mousedown.stop>
+  <v-container
+    fluid
+    class="sidebar__users"
+    @mousedown.stop>
     <v-card>
-      <v-toolbar dense card>
-        <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label"><translate>document-draft</translate></v-chip>
-        <v-chip v-else label color="green" text-color="white" class="doc_status__label"><translate>document-published</translate></v-chip>
-        <v-btn v-if="!documentPublished && $currentUserId" :to="{name: 'publishDocument', params: {documentId}}" color="success"><translate>document-publish</translate></v-btn>
+      <v-toolbar
+        dense
+        card>
+        <v-chip
+          v-if="!documentPublished"
+          label
+          color="yellow"
+          text-color="white"
+          class="doc_status__label"><translate>document-draft</translate></v-chip>
+        <v-chip
+          v-else
+          label
+          color="green"
+          text-color="white"
+          class="doc_status__label"><translate>document-published</translate></v-chip>
+        <v-btn
+          v-if="!documentPublished && $currentUserId"
+          :to="{name: 'publishDocument', params: {documentId}}"
+          color="success"><translate>document-publish</translate></v-btn>
       </v-toolbar>
     </v-card>
-    <v-layout ref="commentsList" class="sidebar__comments_container">
-      <transition-group :name="transitionName" class="layout row wrap">
-        <v-flex v-for="comment of documentComments" :key="comment._id ? comment._id : 'dummy'" :style="{marginTop: `${comment.marginTop}px`}" xs12 @click.stop="commentClick(comment)">
-          <thread ref="comments" :comment="comment" @commentClick="commentClick" @commentSubmitted="insertComment" @hideNewCommentForm="showNewCommentForm(false)"/>
+    <v-layout
+      ref="commentsList"
+      class="sidebar__comments_container">
+      <transition-group
+        :name="transitionName"
+        class="layout row wrap">
+        <v-flex
+          v-for="comment of documentComments"
+          :key="comment._id ? comment._id : 'dummy'"
+          :style="{marginTop: `${comment.marginTop}px`}"
+          xs12
+          @click.stop="commentClick(comment)">
+          <thread
+            ref="comments"
+            :comment="comment"
+            @commentClick="commentClick"
+            @commentSubmitted="insertComment"
+            @hideNewCommentForm="showNewCommentForm(false)"/>
         </v-flex>
       </transition-group>
     </v-layout>

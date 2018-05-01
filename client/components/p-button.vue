@@ -7,7 +7,12 @@ hide the content of the button).
 <template>
   <v-btn v-bind="btnProps">
     <slot />
-    <v-progress-linear v-if="progress" :indeterminate="true" :height="3" color="primary" class="p-button__progress" />
+    <v-progress-linear
+      v-if="progress"
+      :indeterminate="true"
+      :height="3"
+      color="primary"
+      class="p-button__progress" />
   </v-btn>
 </template>
 

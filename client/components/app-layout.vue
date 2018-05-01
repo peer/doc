@@ -1,16 +1,35 @@
 <template>
   <v-app :class="{embed: isEmbeded}">
-    <v-toolbar v-if="!isEmbeded" app absolute>
-      <v-btn :to="{name: 'front-page'}" exact icon>
+    <v-toolbar
+      v-if="!isEmbeded"
+      app
+      absolute>
+      <v-btn
+        :to="{name: 'front-page'}"
+        exact
+        icon>
         <v-icon>apps</v-icon>
       </v-btn>
       <v-toolbar-title>PeerDoc</v-toolbar-title>
       <v-spacer />
       <v-toolbar-items>
-        <v-btn :to="{name: 'documents'}" flat><translate>documents</translate></v-btn>
-        <v-menu v-if="$currentUser" offset-y bottom left origin="top right">
-          <v-btn slot="activator" flat>{{$currentUser.username}}
-            <v-avatar size="36px" class="app-layout__avatar"><img :src="$currentUser.avatarUrl()" alt=""></v-avatar>
+        <v-btn
+          :to="{name: 'documents'}"
+          flat><translate>documents</translate></v-btn>
+        <v-menu
+          v-if="$currentUser"
+          offset-y
+          bottom
+          left
+          origin="top right">
+          <v-btn
+            slot="activator"
+            flat>{{$currentUser.username}}
+            <v-avatar
+              size="36px"
+              class="app-layout__avatar"><img
+                :src="$currentUser.avatarUrl()"
+                alt=""></v-avatar>
           </v-btn>
           <v-list>
             <v-list-tile @click="onSignOut">
@@ -18,7 +37,10 @@
             </v-list-tile>
           </v-list>
         </v-menu>
-        <v-btn v-else-if="!passwordlessAuthDisabled" :to="{name: 'user-signin'}" flat><translate>sign-in</translate></v-btn>
+        <v-btn
+          v-else-if="!passwordlessAuthDisabled"
+          :to="{name: 'user-signin'}"
+          flat><translate>sign-in</translate></v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
@@ -26,9 +48,15 @@
         <router-view />
       </v-container>
     </v-content>
-    <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
+    <v-snackbar
+      :timeout="snackbarTime"
+      :color="snackbarColor"
+      v-model="snackbarShow">
       {{snackbarMessage}}
-      <v-btn flat dark @click.native="onSnackbarClose"><translate>close</translate></v-btn>
+      <v-btn
+        flat
+        dark
+        @click.native="onSnackbarClose"><translate>close</translate></v-btn>
     </v-snackbar>
   </v-app>
 </template>

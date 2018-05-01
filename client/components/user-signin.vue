@@ -1,17 +1,43 @@
 <template>
   <not-found v-if="passwordlessAuthDisabled" />
   <access-denied v-else-if="$currentUserId" />
-  <v-layout v-else row>
-    <v-flex xs12 sm8 offset-sm2 md4 offset-md4 xl2 offset-xl5>
-      <v-form v-model="valid" @submit.prevent="onSubmit">
+  <v-layout
+    v-else
+    row>
+    <v-flex
+      xs12
+      sm8
+      offset-sm2
+      md4
+      offset-md4
+      xl2
+      offset-xl5>
+      <v-form
+        v-model="valid"
+        @submit.prevent="onSubmit">
         <v-card>
           <v-card-text>
             <!-- TODO: This should open with "slideDown" effect, where it pushes the content down gradually, as it grows vertically. -->
-            <v-alert v-model="errorShow" color="error" dismissible transition="scale-transition" class="mb-3">{{errorMessage}}</v-alert>
-            <v-text-field :readonly="formSubmissionInProgress" :label="usernameLabel" v-model="username" :rules="usernameRules" required />
+            <v-alert
+              v-model="errorShow"
+              color="error"
+              dismissible
+              transition="scale-transition"
+              class="mb-3">{{errorMessage}}</v-alert>
+            <v-text-field
+              :readonly="formSubmissionInProgress"
+              :label="usernameLabel"
+              v-model="username"
+              :rules="usernameRules"
+              required />
           </v-card-text>
           <v-card-actions>
-            <p-button :progress="formSubmissionInProgress" :disabled="!valid || formSubmissionInProgress" type="submit" block color="primary">
+            <p-button
+              :progress="formSubmissionInProgress"
+              :disabled="!valid || formSubmissionInProgress"
+              type="submit"
+              block
+              color="primary">
               <translate>sign-in</translate>
             </p-button>
           </v-card-actions>

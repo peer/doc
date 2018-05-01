@@ -79,7 +79,6 @@
       "prefer-arrow-callback": 0,
       "no-else-return": 0,
       "no-continue": 0,
-      "vue/max-attributes-per-line": 0,
       "object-shorthand": [
         "error",
         "always",
