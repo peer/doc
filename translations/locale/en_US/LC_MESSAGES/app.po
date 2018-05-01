@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-30 21:57-0700\n"
+"POT-Creation-Date: 2018-04-30 23:06-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -39,7 +39,7 @@ msgstr "Close"
 msgid "comment-created-at"
 msgstr "Created %{at}"
 
-#: client/components/editor.vue:228 client/components/comment-editor.vue:69
+#: client/components/editor.vue:232 client/components/comment-editor.vue:69
 #: client/components/sidebar.vue:117
 msgid "comment-hint"
 msgstr "Enter a comment"
@@ -96,11 +96,11 @@ msgstr "Front page."
 msgid "insert"
 msgstr "Insert"
 
-#: client/components/editor.vue:226 client/components/link-dialog.vue:66
+#: client/components/link-dialog.vue:65
 msgid "invalid-url"
 msgstr "Invalid URL."
 
-#: client/components/editor.vue:205 client/components/link-dialog.vue:60
+#: client/components/link-dialog.vue:60
 msgid "link-hint"
 msgstr "Enter a link"
 
@@ -155,6 +155,54 @@ msgstr "Error signing out: %{error}"
 #: client/components/app-layout.vue:106
 msgid "signed-out-success"
 msgstr "You have been signed out."
+
+#: client/components/editor.vue:235
+msgid "toolbar-bold"
+msgstr "Bold (%{shortcut})"
+
+#: client/components/editor.vue:243
+msgid "toolbar-bulleted-list"
+msgstr "Bulleted list"
+
+#: client/components/editor.vue:239
+msgid "toolbar-h1"
+msgstr "Heading 1"
+
+#: client/components/editor.vue:240
+msgid "toolbar-h2"
+msgstr "Heading 2"
+
+#: client/components/editor.vue:241
+msgid "toolbar-h3"
+msgstr "Heading 3"
+
+#: client/components/editor.vue:236
+msgid "toolbar-italic"
+msgstr "Italic (%{shortcut})"
+
+#: client/components/editor.vue:238
+msgid "toolbar-link"
+msgstr "Link (%{shortcut})"
+
+#: client/components/editor.vue:244
+msgid "toolbar-numbered-list"
+msgstr "Numbered list"
+
+#: client/components/editor.vue:242
+msgid "toolbar-quote"
+msgstr "Quote"
+
+#: client/components/editor.vue:234
+msgid "toolbar-redo"
+msgstr "Redo (%{shortcut})"
+
+#: client/components/editor.vue:237
+msgid "toolbar-strikethrough"
+msgstr "Strikethrough (%{shortcut})"
+
+#: client/components/editor.vue:233
+msgid "toolbar-undo"
+msgstr "Undo (%{shortcut})"
 
 #: client/components/documents.vue:28
 msgid "untitled"

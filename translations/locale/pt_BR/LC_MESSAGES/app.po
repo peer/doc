@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-30 21:57-0700\n"
+"POT-Creation-Date: 2018-04-30 23:06-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -39,7 +39,7 @@ msgstr "Fechar"
 msgid "comment-created-at"
 msgstr "Criado %{at}"
 
-#: client/components/editor.vue:228 client/components/comment-editor.vue:69
+#: client/components/editor.vue:232 client/components/comment-editor.vue:69
 #: client/components/sidebar.vue:117
 msgid "comment-hint"
 msgstr "Insira um comentário"
@@ -96,11 +96,11 @@ msgstr "Página inicial."
 msgid "insert"
 msgstr "Inserir"
 
-#: client/components/editor.vue:226 client/components/link-dialog.vue:66
+#: client/components/link-dialog.vue:65
 msgid "invalid-url"
 msgstr "Endereço inválido."
 
-#: client/components/editor.vue:205 client/components/link-dialog.vue:60
+#: client/components/link-dialog.vue:60
 msgid "link-hint"
 msgstr "Insira um link"
 
@@ -155,6 +155,54 @@ msgstr "Erro durante a saída: %{error}"
 #: client/components/app-layout.vue:106
 msgid "signed-out-success"
 msgstr "Você saiu com sucesso."
+
+#: client/components/editor.vue:235
+msgid "toolbar-bold"
+msgstr ""
+
+#: client/components/editor.vue:243
+msgid "toolbar-bulleted-list"
+msgstr ""
+
+#: client/components/editor.vue:239
+msgid "toolbar-h1"
+msgstr ""
+
+#: client/components/editor.vue:240
+msgid "toolbar-h2"
+msgstr ""
+
+#: client/components/editor.vue:241
+msgid "toolbar-h3"
+msgstr ""
+
+#: client/components/editor.vue:236
+msgid "toolbar-italic"
+msgstr ""
+
+#: client/components/editor.vue:238
+msgid "toolbar-link"
+msgstr ""
+
+#: client/components/editor.vue:244
+msgid "toolbar-numbered-list"
+msgstr ""
+
+#: client/components/editor.vue:242
+msgid "toolbar-quote"
+msgstr ""
+
+#: client/components/editor.vue:234
+msgid "toolbar-redo"
+msgstr ""
+
+#: client/components/editor.vue:237
+msgid "toolbar-strikethrough"
+msgstr ""
+
+#: client/components/editor.vue:233
+msgid "toolbar-undo"
+msgstr ""
 
 #: client/components/documents.vue:28
 msgid "untitled"

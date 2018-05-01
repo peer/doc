@@ -9,11 +9,13 @@
           <v-btn
             ref="buttonUndo"
             :disabled="disabledButtons.undo"
+            :title="undoHint"
             flat
           ><v-icon>undo</v-icon></v-btn>
           <v-btn
             ref="buttonRedo"
             :disabled="disabledButtons.redo"
+            :title="redoHint"
             flat
           ><v-icon>redo</v-icon></v-btn>
         </v-btn-toggle>
@@ -25,18 +27,21 @@
           <v-btn
             ref="buttonStrong"
             :disabled="disabledButtons.strong"
+            :title="strongHint"
             flat
             @input="onButtonChange('formatting')"
           ><v-icon>format_bold</v-icon></v-btn>
           <v-btn
             ref="buttonEm"
             :disabled="disabledButtons.em"
+            :title="emHint"
             flat
             @input="onButtonChange('formatting')"
           ><v-icon>format_italic</v-icon></v-btn>
           <v-btn
             ref="buttonStrikethrough"
             :disabled="disabledButtons.strikethrough"
+            :title="strikethroughHint"
             flat
             @input="onButtonChange('formatting')"
           ><v-icon>strikethrough_s</v-icon></v-btn>
@@ -49,6 +54,7 @@
           <v-btn
             ref="buttonLink"
             :disabled="disabledButtons.link"
+            :title="linkHint"
             flat
             @input="onButtonChange('link')"
           ><v-icon>insert_link</v-icon></v-btn>
@@ -61,18 +67,21 @@
           <v-btn
             ref="buttonH1"
             :disabled="disabledButtons.h1"
+            :title="h1Hint"
             flat
             @input="onButtonChange('heading')"
           >h1</v-btn>
           <v-btn
             ref="buttonH2"
             :disabled="disabledButtons.h2"
+            :title="h2Hint"
             flat
             @input="onButtonChange('heading')"
           >h2</v-btn>
           <v-btn
             ref="buttonH3"
             :disabled="disabledButtons.h3"
+            :title="h3Hint"
             flat
             @input="onButtonChange('heading')"
           >h3</v-btn>
@@ -85,18 +94,21 @@
           <v-btn
             ref="buttonQuote"
             :disabled="disabledButtons.quote"
+            :title="quoteHint"
             flat
             @input="onButtonChange('block')"
           ><v-icon>format_quote</v-icon></v-btn>
           <v-btn
             ref="buttonBulletedList"
             :disabled="disabledButtons.bulletedList"
+            :title="bulletedListHint"
             flat
             @input="onButtonChange('block')"
           ><v-icon>format_list_bulleted</v-icon></v-btn>
           <v-btn
             ref="buttonNumberedList"
             :disabled="disabledButtons.numberedList"
+            :title="numberedListHint"
             flat
             @input="onButtonChange('block')"
           ><v-icon>format_list_numbered</v-icon></v-btn>
@@ -168,6 +180,8 @@
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
   import {toggleLink, clearLink} from './utils/link.js';
 
+  const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
+
   // @vue/component
   const component = {
     props: {
@@ -216,6 +230,18 @@
         currentHighlightKeyChanged: false,
         currentVersion: null,
         commentHint: this.$gettext("comment-hint"),
+        undoHint: this._addShortcut(this.$gettext("toolbar-undo"), 'z'),
+        redoHint: this._addShortcut(this.$gettext("toolbar-redo"), 'y'),
+        strongHint: this._addShortcut(this.$gettext("toolbar-bold"), 'b'),
+        emHint: this._addShortcut(this.$gettext("toolbar-italic"), 'i'),
+        strikethroughHint: this._addShortcut(this.$gettext("toolbar-strikethrough"), 'u'),
+        linkHint: this._addShortcut(this.$gettext("toolbar-link"), 'k'),
+        h1Hint: this.$gettext("toolbar-h1"),
+        h2Hint: this.$gettext("toolbar-h2"),
+        h3Hint: this.$gettext("toolbar-h3"),
+        quoteHint: this.$gettext("toolbar-quote"),
+        bulletedListHint: this.$gettext("toolbar-bulleted-list"),
+        numberedListHint: this.$gettext("toolbar-numbered-list"),
       };
     },
 
@@ -260,7 +286,11 @@
             Tab: sinkListItem(schema.nodes.list_item),
             'Shift-Tab': liftListItem(schema.nodes.list_item),
             'Mod-z': undo,
-            'Shift-Mod-z': redo,
+            'Mod-y': redo,
+            'Mod-b': toggleMark(schema.marks.strong),
+            'Mod-i': toggleMark(schema.marks.em),
+            'Mod-u': toggleMark(schema.marks.strikethrough),
+            'Mod-k': toggleLink(this.$refs.linkDialog),
           }),
           keymap(baseKeymap),
           dropCursor(),
@@ -429,6 +459,10 @@
     },
 
     methods: {
+      _addShortcut(translated, key) {
+        const shortcut = mac ? `Cmd-${key.toUpperCase()}` : `Ctrl-${key.toUpperCase()}`;
+        return this.$gettextInterpolate(translated, {shortcut});
+      },
 
       showNewCommentForm(show, start) {
         this.$emit('showNewCommentForm', show, start, this.$editorView.state.selection);

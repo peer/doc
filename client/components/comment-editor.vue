@@ -58,7 +58,7 @@
           plugins: [
             keymap({
               'Mod-z': undo,
-              'Shift-Mod-z': redo,
+              'Mod-y': redo,
               'Mod-b': toggleMark(schema.marks.strong),
               'Mod-i': toggleMark(schema.marks.em),
               'Mod-u': toggleMark(schema.marks.strikethrough),
