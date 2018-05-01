@@ -32,7 +32,8 @@ Meteor.startup(() => {
     scrollBehavior: nativeScrollBehavior,
   }).create();
 
-  new Vue({ // eslint-disable-line no-new
+  // eslint-disable-next-line no-new
+  new Vue({
     router,
     el: '#app',
     render: (createElement) => {
@@ -42,5 +43,6 @@ Meteor.startup(() => {
 });
 
 if (!Tracker._vue) {
+  // eslint-disable-next-line no-console
   console.error("Not running using a Vue-enabled Tracker. Have you cloned repository recursively?");
 }

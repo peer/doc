@@ -1,9 +1,11 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
+import randomColor from 'randomcolor';
+
 import {Cursor} from '/lib/documents/cursor';
 import {User} from '/lib/documents/user';
-import randomColor from 'randomcolor';
+import {Document} from "/lib/documents/document";
 
 // Server-side only methods, so we are not using ValidatedMethod.
 Meteor.methods({
@@ -12,6 +14,13 @@ Meteor.methods({
       contentKey: Match.DocumentId,
       clientId: Match.DocumentId,
     });
+
+    const documentExists = Document.documents.exists(Document.restrictQuery({
+      contentKey: args.contentKey,
+    }, Document.PERMISSIONS.UPDATE));
+    if (!documentExists) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    }
 
     Cursor.documents.remove({
       contentKey: args.contentKey,
@@ -29,33 +38,31 @@ Meteor.methods({
     });
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
-    if (!user) {
+
+    const documentExists = Document.documents.exists(Document.restrictQuery({
+      contentKey: args.contentKey,
+    }, Document.PERMISSIONS.UPDATE, user));
+    if (!documentExists) {
       throw new Meteor.Error('unauthorized', "Unauthorized.");
     }
 
-    // TODO: Check more permissions?
-
-    Cursor.documents.update(
-      {
-        contentKey: args.contentKey,
-        clientId: args.clientId,
-        connectionId: this.connection.id,
+    Cursor.documents.update({
+      contentKey: args.contentKey,
+      clientId: args.clientId,
+      connectionId: this.connection.id,
+    }, {
+      $set: {
+        head: args.head,
+        ranges: args.ranges,
       },
-      {
-        $set: {
-          head: args.head,
-          ranges: args.ranges,
-        },
-        $setOnInsert: {
-          createdAt: new Date(),
-          author: user.getReference(),
-          color: randomColor(),
-        },
+      $setOnInsert: {
+        createdAt: new Date(),
+        author: user.getReference(),
+        color: randomColor(),
       },
-      {
-        upsert: true,
-      },
-    );
+    }, {
+      upsert: true,
+    });
   },
 });
 
@@ -67,10 +74,19 @@ Meteor.publish('Cursor.list', function cursorList(args) {
 
   this.enableScope();
 
-  return Cursor.documents.find({
-    contentKey: args.contentKey,
-  }, {
-    fields: Cursor.PUBLISH_FIELDS(),
+  this.autorun((computation) => {
+    const documentExists = Document.documents.exists(Document.restrictQuery({
+      contentKey: args.contentKey,
+    }, Document.PERMISSIONS.SEE));
+    if (!documentExists) {
+      return [];
+    }
+
+    return Cursor.documents.find({
+      contentKey: args.contentKey,
+    }, {
+      fields: Cursor.PUBLISH_FIELDS(),
+    });
   });
 });
 

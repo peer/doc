@@ -11,13 +11,10 @@ Meteor.methods({
     });
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
-    if (!user) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
-    }
 
-    Document.documents.update({
+    Document.documents.update(Document.restrictQuery({
       _id: args.documentId,
-    }, {
+    }, Document.PERMISSIONS.ADMIN, user), {
       $set: {
         publishedBy: user.getReference(),
         publishedAt: new Date(),
@@ -31,9 +28,15 @@ Meteor.publish('Document.list', function documentList(args) {
 
   this.enableScope();
 
-  return Document.documents.find({
-    publishedAt: {$ne: null},
-  }, {fields: Document.PUBLISH_FIELDS()});
+  this.autorun((computation) => {
+    // TODO: Show unpublished documents to users with UPDATE permission.
+    // TODO: Show public drafts to users.
+    return Document.documents.find(Document.restrictQuery({
+      publishedAt: {$ne: null},
+    }, Document.PERMISSIONS.SEE), {
+      fields: Document.PUBLISH_FIELDS(),
+    });
+  });
 });
 
 Meteor.publish('Document.one', function documentOne(args) {
@@ -41,7 +44,11 @@ Meteor.publish('Document.one', function documentOne(args) {
     documentId: Match.DocumentId,
   });
 
-  return Document.documents.find({
-    _id: args.documentId,
-  }, {fields: Document.PUBLISH_FIELDS()});
+  this.autorun((computation) => {
+    return Document.documents.find(Document.restrictQuery({
+      _id: args.documentId,
+    }, Document.PERMISSIONS.SEE), {
+      fields: Document.PUBLISH_FIELDS(),
+    });
+  });
 });

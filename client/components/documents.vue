@@ -101,7 +101,7 @@
 
     computed: {
       canCreateDocument() {
-        return User.hasPermission(User.PERMISSIONS.DOCUMENT_CREATE);
+        return User.hasPermission(Document.PERMISSIONS.CREATE);
       },
 
       documents() {

@@ -67,7 +67,8 @@
       "airbnb-base"
     ],
     "parserOptions": {
-      "parser": "babel-eslint"
+      "parser": "babel-eslint",
+      "allowImportExportEverywhere": true
     },
     "rules": {
       "import/no-extraneous-dependencies": 0,
