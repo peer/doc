@@ -230,6 +230,7 @@
           // This way, the highlight marks will be rendered before the comments. It must be in this order, because
           // when a comment is rendered on sidebar it must be related to a highlighted text (which should already be
           // rendered on the editor). This fixes a bug related to new comments that are not shown in other tabs.
+          // See: https://github.com/peer/doc/issues/69
           this.$emit("commentAdded", key);
           Comment.create({
             highlightKey: key,
