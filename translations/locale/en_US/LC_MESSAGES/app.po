@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-30 23:06-0700\n"
+"POT-Creation-Date: 2018-05-01 21:00-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -39,12 +39,12 @@ msgstr "Close"
 msgid "comment-created-at"
 msgstr "Created %{at}"
 
-#: client/components/editor.vue:232 client/components/comment-editor.vue:69
+#: client/components/editor.vue:233 client/components/comment-editor.vue:70
 #: client/components/sidebar.vue:117
 msgid "comment-hint"
 msgstr "Enter a comment"
 
-#: client/components/comment-editor.vue:69 client/components/sidebar.vue:116
+#: client/components/comment-editor.vue:70 client/components/sidebar.vue:116
 msgid "comment-reply-hint"
 msgstr "Enter a reply"
 
@@ -156,51 +156,51 @@ msgstr "Error signing out: %{error}"
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
-#: client/components/editor.vue:235
+#: client/components/editor.vue:236
 msgid "toolbar-bold"
 msgstr "Bold (%{shortcut})"
 
-#: client/components/editor.vue:243
+#: client/components/editor.vue:244
 msgid "toolbar-bulleted-list"
 msgstr "Bulleted list"
 
-#: client/components/editor.vue:239
+#: client/components/editor.vue:240
 msgid "toolbar-h1"
 msgstr "Heading 1"
 
-#: client/components/editor.vue:240
+#: client/components/editor.vue:241
 msgid "toolbar-h2"
 msgstr "Heading 2"
 
-#: client/components/editor.vue:241
+#: client/components/editor.vue:242
 msgid "toolbar-h3"
 msgstr "Heading 3"
 
-#: client/components/editor.vue:236
+#: client/components/editor.vue:237
 msgid "toolbar-italic"
 msgstr "Italic (%{shortcut})"
 
-#: client/components/editor.vue:238
+#: client/components/editor.vue:239
 msgid "toolbar-link"
 msgstr "Link (%{shortcut})"
 
-#: client/components/editor.vue:244
+#: client/components/editor.vue:245
 msgid "toolbar-numbered-list"
 msgstr "Numbered list"
 
-#: client/components/editor.vue:242
+#: client/components/editor.vue:243
 msgid "toolbar-quote"
 msgstr "Quote"
 
-#: client/components/editor.vue:234
+#: client/components/editor.vue:235
 msgid "toolbar-redo"
 msgstr "Redo (%{shortcut})"
 
-#: client/components/editor.vue:237
+#: client/components/editor.vue:238
 msgid "toolbar-strikethrough"
 msgstr "Strikethrough (%{shortcut})"
 
-#: client/components/editor.vue:233
+#: client/components/editor.vue:234
 msgid "toolbar-undo"
 msgstr "Undo (%{shortcut})"
 
