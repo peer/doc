@@ -77,14 +77,14 @@
         // TODO: Rethink if we want to be user friendly here or in UI and autoprefix there.
         link = link.match(/^[a-zA-Z]+:\/\//) ? link : `http://${link}`;
 
-        // Emit the insertLink event to the editor to add marks.
-        this.$emit("insertLink", link);
+        // Emit the link-inserted event to the editor to add marks.
+        this.$emit("link-inserted", link);
         this.closeLinkDialog();
       },
 
       removeLink() {
-        // Emit the removeLink event to the editor to remove marks.
-        this.$emit("removeLink");
+        // Emit the link-removed event to the editor to remove marks.
+        this.$emit("link-removed");
         this.closeLinkDialog();
       },
 

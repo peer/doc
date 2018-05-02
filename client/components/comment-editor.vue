@@ -6,8 +6,8 @@
     />
     <link-dialog
       ref="linkDialog"
-      @insertLink="onLinkInserted"
-      @removeLink="onLinkRemoved"
+      @link-inserted="onLinkInserted"
+      @link-removed="onLinkRemoved"
     />
   </div>
 </template>
