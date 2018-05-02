@@ -156,7 +156,7 @@
   }
 
   .thread__container {
-    padding: 0px;
+    padding: 0;
   }
 
   .thread__show_replies {
@@ -169,17 +169,17 @@
   }
 
   .thread__input_container {
-    padding: 0px;
+    padding: 0;
   }
 
   .thread__input {
-    padding-top: 0px;
+    padding-top: 0;
     padding-bottom: 5px;
     border-bottom: 1px solid gray;
   }
 
   .thread__actions {
     padding-top: 5px;
-    padding-bottom: 0px;
+    padding-bottom: 0;
   }
 </style>
