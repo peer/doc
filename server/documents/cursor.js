@@ -22,11 +22,26 @@ Meteor.methods({
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
 
-    Cursor.documents.remove({
+    const timestamp = new Date();
+
+    const removed = Cursor.documents.remove({
       contentKey: args.contentKey,
       clientId: args.clientId,
       connectionId: this.connection.id,
     });
+
+    if (removed) {
+      Document.documents.update({
+        contentKey: args.contentKey,
+        lastActivity: {
+          $lt: timestamp,
+        },
+      }, {
+        $set: {
+          lastActivity: timestamp,
+        },
+      });
+    }
   },
 
   'Cursor.update'(args) {
@@ -51,6 +66,8 @@ Meteor.methods({
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
 
+    const timestamp = new Date();
+
     Cursor.documents.update({
       contentKey: args.contentKey,
       clientId: args.clientId,
@@ -59,14 +76,26 @@ Meteor.methods({
       $set: {
         head: args.head,
         ranges: args.ranges,
+        updatedAt: timestamp,
       },
       $setOnInsert: {
-        createdAt: new Date(),
+        createdAt: timestamp,
         author: user.getReference(),
         color: randomColor(),
       },
     }, {
       upsert: true,
+    });
+
+    Document.documents.update({
+      contentKey: args.contentKey,
+      lastActivity: {
+        $lt: timestamp,
+      },
+    }, {
+      $set: {
+        lastActivity: timestamp,
+      },
     });
   },
 });

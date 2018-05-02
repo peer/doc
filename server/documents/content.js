@@ -118,7 +118,7 @@ Meteor.methods({
 
     assert(version === args.currentVersion);
 
-    const createdAt = new Date();
+    const timestamp = new Date();
 
     for (const step of stepsToProcess) {
       const result = step.apply(doc);
@@ -143,7 +143,7 @@ Meteor.methods({
         contentKey: args.contentKey,
       }, {
         $setOnInsert: {
-          createdAt,
+          createdAt: timestamp,
           author: user.getReference(),
           clientId: args.clientId,
           step: step.toJSON(),
@@ -173,7 +173,8 @@ Meteor.methods({
       $set: {
         version,
         body: doc.toJSON(),
-        updatedAt: createdAt,
+        updatedAt: timestamp,
+        lastActivity: timestamp,
         title: extractTitle(doc),
       },
     });

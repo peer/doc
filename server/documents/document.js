@@ -12,12 +12,16 @@ Meteor.methods({
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
 
+    const timestamp = new Date();
+
     return Document.documents.update(Document.restrictQuery({
       _id: args.documentId,
     }, Document.PERMISSIONS.ADMIN, user), {
       $set: {
+        updatedAt: timestamp,
+        lastActivity: timestamp,
         publishedBy: user.getReference(),
-        publishedAt: new Date(),
+        publishedAt: timestamp,
       },
     });
   },
