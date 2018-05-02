@@ -18,7 +18,6 @@ function getSessionKey() {
       data: _.pick(Meteor.settings.appCivistIntegration, 'email', 'password'),
     });
 
-    // eslint-disable-next-line prefer-destructuring
     sessionKey = response.data.sessionKey;
     sessionKeyTimestamp = timestamp;
   }
