@@ -14,8 +14,12 @@ Meteor.methods({
     check(args, {
       contentKey: Match.DocumentId,
       currentVersion: Match.Integer,
-      steps: [Step],
+      steps: [Object],
       clientId: Match.DocumentId,
+    });
+
+    const steps = args.steps.map((step) => {
+      return Step.fromJSON(schema, step);
     });
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
@@ -44,24 +48,25 @@ Meteor.methods({
     });
 
     let addedCount = 0;
-    let stepsToProcess = args.steps;
+
+    if (latestContent.version !== args.currentVersion) {
+      return addedCount;
+    }
+
+    let stepsToProcess = steps;
 
     if (document.isPublished()) {
       // If the document is published we immediately discard this new step
       // unless it contains highlight marks, in which case we just process those.
-      stepsToProcess = args.steps.filter((step) => {
+      stepsToProcess = steps.filter((step) => {
         if (step.mark && step.mark.type.name === 'highlight') {
           return step;
         }
         return null;
       });
-      if (!stepsToProcess || !stepsToProcess.length) {
+      if (!stepsToProcess.length) {
         return addedCount;
       }
-    }
-
-    if (latestContent.version !== args.currentVersion) {
-      return addedCount;
     }
 
     const createdAt = new Date();
@@ -76,7 +81,6 @@ Meteor.methods({
           createdAt,
           author: user.getReference(),
           clientId: args.clientId,
-          // We do not store steps serialized wth EJSON but normal JSON to make it cleaner.
           step: step.toJSON(),
         },
       });
@@ -99,42 +103,20 @@ Meteor.publish('Content.list', function contentList(args) {
 
   this.enableScope();
 
-  // eslint-disable-next-line consistent-return
   this.autorun((computation) => {
     const documentExists = Document.documents.exists(Document.restrictQuery({
       contentKey: args.contentKey,
     }, Document.PERMISSIONS.SEE));
+
     if (!documentExists) {
       return [];
     }
 
-    Content.documents.find({
+    return Content.documents.find({
       contentKey: args.contentKey,
     }, {
       fields: Content.PUBLISH_FIELDS(),
-    // We do not store steps serialized wth EJSON but
-    // normal JSON so we have to manually deserialize them.
-    }).observeChanges({
-      added: (id, fields) => {
-        if (fields.step) {
-          fields.step = Step.fromJSON(schema, fields.step); // eslint-disable-line no-param-reassign
-        }
-        this.added(Content.Meta.collection._name, id, fields);
-      },
-
-      changed: (id, fields) => {
-        if (fields.step) {
-          fields.step = Step.fromJSON(schema, fields.step); // eslint-disable-line no-param-reassign
-        }
-        this.changed(Content.Meta.collection._name, id, fields);
-      },
-
-      removed: (id) => {
-        this.removed(Content.Meta.collection._name, id);
-      },
     });
-
-    this.ready();
   });
 });
 

@@ -162,6 +162,7 @@
   import {dropCursor} from 'prosemirror-dropcursor';
   import {gapCursor} from 'prosemirror-gapcursor';
   import collab from 'prosemirror-collab';
+  import {Step} from 'prosemirror-transform';
   import {toggleMark, baseKeymap} from "prosemirror-commands";
 
   // TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
@@ -353,7 +354,9 @@
               Content.addSteps({
                 contentKey: this.contentKey,
                 currentVersion: sendable.version,
-                steps: sendable.steps,
+                steps: sendable.steps.map((step) => {
+                  return step.toJSON();
+                }),
                 clientId,
               }, (error, stepsAdded) => {
                 this.addingStepsInProgress = false;
@@ -419,7 +422,9 @@
           }).fetch();
 
           if (newContents.length) {
-            this.$editorView.dispatch(collab.receiveTransaction(this.$editorView.state, _.pluck(newContents, 'step'), _.pluck(newContents, 'clientId')));
+            this.$editorView.dispatch(collab.receiveTransaction(this.$editorView.state, _.pluck(newContents, 'step').map((step) => {
+              return Step.fromJSON(schema, step);
+            }), _.pluck(newContents, 'clientId')));
           }
         });
       });
