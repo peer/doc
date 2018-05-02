@@ -39,12 +39,10 @@
       },
       body: {
         type: Object,
-        required: false,
         default: null,
       },
       isReply: {
         type: Boolean,
-        required: false,
         default: false,
       },
     },
