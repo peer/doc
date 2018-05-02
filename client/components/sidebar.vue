@@ -106,8 +106,6 @@
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
         minCommentMargin: 5,
-        commentReplyHint: this.$gettext("comment-reply-hint"),
-        commentHint: this.$gettext("comment-hint"),
         currentHighlightKey: null,
         animate: true,
       };

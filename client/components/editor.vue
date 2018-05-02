@@ -221,7 +221,6 @@
         currentHighlightKey: null,
         currentHighlightKeyChanged: false,
         currentVersion: null,
-        commentHint: this.$gettext("comment-hint"),
         undoHint: this._addShortcut(this.$gettext("toolbar-undo"), 'z'),
         redoHint: this._addShortcut(this.$gettext("toolbar-redo"), 'y'),
         strongHint: this._addShortcut(this.$gettext("toolbar-bold"), 'b'),
