@@ -23,4 +23,5 @@ Meteor.publish(null, function userPublish() {
   });
 });
 
+// For testing.
 export {User};

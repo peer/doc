@@ -150,4 +150,5 @@ process.once('exit', connectionsCleanup);
 process.once('SIGTERM', connectionsCleanup);
 process.once('SIGINT', connectionsCleanup);
 
+// For testing.
 export {Cursor};

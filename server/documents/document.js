@@ -57,4 +57,5 @@ Meteor.publish('Document.one', function documentOne(args) {
   });
 });
 
+// For testing.
 export {Document};

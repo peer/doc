@@ -19,4 +19,5 @@ Meteor.publish('Comment.list', function commentList(args) {
   });
 });
 
+// For testing.
 export {Comment};

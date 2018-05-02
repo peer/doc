@@ -207,4 +207,5 @@ Meteor.publish('Content.list', function contentList(args) {
   });
 });
 
+// For testing.
 export {Content};
