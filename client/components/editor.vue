@@ -8,13 +8,13 @@
         <v-btn-toggle>
           <v-btn
             ref="buttonUndo"
-            :disabled="disabledButtons.undo"
+            :disabled="!canUserUpdateDocument || disabledButtons.undo"
             :title="undoHint"
             flat
           ><v-icon>undo</v-icon></v-btn>
           <v-btn
             ref="buttonRedo"
-            :disabled="disabledButtons.redo"
+            :disabled="!canUserUpdateDocument || disabledButtons.redo"
             :title="redoHint"
             flat
           ><v-icon>redo</v-icon></v-btn>
@@ -26,21 +26,21 @@
         >
           <v-btn
             ref="buttonStrong"
-            :disabled="disabledButtons.strong"
+            :disabled="!canUserUpdateDocument || disabledButtons.strong"
             :title="strongHint"
             flat
             @input="onButtonChange('formatting')"
           ><v-icon>format_bold</v-icon></v-btn>
           <v-btn
             ref="buttonEm"
-            :disabled="disabledButtons.em"
+            :disabled="!canUserUpdateDocument || disabledButtons.em"
             :title="emHint"
             flat
             @input="onButtonChange('formatting')"
           ><v-icon>format_italic</v-icon></v-btn>
           <v-btn
             ref="buttonStrikethrough"
-            :disabled="disabledButtons.strikethrough"
+            :disabled="!canUserUpdateDocument || disabledButtons.strikethrough"
             :title="strikethroughHint"
             flat
             @input="onButtonChange('formatting')"
@@ -53,7 +53,7 @@
         >
           <v-btn
             ref="buttonLink"
-            :disabled="disabledButtons.link"
+            :disabled="!canUserUpdateDocument || disabledButtons.link"
             :title="linkHint"
             flat
             @input="onButtonChange('link')"
@@ -66,21 +66,21 @@
         >
           <v-btn
             ref="buttonH1"
-            :disabled="disabledButtons.h1"
+            :disabled="!canUserUpdateDocument || disabledButtons.h1"
             :title="h1Hint"
             flat
             @input="onButtonChange('heading')"
           >h1</v-btn>
           <v-btn
             ref="buttonH2"
-            :disabled="disabledButtons.h2"
+            :disabled="!canUserUpdateDocument || disabledButtons.h2"
             :title="h2Hint"
             flat
             @input="onButtonChange('heading')"
           >h2</v-btn>
           <v-btn
             ref="buttonH3"
-            :disabled="disabledButtons.h3"
+            :disabled="!canUserUpdateDocument || disabledButtons.h3"
             :title="h3Hint"
             flat
             @input="onButtonChange('heading')"
@@ -93,21 +93,21 @@
         >
           <v-btn
             ref="buttonQuote"
-            :disabled="disabledButtons.quote"
+            :disabled="!canUserUpdateDocument || disabledButtons.quote"
             :title="quoteHint"
             flat
             @input="onButtonChange('block')"
           ><v-icon>format_quote</v-icon></v-btn>
           <v-btn
             ref="buttonBulletedList"
-            :disabled="disabledButtons.bulletedList"
+            :disabled="!canUserUpdateDocument || disabledButtons.bulletedList"
             :title="bulletedListHint"
             flat
             @input="onButtonChange('block')"
           ><v-icon>format_list_bulleted</v-icon></v-btn>
           <v-btn
             ref="buttonNumberedList"
-            :disabled="disabledButtons.numberedList"
+            :disabled="!canUserUpdateDocument || disabledButtons.numberedList"
             :title="numberedListHint"
             flat
             @input="onButtonChange('block')"
@@ -174,6 +174,8 @@
   import {Comment} from '/lib/documents/comment';
   import {Content} from '/lib/documents/content';
   import {Cursor} from '/lib/documents/cursor';
+  import {Document} from '/lib/documents/document';
+  import {User} from '/lib/documents/user';
 
   import {menuPlugin, isMarkActive, hasMark, toggleHeading, isHeadingActive, toggleBlockquote, isBlockquoteActive, toggleList, isListActive} from './utils/menu.js';
   import {placeholderPlugin} from './utils/placeholder.js';
@@ -236,6 +238,29 @@
       };
     },
 
+    computed: {
+      document() {
+        return Document.documents.findOne({
+          _id: this.documentId,
+        });
+      },
+
+      canUserUpdateCursor() {
+        // We require user reference.
+        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.SEE));
+      },
+
+      canUserUpdateDocument() {
+        // We require user reference.
+        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.UPDATE));
+      },
+
+      canUserCreateComments() {
+        // We require user reference.
+        return !!(this.$currentUserId && User.hasPermission(Comment.PERMISSIONS.CREATE) && this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE));
+      },
+    },
+
     created() {
       this.$autorun((computation) => {
         this.subscriptionHandle = this.$subscribe('Content.list', {contentKey: this.contentKey});
@@ -288,7 +313,7 @@
           gapCursor(),
           history(),
           commentPlugin(this),
-          menuPlugin(menuItems, this.disabledButtons),
+          menuPlugin(menuItems, this, this.disabledButtons),
           addCommentPlugin(this),
           placeholderPlugin(this),
           collab.collab({
@@ -319,41 +344,47 @@
         dispatchTransaction: (transaction) => {
           const newState = this.$editorView.state.apply(transaction);
           this.$editorView.updateState(newState);
+
           const sendable = collab.sendableSteps(newState);
-          const {clientId} = this;
           if (sendable) {
-            const commentMarks = _.filter(transaction.steps, (s) => {
-              return s.mark && s.mark.type.name === "highlight";
-            });
-            if (commentMarks) {
-              commentMarks.forEach((c) => {
-                const highlightKeys = c.mark.attrs["highlight-keys"].split(',');
-                Comment.setInitialVersion({
-                  highlightKeys,
-                  version: sendable.version,
+            if (this.canUserCreateComments) {
+              const commentMarks = _.filter(transaction.steps, (s) => {
+                return s.mark && s.mark.type.name === "highlight";
+              });
+              if (commentMarks) {
+                commentMarks.forEach((c) => {
+                  const highlightKeys = c.mark.attrs["highlight-keys"].split(',');
+                  Comment.setInitialVersion({
+                    highlightKeys,
+                    version: sendable.version,
+                  });
                 });
-              });
+              }
             }
-            // Steps are added to the content and the "contentChanged" event is emited
-            // only if the content version really changed. This prevents layoutComments
-            // from running unnecessarily on the sidebar component.
-            if (this.currentVersion !== sendable.version) {
-              this.addingStepsInProgress = true;
-              Content.addSteps({
-                contentKey: this.contentKey,
-                currentVersion: sendable.version,
-                steps: sendable.steps.map((step) => {
-                  return step.toJSON();
-                }),
-                clientId,
-              }, (error, stepsAdded) => {
-                this.addingStepsInProgress = false;
-                // TODO: Error handling.
-              });
-              this.currentVersion = sendable.version;
-              this.$emit("contentChanged");
+
+            if (this.canUserUpdateDocument) {
+              // Steps are added to the content and the "contentChanged" event is emited
+              // only if the content version really changed. This prevents layoutComments
+              // from running unnecessarily on the sidebar component.
+              if (this.currentVersion !== sendable.version) {
+                this.addingStepsInProgress = true;
+                Content.addSteps({
+                  contentKey: this.contentKey,
+                  currentVersion: sendable.version,
+                  steps: sendable.steps.map((step) => {
+                    return step.toJSON();
+                  }),
+                  clientId: this.clientId,
+                }, (error, stepsAdded) => {
+                  this.addingStepsInProgress = false;
+                  // TODO: Error handling.
+                });
+                this.currentVersion = sendable.version;
+                this.$emit("contentChanged");
+              }
             }
           }
+
           // Evaluate if the cursor is over a highlighted text and if the
           // related comment should be focused on the sidebar.
           if (newState.selection.$cursor) {
@@ -372,10 +403,12 @@
             }
           }
 
-          throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
+          if (this.canUserUpdateCursor) {
+            throttledUpdateUserPosition(newState.selection, this.contentKey, this.clientId);
+          }
         },
         editable: () => {
-          return !!(!this.readOnly && this.$currentUserId);
+          return !!(!this.readOnly && this.canUserUpdateDocument);
         },
       });
 

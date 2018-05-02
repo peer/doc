@@ -80,9 +80,10 @@ export function isListActive(listType) {
 }
 
 class MenuView {
-  constructor(items, editorView, disabledButtons) {
+  constructor(items, editorView, vueInstance, disabledButtons) {
     this.items = items;
     this.editorView = editorView;
+    this.vueInstance = vueInstance;
     this.disabledButtons = disabledButtons;
 
     this.update();
@@ -103,9 +104,15 @@ class MenuView {
 
   update(view, prevState) {
     this.items.forEach(({command, name, isActive, node}) => {
-      Vue.set(this.disabledButtons, name, !command(this.editorView.state, null, this.editorView));
-      // Setting "isActive" triggers "input" event on the button.
-      node.isActive = isActive ? !!isActive(this.editorView.state) : false; // eslint-disable-line no-param-reassign
+      if (this.vueInstance.canUserUpdateDocument) {
+        Vue.set(this.disabledButtons, name, !command(this.editorView.state, null, this.editorView));
+        // Setting "isActive" triggers "input" event on the button.
+        node.isActive = isActive ? !!isActive(this.editorView.state) : false; // eslint-disable-line no-param-reassign
+      }
+      else {
+        Vue.set(this.disabledButtons, name, true);
+        node.isActive = false; // eslint-disable-line no-param-reassign
+      }
     });
   }
 
@@ -116,10 +123,10 @@ class MenuView {
   }
 }
 
-export function menuPlugin(items, disabledButtons) {
+export function menuPlugin(items, vueInstance, disabledButtons) {
   return new Plugin({
     view(editorView) {
-      return new MenuView(items, editorView, disabledButtons);
+      return new MenuView(items, editorView, vueInstance, disabledButtons);
     },
   });
 }

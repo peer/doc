@@ -37,7 +37,10 @@
         />
       </v-layout>
     </v-container>
-    <v-container class="thread__input_container">
+    <v-container
+      v-if="canUserCreateComments"
+      class="thread__input_container"
+    >
       <v-layout row>
         <v-flex
           xs10
@@ -87,6 +90,10 @@
     props: {
       comment: {
         type: Object,
+        required: true,
+      },
+      canUserCreateComments: {
+        type: Boolean,
         required: true,
       },
     },

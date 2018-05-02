@@ -51,17 +51,23 @@ class AddComment {
       return marksObj.marks.length;
     });
 
-    const {from} = state.selection;
-    // These are in screen coordinates
-    const start = view.coordsAtPos(from);
+    if (this.vueInstance.canUserCreateComments) {
+      const {from} = state.selection;
+      // These are in screen coordinates
+      const start = view.coordsAtPos(from);
 
-    // Hide the comment box if the selection is empty or the selection
-    // only contains highlight marks.
-    if (state.selection.empty || onlyHighlightMarkInRange) {
-      this.vueInstance.showNewCommentForm(false, start);
-      return;
+      // Hide the comment box if the selection is empty or the selection
+      // only contains highlight marks.
+      if (state.selection.empty || onlyHighlightMarkInRange) {
+        this.vueInstance.showNewCommentForm(false);
+      }
+      else {
+        this.vueInstance.showNewCommentForm(true, start);
+      }
     }
-    this.vueInstance.showNewCommentForm(true, start);
+    else {
+      this.vueInstance.showNewCommentForm(false);
+    }
   }
 }
 

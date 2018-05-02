@@ -17,7 +17,7 @@ Meteor.methods({
 
     const documentExists = Document.documents.exists(Document.restrictQuery({
       contentKey: args.contentKey,
-    }, Document.PERMISSIONS.UPDATE));
+    }, Document.PERMISSIONS.SEE));
     if (!documentExists) {
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
@@ -46,7 +46,7 @@ Meteor.methods({
 
     const documentExists = Document.documents.exists(Document.restrictQuery({
       contentKey: args.contentKey,
-    }, Document.PERMISSIONS.UPDATE, user));
+    }, Document.PERMISSIONS.SEE, user));
     if (!documentExists) {
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }

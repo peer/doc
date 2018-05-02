@@ -42,6 +42,7 @@
           <thread
             ref="comments"
             :comment="comment"
+            :can-user-create-comments="canUserCreateComments"
             @view-all-replies="onViewAllReplies"
             @comment-submitted="onCommentSubmitted"
           />
@@ -55,6 +56,8 @@
   import {Random} from 'meteor/random';
 
   import {Comment} from '/lib/documents/comment';
+  import {Document} from '/lib/documents/document';
+  import {User} from '/lib/documents/user';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
@@ -112,8 +115,19 @@
     },
 
     computed: {
+      document() {
+        return Document.documents.findOne({
+          _id: this.documentId,
+        });
+      },
+
       transitionName() {
         return this.animate ? 'sidebar__comments_slow' : 'sidebar__comments_fast';
+      },
+
+      canUserCreateComments() {
+        // We require user reference.
+        return !!(this.$currentUserId && User.hasPermission(Comment.PERMISSIONS.CREATE) && this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE));
       },
     },
 
