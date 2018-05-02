@@ -26,6 +26,7 @@
         :client-id="clientId"
         @commentClicked="onCommentClicked"
         @commentAdded="onCommentAdded"
+        @afterCommentAdded="onAfterCommentAdded"
       />
     </v-flex>
   </v-layout>
@@ -87,6 +88,9 @@
       },
       onCommentAdded(highlightKey) {
         this.$refs.editor.onCommentAdded(highlightKey);
+      },
+      onAfterCommentAdded(highlightKey) {
+        this.$refs.editor.onAfterCommentAdded(highlightKey);
       },
     },
   };

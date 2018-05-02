@@ -248,6 +248,7 @@
             body: newCommentBody,
             documentId: this.documentId,
           });
+          this.$emit("afterCommentAdded", key);
           this.animate = false;
           return;
         }

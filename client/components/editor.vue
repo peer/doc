@@ -223,6 +223,7 @@
         currentHighlightKey: null,
         currentHighlightKeyChanged: false,
         currentVersion: null,
+        pendingSetVersionDocuments: [],
         undoHint: this._addShortcut(this.$gettext("toolbar-undo"), 'z'),
         redoHint: this._addShortcut(this.$gettext("toolbar-redo"), 'y'),
         strongHint: this._addShortcut(this.$gettext("toolbar-bold"), 'b'),
@@ -354,7 +355,7 @@
               if (commentMarks) {
                 commentMarks.forEach((c) => {
                   const highlightKeys = c.mark.attrs["highlight-keys"].split(',');
-                  Comment.setInitialVersion({
+                  this.pendingSetVersionDocuments.push({
                     highlightKeys,
                     version: sendable.version,
                   });
@@ -583,6 +584,16 @@
           addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
         });
         this.updateCursor();
+      },
+
+      onAfterCommentAdded(key) {
+        // TODO: Just temporary.
+        //       See: https://github.com/peer/doc/issues/45
+        //       See: https://github.com/peer/doc/issues/69
+        while (this.pendingSetVersionDocuments.length) {
+          const setVersionDocument = this.pendingSetVersionDocuments.shift();
+          Comment.setInitialVersion(setVersionDocument);
+        }
       },
 
       filterComments(keys) {
