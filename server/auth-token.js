@@ -60,7 +60,12 @@ export function createUserAndSignIn({userToken}) {
       verified: true,
     }],
   });
-  const result = User.documents.findOne({_id: userId});
+
+  const result = User.documents.findOne({
+    _id: userId,
+  }, {
+    fields: User.REFERENCE_FIELDS(),
+  });
 
   // Safety belt. createUser is supposed to throw on error.
   if (!result) {

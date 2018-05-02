@@ -10,8 +10,7 @@ function createUserFromToken(userToken) {
   const {tokenSharedSecret} = Meteor.settings;
 
   const decryptedToken = decrypt(userToken, tokenSharedSecret);
-  const user = createUserAndSignIn({userToken: decryptedToken});
-  return Document._create(user);
+  return createUserAndSignIn({userToken: decryptedToken});
 }
 
 // TODO: Use path information from router instead of hard-coding the path here.
@@ -22,12 +21,20 @@ WebApp.connectHandlers.use('/document', (req, res, next) => {
         throw new Error("'user' query string parameter is missing.");
       }
 
-      const {_id: documentId} = createUserFromToken(req.query.user);
+      const user = createUserFromToken(req.query.user);
+
+      // We need user reference.
+      if (!user || !user.hasPermission(Document.PERMISSIONS.CREATE_API)) {
+        throw new Meteor.Error('unauthorized', "Unauthorized.");
+      }
+
+      const document = Document._create(user);
+
       const result = JSON.stringify({
-        documentId,
+        documentId: document._id,
         status: 'success',
         // TODO: Use router to construct the path.
-        path: `/document/${documentId}`,
+        path: `/document/${document._id}`,
       });
 
       res.writeHead(200, {'Content-Type': 'application/json'});
