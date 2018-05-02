@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-01 21:00-0700\n"
+"POT-Creation-Date: 2018-05-02 03:44-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -23,7 +23,7 @@ msgstr "Access denied."
 
 #: client/components/link-dialog.vue:31
 #: client/components/publish-confirmation.vue:21
-#: client/components/thread.vue:67
+#: client/components/thread.vue:70
 msgid "cancel"
 msgstr "Cancel"
 
@@ -39,12 +39,11 @@ msgstr "Close"
 msgid "comment-created-at"
 msgstr "Created %{at}"
 
-#: client/components/editor.vue:233 client/components/comment-editor.vue:70
-#: client/components/sidebar.vue:117
+#: client/components/comment-editor.vue:109
 msgid "comment-hint"
 msgstr "Enter a comment"
 
-#: client/components/comment-editor.vue:70 client/components/sidebar.vue:116
+#: client/components/comment-editor.vue:109
 msgid "comment-reply-hint"
 msgstr "Enter a reply"
 
@@ -56,23 +55,23 @@ msgstr "New document"
 msgid "document-created-at"
 msgstr "Created %{at}"
 
-#: client/components/documents.vue:125
+#: client/components/documents.vue:126
 msgid "document-created-error"
 msgstr "Error creating a new document: %{error}"
 
-#: client/components/documents.vue:129
+#: client/components/documents.vue:130
 msgid "document-created-success"
 msgstr "New document has been created."
 
-#: client/components/documents.vue:54 client/components/sidebar.vue:17
+#: client/components/documents.vue:54
 msgid "document-draft"
 msgstr "draft"
 
-#: client/components/sidebar.vue:29
+#: client/components/sidebar.vue:23
 msgid "document-publish"
 msgstr "Publish"
 
-#: client/components/sidebar.vue:24
+#: client/components/sidebar.vue:18
 msgid "document-published"
 msgstr "published"
 
@@ -88,11 +87,19 @@ msgstr "Documents"
 msgid "edit-content"
 msgstr "Edit content"
 
+#: client/components/editor.vue:123
+msgid "editor-saved"
+msgstr "Saved"
+
+#: client/components/editor.vue:118
+msgid "editor-saving"
+msgstr "Saving..."
+
 #: client/components/front-page.vue:1
 msgid "front-page"
 msgstr "Front page."
 
-#: client/components/link-dialog.vue:43 client/components/thread.vue:73
+#: client/components/link-dialog.vue:43 client/components/thread.vue:76
 msgid "insert"
 msgstr "Insert"
 
@@ -124,11 +131,11 @@ msgstr "Once it is published it will not be editable anymore. It will become vis
 msgid "publish-document-confirmation-title"
 msgstr "Do you wish to publish this document now?"
 
-#: client/components/publish-confirmation.vue:75
+#: client/components/publish-confirmation.vue:95
 msgid "publish-error"
 msgstr "An error has occurred when trying to publish the document."
 
-#: client/components/publish-confirmation.vue:80
+#: client/components/publish-confirmation.vue:100
 msgid "publish-success"
 msgstr "The document was successfully published."
 
@@ -156,51 +163,51 @@ msgstr "Error signing out: %{error}"
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
-#: client/components/editor.vue:236
+#: client/components/editor.vue:241
 msgid "toolbar-bold"
 msgstr "Bold (%{shortcut})"
 
-#: client/components/editor.vue:244
+#: client/components/editor.vue:249
 msgid "toolbar-bulleted-list"
 msgstr "Bulleted list"
 
-#: client/components/editor.vue:240
+#: client/components/editor.vue:245
 msgid "toolbar-h1"
 msgstr "Heading 1"
 
-#: client/components/editor.vue:241
+#: client/components/editor.vue:246
 msgid "toolbar-h2"
 msgstr "Heading 2"
 
-#: client/components/editor.vue:242
+#: client/components/editor.vue:247
 msgid "toolbar-h3"
 msgstr "Heading 3"
 
-#: client/components/editor.vue:237
+#: client/components/editor.vue:242
 msgid "toolbar-italic"
 msgstr "Italic (%{shortcut})"
 
-#: client/components/editor.vue:239
+#: client/components/editor.vue:244
 msgid "toolbar-link"
 msgstr "Link (%{shortcut})"
 
-#: client/components/editor.vue:245
+#: client/components/editor.vue:250
 msgid "toolbar-numbered-list"
 msgstr "Numbered list"
 
-#: client/components/editor.vue:243
+#: client/components/editor.vue:248
 msgid "toolbar-quote"
 msgstr "Quote"
 
-#: client/components/editor.vue:235
+#: client/components/editor.vue:240
 msgid "toolbar-redo"
 msgstr "Redo (%{shortcut})"
 
-#: client/components/editor.vue:238
+#: client/components/editor.vue:243
 msgid "toolbar-strikethrough"
 msgstr "Strikethrough (%{shortcut})"
 
-#: client/components/editor.vue:234
+#: client/components/editor.vue:239
 msgid "toolbar-undo"
 msgstr "Undo (%{shortcut})"
 

@@ -116,6 +116,17 @@
 
         <v-spacer />
 
+        <div
+          v-translate
+          v-if="unconfirmedCount"
+          class="editor__saving"
+        >editor-saving</div>
+        <div
+          v-translate
+          v-else
+          class="editor__saving"
+        >editor-saved</div>
+
         <div class="editor__users">
           <v-btn
             v-for="cursor of cursors"
@@ -222,7 +233,8 @@
         cursors: [],
         currentHighlightKey: null,
         currentHighlightKeyChanged: false,
-        currentVersion: null,
+        lastSentVersion: null,
+        unconfirmedCount: 0,
         pendingSetVersionDocuments: [],
         undoHint: this._addShortcut(this.$gettext("toolbar-undo"), 'z'),
         redoHint: this._addShortcut(this.$gettext("toolbar-redo"), 'y'),
@@ -346,6 +358,8 @@
           const newState = this.$editorView.state.apply(transaction);
           this.$editorView.updateState(newState);
 
+          this.unconfirmedCount = this.$editorView.state.collab$.unconfirmed.length;
+
           const sendable = collab.sendableSteps(newState);
           if (sendable) {
             if (this.canUserCreateComments) {
@@ -364,10 +378,12 @@
             }
 
             if (this.canUserUpdateDocument) {
-              // Steps are added to the content and the "contentChanged" event is emited
+              // Steps are added to the content and the "contentChanged" event is emitted
               // only if the content version really changed. This prevents layoutComments
               // from running unnecessarily on the sidebar component.
-              if (this.currentVersion !== sendable.version) {
+              if (this.lastSentVersion !== sendable.version) {
+                this.lastSentVersion = sendable.version;
+
                 this.addingStepsInProgress = true;
                 Content.addSteps({
                   contentKey: this.contentKey,
@@ -380,7 +396,6 @@
                   this.addingStepsInProgress = false;
                   // TODO: Error handling.
                 });
-                this.currentVersion = sendable.version;
                 this.$emit("contentChanged");
               }
             }
@@ -778,6 +793,10 @@
     p.empty-node:first-of-type::before {
       content: attr(data-text);
     }
+  }
+
+  .editor__saving {
+    margin-left: 4px;
   }
 
   .editor__users {
