@@ -210,18 +210,8 @@
         subscriptionHandle: null,
         commentsHandle: null,
         addingStepsInProgress: false,
-        addingCommentsInProgress: false,
-        fixToolbarToTop: false,
-        originalToolbarYPos: -1,
         cursorsHandle: null,
-        dipatch: null,
-        state: null,
-        commentDialog: false,
-        comment: '',
         selectedExistingHighlights: [],
-        toolbarMarks: [],
-        toolbarHeadings: null,
-        toolbarNodes: null,
         disabledButtons: {},
         formattingIsActive: null,
         linkIsActive: null,
@@ -330,7 +320,6 @@
         dispatchTransaction: (transaction) => {
           const newState = this.$editorView.state.apply(transaction);
           this.$editorView.updateState(newState);
-          this.$editorView.state = newState;
           const sendable = collab.sendableSteps(newState);
           const {clientId} = this;
           if (sendable) {
@@ -532,10 +521,6 @@
         return !!hasMark(state, state.schema.marks.link);
       },
 
-      openCommentDialog() {
-        this.commentDialog = true;
-      },
-
       onCommentAdded(key) {
         const {selection} = this.$editorView.state;
         let newChunks = [{
@@ -566,11 +551,6 @@
           addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
         });
         this.updateCursor();
-      },
-
-      cancelComment() {
-        this.commentDialog = false;
-        this.comment = '';
       },
 
       filterComments(keys) {
