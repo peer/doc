@@ -35,6 +35,7 @@
   </v-layout>
   <access-denied v-else />
 </template>
+
 <script>
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
