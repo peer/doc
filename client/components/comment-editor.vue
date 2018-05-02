@@ -70,12 +70,12 @@
             placeholderPlugin(this, "", this.comment.dummy ? this.$gettext("comment-hint") : this.$gettext("comment-reply-hint")),
           ],
         });
-        this.$commentEditorView = new EditorView({mount: this.$refs.commentBody}, {
+        this.$editorView = new EditorView({mount: this.$refs.commentBody}, {
           state,
           dispatchTransaction: (transaction) => {
-            const newState = this.$commentEditorView.state.apply(transaction);
-            this.$commentEditorView.updateState(newState);
-            this.$commentEditorView.state = newState;
+            const newState = this.$editorView.state.apply(transaction);
+            this.$editorView.updateState(newState);
+            this.$editorView.state = newState;
 
             const fragment = DOMSerializer.fromSchema(schema).serializeFragment(newState.doc.content);
             const tmp = document.createElement("div");
@@ -99,7 +99,7 @@
           schema,
           doc: DOMParser.fromSchema(schema).parse(domNode),
         });
-        this.$commentEditorView = new EditorView({mount: this.$refs.commentBody}, {
+        this.$editorView = new EditorView({mount: this.$refs.commentBody}, {
           state,
           editable: () => {
             return false;
@@ -121,18 +121,18 @@
       },
 
       clearEditor() {
-        const {tr} = this.$commentEditorView.state;
+        const {tr} = this.$editorView.state;
         tr.delete(0, tr.doc.content.size);
-        this.$commentEditorView.dispatch(tr);
+        this.$editorView.dispatch(tr);
       },
 
       onLinkInserted(link) {
-        clearLink(this.$commentEditorView);
-        toggleMark(this.$commentEditorView.state.schema.marks.link, {href: link})(this.$commentEditorView.state, this.$commentEditorView.dispatch);
+        clearLink(this.$editorView);
+        toggleMark(this.$editorView.state.schema.marks.link, {href: link})(this.$editorView.state, this.$editorView.dispatch);
       },
 
       onLinkRemoved() {
-        clearLink(this.$commentEditorView);
+        clearLink(this.$editorView);
       },
     },
   };
