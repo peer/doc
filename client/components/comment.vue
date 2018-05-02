@@ -44,7 +44,7 @@
         flat
         icon
         small
-        @click.stop="comment.showDetails=!comment.showDetails"
+        @click.stop="comment.showDetails = !comment.showDetails"
       >
         <v-icon>more_horiz</v-icon>
       </v-btn>
