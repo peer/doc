@@ -19,7 +19,7 @@
             <v-btn
               flat
               small
-              @click="commentClick(comment)"
+              @click="onViewAllReplies"
             ><translate :translate-params="{count: comment.replies.length}">view-all-replies</translate></v-btn>
           </v-flex>
         </v-layout>
@@ -50,11 +50,11 @@
             >
               <comment-editor
                 ref="threadInput"
-                :comment="comment"
+                v-model="newCommentBody"
                 :read-only="false"
+                :is-reply="!comment.dummy"
                 class="thread__input"
-                @empty="showActions=false"
-                @contentDetected="showActions=true"
+                @body-empty="showActions = !$event"
               />
               <v-card-actions
                 v-if="showActions"
@@ -64,13 +64,13 @@
                   small
                   color="secondary"
                   flat
-                  @click.stop="hideNewCommentForm"
+                  @click.stop="onCancel"
                 ><translate>cancel</translate></v-btn>
                 <v-btn
                   small
                   color="primary"
                   flat
-                  @click.stop="submitComment(comment)"
+                  @click.stop="onSubmit"
                 ><translate>insert</translate></v-btn>
               </v-card-actions>
             </div>
@@ -93,6 +93,7 @@
 
     data() {
       return {
+        newCommentBody: null,
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
         showActions: false,
@@ -100,16 +101,17 @@
     },
 
     methods: {
-      commentClick(comment) {
-        this.$emit("commentClick", comment);
+      onViewAllReplies() {
+        this.$emit('view-all-replies', this.comment);
       },
-      submitComment(comment) {
-        this.$emit("commentSubmitted", comment);
-        this.$refs.threadInput.clearEditor();
+
+      onCancel() {
+        this.newCommentBody = null;
       },
-      hideNewCommentForm() {
-        this.$emit("hideNewCommentForm");
-        this.$refs.threadInput.clearEditor();
+
+      onSubmit() {
+        this.$emit('comment-submitted', this.comment, this.newCommentBody);
+        this.newCommentBody = null;
       },
     },
   };

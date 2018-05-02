@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      ref="commentBody"
+      ref="editor"
       class="comment-editor"
     />
     <link-dialog
@@ -13,9 +13,10 @@
 </template>
 
 <script>
+  import assert from 'assert';
+  import {Node} from 'prosemirror-model';
   import {EditorState} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
-  import {DOMParser, DOMSerializer} from "prosemirror-model";
   import {baseKeymap, toggleMark} from "prosemirror-commands";
   import {undo, redo, history} from 'prosemirror-history';
   import {keymap} from 'prosemirror-keymap';
@@ -26,36 +27,76 @@
 
   // @vue/component
   const component = {
+    model: {
+      prop: 'body',
+      event: 'update:body',
+    },
+
     props: {
-      comment: {
-        type: Object,
-        required: true,
-      },
       readOnly: {
         type: Boolean,
         required: true,
+      },
+      body: {
+        type: Object,
+        required: false,
+        default: null,
+      },
+      isReply: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
 
     data() {
       return {
         isEmpty: true,
+        bodyState: this.body,
       };
     },
 
+    watch: {
+      body(newBody, oldBody) {
+        if (newBody === this.bodyState) {
+          return;
+        }
+
+        this.bodyState = newBody;
+        // This destroys history and undo, but we want this.
+        this.$editorView.updateState(this.newEditorState());
+        this.stateUpdated();
+      },
+
+      isEmpty(newIsEmpty, oldIsEmpty) {
+        assert(newIsEmpty !== oldIsEmpty);
+        this.$emit('body-empty', newIsEmpty);
+      },
+    },
+
     mounted() {
-      if (this.readOnly) {
-        this.createReadOnlyEditor();
-      }
-      else {
-        this.createEditor();
-      }
+      this.$editorView = new EditorView({mount: this.$refs.editor}, {
+        state: this.newEditorState(),
+        editable: () => {
+          return !this.readOnly;
+        },
+        dispatchTransaction: (transaction) => {
+          const newState = this.$editorView.state.apply(transaction);
+          this.$editorView.updateState(newState);
+          this.stateUpdated();
+
+          this.bodyState = Object.freeze(this.$editorView.state.doc.toJSON());
+          this.$emit('update:body', this.bodyState);
+        },
+      });
     },
 
     methods: {
-      createEditor() {
+      newEditorState() {
         const state = EditorState.create({
           schema,
+          // Initial content, if any.
+          doc: this.bodyState && Node.fromJSON(schema, this.bodyState),
           plugins: [
             keymap({
               'Mod-z': undo,
@@ -70,60 +111,13 @@
             placeholderPlugin(this, this.isReply ? this.$gettext("comment-reply-hint") : this.$gettext("comment-hint")),
           ],
         });
-        this.$editorView = new EditorView({mount: this.$refs.commentBody}, {
-          state,
-          dispatchTransaction: (transaction) => {
-            const newState = this.$editorView.state.apply(transaction);
-            this.$editorView.updateState(newState);
-            this.$editorView.state = newState;
 
-            const fragment = DOMSerializer.fromSchema(schema).serializeFragment(newState.doc.content);
-            const tmp = document.createElement("div");
-            tmp.appendChild(fragment);
-            this.comment.input = tmp.innerHTML;
-            this.checkContent();
-          },
-          editable: () => {
-            return true;
-          },
-        });
+        return state;
       },
 
-      createReadOnlyEditor() {
-        // ProseMirror editor is prepared to show the comment body.
-        // A dummy html node is created to parse the comment body.
-        const domNode = document.createElement("div");
-        domNode.innerHTML = this.comment.body;
-        this.isEmpty = this.comment.body === '<p></p>';
-        const state = EditorState.create({
-          schema,
-          doc: DOMParser.fromSchema(schema).parse(domNode),
-        });
-        this.$editorView = new EditorView({mount: this.$refs.commentBody}, {
-          state,
-          editable: () => {
-            return false;
-          },
-        });
-      },
-
-      checkContent() {
-        const wasEmpty = this.isEmpty;
-        this.isEmpty = this.comment.input === '<p></p>';
-        if (this.isEmpty !== wasEmpty) {
-          if (this.isEmpty) {
-            this.$emit("empty");
-          }
-          else {
-            this.$emit("contentDetected");
-          }
-        }
-      },
-
-      clearEditor() {
-        const {tr} = this.$editorView.state;
-        tr.delete(0, tr.doc.content.size);
-        this.$editorView.dispatch(tr);
+      stateUpdated() {
+        // Empty content has size 4 with current schema.
+        this.isEmpty = this.$editorView.state.doc.nodeSize === 4;
       },
 
       onLinkInserted(link) {

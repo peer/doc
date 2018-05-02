@@ -19,7 +19,7 @@
     >
       <div>
         <comment-editor
-          :comment="comment"
+          :body="comment.body"
           :read-only="true"
           class="comment__body"
         />

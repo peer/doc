@@ -43,14 +43,13 @@
           :key="comment._id ? comment._id : 'dummy'"
           :style="{marginTop: `${comment.marginTop}px`}"
           xs12
-          @click.stop="commentClick(comment)"
+          @click.stop="onViewAllReplies(comment)"
         >
           <thread
             ref="comments"
             :comment="comment"
-            @commentClick="commentClick"
-            @commentSubmitted="insertComment"
-            @hideNewCommentForm="showNewCommentForm(false)"
+            @view-all-replies="onViewAllReplies"
+            @comment-submitted="onCommentSubmitted"
           />
         </v-flex>
       </transition-group>
@@ -188,7 +187,7 @@
         this.layoutComments();
       },
 
-      commentClick(comment) {
+      onViewAllReplies(comment) {
         if (this.currentHighlightKey !== comment.highlightKey) {
           this.documentComments = this.documentComments.map((c) => {
             return Object.assign({}, c, {
@@ -224,7 +223,7 @@
         this.layoutCommentsAfterRender();
       },
 
-      insertComment(comment) {
+      onCommentSubmitted(comment, newCommentBody) {
         if (comment.dummy) {
           const key = Random.id();
           // Emit commentAdded event first (for adding highlight to selected text) and then persist the comment.
@@ -234,7 +233,7 @@
           this.$emit("commentAdded", key);
           Comment.create({
             highlightKey: key,
-            body: comment.input,
+            body: newCommentBody,
             documentId: this.documentId,
           });
           this.animate = false;
@@ -243,7 +242,7 @@
         else {
           Comment.create({
             highlightKey: comment.highlightKey,
-            body: comment.input,
+            body: newCommentBody,
             documentId: this.documentId,
             replyTo: comment._id,
           });
