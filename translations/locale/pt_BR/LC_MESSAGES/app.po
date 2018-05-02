@@ -29,7 +29,7 @@ msgstr "Cancelar"
 
 #: client/components/utils/placeholder.js:26
 msgid "choose-title"
-msgstr "Escolher um titúlo"
+msgstr "Escolher um título"
 
 #: client/components/app-layout.vue:68
 msgid "close"
