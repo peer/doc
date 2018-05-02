@@ -334,13 +334,13 @@
           const {clientId} = this;
           if (sendable) {
             const commentMarks = _.filter(transaction.steps, (s) => {
-              return s.mark && s.mark.type.name === "comment";
+              return s.mark && s.mark.type.name === "highlight";
             });
             if (commentMarks) {
               commentMarks.forEach((c) => {
-                const highlightKey = c.mark.attrs["highlight-keys"];
+                const highlightKeys = c.mark.attrs["highlight-keys"].split(',');
                 Comment.setInitialVersion({
-                  highlightKey,
+                  highlightKeys,
                   version: sendable.version,
                 });
               });
@@ -550,9 +550,9 @@
               // update collection to reflect new segments of the selection with previous highlight marks
               newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             }
-            const currentKey = marks[0].attrs["highlight-keys"];
+            const currentKeys = marks[0].attrs["highlight-keys"];
             removeHighlight(schema, this.$editorView.state, start, end, this.$editorView.dispatch);
-            addHighlight(`${currentKey},${key}`, schema, this.$editorView.state, start, end, this.$editorView.dispatch);
+            addHighlight(`${currentKeys},${key}`, schema, this.$editorView.state, start, end, this.$editorView.dispatch);
           });
         }
         newChunks.filter((chunk) => {
