@@ -169,7 +169,7 @@
   import 'prosemirror-view/style/prosemirror.css';
   import 'prosemirror-gapcursor/style/gapcursor.css';
 
-  import {schema} from '/lib/schema.js';
+  import {schema} from '/lib/full-schema.js';
   import {Comment} from '/lib/documents/comment';
   import {Content} from '/lib/documents/content';
   import {Cursor} from '/lib/documents/cursor';

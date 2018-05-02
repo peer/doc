@@ -6,7 +6,7 @@ import {Step} from 'prosemirror-transform';
 import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
-import {schema} from '/lib/schema';
+import {schema} from '/lib/full-schema';
 
 // Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
