@@ -89,7 +89,7 @@ msgstr "Editar conteúdo"
 
 #: client/components/editor.vue:123
 msgid "editor-saved"
-msgstr "Salvo."
+msgstr "Salvo"
 
 #: client/components/editor.vue:118
 msgid "editor-saving"
