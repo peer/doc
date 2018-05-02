@@ -10,15 +10,9 @@
         card
       >
         <v-chip
-          v-if="!documentPublished"
+          v-if="documentPublished"
           label
-          color="yellow"
-          text-color="white"
-          class="doc_status__label"
-        ><translate>document-draft</translate></v-chip>
-        <v-chip
-          v-else
-          label
+          disabled
           color="green"
           text-color="white"
           class="doc_status__label"
