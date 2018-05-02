@@ -1,12 +1,20 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
+import assert from 'assert';
 import {Step} from 'prosemirror-transform';
 
 import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
+
+// TODO: Make documents expire after a while.
+const documents = new Map();
+
+function extractTitle(doc) {
+  return doc.content.firstChild.textContent;
+}
 
 // Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
@@ -31,7 +39,11 @@ Meteor.methods({
 
     const document = Document.documents.findOne(Document.restrictQuery({
       contentKey: args.contentKey,
-    }, Document.PERMISSIONS.UPDATE, user));
+    }, Document.PERMISSIONS.UPDATE, user), {
+      fields: {
+        publishedAt: 1,
+      },
+    });
     if (!document) {
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
@@ -47,10 +59,8 @@ Meteor.methods({
       },
     });
 
-    let addedCount = 0;
-
     if (latestContent.version !== args.currentVersion) {
-      return addedCount;
+      return 0;
     }
 
     let stepsToProcess = steps;
@@ -59,23 +69,78 @@ Meteor.methods({
       // If the document is published we immediately discard this new step
       // unless it contains highlight marks, in which case we just process those.
       stepsToProcess = steps.filter((step) => {
-        if (step.mark && step.mark.type.name === 'highlight') {
-          return step;
-        }
-        return null;
+        return step.mark && step.mark.type.name === 'highlight';
       });
       if (!stepsToProcess.length) {
-        return addedCount;
+        return 0;
       }
     }
+
+    let doc;
+    let version;
+    if (documents.has(args.contentKey)) {
+      ({doc, version} = documents.get(args.contentKey));
+      assert(version <= args.currentVersion);
+    }
+    else {
+      doc = schema.topNodeType.createAndFill();
+      version = 0;
+    }
+
+    Content.documents.find({
+      contentKey: args.contentKey,
+      version: {
+        $gt: version,
+        $lte: args.currentVersion,
+      },
+    }, {
+      sort: {
+        version: 1,
+      },
+      fields: {
+        step: 1,
+        version: 1,
+      },
+    }).forEach((content) => {
+      const result = Step.fromJSON(schema, content.step).apply(doc);
+
+      if (!result.doc) {
+        // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+
+      // eslint-disable-next-line prefer-destructuring
+      doc = result.doc;
+      // eslint-disable-next-line prefer-destructuring
+      version = content.version;
+    });
+
+    assert(version === args.currentVersion);
 
     const createdAt = new Date();
 
     for (const step of stepsToProcess) {
+      const result = step.apply(doc);
+
+      if (!result.doc) {
+        // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+
+      // eslint-disable-next-line prefer-destructuring
+      doc = result.doc;
+      // eslint-disable-next-line prefer-destructuring
+      version += 1;
+
+      // Validate that the step produced a valid document.
+      doc.check();
+
       // eslint-disable-next-line no-unused-vars
       const {numberAffected, insertedId} = Content.documents.upsert({
+        version,
         contentKey: args.contentKey,
-        version: args.currentVersion + addedCount + 1,
       }, {
         $setOnInsert: {
           createdAt,
@@ -89,10 +154,31 @@ Meteor.methods({
         break;
       }
 
-      addedCount += 1;
+      if (documents.has(args.contentKey)) {
+        if (version > documents.get(args.contentKey).version) {
+          documents.set(args.contentKey, {doc, version});
+        }
+      }
+      else {
+        documents.set(args.contentKey, {doc, version});
+      }
     }
 
-    return addedCount;
+    Document.documents.update({
+      contentKey: args.contentKey,
+      version: {
+        $lt: version,
+      },
+    }, {
+      $set: {
+        version,
+        body: doc.toJSON(),
+        updatedAt: createdAt,
+        title: extractTitle(doc),
+      },
+    });
+
+    return args.currentVersion - version;
   },
 });
 
