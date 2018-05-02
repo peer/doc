@@ -1,17 +1,32 @@
-import {check} from 'meteor/check';
+// This is a server-only collection. So we do not use Meteor methods at all.
+
+import {check, Match} from "meteor/check";
 import {Meteor} from 'meteor/meteor';
 
-import {Nonce} from '/lib/documents/nonce';
+import {BaseDocument} from '/lib/base';
 
-// Server-side only method, so we are not using ValidatedMethod.
-Meteor.methods({
-  'Nonce.addNonce'(args) {
-    check(args, {
-      nonce: String,
-    });
+export class Nonce extends BaseDocument {
+  // nonce: unique nonce to be stored
+}
 
-    return Nonce.documents.insert({
-      nonce: args.nonce,
-    });
-  },
+Nonce.addNonce = function upsert(args) {
+  check(args, {
+    nonce: Match.NonEmptyString,
+  });
+
+  return Nonce.documents.insert({
+    nonce: args.nonce,
+  });
+};
+
+Nonce.Meta({
+  name: 'Nonce',
 });
+
+if (Meteor.isServer) {
+  Nonce.Meta.collection._ensureIndex({
+    nonce: 1,
+  }, {
+    unique: true,
+  });
+}

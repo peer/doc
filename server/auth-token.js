@@ -1,14 +1,16 @@
 import {Accounts} from 'meteor/accounts-base';
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
+import {_} from 'meteor/underscore';
+
 import crypto from 'crypto';
 
-import {Nonce} from '/lib/documents/nonce';
 import {User} from '/lib/documents/user';
+import {Nonce} from '/server/documents/nonce';
 
 const baseToMap = {
-  '-': '+',
   _: '/',
+  '-': '+',
   '.': '=',
 };
 
@@ -22,7 +24,10 @@ export function decrypt(tokenBase, keyHex) {
   const decipher = crypto.createDecipheriv('aes-128-gcm', Buffer.from(keyHex, 'hex'), iv);
   decipher.setAuthTag(authTag);
   const json = Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
-  return JSON.parse(json);
+  const data = JSON.parse(json);
+  // Store nonce into the database. This fails if nonce already exists.
+  Nonce.addNonce({nonce: data.nonce});
+  return _.omit(data, 'nonce');
 }
 
 /**
@@ -31,6 +36,7 @@ export function decrypt(tokenBase, keyHex) {
  */
 export function createUserAndSignIn({userToken}) {
   check({userToken}, {
+    // TODO: Be more precise with what all has to be in the token.
     userToken: Match.OneOf(Object),
   });
 
@@ -38,18 +44,21 @@ export function createUserAndSignIn({userToken}) {
   // Does user already exists? Then we just sign the user in.
   const user = User.documents.findOne({"services.usertoken.id": userToken.id});
   if (user) {
+    // TODO: Update.
     return user;
   }
 
   // Otherwise we create a new user.
-  const userTokenWithoutNonce = Object.assign({}, userToken);
-  delete userTokenWithoutNonce.nonce; // We don't need to store the nonce.
   const userId = User.documents.insert({
     username: userToken.username,
     avatar: userToken.avatar,
     services: {
-      usertoken: userTokenWithoutNonce,
+      usertoken: userToken,
     },
+    emails: [{
+      address: userToken.email,
+      verified: true,
+    }],
   });
   const result = User.documents.findOne({_id: userId});
 
@@ -80,12 +89,11 @@ Meteor.methods({
 
       const {userToken} = args;
 
-      // Obtaining shared secret from "settings.json".
+      // Obtaining shared secret from "settings.json". We read it here
+      // and not outside of the function so that we can set it during testing.
       const {tokenSharedSecret} = Meteor.settings;
 
       const decryptedToken = decrypt(userToken, tokenSharedSecret);
-
-      Nonce.addNonce({nonce: decryptedToken.nonce});
 
       return {userId: createUserAndSignIn({userToken: decryptedToken})._id};
     });

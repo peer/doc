@@ -3,17 +3,15 @@ import {WebApp} from 'meteor/webapp';
 
 import {Document} from '/lib/documents/document';
 import {createUserAndSignIn, decrypt} from '/server/auth-token';
-import {Nonce} from '/lib/documents/nonce';
 
-// Obtaining shared secret from "settings.json".
-const {tokenSharedSecret} = Meteor.settings;
+function createUserFromToken(userToken) {
+  // Obtaining shared secret from "settings.json". We read it here
+  // and not outside of the function so that we can set it during testing.
+  const {tokenSharedSecret} = Meteor.settings;
 
-function createDocumentOfUserFromToken(userToken) {
   const decryptedToken = decrypt(userToken, tokenSharedSecret);
-  // Store nonce into database. This fails if nonce already exists.
-  Nonce.addNonce({nonce: decryptedToken.nonce});
   const user = createUserAndSignIn({userToken: decryptedToken});
-  return Document._create(user, false);
+  return Document._create(user);
 }
 
 // TODO: Use path information from router instead of hard-coding the path here.
@@ -24,7 +22,7 @@ WebApp.connectHandlers.use('/document', (req, res, next) => {
         throw new Error("'user' query string parameter is missing.");
       }
 
-      const {_id: documentId} = createDocumentOfUserFromToken(req.query.user);
+      const {_id: documentId} = createUserFromToken(req.query.user);
       const result = JSON.stringify({
         documentId,
         status: 'success',
