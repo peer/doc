@@ -158,51 +158,51 @@ msgstr "Você saiu com sucesso."
 
 #: client/components/editor.vue:235
 msgid "toolbar-bold"
-msgstr ""
+msgstr "Negrito (%{shortcut})"
 
 #: client/components/editor.vue:243
 msgid "toolbar-bulleted-list"
-msgstr ""
+msgstr "Lista com marcadores"
 
 #: client/components/editor.vue:239
 msgid "toolbar-h1"
-msgstr ""
+msgstr "Titúlo 1"
 
 #: client/components/editor.vue:240
 msgid "toolbar-h2"
-msgstr ""
+msgstr "Titúlo 2"
 
 #: client/components/editor.vue:241
 msgid "toolbar-h3"
-msgstr ""
+msgstr "Titúlo 3"
 
 #: client/components/editor.vue:236
 msgid "toolbar-italic"
-msgstr ""
+msgstr "Itálico (%{shortcut})"
 
 #: client/components/editor.vue:238
 msgid "toolbar-link"
-msgstr ""
+msgstr "Link (%{shortcut})"
 
 #: client/components/editor.vue:244
 msgid "toolbar-numbered-list"
-msgstr ""
+msgstr "Lista numerada"
 
 #: client/components/editor.vue:242
 msgid "toolbar-quote"
-msgstr ""
+msgstr "Recuar texto"
 
 #: client/components/editor.vue:234
 msgid "toolbar-redo"
-msgstr ""
+msgstr "Refazer (%{shortcut})"
 
 #: client/components/editor.vue:237
 msgid "toolbar-strikethrough"
-msgstr ""
+msgstr "Tachar (%{shortcut})"
 
 #: client/components/editor.vue:233
 msgid "toolbar-undo"
-msgstr ""
+msgstr "Desfazer (%{shortcut})"
 
 #: client/components/documents.vue:28
 msgid "untitled"
