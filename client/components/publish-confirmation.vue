@@ -1,6 +1,6 @@
 <template>
   <v-layout
-    v-if="$currentUserId"
+    v-if="canAdministerDocuments"
     row
   >
     <v-container fill-height>
@@ -33,7 +33,7 @@
       </v-layout>
     </v-container>
   </v-layout>
-  <access-denied v-else />
+  <not-found v-else-if="$subscriptionsReady()" />
 </template>
 
 <script>
@@ -55,6 +55,25 @@
       return {
         documentPublishInProgress: false,
       };
+    },
+
+    computed: {
+      document() {
+        return Document.documents.findOne({
+          _id: this.documentId,
+        });
+      },
+
+      canAdministerDocuments() {
+        // We require user reference.
+        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
+      },
+    },
+
+    created() {
+      this.$autorun((computation) => {
+        this.$subscribe('Document.one', {documentId: this.documentId});
+      });
     },
 
     methods: {

@@ -101,7 +101,8 @@
 
     computed: {
       canCreateDocument() {
-        return User.hasPermission(Document.PERMISSIONS.CREATE);
+        // We require user reference.
+        return !!(this.$currentUserId && User.hasPermission(Document.PERMISSIONS.CREATE));
       },
 
       documents() {

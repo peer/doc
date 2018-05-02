@@ -18,7 +18,7 @@
           class="doc_status__label"
         ><translate>document-published</translate></v-chip>
         <v-btn
-          v-if="!documentPublished && $currentUserId"
+          v-if="!documentPublished && canAdministerDocuments"
           :to="{name: 'publishDocument', params: {documentId}}"
           color="success"
         ><translate>document-publish</translate></v-btn>
@@ -128,6 +128,11 @@
       canUserCreateComments() {
         // We require user reference.
         return !!(this.$currentUserId && User.hasPermission(Comment.PERMISSIONS.CREATE) && this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE));
+      },
+
+      canAdministerDocuments() {
+        // We require user reference.
+        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
       },
     },
 
