@@ -67,7 +67,7 @@
             }),
             keymap(baseKeymap),
             history(),
-            placeholderPlugin(this, "", this.comment.dummy ? this.$gettext("comment-hint") : this.$gettext("comment-reply-hint")),
+            placeholderPlugin(this, this.isReply ? this.$gettext("comment-reply-hint") : this.$gettext("comment-hint")),
           ],
         });
         this.$editorView = new EditorView({mount: this.$refs.commentBody}, {

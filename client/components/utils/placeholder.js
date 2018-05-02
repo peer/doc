@@ -1,7 +1,7 @@
 import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
-export function placeholderPlugin(vueInstance, titlePlaceholder, paragraphPlaceholder) {
+export function placeholderPlugin(vueInstance, paragraphPlaceholder) {
   return new Plugin({
     props: {
       decorations: (state) => {
@@ -12,7 +12,7 @@ export function placeholderPlugin(vueInstance, titlePlaceholder, paragraphPlaceh
         const decorate = (node, pos) => {
           if (node.type.isBlock && node.childCount === 0) {
             if (node.type.name === 'paragraph') {
-              // Only store empty paragraphs if there's no paragraph with childs.
+              // Only store empty paragraphs if there's no paragraph with children.
               if (isThereParagraphWithContent) {
                 return;
               }
@@ -23,7 +23,7 @@ export function placeholderPlugin(vueInstance, titlePlaceholder, paragraphPlaceh
             if (node.type.name === 'title') {
               // As the title nodeType is unique, we can add the decoration right away.
               decorations.push(Decoration.node(pos, pos + node.nodeSize, {
-                'data-text': titlePlaceholder || vueInstance.$gettext("choose-title"),
+                'data-text': vueInstance.$gettext("choose-title"),
                 class: 'empty-node',
               }));
             }
