@@ -3,12 +3,14 @@
 
 import {HTTP} from 'meteor/http';
 import {Meteor} from 'meteor/meteor';
+import {Random} from 'meteor/random';
 
 import {assert} from 'chai';
 import crypto from 'crypto';
 
 // Enable API.
 import {} from './api';
+import {User} from './documents/user';
 
 const baseFromMap = {
   '+': '-',
@@ -34,6 +36,8 @@ describe('document api', function () {
   // TODO: Use path information from router instead of hard-coding the path here.
   const apiEndpoint = Meteor.absoluteUrl('document');
   const keyHex = crypto.randomBytes(16).toString('hex');
+  const userId = Random.id();
+  const username = `user${Random.id()}`;
 
   let oldTokenSharedSecret;
 
@@ -44,6 +48,8 @@ describe('document api', function () {
 
   after(function () {
     Meteor.settings.tokenSharedSecret = oldTokenSharedSecret;
+
+    User.documents.remove({'services.usertoken.id': userId});
   });
 
   it('should fail without query', function () {
@@ -94,12 +100,16 @@ describe('document api', function () {
   let userToken;
 
   it('should allow creation with valid user token', function () {
-    userToken = encrypt({
+    assert.isNotOk(User.documents.exists({'services.usertoken.id': userId}));
+
+    const userPayload = {
+      username,
       avatar: 'https://randomuser.me/api/portraits/women/70.jpg',
-      username: 'testuser',
-      id: 42,
-      email: 'test@example.com',
-    }, keyHex);
+      id: userId,
+      email: `${username}@example.com`,
+    };
+
+    userToken = encrypt(userPayload, keyHex);
 
     assert.notInclude(userToken, '+');
     assert.notInclude(userToken, '/');
@@ -117,6 +127,13 @@ describe('document api', function () {
     assert.isString(response.data.documentId);
     // TODO: Use router to construct the path.
     assert.equal(response.data.path, `/document/${response.data.documentId}`);
+
+    const user = User.documents.findOne({'services.usertoken.id': userId});
+
+    assert.deepEqual(user.services.usertoken, userPayload);
+    assert.equal(user.username, username);
+    assert.equal(user.avatar, userPayload.avatar);
+    assert.equal(user.emails[0].address, userPayload.email);
   });
 
   it('should not allow user token reuse', function () {
@@ -133,5 +150,42 @@ describe('document api', function () {
       assert.equal(error.response.statusCode, 400);
       assert.deepEqual(error.response.data, {status: 'error'});
     }
+  });
+
+  it('should update user data', function () {
+    assert.isOk(User.documents.exists({'services.usertoken.id': userId}));
+
+    const userPayload = {
+      username,
+      avatar: 'https://randomuser.me/api/portraits/women/30.jpg',
+      id: userId,
+      email: `${username}_another@example.com`,
+    };
+
+    userToken = encrypt(userPayload, keyHex);
+
+    assert.notInclude(userToken, '+');
+    assert.notInclude(userToken, '/');
+    assert.notInclude(userToken, '=');
+
+    const response = HTTP.post(apiEndpoint, {
+      params: {
+        user: userToken,
+      },
+      data: {},
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.data.status, 'success');
+    assert.isString(response.data.documentId);
+    // TODO: Use router to construct the path.
+    assert.equal(response.data.path, `/document/${response.data.documentId}`);
+
+    const user = User.documents.findOne({'services.usertoken.id': userId});
+
+    assert.deepEqual(user.services.usertoken, userPayload);
+    assert.equal(user.username, username);
+    assert.equal(user.avatar, userPayload.avatar);
+    assert.equal(user.emails[0].address, userPayload.email);
   });
 });

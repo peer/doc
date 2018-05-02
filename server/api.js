@@ -2,16 +2,7 @@ import {Meteor} from 'meteor/meteor';
 import {WebApp} from 'meteor/webapp';
 
 import {Document} from '/lib/documents/document';
-import {createUserAndSignIn, decrypt} from '/server/auth-token';
-
-function createUserFromToken(userToken) {
-  // Obtaining shared secret from "settings.json". We read it here
-  // and not outside of the function so that we can set it during testing.
-  const {tokenSharedSecret} = Meteor.settings;
-
-  const decryptedToken = decrypt(userToken, tokenSharedSecret);
-  return createUserAndSignIn({userToken: decryptedToken});
-}
+import {createUserFromToken} from '/server/auth-token';
 
 // TODO: Use path information from router instead of hard-coding the path here.
 WebApp.connectHandlers.use('/document', (req, res, next) => {

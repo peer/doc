@@ -22,3 +22,5 @@ Meteor.publish(null, function userPublish() {
     fields: User.EXTRA_PUBLISH_FIELDS(),
   });
 });
+
+export {User};

@@ -120,3 +120,5 @@ const connectionsCleanup = Meteor.bindEnvironment(() => {
 process.once('exit', connectionsCleanup);
 process.once('SIGTERM', connectionsCleanup);
 process.once('SIGINT', connectionsCleanup);
+
+export {Cursor};

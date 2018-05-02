@@ -137,3 +137,5 @@ Meteor.publish('Content.list', function contentList(args) {
     this.ready();
   });
 });
+
+export {Content};

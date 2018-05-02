@@ -52,3 +52,5 @@ Meteor.publish('Document.one', function documentOne(args) {
     });
   });
 });
+
+export {Document};

@@ -18,3 +18,5 @@ Meteor.publish('Comment.list', function commentList(args) {
     });
   });
 });
+
+export {Comment};
