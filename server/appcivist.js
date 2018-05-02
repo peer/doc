@@ -45,13 +45,15 @@ function update(id, fields) {
 }
 
 if (Meteor.settings.appCivistIntegration && Meteor.settings.appCivistIntegration.endpoint && Meteor.settings.appCivistIntegration.email && Meteor.settings.appCivistIntegration.password) {
-  Document.documents.find({}, {
-    fields: {
-      title: 1,
-      lastActivity: 1,
-    },
-  }).observeChanges({
-    added: update,
-    changed: update,
+  Meteor.startup(() => {
+    Document.documents.find({}, {
+      fields: {
+        title: 1,
+        lastActivity: 1,
+      },
+    }).observeChanges({
+      added: update,
+      changed: update,
+    });
   });
 }
