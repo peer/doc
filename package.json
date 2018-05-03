@@ -38,10 +38,11 @@
     "vue": "git://github.com/meteor-vue/vue.git#meteor",
     "vue-gettext": "^2.0.31",
     "vue-router": "^3.0.1",
-    "vuetify": "^1.0.17"
+    "vuetify": "^1.0.17",
+    "autoprefixer": "^8.4.1",
+    "postcss-easy-import": "^3.0.0"
   },
   "devDependencies": {
-    "autoprefixer": "^8.4.1",
     "babel-eslint": "^8.2.3",
     "chai": "^3.5.0",
     "chimp": "^0.51.1",
@@ -56,7 +57,6 @@
     "eslint-plugin-vue": "^4.5.0",
     "husky": "^0.14.3",
     "lint-staged": "^7.0.5",
-    "postcss-easy-import": "^3.0.0",
     "selenium-webdriver": "^3.6.0",
     "vue-template-compiler": "2.5.2"
   },
