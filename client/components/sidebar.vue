@@ -28,8 +28,7 @@
       ref="commentsList"
       class="sidebar__comments_container"
     >
-      <transition-group
-        :name="transitionName"
+      <div
         class="layout row wrap"
       >
         <v-flex
@@ -47,7 +46,7 @@
             @comment-submitted="onCommentSubmitted"
           />
         </v-flex>
-      </transition-group>
+      </div>
     </v-layout>
   </v-container>
 </template>
@@ -110,7 +109,6 @@
         commentCardPaddingBottom: 10,
         minCommentMargin: 5,
         currentHighlightKey: null,
-        animate: true,
       };
     },
 
@@ -119,10 +117,6 @@
         return Document.documents.findOne({
           _id: this.documentId,
         });
-      },
-
-      transitionName() {
-        return this.animate ? 'sidebar__comments_slow' : 'sidebar__comments_fast';
       },
 
       canUserCreateComments() {
@@ -185,16 +179,11 @@
               return a.createdAt - b.createdAt;
             }
           });
-          this.animate = true;
-        }
-        else {
-          this.animate = false;
         }
         this.layoutCommentsAfterRender();
       },
 
       onContentChanged() {
-        this.animate = false;
         this.layoutComments();
       },
 
@@ -210,7 +199,6 @@
           // Notify to parent component that a comment is focused and the
           // cursor position on the editor component should be updated.
           this.$emit("commentClicked", comment.highlightKey);
-          this.animate = true;
           this.layoutCommentsAfterRender();
         }
       },
@@ -230,7 +218,6 @@
           return !x.dummy;
         });
         this.currentHighlightKey = null;
-        this.animate = false;
         this.layoutCommentsAfterRender();
       },
 
@@ -249,7 +236,6 @@
             documentId: this.documentId,
           });
           this.$emit("afterCommentAdded", key);
-          this.animate = false;
           return;
         }
         else {
@@ -482,6 +468,9 @@
             marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : this.minCommentMargin;
             bottom = previousBottom + marginTop + height;
             top = previousBottom + marginTop;
+            if (c.dummy) {
+              bottom -= 10;
+            }
           }
           this.documentComments.splice(i, 1, Object.assign({}, c, {height, bottom, marginTop, top}));
         }
@@ -501,7 +490,6 @@
           return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
         });
         this.currentHighlightKey = highlightKey;
-        this.animate = true;
         this.layoutCommentsAfterRender();
       },
     },
@@ -525,20 +513,6 @@
     overflow-y:hidden;
     padding-left:12px;
     padding-right:12px;
-    padding-bottom:12px;
-  }
-
-  .sidebar__comments_slow-move {
-    transition: transform 1s;
-    -webkit-transition: transform 1s;
-    transition-delay: 0.17s;
-    -webkit-transition-delay: 0.17s;
-  }
-
-  .sidebar__comments_fast-move {
-    transition: transform 0.0000000001s;
-    -webkit-transition: transform 0.0000000001s;
-    transition-delay: 0.0000000001s;
-    -webkit-transition-delay: 0.0000000001s;
+    padding-bottom:20px;
   }
 </style>
