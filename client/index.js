@@ -9,9 +9,6 @@ import Vuetify from 'vuetify';
 
 // TODO: Load translations only for user's language?
 import translations from '/translations/translations.json';
-// TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
-//       See: https://github.com/meteor/meteor-feature-requests/issues/218
-import 'vuetify/dist/vuetify.css';
 
 import VueExtensions from './vue-extensions';
 
