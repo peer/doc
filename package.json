@@ -62,16 +62,6 @@
   "meteor": {
     "vueVersion": 2
   },
-  "postcss": {
-    "plugins": {
-      "postcss-easy-import": {},
-      "autoprefixer": {
-        "browsers": [
-          "last 2 versions"
-        ]
-      }
-    }
-  },
   "eslintConfig": {
     "env": {
       "node": true,
