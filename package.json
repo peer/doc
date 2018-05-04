@@ -48,7 +48,6 @@
     "chai": "^3.5.0",
     "chimp": "^0.51.1",
     "chromedriver": "^2.38.2",
-    "css-loader": "^0.28.11",
     "easygettext": "^2.3.0",
     "eslint": "^4.15.0",
     "eslint-config-airbnb-base": "^12.1.0",
