@@ -31,8 +31,9 @@ peerlibrary:user-extra
 peerlibrary:peerdb
 akryum:vue-sass
 fourseven:scss
-seba:minifiers-autoprefixer
 tmeasday:acceptance-test-driver
 meteortesting:mocha
 lmieulet:meteor-coverage
 peerlibrary:peerdb-migrations
+juliancwirkopostcss
+runisland:static-assets

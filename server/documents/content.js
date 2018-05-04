@@ -110,9 +110,7 @@ Meteor.methods({
         throw new Meteor.Error('invalid-request', "Invalid step.");
       }
 
-      // eslint-disable-next-line prefer-destructuring
       doc = result.doc;
-      // eslint-disable-next-line prefer-destructuring
       version = content.version;
     });
 
@@ -129,9 +127,7 @@ Meteor.methods({
         throw new Meteor.Error('invalid-request', "Invalid step.");
       }
 
-      // eslint-disable-next-line prefer-destructuring
       doc = result.doc;
-      // eslint-disable-next-line prefer-destructuring
       version += 1;
 
       // Validate that the step produced a valid document.

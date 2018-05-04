@@ -10,6 +10,14 @@ let sessionKey = null;
 let sessionKeyTimestamp = null;
 
 const SESSION_KEY_TTL = 30 * 24 * 60 * 60; // 30 days, seconds
+const UNMISTAKABLE_CHARS = '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz';
+
+let prefix = UNMISTAKABLE_CHARS.split('');
+
+if (Document.instances > 1) {
+  const range = UNMISTAKABLE_CHARS.length / Document.instances;
+  prefix = prefix.slice(Math.round(Document.instance * range), Math.round((Document.instance + 1) * range));
+}
 
 function getSessionKey() {
   const timestamp = new Date().valueOf();
@@ -18,7 +26,6 @@ function getSessionKey() {
       data: _.pick(Meteor.settings.appCivistIntegration, 'email', 'password'),
     });
 
-    // eslint-disable-next-line prefer-destructuring
     sessionKey = response.data.sessionKey;
     sessionKeyTimestamp = timestamp;
   }
@@ -27,6 +34,13 @@ function getSessionKey() {
 }
 
 function update(id, fields) {
+  // We process the change only if the first character of the document
+  // ID matches one of characters in "prefix". In this way we distribute
+  // processing across multiple nodes.
+  if (!prefix.includes(id[0])) {
+    return;
+  }
+
   const params = {};
 
   if (Object.prototype.hasOwnProperty.call(fields, 'title')) {
@@ -46,13 +60,19 @@ function update(id, fields) {
 }
 
 if (Meteor.settings.appCivistIntegration && Meteor.settings.appCivistIntegration.endpoint && Meteor.settings.appCivistIntegration.email && Meteor.settings.appCivistIntegration.password) {
-  Document.documents.find({}, {
-    fields: {
-      title: 1,
-      lastActivity: 1,
-    },
-  }).observeChanges({
-    added: update,
-    changed: update,
+  Meteor.startup(() => {
+    if (Document.instanceDisabled) {
+      return;
+    }
+
+    Document.documents.find({}, {
+      fields: {
+        title: 1,
+        lastActivity: 1,
+      },
+    }).observeChanges({
+      added: update,
+      changed: update,
+    });
   });
 }

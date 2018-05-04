@@ -176,11 +176,6 @@
   import {Step} from 'prosemirror-transform';
   import {toggleMark, baseKeymap} from "prosemirror-commands";
 
-  // TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
-  //       See: https://github.com/meteor/meteor-feature-requests/issues/218
-  import 'prosemirror-view/style/prosemirror.css';
-  import 'prosemirror-gapcursor/style/gapcursor.css';
-
   import {schema} from '/lib/full-schema.js';
   import {Comment} from '/lib/documents/comment';
   import {Content} from '/lib/documents/content';

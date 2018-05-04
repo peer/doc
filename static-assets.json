@@ -1,0 +1,13 @@
+{
+  "map": {
+    "node_modules/material-design-icons/iconfont/": "/"
+  },
+  "extensions": [
+    "eot",
+    "ijmap",
+    "svg",
+    "ttf",
+    "woff",
+    "woff2"
+  ]
+}
