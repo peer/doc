@@ -88,6 +88,7 @@ export function addHighlight(keys, schema, state, from, to, dispatch) {
       return false;
     }
   }
+  tr.setMeta("addToHistory", false);
   return dispatch(tr.addMark(from, to, schema.marks.highlight.create(attrs)));
 }
 
@@ -95,6 +96,7 @@ export function removeHighlight(schema, state, from, to, dispatch) {
   const {doc, tr} = state;
   if (dispatch) {
     if (doc.rangeHasMark(from, to, schema.marks.highlight)) {
+      tr.setMeta("addToHistory", false);
       return dispatch(tr.removeMark(from, to, schema.marks.highlight));
     }
   }
