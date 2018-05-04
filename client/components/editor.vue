@@ -574,15 +574,23 @@
         if (this.selectedExistingHighlights) {
           // Change existing highlight marks to add the new highlight-key after their current highlight-keys.
           this.selectedExistingHighlights.forEach((highlightMark) => {
-            const {start, size, marks} = highlightMark;
-            const end = start + size;
-            const chunkToSplit = newChunks.find((chunk) => {
+            const {size, marks} = highlightMark;
+            let {start} = highlightMark;
+            let end = start + size;
+            // Chunk to split if the new highlight includes highlights from other comments.
+            let chunkToSplit = newChunks.find((chunk) => {
               return chunk.from <= start && chunk.to >= end;
             });
-            if (chunkToSplit) {
-              // update collection to reflect new segments of the selection with previous highlight marks
-              newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
+            if (!chunkToSplit) {
+              // Chunk to split if the new highlight includes parts of highlights from other comments.
+              chunkToSplit = newChunks.find((chunk) => {
+                return chunk.from <= start || chunk.to >= end;
+              });
+              start = Math.max(start, chunkToSplit.from);
+              end = Math.min(end, chunkToSplit.to);
             }
+            // update collection to reflect new segments of the selection with previous highlight marks
+            newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             const currentKeys = marks[0].attrs["highlight-keys"];
             removeHighlight(schema, this.$editorView.state, start, end, this.$editorView.dispatch);
             addHighlight(`${currentKeys},${key}`, schema, this.$editorView.state, start, end, this.$editorView.dispatch);
