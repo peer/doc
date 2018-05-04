@@ -16,12 +16,14 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.46",
+    "autoprefixer": "^8.4.1",
     "babel-runtime": "^6.26.0",
     "bcrypt": "^2.0.1",
     "core-js": "^2.5.5",
     "material-design-icons": "^3.0.1",
     "meteor-node-stubs": "^0.3.2",
     "moment": "^2.22.1",
+    "postcss-easy-import": "^3.0.0",
     "prosemirror-collab": "^1.0.0",
     "prosemirror-commands": "^1.0.7",
     "prosemirror-dropcursor": "^1.0.0",
@@ -38,9 +40,7 @@
     "vue": "git://github.com/meteor-vue/vue.git#meteor",
     "vue-gettext": "^2.0.31",
     "vue-router": "^3.0.1",
-    "vuetify": "^1.0.17",
-    "autoprefixer": "^8.4.1",
-    "postcss-easy-import": "^3.0.0"
+    "vuetify": "^1.0.17"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.3",
