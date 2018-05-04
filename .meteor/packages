@@ -35,5 +35,5 @@ tmeasday:acceptance-test-driver
 meteortesting:mocha
 lmieulet:meteor-coverage
 peerlibrary:peerdb-migrations
-juliancwirko:postcss
+juliancwirkopostcss
 runisland:static-assets
