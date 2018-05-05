@@ -81,10 +81,6 @@ export function addHighlight(keys, schema, state, from, to, dispatch) {
   // "tr" is a ProseMirror transaction.
   const {tr} = state;
   const attrs = {"highlight-keys": keys};
-  if (!attrs["highlight-keys"]) {
-    return false;
-  }
-
   return dispatch(tr.addMark(from, to, schema.marks.highlight.create(attrs)));
 }
 
