@@ -173,15 +173,15 @@ msgstr "Lista com marcadores"
 
 #: client/components/editor.vue:245
 msgid "toolbar-h1"
-msgstr "Titúlo 1"
+msgstr "Título 1"
 
 #: client/components/editor.vue:246
 msgid "toolbar-h2"
-msgstr "Titúlo 2"
+msgstr "Título 2"
 
 #: client/components/editor.vue:247
 msgid "toolbar-h3"
-msgstr "Titúlo 3"
+msgstr "Título 3"
 
 #: client/components/editor.vue:242
 msgid "toolbar-italic"
