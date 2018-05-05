@@ -4,6 +4,3 @@
 [submodule ".circleci/authors"]
 	path = .circleci/authors
 	url = https://github.com/tozd/git-check-authors.git
-[submodule "packages/juliancwirkopostcss"]
-	path = packages/juliancwirkopostcss
-	url = https://github.com/mitar/meteor-postcss.git
