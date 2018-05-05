@@ -32,6 +32,7 @@ Meteor.startup(() => {
   // eslint-disable-next-line no-new
   new Vue({
     router,
+    // Loading message will be replaced by the app.
     el: '#app',
     render: (createElement) => {
       return createElement(Vue.component('app-layout'));

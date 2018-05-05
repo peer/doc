@@ -1,0 +1,16 @@
+.peerdoc-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 15px;
+
+  .progress-circular {
+    // Same as primary--text from current theme.
+    color: #1976d2;
+  }
+}
