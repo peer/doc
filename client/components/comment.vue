@@ -71,6 +71,7 @@
     min-height: 36px;
     padding-top: 5px;
     word-wrap: break-word;
+    margin-bottom: 10px;
   }
 
   .comment__details-enter {

@@ -149,6 +149,10 @@
       content: attr(data-text);
     }
 
+    p {
+      margin-bottom: 0px;
+    }
+
     p.empty-node:first-of-type::before {
       content: attr(data-text);
     }
