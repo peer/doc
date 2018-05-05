@@ -1,12 +1,20 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
+import assert from 'assert';
 import {Step} from 'prosemirror-transform';
-import {schema} from '/lib/schema';
 
 import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
+import {schema} from '/lib/full-schema';
+
+// TODO: Make documents expire after a while.
+const documents = new Map();
+
+function extractTitle(doc) {
+  return doc.content.firstChild.textContent;
+}
 
 // Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
@@ -14,57 +22,126 @@ Meteor.methods({
     check(args, {
       contentKey: Match.DocumentId,
       currentVersion: Match.Integer,
-      steps: [Step],
+      steps: [Object],
       clientId: Match.DocumentId,
     });
 
+    const steps = args.steps.map((step) => {
+      return Step.fromJSON(schema, step);
+    });
+
     const user = Meteor.user(User.REFERENCE_FIELDS());
+
+    // We need user reference.
     if (!user) {
       throw new Meteor.Error('unauthorized', "Unauthorized.");
     }
 
-    // TODO: Check more permissions?
-
-    args.steps.forEach((step) => {
-      if (step.slice) {
-        step.slice.content.descendants((node) => {
-          node.check(); // will throw an error if node is not valid
-        });
-      }
+    const document = Document.documents.findOne(Document.restrictQuery({
+      contentKey: args.contentKey,
+    }, Document.PERMISSIONS.UPDATE, user), {
+      fields: {
+        publishedAt: 1,
+      },
     });
-    let addedCount = 0;
-    const latestContent = Content.documents.findOne({contentKey: args.contentKey}, {sort: {version: -1}, fields: {version: 1}});
-    const document = Document.documents.findOne({contentKey: args.contentKey});
-    let stepsToProcess = args.steps;
+    if (!document) {
+      throw new Meteor.Error('not-found', `Document cannot be found.`);
+    }
+
+    const latestContent = Content.documents.findOne({
+      contentKey: args.contentKey,
+    }, {
+      sort: {
+        version: -1,
+      },
+      fields: {
+        version: 1,
+      },
+    });
+
+    if (latestContent.version !== args.currentVersion) {
+      return 0;
+    }
+
+    let stepsToProcess = steps;
+
     if (document.isPublished()) {
       // If the document is published we immediately discard this new step
       // unless it contains highlight marks, in which case we just process those.
-      stepsToProcess = args.steps.filter((step) => {
-        if (step.mark && step.mark.type.name === 'highlight') {
-          return step;
-        }
-        return null;
+      stepsToProcess = steps.filter((step) => {
+        return step.mark && step.mark.type.name === 'highlight';
       });
-      if (!stepsToProcess || !stepsToProcess.length) {
-        return addedCount;
+      if (!stepsToProcess.length) {
+        return 0;
       }
     }
-    if (latestContent.version !== args.currentVersion) {
-      return addedCount;
+
+    let doc;
+    let version;
+    if (documents.has(args.contentKey)) {
+      ({doc, version} = documents.get(args.contentKey));
+      assert(version <= args.currentVersion);
+    }
+    else {
+      doc = schema.topNodeType.createAndFill();
+      version = 0;
     }
 
-    const createdAt = new Date();
+    Content.documents.find({
+      contentKey: args.contentKey,
+      version: {
+        $gt: version,
+        $lte: args.currentVersion,
+      },
+    }, {
+      sort: {
+        version: 1,
+      },
+      fields: {
+        step: 1,
+        version: 1,
+      },
+    }).forEach((content) => {
+      const result = Step.fromJSON(schema, content.step).apply(doc);
+
+      if (!result.doc) {
+        // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+
+      doc = result.doc;
+      version = content.version;
+    });
+
+    assert(version === args.currentVersion);
+
+    const timestamp = new Date();
 
     for (const step of stepsToProcess) {
-      const {numberAffected, insertedId} = Content.documents.upsert({ // eslint-disable-line no-unused-vars
+      const result = step.apply(doc);
+
+      if (!result.doc) {
+        // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+
+      doc = result.doc;
+      version += 1;
+
+      // Validate that the step produced a valid document.
+      doc.check();
+
+      // eslint-disable-next-line no-unused-vars
+      const {numberAffected, insertedId} = Content.documents.upsert({
+        version,
         contentKey: args.contentKey,
-        version: args.currentVersion + addedCount + 1,
       }, {
         $setOnInsert: {
-          createdAt,
+          createdAt: timestamp,
           author: user.getReference(),
           clientId: args.clientId,
-          // We do not store steps serialized wth EJSON but normal JSON to make it cleaner.
           step: step.toJSON(),
         },
       });
@@ -73,10 +150,32 @@ Meteor.methods({
         break;
       }
 
-      addedCount += 1;
+      if (documents.has(args.contentKey)) {
+        if (version > documents.get(args.contentKey).version) {
+          documents.set(args.contentKey, {doc, version});
+        }
+      }
+      else {
+        documents.set(args.contentKey, {doc, version});
+      }
     }
 
-    return addedCount;
+    Document.documents.update({
+      contentKey: args.contentKey,
+      version: {
+        $lt: version,
+      },
+    }, {
+      $set: {
+        version,
+        body: doc.toJSON(),
+        updatedAt: timestamp,
+        lastActivity: timestamp,
+        title: extractTitle(doc),
+      },
+    });
+
+    return args.currentVersion - version;
   },
 });
 
@@ -87,35 +186,22 @@ Meteor.publish('Content.list', function contentList(args) {
 
   this.enableScope();
 
-  const handle = Content.documents.find({
-    contentKey: args.contentKey,
-  }, {
-    fields: Content.PUBLISH_FIELDS(),
-  // We do not store steps serialized wth EJSON but
-  // normal JSON so we have to manually deserialize them.
-  }).observeChanges({
-    added: (id, fields) => {
-      if (fields.step) {
-        fields.step = Step.fromJSON(schema, fields.step); // eslint-disable-line no-param-reassign
-      }
-      this.added(Content.Meta.collection._name, id, fields);
-    },
+  this.autorun((computation) => {
+    const documentExists = Document.documents.exists(Document.restrictQuery({
+      contentKey: args.contentKey,
+    }, Document.PERMISSIONS.SEE));
 
-    changed: (id, fields) => {
-      if (fields.step) {
-        fields.step = Step.fromJSON(schema, fields.step); // eslint-disable-line no-param-reassign
-      }
-      this.changed(Content.Meta.collection._name, id, fields);
-    },
+    if (!documentExists) {
+      return [];
+    }
 
-    removed: (id) => {
-      this.removed(Content.Meta.collection._name, id);
-    },
+    return Content.documents.find({
+      contentKey: args.contentKey,
+    }, {
+      fields: Content.PUBLISH_FIELDS(),
+    });
   });
-
-  this.onStop(() => {
-    handle.stop();
-  });
-
-  this.ready();
 });
+
+// For testing.
+export {Content};

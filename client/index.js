@@ -1,4 +1,5 @@
 import {Meteor} from 'meteor/meteor';
+import {Tracker} from 'meteor/tracker';
 
 import {nativeScrollBehavior, RouterFactory} from 'meteor/akryum:vue-router2';
 
@@ -8,12 +9,19 @@ import Vuetify from 'vuetify';
 
 // TODO: Load translations only for user's language?
 import translations from '/translations/translations.json';
-// TODO: Import it in a way which does not add it to <style> but adds it to a file referenced from <head>.
-//       See: https://github.com/meteor/meteor-feature-requests/issues/218
-import 'vuetify/dist/vuetify.css';
+
+import VueExtensions from './vue-extensions';
 
 Vue.use(Vuetify);
-Vue.use(GetTextPlugin, {translations});
+Vue.use(GetTextPlugin, {
+  availableLanguages: {
+    en_US: "American English",
+    pt_BR: "Português do Brasil",
+  },
+  defaultLanguage: Meteor.settings.public.defaultLanguage || 'en_US',
+  translations,
+});
+Vue.use(VueExtensions);
 
 Meteor.startup(() => {
   const router = new RouterFactory({
@@ -21,11 +29,18 @@ Meteor.startup(() => {
     scrollBehavior: nativeScrollBehavior,
   }).create();
 
-  new Vue({ // eslint-disable-line no-new
+  // eslint-disable-next-line no-new
+  new Vue({
     router,
+    // Loading message will be replaced by the app.
     el: '#app',
     render: (createElement) => {
       return createElement(Vue.component('app-layout'));
     },
   });
 });
+
+if (!Tracker._vue) {
+  // eslint-disable-next-line no-console
+  console.error("Not running using a Vue-enabled Tracker. Have you cloned repository recursively?");
+}

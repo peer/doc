@@ -1,29 +1,33 @@
 <template>
-  <v-layout v-if="document" row>
+  <v-layout
+    v-if="document"
+    row
+    @mousedown="onMouseDown"
+  >
     <v-flex xs8>
-      <v-card>
-        <v-card-text>
-          <!-- TODO: Display editor only if you have permissions. -->
-          <editor
-            :document-id="document._id"
-            :content-key="document.contentKey"
-            :client-id="clientId"
-            :focused-cursor="cursor"
-            @scroll="onEditorScroll"
-            @contentChanged="onContentChanged"
-            :read-only="document.isPublished()"
-          />
-        </v-card-text>
-      </v-card>
+      <!-- TODO: Display editor only if you have permissions. -->
+      <editor
+        ref="editor"
+        :document-id="document._id"
+        :content-key="document.contentKey"
+        :client-id="clientId"
+        :read-only="document.isPublished()"
+        @contentChanged="onContentChanged"
+        @highlightSelected="onHighlightSelected"
+        @showNewCommentForm="onShowNewCommentForm"
+      />
     </v-flex>
     <v-flex xs4>
       <sidebar
+        ref="sidebar"
         :document-id="document._id"
         :content-key="document.contentKey"
         :document-published="document.isPublished()"
         :client-id="clientId"
-        @click="onAvatarClicked"
-        ref="sidebar" />
+        @commentClicked="onCommentClicked"
+        @commentAdded="onCommentAdded"
+        @afterCommentAdded="onAfterCommentAdded"
+      />
     </v-flex>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />
@@ -47,7 +51,6 @@
     data() {
       return {
         clientId: Random.id(),
-        cursor: null,
       };
     },
 
@@ -57,19 +60,6 @@
           _id: this.documentId,
         });
       },
-
-      shouldEmbed() {
-        return this.$route.query.embed === 'true';
-      },
-    },
-
-    watch: {
-      shouldEmbed: {
-        handler: function handler(value) {
-          this.$emit('embed', value);
-        },
-        immediate: true,
-      },
     },
 
     created() {
@@ -78,42 +68,29 @@
       });
     },
 
-    mounted() {
-      if (this.shouldEmbed) {
-        this.sendNewSizeToParentWindow();
-        window.addEventListener('resize', this.sendNewSizeToParentWindow);
-      }
-    },
-
-    beforeDestroy() {
-      window.removeEventListener('resize', this.sendNewSizeToParentWindow);
-    },
-
     methods: {
-      onAvatarClicked(cursor) {
-        this.cursor = cursor;
+      onMouseDown(event) {
+        if (event.target.className !== 'highlight--selected') {
+          this.$refs.sidebar.collapseComments();
+        }
       },
-
-      onEditorScroll() {
-        // We just remove the reference to the previously clicked cursor because all we needed
-        // was the `Editor` component to scroll to it.
-        this.cursor = null;
-      },
-
       onContentChanged() {
-        this.$refs.sidebar.layoutComments();
+        this.$refs.sidebar.onContentChanged();
       },
-
-      sendNewSizeToParentWindow() {
-        const width = window.innerWidth
-          || document.documentElement.clientWidth
-          || document.body.clientWidth;
-        const height = window.innerHeight
-          || document.documentElement.clientHeight
-          || document.body.clientHeight;
-        const size = {size: {width, height}};
-        const message = JSON.stringify(size);
-        window.postMessage(message, '*');
+      onHighlightSelected(highlightKey) {
+        this.$refs.sidebar.focusComment(highlightKey);
+      },
+      onCommentClicked(highlightKey) {
+        this.$refs.editor.updateCursor(highlightKey);
+      },
+      onShowNewCommentForm(show, start) {
+        this.$refs.sidebar.showNewCommentForm(show, start);
+      },
+      onCommentAdded(highlightKey) {
+        this.$refs.editor.onCommentAdded(highlightKey);
+      },
+      onAfterCommentAdded(highlightKey) {
+        this.$refs.editor.onAfterCommentAdded(highlightKey);
       },
     },
   };
@@ -131,10 +108,3 @@
 
   export default component;
 </script>
-
-<style lang="scss">
-  .doc_status__label {
-    text-transform: uppercase;
-    font-weight: bold;
-  }
-</style>

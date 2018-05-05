@@ -1,18 +1,20 @@
 import {Accounts} from 'meteor/accounts-base';
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
+import {_} from 'meteor/underscore';
+
 import crypto from 'crypto';
 
-import {Nonce} from '/lib/documents/nonce';
 import {User} from '/lib/documents/user';
+import {Nonce} from '/server/documents/nonce';
 
 const baseToMap = {
-  '-': '+',
   _: '/',
+  '-': '+',
   '.': '=',
 };
 
-export function decrypt(tokenBase, keyHex) {
+function decrypt(tokenBase, keyHex) {
   const token = Buffer.from(tokenBase.replace(/[-_.]/g, (c) => {
     return baseToMap[c];
   }), 'base64');
@@ -22,43 +24,74 @@ export function decrypt(tokenBase, keyHex) {
   const decipher = crypto.createDecipheriv('aes-128-gcm', Buffer.from(keyHex, 'hex'), iv);
   decipher.setAuthTag(authTag);
   const json = Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
-  return JSON.parse(json);
+  const data = JSON.parse(json);
+  // Store nonce into the database. This fails if nonce already exists.
+  Nonce.addNonce({nonce: data.nonce});
+  return _.omit(data, 'nonce');
 }
 
-/**
- * Creates and user from an userToken.
- * @returns Created User
- */
-export function createUserAndSignIn({userToken}) {
-  check({userToken}, {
-    userToken: Match.OneOf(Object),
-  });
-
-  // If the user creation came from token.
-  // Does user already exists? Then we just sign the user in.
-  const user = User.documents.findOne({"services.usertoken.id": userToken.id});
-  if (user) {
-    return user;
+// TODO: Instead of manually creating a user document, we should define a Meteor external service and use its API.
+// TODO: If user with same verified e-mail already exist, we should maybe try to merge documents?
+// TODO: What if user with same username already exists from some other service?
+export function createUserFromToken(userToken) {
+  if (Accounts._options.forbidClientAccountCreation) {
+    throw new Meteor.Error('forbidden', "Sign ups forbidden.");
   }
 
-  // Otherwise we create a new user.
-  const userTokenWithoutNonce = Object.assign({}, userToken);
-  delete userTokenWithoutNonce.nonce; // we don't need to store the nonce
-  const userId = User.documents.insert({
-    username: userToken.username,
-    services: {
-      usertoken: userTokenWithoutNonce,
+  // Obtaining shared secret from "settings.json". We read it here
+  // and not outside of the function so that we can set it during testing.
+  const {tokenSharedSecret} = Meteor.settings;
+
+  let decryptedToken = decrypt(userToken, tokenSharedSecret);
+
+  check(decryptedToken, Match.ObjectIncluding({
+    // TODO: Check that it is an URL.
+    avatar: Match.NonEmptyString,
+    username: Match.NonEmptyString,
+    id: Match.Any,
+    email: Match.EMail,
+  }));
+
+  decryptedToken = _.pick(decryptedToken, 'avatar', 'username', 'id', 'email');
+
+  // eslint-disable-next-line no-unused-vars
+  const {numberAffected, insertedId} = User.documents.upsert({
+    'services.usertoken.id': decryptedToken.id,
+  }, {
+    $set: {
+      username: decryptedToken.username,
+      avatar: decryptedToken.avatar,
+      'services.usertoken': decryptedToken,
+      // TODO: This might override an e-mail from some other service.
+      emails: [{
+        address: decryptedToken.email,
+        verified: true,
+      }],
     },
   });
-  const result = User.documents.findOne({_id: userId});
 
-  // Safety belt. createUser is supposed to throw on error.
-  if (!result) {
-    throw new Error("Failed to insert a new user.");
+  let user;
+  if (insertedId) {
+    user = User.documents.findOne({
+      _id: insertedId,
+    }, {
+      fields: User.REFERENCE_FIELDS(),
+    });
+  }
+  else {
+    user = User.documents.findOne({
+      'services.usertoken.id': decryptedToken.id,
+    }, {
+      fields: User.REFERENCE_FIELDS(),
+    });
   }
 
-  // Client gets logged in as the new user afterwards.
-  return result;
+  // Sanity check.
+  if (!user) {
+    throw new Error("Failed to create a new account.");
+  }
+
+  return user;
 }
 
 // A special case which is not using ValidatedMethod because client side
@@ -71,22 +104,11 @@ Meteor.methods({
       check(args, {
         userToken: Match.NonEmptyString,
       });
-      if (Accounts._options.forbidClientAccountCreation) {
-        return {
-          error: new Meteor.Error('forbidden', "Sign ups forbidden."),
-        };
-      }
 
       const {userToken} = args;
 
-      // Obtaining shared secret from "settings.json".
-      const {keyHex} = Meteor.settings;
-
-      const decryptedToken = decrypt(userToken, keyHex);
-
-      Nonce.addNonce({nonce: decryptedToken.nonce});
-
-      return {userId: createUserAndSignIn({userToken: decryptedToken})._id};
+      // Client gets logged in as the new user afterwards.
+      return {userId: createUserFromToken(userToken)._id};
     });
   },
 });

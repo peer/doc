@@ -6,7 +6,7 @@ The application uses [Meteor](https://www.meteor.com/) web framework. Install it
 $ curl https://install.meteor.com/ | sh
 ```
 
-Clone the repository:
+Clone the repository **recursively**:
 
 ```bash
 $ git clone --recursive https://github.com/peer/doc.git
@@ -60,3 +60,43 @@ To generate translations:
 2. Go to `translations/locale` and find the `.po` file associated with the language you want to translate.
 3. Update the `.po` file with translations for extracted strings.
 4. Generate an updated translations JSON file by running `meteor npm run translations`.
+
+## Testing
+
+### Unit tests
+
+```
+$ meteor npm run test-watch
+```
+
+This will watch for any changes and rerun unit tests. Test results are in the terminal.
+
+If you want to run unit tests only once, run:
+
+```
+$ meteor npm run test
+```
+
+### Acceptance tests
+
+Run in one terminal:
+
+```
+$ meteor npm run test-app
+```
+
+This will run the full app in test mode on [http://localhost:3000/](http://localhost:3000/),
+but you do not have to open it. Run in another terminal:
+
+```
+$ meteor npm run chimp-watch
+```
+
+This will then connect to the app and run acceptance tests. It will watch for any changes and
+rerun tests, too. Test results are in the terminal.
+
+If you want to run acceptance tests only once, run:
+
+```
+$ meteor npm run chimp-test
+```

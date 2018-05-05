@@ -10,9 +10,14 @@ Meteor.publish('Comment.list', function commentList(args) {
 
   this.enableScope();
 
-  return Comment.documents.find({
-    'document._id': args.documentId,
-  }, {
-    fields: Comment.PUBLISH_FIELDS(),
+  this.autorun((computation) => {
+    return Comment.documents.find(Comment.restrictQuery({
+      'document._id': args.documentId,
+    }, Comment.PERMISSIONS.SEE), {
+      fields: Comment.PUBLISH_FIELDS(),
+    });
   });
 });
+
+// For testing.
+export {Comment};

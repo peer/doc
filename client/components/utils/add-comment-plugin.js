@@ -2,7 +2,6 @@ import {Plugin} from "prosemirror-state";
 
 class AddComment {
   constructor(view, vueInstance) {
-    view.dom.parentNode.appendChild(vueInstance.$refs.addCommentButton.$el);
     this.update(view, null);
     this.vueInstance = vueInstance;
   }
@@ -34,8 +33,8 @@ class AddComment {
       if (!marksObj.marks.length) {
         onlyHighlightMarkInRange = false;
       }
-      if (marksObj.marks.filter((m) => {
-        return m.type.name !== 'highlight';
+      if (!marksObj.marks.filter((m) => {
+        return m.type.name === 'highlight';
       }).length) {
         onlyHighlightMarkInRange = false;
       }
@@ -48,24 +47,27 @@ class AddComment {
           return m.type.name === "highlight";
         }),
       });
+    }).filter((marksObj) => {
+      return marksObj.marks.length;
     });
-    const button = this.vueInstance.$refs.addCommentButton;
-    // Hide the comment button if the selection is empty or the selection
-    // only contains highlight marks.
-    if (state.selection.empty || onlyHighlightMarkInRange) {
-      button.$el.style.opacity = 0;
-      button.$el.style.visibility = 'hidden';
-      return;
-    }
 
-    button.$el.style.opacity = 0.75;
-    button.$el.style.visibility = 'visible';
-    const {from} = state.selection;
-    // These are in screen coordinates
-    const start = view.coordsAtPos(from);
-    // The box in which the comment button is positioned, to use as base
-    const box = button.$el.offsetParent.getBoundingClientRect();
-    button.$el.style.bottom = `${(box.bottom - start.bottom)}px`;
+    if (this.vueInstance.canUserCreateComments) {
+      const {from} = state.selection;
+      // These are in screen coordinates
+      const start = view.coordsAtPos(from);
+
+      // Hide the comment box if the selection is empty or the selection
+      // only contains highlight marks.
+      if (state.selection.empty || onlyHighlightMarkInRange) {
+        this.vueInstance.showNewCommentForm(false);
+      }
+      else {
+        this.vueInstance.showNewCommentForm(true, start);
+      }
+    }
+    else {
+      this.vueInstance.showNewCommentForm(false);
+    }
   }
 }
 
@@ -81,6 +83,7 @@ export function addHighlight(keys, schema, state, from, to, dispatch) {
   // "tr" is a ProseMirror transaction.
   const {tr} = state;
   const attrs = {"highlight-keys": keys};
+  tr.setMeta("addToHistory", false);
   return dispatch(tr.addMark(from, to, schema.marks.highlight.create(attrs)));
 }
 
@@ -89,6 +92,7 @@ export function removeHighlight(schema, state, from, to, dispatch) {
   const {doc, tr} = state;
   if (dispatch) {
     if (doc.rangeHasMark(from, to, schema.marks.highlight)) {
+      tr.setMeta("addToHistory", false);
       return dispatch(tr.removeMark(from, to, schema.marks.highlight));
     }
   }

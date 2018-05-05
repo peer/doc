@@ -1,16 +1,42 @@
 <template>
-  <v-app>
-    <v-toolbar app absolute v-if="!isEmbeded">
-      <v-btn :to="{name: 'front-page'}" exact icon>
+  <v-app :class="{embed: isEmbeded}">
+    <v-toolbar
+      v-if="!isEmbeded"
+      app
+      absolute
+    >
+      <v-btn
+        :to="{name: 'front-page'}"
+        exact
+        icon
+      >
         <v-icon>apps</v-icon>
       </v-btn>
       <v-toolbar-title>PeerDoc</v-toolbar-title>
       <v-spacer />
       <v-toolbar-items>
-        <v-btn :to="{name: 'documents'}" flat><translate>documents</translate></v-btn>
-        <v-menu v-if="currentUser" offset-y bottom left origin="top right">
-          <v-btn slot="activator" flat>{{currentUser.username}}
-            <v-avatar size="36px" class="app-layout__avatar"><img :src="currentUser.avatarUrl()" alt=""></v-avatar>
+        <v-btn
+          :to="{name: 'documents'}"
+          flat
+        ><translate>documents</translate></v-btn>
+        <v-menu
+          v-if="$currentUser"
+          offset-y
+          bottom
+          left
+          origin="top right"
+        >
+          <v-btn
+            slot="activator"
+            flat
+          >{{$currentUser.username}}
+            <v-avatar
+              size="36px"
+              class="app-layout__avatar"
+            ><img
+              :src="$currentUser.avatarUrl()"
+              alt=""
+            ></v-avatar>
           </v-btn>
           <v-list>
             <v-list-tile @click="onSignOut">
@@ -18,19 +44,29 @@
             </v-list-tile>
           </v-list>
         </v-menu>
-        <v-btn v-else :to="{name: 'user-signin'}" flat><translate>sign-in</translate></v-btn>
+        <v-btn
+          v-else-if="!passwordlessAuthDisabled"
+          :to="{name: 'user-signin'}"
+          flat
+        ><translate>sign-in</translate></v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
       <v-container fluid>
-        <router-view
-          @embed="onEmbed"
-        />
+        <router-view />
       </v-container>
     </v-content>
-    <v-snackbar :timeout="snackbarTime" :color="snackbarColor" v-model="snackbarShow">
+    <v-snackbar
+      :timeout="snackbarTime"
+      :color="snackbarColor"
+      v-model="snackbarShow"
+    >
       {{snackbarMessage}}
-      <v-btn flat dark @click.native="onSnackbarClose"><translate>close</translate></v-btn>
+      <v-btn
+        flat
+        dark
+        @click.native="onSnackbarClose"
+      ><translate>close</translate></v-btn>
     </v-snackbar>
   </v-app>
 </template>
@@ -38,6 +74,7 @@
 <script>
   import {Meteor} from 'meteor/meteor';
 
+  import {isEmbedded} from '../embed';
   import {Snackbar} from '../snackbar';
 
   const component = {
@@ -46,7 +83,8 @@
         snackbarShow: false,
         snackbarMessage: null,
         snackbarColor: null,
-        isEmbeded: false,
+        isEmbeded: isEmbedded(),
+        passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
     },
 
@@ -55,12 +93,6 @@
       this.snackbarTimeout = null;
       this.snackbarComputation = null;
       this.showNextSnackbar();
-    },
-
-    computed: {
-      currentUser() {
-        return Meteor.user({username: 1, avatar: 1});
-      },
     },
 
     methods: {
@@ -74,10 +106,6 @@
             Snackbar.enqueue(this.$gettext("signed-out-success"), 'success');
           }
         });
-      },
-
-      onEmbed(val) {
-        this.isEmbeded = val;
       },
 
       clearSnackbarState() {
@@ -135,5 +163,10 @@
 <style lang="scss">
   .app-layout__avatar {
     margin-left: 8px;
+  }
+
+  // We disable min-height otherwise iframe does not shrink when embedded.
+  .embed .application--wrap {
+    min-height: 0;
   }
 </style>

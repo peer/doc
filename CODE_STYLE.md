@@ -97,7 +97,8 @@ Put all SCSS code belonging to Vue components into `<style>` blocks in `.vue` fi
 
 ## Vue
 
-For Vue components we use almost all [community style rules](https://github.com/vuejs/eslint-plugin-vue#bulb-rules).
+For Vue components we use almost all [community style rules](https://github.com/vuejs/eslint-plugin-vue#bulb-rules)
+which are based on [official style guide for Vue-specific code](https://vuejs.org/v2/style-guide/).
 
 We use one `.vue` file per Vue component and put the template, JavaScript code, and SCSS code into it according
 to the following structure:

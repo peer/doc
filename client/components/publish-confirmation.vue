@@ -1,5 +1,8 @@
 <template>
-  <v-layout row v-if="currentUser">
+  <v-layout
+    v-if="canAdministerDocuments"
+    row
+  >
     <v-container fill-height>
       <v-layout fill-height>
         <v-flex>
@@ -11,23 +14,29 @@
               </div>
             </v-card-title>
             <v-card-actions>
-              <v-btn flat color="primary" class="mx-0" @click="onCancelClick"><translate>cancel</translate></v-btn>
               <v-btn
                 flat
                 color="primary"
                 class="mx-0"
+                @click="onCancelClick"
+              ><translate>cancel</translate></v-btn>
+              <v-btn
+                :disabled="documentPublishInProgress"
+                flat
+                color="primary"
+                class="mx-0"
                 @click="onPublishClick"
-                :disabled="documentPublishInProgress"><translate>publish</translate></v-btn>
+              ><translate>publish</translate></v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
       </v-layout>
     </v-container>
   </v-layout>
-  <access-denied v-else />
+  <not-found v-else-if="$subscriptionsReady()" />
 </template>
+
 <script>
-  import {Meteor} from 'meteor/meteor';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {Document} from '/lib/documents/document';
@@ -49,9 +58,22 @@
     },
 
     computed: {
-      currentUser() {
-        return Meteor.user({username: 1, avatar: 1});
+      document() {
+        return Document.documents.findOne({
+          _id: this.documentId,
+        });
       },
+
+      canAdministerDocuments() {
+        // We require user reference.
+        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
+      },
+    },
+
+    created() {
+      this.$autorun((computation) => {
+        this.$subscribe('Document.one', {documentId: this.documentId});
+      });
     },
 
     methods: {
@@ -61,7 +83,7 @@
 
       onPublishClick() {
         this.documentPublishInProgress = true;
-        if (!this.currentUser) {
+        if (!this.$currentUserId) {
           // only publish article if current user is set
           this.$router.push({name: 'document', params: {documentId: this.documentId}});
           this.documentPublishInProgress = false;

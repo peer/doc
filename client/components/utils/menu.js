@@ -1,7 +1,25 @@
+import Vue from 'vue';
+import {wrapIn, lift, setBlockType} from "prosemirror-commands";
+import {wrapInList} from "prosemirror-schema-list";
 import {Plugin} from "prosemirror-state";
-import {wrapIn, lift, setBlockType, toggleMark} from "prosemirror-commands";
 
-function checkMarkup(state, markup, attr) {
+export function hasMark(state, markType) {
+  const {from, $from, to, empty} = state.selection;
+  if (empty) {
+    return markType.isInSet(state.storedMarks || $from.marks());
+  }
+  else {
+    return state.doc.rangeHasMark(from, to, markType);
+  }
+}
+
+export function isMarkActive(markType) {
+  return function isActive(state) {
+    return !!hasMark(state, markType);
+  };
+}
+
+function harMarkup(state, markup, attr) {
   for (let i = 0; i < state.selection.$from.path.length; i += 1) {
     if (typeof state.selection.$from.path[i] !== 'number' && state.selection.$from.path[i].hasMarkup(markup, attr)) {
       return true;
@@ -10,46 +28,9 @@ function checkMarkup(state, markup, attr) {
   return false;
 }
 
-/**
- * Check links on selection range and ad those to an
- * array along with their positions
- * @param {*} state
- * @param {*} selection
- */
-function handleLink(state, selection) {
-  const rangeLinks = [];
-  state.doc.nodesBetween(selection.from, selection.to, (node, start, parent, index) => {
-    const linked =
-          node &&
-          node.marks.length &&
-          node.marks[0] &&
-          node.marks[0].attrs &&
-          node.marks[0].attrs.href;
-    if (linked) {
-      rangeLinks.push({node, start});
-    }
-  });
-  let selectedExistingLinks;
-  if (rangeLinks.length) {
-    selectedExistingLinks = rangeLinks.map(({start, node}) => {
-      return {
-        position: {
-          from: start,
-          to: start + node.nodeSize,
-        },
-        href: node.marks[0].attrs.href,
-      };
-    });
-  }
-  else {
-    selectedExistingLinks = null;
-  }
-  return {selectedExistingLinks, linked: Boolean(rangeLinks.length)};
-}
-
 export function toggleHeading(level) {
-  return function onToggle(state, dispatch) {
-    if (checkMarkup(state, state.schema.nodes.heading, {level})) {
+  return function onToggle(state, dispatch, editorView) {
+    if (harMarkup(state, state.schema.nodes.heading, {level})) {
       return setBlockType(state.schema.nodes.paragraph)(state, dispatch);
     }
     else {
@@ -58,9 +39,15 @@ export function toggleHeading(level) {
   };
 }
 
+export function isHeadingActive(level) {
+  return function isActive(state) {
+    return harMarkup(state, state.schema.nodes.heading, {level});
+  };
+}
+
 export function toggleBlockquote() {
-  return function onToggle(state, dispatch) {
-    if (checkMarkup(state, state.schema.nodes.blockquote)) {
+  return function onToggle(state, dispatch, editorView) {
+    if (harMarkup(state, state.schema.nodes.blockquote)) {
       return lift(state, dispatch);
     }
     else {
@@ -69,112 +56,77 @@ export function toggleBlockquote() {
   };
 }
 
+export function isBlockquoteActive() {
+  return function isActive(state) {
+    return harMarkup(state, state.schema.nodes.blockquote);
+  };
+}
+
+export function toggleList(listType) {
+  return function onToggle(state, dispatch, editorView) {
+    if (harMarkup(state, listType)) {
+      return lift(state, dispatch);
+    }
+    else {
+      return wrapInList(listType)(state, dispatch);
+    }
+  };
+}
+
+export function isListActive(listType) {
+  return function isActive(state) {
+    return harMarkup(state, listType);
+  };
+}
+
 class MenuView {
-  constructor(items, editorView, vueInstance) {
+  constructor(items, editorView, vueInstance, disabledButtons) {
     this.items = items;
     this.editorView = editorView;
     this.vueInstance = vueInstance;
-    this.dom = document.getElementById("tools");
+    this.disabledButtons = disabledButtons;
+
     this.update();
 
-    this.dom.addEventListener("mousedown", (e) => {
-      e.preventDefault();
-      editorView.focus();
-      items.forEach(({command, dom}) => {
-        if (dom.contains(e.target)) {
-          command(editorView.state, editorView.dispatch, editorView);
-        }
-      });
+    this.listeners = this.items.map((item) => {
+      const {node} = item;
+      const listener = this.onMenuItemClick.bind(this, item);
+      node.$on('click', listener);
+      return listener;
     });
   }
 
-  update() {
-    const {state} = this.editorView;
-    const {selection} = state;
-    const {vueInstance} = this;
-    this.items.forEach(({
-      command, dom, node, mark, attr,
-    }) => {
-      let active = false;
-      let btnClass = dom.className.replace(' btn--active', '').replace(' btn--disabled', '');
-      if (mark) {
-        active = state.doc.rangeHasMark(selection.from, selection.to, mark);
-      }
-      else if (node) {
-        active = checkMarkup(state, node, attr);
-      }
+  onMenuItemClick({command}, event) {
+    event.preventDefault();
+    this.editorView.focus();
+    command(this.editorView.state, this.editorView.dispatch, this.editorView);
+  }
 
-      let hasLink;
-      if (attr && attr.link) {
-        const respLink = handleLink(state, selection);
-        hasLink = respLink.linked;
-        vueInstance.selectedExistingLinks = respLink.selectedExistingLinks || [];
+  update(view, prevState) {
+    this.items.forEach(({command, name, isActive, node}) => {
+      if (this.vueInstance.canUserUpdateDocument) {
+        Vue.set(this.disabledButtons, name, !command(this.editorView.state, null, this.editorView));
+        // Setting "isActive" triggers "input" event on the button.
+        node.isActive = isActive ? !!isActive(this.editorView.state) : false; // eslint-disable-line no-param-reassign
       }
-
-      const enabled = hasLink || command(state, null, this.editorView);
-
-      if (!enabled) {
-        btnClass += " btn--disabled";
+      else {
+        Vue.set(this.disabledButtons, name, true);
+        node.isActive = false; // eslint-disable-line no-param-reassign
       }
-
-      if (active) {
-        btnClass += " btn--active";
-      }
-
-      dom.className = btnClass; // eslint-disable-line no-param-reassign
     });
   }
 
   destroy() {
-    this.dom.remove();
+    this.items.forEach(({node}, i) => {
+      node.$off('click', this.listeners[i]);
+    });
   }
 }
 
-export function menuPlugin(items, vueInstance) {
+export function menuPlugin(items, vueInstance, disabledButtons) {
   return new Plugin({
     view(editorView) {
-      const menuView = new MenuView(items, editorView, vueInstance);
-      editorView.dom.parentNode.insertBefore(menuView.dom, editorView.dom);
-      return menuView;
+      return new MenuView(items, editorView, vueInstance, disabledButtons);
     },
   });
-}
-
-export function icon(text, name) {
-  const span = document.createElement("span");
-  span.className = `menuicon ${name}`;
-  span.title = name;
-  span.textContent = text;
-  return span;
-}
-
-export function heading(level, schema) {
-  return {
-    command: toggleHeading(level),
-    dom: document.getElementById(`h${level}`),
-    node: schema.nodes.heading,
-    attr: {level},
-  };
-}
-
-export function toggleLink(schema, clicked, url) {
-  return function onToggle(state, dispatch) {
-    const {doc, selection} = state;
-    if (selection.empty) {
-      return false;
-    }
-    let attrs = null;
-    if (dispatch) {
-      if (!clicked) {
-        return false;
-      }
-      if (!doc.rangeHasMark(selection.from, selection.to, schema.marks.link)) {
-        attrs = {href: url};
-        if (!attrs.href) {
-          return false;
-        }
-      }
-    }
-    return toggleMark(schema.marks.link, attrs)(state, dispatch);
-  };
 }

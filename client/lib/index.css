@@ -1,0 +1,9 @@
+/*
+Inside "lib" so that imports are first in the bundle and that
+we can override things if necessary with later CSS rules.
+*/
+
+@import 'vuetify/dist/vuetify.css';
+@import 'material-design-icons/iconfont/material-icons.css';
+@import 'prosemirror-view/style/prosemirror.css';
+@import 'prosemirror-gapcursor/style/gapcursor.css';

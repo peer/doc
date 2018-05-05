@@ -1,4 +1,4 @@
-# English translations for peer-doc package.
+# Portuguese translations for peer-doc package.
 # Copyright (C) 2018 THE peer-doc'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the peer-doc package.
 # Automatically generated, 2018.
@@ -11,181 +11,181 @@ msgstr ""
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
-"Language: en_US\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: client/components/access-denied.vue:3
 msgid "access-denied"
-msgstr "Access denied."
+msgstr "Acesso negado."
 
 #: client/components/link-dialog.vue:31
 #: client/components/publish-confirmation.vue:21
 #: client/components/thread.vue:70
 msgid "cancel"
-msgstr "Cancel"
+msgstr "Cancelar"
 
 #: client/components/utils/placeholder.js:26
 msgid "choose-title"
-msgstr "Choose a title"
+msgstr "Escolher um título"
 
 #: client/components/app-layout.vue:68
 msgid "close"
-msgstr "Close"
+msgstr "Fechar"
 
 #: client/components/comment.vue:28
 msgid "comment-created-at"
-msgstr "Created %{at}"
+msgstr "Criado %{at}"
 
 #: client/components/comment-editor.vue:109
 msgid "comment-hint"
-msgstr "Enter a comment"
+msgstr "Insira um comentário"
 
 #: client/components/comment-editor.vue:109
 msgid "comment-reply-hint"
-msgstr "Enter a reply"
+msgstr "Insira uma resposta"
 
 #: client/components/documents.vue:12
 msgid "document-create"
-msgstr "New document"
+msgstr "Novo documento"
 
 #: client/components/documents.vue:40
 msgid "document-created-at"
-msgstr "Created %{at}"
+msgstr "Criado %{at}"
 
 #: client/components/documents.vue:126
 msgid "document-created-error"
-msgstr "Error creating a new document: %{error}"
+msgstr "Erro na criação do documento: %{error}"
 
 #: client/components/documents.vue:130
 msgid "document-created-success"
-msgstr "New document has been created."
+msgstr "O novo documento foi criado."
 
 #: client/components/documents.vue:54
 msgid "document-draft"
-msgstr "draft"
+msgstr "Rascunho"
 
 #: client/components/sidebar.vue:23
 msgid "document-publish"
-msgstr "Publish"
+msgstr "Publicar"
 
 #: client/components/sidebar.vue:18
 msgid "document-published"
-msgstr "published"
+msgstr "publicado"
 
 #: client/components/documents.vue:34
 msgid "document-published-at"
-msgstr "Published %{at}"
+msgstr "Publicado %{at}"
 
 #: client/components/app-layout.vue:20
 msgid "documents"
-msgstr "Documents"
+msgstr "Documentos"
 
 #: client/components/utils/placeholder.js:40
 msgid "edit-content"
-msgstr "Edit content"
+msgstr "Editar conteúdo"
 
 #: client/components/editor.vue:123
 msgid "editor-saved"
-msgstr "Saved"
+msgstr "Salvo"
 
 #: client/components/editor.vue:118
 msgid "editor-saving"
-msgstr "Saving..."
+msgstr "Salvando..."
 
 #: client/components/front-page.vue:1
 msgid "front-page"
-msgstr "Front page."
+msgstr "Página inicial."
 
 #: client/components/link-dialog.vue:43 client/components/thread.vue:76
 msgid "insert"
-msgstr "Insert"
+msgstr "Inserir"
 
 #: client/components/link-dialog.vue:65
 msgid "invalid-url"
-msgstr "Invalid URL."
+msgstr "Endereço inválido."
 
 #: client/components/link-dialog.vue:60
 msgid "link-hint"
-msgstr "Enter a link"
+msgstr "Insira um link"
 
 #: client/components/documents.vue:63
 msgid "no-documents"
-msgstr "No documents."
+msgstr "Nenhum documento."
 
 #: client/components/not-found.vue:3
 msgid "not-found"
-msgstr "Not found."
+msgstr "Não encontrado."
 
 #: client/components/publish-confirmation.vue:28
 msgid "publish"
-msgstr "Publish"
+msgstr "Publicar"
 
 #: client/components/publish-confirmation.vue:12
 msgid "publish-document-confirmation-body"
-msgstr "Once it is published it will not be editable anymore. It will become visible to other users and everyone will be able to comment."
+msgstr "Uma vez publicado, o documento não será mais editável. O documento se tornará visível a outrxs usuárixs e todxs poderão comentar."
 
 #: client/components/publish-confirmation.vue:11
 msgid "publish-document-confirmation-title"
-msgstr "Do you wish to publish this document now?"
+msgstr "Você gostaria de publicar o documento agora?"
 
 #: client/components/publish-confirmation.vue:95
 msgid "publish-error"
-msgstr "An error has occurred when trying to publish the document."
+msgstr "Um erro ocorreu na publicação do documento."
 
 #: client/components/publish-confirmation.vue:100
 msgid "publish-success"
-msgstr "The document was successfully published."
+msgstr "O documento foi publicado com sucesso."
 
 #: client/components/link-dialog.vue:37
 msgid "remove"
-msgstr "Remove"
+msgstr "Remover"
 
 #: client/components/app-layout.vue:50 client/components/user-signin.vue:46
 msgid "sign-in"
-msgstr "Sign In"
+msgstr "Entrar"
 
 #: client/components/app-layout.vue:42
 msgid "sign-out"
-msgstr "Sign Out"
+msgstr "Sair"
 
 #: client/components/user-signin.vue:104
 msgid "signed-in-success"
-msgstr "You have been signed in."
+msgstr "Você entrou com sucesso."
 
 #: client/components/app-layout.vue:102
 msgid "signed-out-error"
-msgstr "Error signing out: %{error}"
+msgstr "Erro durante a saída: %{error}"
 
 #: client/components/app-layout.vue:106
 msgid "signed-out-success"
-msgstr "You have been signed out."
+msgstr "Você saiu com sucesso."
 
 #: client/components/editor.vue:241
 msgid "toolbar-bold"
-msgstr "Bold (%{shortcut})"
+msgstr "Negrito (%{shortcut})"
 
 #: client/components/editor.vue:249
 msgid "toolbar-bulleted-list"
-msgstr "Bulleted list"
+msgstr "Lista com marcadores"
 
 #: client/components/editor.vue:245
 msgid "toolbar-h1"
-msgstr "Heading 1"
+msgstr "Título 1"
 
 #: client/components/editor.vue:246
 msgid "toolbar-h2"
-msgstr "Heading 2"
+msgstr "Título 2"
 
 #: client/components/editor.vue:247
 msgid "toolbar-h3"
-msgstr "Heading 3"
+msgstr "Título 3"
 
 #: client/components/editor.vue:242
 msgid "toolbar-italic"
-msgstr "Italic (%{shortcut})"
+msgstr "Itálico (%{shortcut})"
 
 #: client/components/editor.vue:244
 msgid "toolbar-link"
@@ -193,31 +193,31 @@ msgstr "Link (%{shortcut})"
 
 #: client/components/editor.vue:250
 msgid "toolbar-numbered-list"
-msgstr "Numbered list"
+msgstr "Lista numerada"
 
 #: client/components/editor.vue:248
 msgid "toolbar-quote"
-msgstr "Quote"
+msgstr "Recuar texto"
 
 #: client/components/editor.vue:240
 msgid "toolbar-redo"
-msgstr "Redo (%{shortcut})"
+msgstr "Refazer (%{shortcut})"
 
 #: client/components/editor.vue:243
 msgid "toolbar-strikethrough"
-msgstr "Strikethrough (%{shortcut})"
+msgstr "Tachar (%{shortcut})"
 
 #: client/components/editor.vue:239
 msgid "toolbar-undo"
-msgstr "Undo (%{shortcut})"
+msgstr "Desfazer (%{shortcut})"
 
 #: client/components/documents.vue:28
 msgid "untitled"
-msgstr "Untitled"
+msgstr "Sem título"
 
 #: client/components/link-dialog.vue:43
 msgid "update"
-msgstr "Update"
+msgstr "Atualizar"
 
 #: client/components/user-signin.vue:86
 msgid "username"
@@ -225,16 +225,16 @@ msgstr "Username"
 
 #: client/components/user-signin.vue:71
 msgid "username-invalid"
-msgstr "Invalid username, it should contain only basic characters"
+msgstr "O nome de usuário é inválido, it should contain only basic characters"
 
 #: client/components/user-signin.vue:65
 msgid "username-is-required"
-msgstr "Username is required"
+msgstr "O nome de usuário é obrigatório"
 
 #: client/components/user-signin.vue:68
 msgid "username-too-short"
-msgstr "Username too short, it should be 4 characters or more"
+msgstr "O nome de usuário é muito curto, deve ser pelo menos 4 caracteres"
 
 #: client/components/thread.vue:22
 msgid "view-all-replies"
-msgstr "View all replies (%{count})"
+msgstr "Ver todas as respostas (%{count})"

@@ -1,51 +1,69 @@
 <template>
-  <v-container fluid class="sidebar__users">
-    <v-layout row>
-      <v-chip v-if="!documentPublished" label color="yellow" text-color="white" class="doc_status__label">Draft</v-chip>
-      <v-chip v-else label color="green" text-color="white" class="doc_status__label">Published</v-chip>
-      <v-btn v-if="!documentPublished && currentUser" color="success" slot="activator" :to="{name: 'publishDocument', params: {documentId}}">Publish</v-btn>
-    </v-layout>
-    <v-layout row wrap justify-start align-content-start>
-      <v-flex class="sidebar__user" v-for="cursor of cursors" :key="cursor._id">
-        <v-btn flat icon :style="{borderColor: cursor.color}" @click="onAvatarClicked(cursor)">
-          <v-avatar size="36px"><img :src="cursor.author.avatarUrl()" :alt="cursor.author.username" :title="cursor.author.username"></v-avatar>
-        </v-btn>
-      </v-flex>
-    </v-layout>
-    <v-layout row class="mt-3">
-      <v-flex>
-        <v-tabs grow light show-arrows color="grey lighten-4" id="tab-sidebar">
-          <v-tabs-slider color="primary" />
-          <v-tab ripple href="#comments" class="primary--text"><translate>comments</translate></v-tab>
-          <v-tab ripple href="#chat" class="primary--text"><v-badge><span slot="badge">4</span><translate>chat</translate></v-badge></v-tab>
-          <v-tab ripple href="#history" class="primary--text"><translate>history</translate></v-tab>
-          <v-tabs-items>
-            <v-tab-item id="comments">
-              <v-card v-for="comment of documentComments" :key="comment._id" :style="{marginTop: `${comment.marginTop}px`}" ref="commentsRef">
-                <v-card-text>
-                  {{comment.body}}
-                </v-card-text>
-              </v-card>
-            </v-tab-item>
-          </v-tabs-items>
-        </v-tabs>
-      </v-flex>
+  <v-container
+    fluid
+    class="sidebar__users"
+    @mousedown.stop
+  >
+    <v-card>
+      <v-toolbar
+        dense
+        card
+      >
+        <v-chip
+          v-if="documentPublished"
+          label
+          disabled
+          color="green"
+          text-color="white"
+          class="doc_status__label"
+        ><translate>document-published</translate></v-chip>
+        <v-btn
+          v-if="!documentPublished && canAdministerDocuments"
+          :to="{name: 'publishDocument', params: {documentId}}"
+          color="success"
+        ><translate>document-publish</translate></v-btn>
+      </v-toolbar>
+    </v-card>
+    <v-layout
+      ref="commentsList"
+      class="sidebar__comments_container"
+    >
+      <div
+        class="layout row wrap"
+      >
+        <v-flex
+          v-for="comment of documentComments"
+          :key="comment._id ? comment._id : 'dummy'"
+          :style="{marginTop: `${comment.marginTop}px`}"
+          xs12
+          @click.stop="onViewAllReplies(comment)"
+        >
+          <thread
+            ref="comments"
+            :comment="comment"
+            :can-user-create-comments="canUserCreateComments"
+            @view-all-replies="onViewAllReplies"
+            @comment-submitted="onCommentSubmitted"
+          />
+        </v-flex>
+      </div>
     </v-layout>
   </v-container>
 </template>
 
 <script>
-  import {Meteor} from 'meteor/meteor';
-  import {_} from 'meteor/underscore';
+  import {Random} from 'meteor/random';
 
   import {Comment} from '/lib/documents/comment';
-  import {Cursor} from '/lib/documents/cursor';
+  import {Document} from '/lib/documents/document';
+  import {User} from '/lib/documents/user';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
     return {
       left: e.left + window.scrollX,
       top: e.top + window.scrollY,
+      bottom: e.bottom + window.scrollY,
     };
   }
 
@@ -86,15 +104,29 @@
     data() {
       return {
         commentsHandle: null,
-        cursorsHandle: null,
-        cursors: [],
         documentComments: [],
+        commentCardPaddingTop: 10,
+        commentCardPaddingBottom: 10,
+        minCommentMargin: 5,
+        currentHighlightKey: null,
       };
     },
 
     computed: {
-      currentUser() {
-        return Meteor.user({username: 1, avatar: 1});
+      document() {
+        return Document.documents.findOne({
+          _id: this.documentId,
+        });
+      },
+
+      canUserCreateComments() {
+        // We require user reference.
+        return !!(this.$currentUserId && User.hasPermission(Comment.PERMISSIONS.CREATE) && this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE));
+      },
+
+      canAdministerDocuments() {
+        // We require user reference.
+        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
       },
     },
 
@@ -102,21 +134,9 @@
       this.$autorun((computation) => {
         this.commentsHandle = this.$subscribe('Comment.list', {documentId: this.documentId});
       });
-
-      this.$autorun((computation) => {
-        this.cursorsHandle = this.$subscribe('Cursor.list', {contentKey: this.contentKey});
-      });
     },
 
     mounted() {
-      this.$autorun((computation) => {
-        this.cursors = Cursor.documents.find(_.extend(this.cursorsHandle.scopeQuery(), {
-          clientId: {
-            $ne: this.clientId,
-          },
-        })).fetch();
-      });
-
       this.$autorun((computation) => {
         const comments = Comment.documents.find(this.commentsHandle.scopeQuery()).fetch();
         if (comments.length) {
@@ -127,9 +147,110 @@
       window.addEventListener('resize', this.handleWindowResize);
     },
 
+    beforeDestroy() {
+      window.removeEventListener('resize', this.handleWindowResize);
+    },
+
     methods: {
-      onAvatarClicked(cursor) {
-        this.$emit('click', cursor);
+      showNewCommentForm(show, start, selection) {
+        this.documentComments = this.documentComments.filter((x) => {
+          return !x.dummy;
+        });
+        if (show) {
+          const dummyComment = {
+            dummy: true,
+            selection,
+            highlightTop: start.top + window.scrollY,
+            focus: true,
+            createdAt: new Date(),
+            replyTo: null,
+            showDetails: false,
+            showAllReplies: false,
+            hasManyReplies: false,
+            isReply: false,
+            replies: [],
+          };
+          this.documentComments.push(dummyComment);
+          this.documentComments.sort((a, b) => {
+            if (a.highlightTop !== b.highlightTop) {
+              return a.highlightTop - b.highlightTop;
+            }
+            else {
+              return a.createdAt - b.createdAt;
+            }
+          });
+        }
+        this.layoutCommentsAfterRender();
+      },
+
+      onContentChanged() {
+        this.layoutComments();
+      },
+
+      onViewAllReplies(comment) {
+        if (this.currentHighlightKey !== comment.highlightKey) {
+          this.documentComments = this.documentComments.map((c) => {
+            return Object.assign({}, c, {
+              focus: c._id === comment._id,
+            });
+          });
+          this.currentHighlightKey = comment.highlightKey;
+          comment.focus = true; // eslint-disable-line no-param-reassign
+          // Notify to parent component that a comment is focused and the
+          // cursor position on the editor component should be updated.
+          this.$emit("commentClicked", comment.highlightKey);
+          this.layoutCommentsAfterRender();
+        }
+      },
+
+      collapseComments() {
+        this.documentComments = this.documentComments.map((c) => {
+          return Object.assign({}, c, {
+            replies: c.replies.map((x) => {
+              return Object.assign({}, x, {
+                showDetails: false,
+              });
+            }),
+            showDetails: false,
+            focus: false,
+          });
+        }).filter((x) => {
+          return !x.dummy;
+        });
+        this.currentHighlightKey = null;
+        this.layoutCommentsAfterRender();
+      },
+
+      onCommentSubmitted(comment, newCommentBody) {
+        if (comment.dummy) {
+          const key = Random.id();
+          // Emit commentAdded event first (for adding highlight to selected text) and then persist the comment.
+          // This way, the highlight marks will be rendered before the comments. It must be in this order, because
+          // when a comment is rendered on sidebar it must be related to a highlighted text (which should already be
+          // rendered on the editor). This fixes a bug related to new comments that are not shown in other tabs.
+          // See: https://github.com/peer/doc/issues/69
+          this.$emit("commentAdded", key);
+          Comment.create({
+            highlightKey: key,
+            body: newCommentBody,
+            documentId: this.documentId,
+          });
+          this.$emit("afterCommentAdded", key);
+          return;
+        }
+        else {
+          Comment.create({
+            highlightKey: comment.highlightKey,
+            body: newCommentBody,
+            documentId: this.documentId,
+            replyTo: comment._id,
+          });
+        }
+        comment.focus = true; // eslint-disable-line no-param-reassign
+        // Notify to parent component that a comment is focused and the
+        // cursor position on the editor component should be updated.
+        this.$emit("commentClicked", comment.highlightKey);
+        this.currentHighlightKey = comment.highlightKey;
       },
 
       handleWindowResize(e) {
@@ -142,9 +263,9 @@
        * the comments text.
       */
       showComments(comments) {
-        const currentComments = comments
-        .filter((c) => {
-          return !c.versionTo;
+        let currentComments = comments
+        .filter((comment) => {
+          return !comment.versionTo;
         });
 
         if (!currentComments.length) {
@@ -152,15 +273,47 @@
           return;
         }
 
+        const replies = currentComments.filter((comment) => {
+          return comment.replyTo !== null;
+        });
+
+        currentComments = currentComments.filter((comment) => {
+          return comment.replyTo === null;
+        }).map((comment) => {
+          const commentReplies = replies.filter((x) => {
+            return x.replyTo._id === comment._id;
+          }).sort((a, b) => {
+            return a.createdAt - b.createdAt;
+          }).map((reply) => {
+            return Object.assign({}, reply, {
+              showDetails: false,
+            });
+          });
+
+          return Object.assign({}, comment, {
+            replies: commentReplies,
+          });
+        });
+
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
+        const {currentHighlightKey} = this;
         this.documentComments = currentComments.map((c, i) => {
+          if (c.dummy) {
+            return c;
+          }
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
           const el = getElementByHighlightKey(commentMarksEls, c.highlightKey);
           if (!el) {
             return null;
           }
-          return Object.assign({}, c, {highlightTop: getOffset(el).top});
+          return Object.assign({}, c, {
+            highlightTop: getOffset(el).top,
+            showDetails: false,
+            hasManyReplies: c.replies.length > 1,
+            isReply: c.replyTo === null,
+            focus: currentHighlightKey === c.highlightKey,
+          });
         }).filter((c) => {
           return c;
         }).sort((a, b) => {
@@ -168,14 +321,11 @@
           // For example, you could have a newer comment positioned on top
           // of an older one, so we have to sort the positions accordinglys
           // before Vue tries to render them.
-          if (a.highlightTop > b.highlightTop) {
-            return 1;
-          }
-          else if (a.highlightTop < b.highlightTop) {
-            return -1;
+          if (a.highlightTop !== b.highlightTop) {
+            return a.highlightTop - b.highlightTop;
           }
           else {
-            return 0;
+            return a.createdAt - b.createdAt;
           }
         }).map((c) => {
           /*
@@ -187,7 +337,10 @@
           */
           return Object.assign({}, c, {marginTop: 0});
         });
+        this.layoutCommentsAfterRender();
+      },
 
+      layoutCommentsAfterRender() {
         this.$nextTick().then(() => {
           // After the cards have been rendered we can start measuring the
           // distance between each cards with the next, and adjust the margins
@@ -196,12 +349,87 @@
         });
       },
 
+      // Moves the comments above the focused comment if necessary.
+      moveUpwards(from, distance) {
+        for (let i = from; i > 0; i -= 1) {
+          const c = this.documentComments[i];
+          // If the current comment is aligned with the related highlighted text or if it's the second comment.
+          if (c.marginTop > this.minCommentMargin || i === 1) {
+            const last = this.documentComments[i - 1];
+            // If after moving the comments, the current comment overlaps with other comments
+            // and it isn't the second comment.
+            if (c.marginTop - distance < this.minCommentMargin && i !== 1) {
+              c.top -= c.marginTop - this.minCommentMargin;
+              const newDistance = distance - c.marginTop;
+              c.marginTop = this.minCommentMargin;
+              // Move upwards the comments that are above the current one
+              this.moveUpwards(i, newDistance);
+              break;
+            }
+            // If the current comment isn't aligned with the related highlighted text and
+            // its the second comment.
+            else if (i === 1 && c.marginTop <= this.minCommentMargin) {
+              last.top -= distance;
+              last.marginTop -= distance;
+              // Update modified comments.
+              for (let j = 1; j <= from; j += 1) {
+                const marginTop = this.documentComments[j - 1].marginTop + this.documentComments[j - 1].height + (this.commentCardPaddingBottom / 2);
+                // The comment will be on visible area.
+                if (marginTop > 0) {
+                  this.documentComments[j].top -= this.documentComments[j].marginTop - this.minCommentMargin;
+                  this.documentComments[j].marginTop = this.minCommentMargin;
+                }
+                // The comment will be outside visible area.
+                else {
+                  this.documentComments[j].top -= this.documentComments[j].marginTop - marginTop;
+                  this.documentComments[j].marginTop = marginTop;
+                }
+              }
+              break;
+            }
+            else {
+              c.top -= distance;
+              c.marginTop -= distance;
+              break;
+            }
+          }
+          else {
+            c.top -= distance;
+          }
+        }
+      },
+
+      // Moves the comments below the focused comment if necessary.
+      moveDownwards(from, distance) {
+        let currentDistance = distance;
+        for (let i = from; i < this.documentComments.length; i += 1) {
+          const c = this.documentComments[i];
+          // If the current comment is aligned with the related highlighted text.
+          if (c.marginTop > this.minCommentMargin) {
+            c.marginTop += (currentDistance);
+            break;
+          }
+          // Else if the current comment isn't aligned with the related highlighted text
+          // and after moving the comments, the comment is above the related highlighted text.
+          else if (c.marginTop <= this.minCommentMargin && c.top - (currentDistance) < c.highlightTop && c.highlightTop !== this.documentComments[from].highlightTop) {
+            const newDistance = c.top - c.highlightTop;
+            c.marginTop = c.highlightTop - (c.top - (currentDistance));
+            c.top = c.highlightTop;
+            currentDistance = newDistance;
+          }
+          // Else, the marginTop is not modified.
+        }
+      },
+
       layoutComments() {
-        if (!this.$refs.commentsRef) {
+        if (!this.$refs.comments) {
           return;
         }
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
         const highlightTops = this.documentComments.map((c, i) => {
+          if (c.dummy) {
+            return c.highlightTop;
+          }
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
           const el = getElementByHighlightKey(commentMarksEls, c.highlightKey);
@@ -211,30 +439,58 @@
           return getOffset(el).top;
         });
 
-        const heights = this.$refs.commentsRef.map((ref) => {
+        const heights = this.$refs.comments.map((ref) => {
+          // Comment thread container height.
           return ref.$el.offsetHeight;
         });
 
+        let focusedCommentIndex = -1;
         for (let i = 0; i < this.documentComments.length; i += 1) {
           const c = this.documentComments[i];
+          if (c.highlightKey === this.currentHighlightKey || c.dummy) {
+            focusedCommentIndex = i;
+          }
           const height = heights[i];
           let bottom = 0;
+          let top = 0;
           let {marginTop} = c;
           if (i === 0) {
-            const el2 = document.querySelector("#tab-sidebar .tabs__container");
-            const el2Y = getOffset(el2).top + el2.offsetHeight;
+            const el2 = this.$refs.commentsList;
+            const el2Y = getOffset(el2).top;
             const elY = highlightTops[0];
             marginTop = elY - el2Y > 0 ? elY - el2Y : 0;
-            // const {top} = getOffset(this.$refs.commentsRef[i].$el);
+            // const {top} = getOffset(this.$refs.comments[i].$el);
             bottom = el2Y + marginTop + height;
+            top = el2Y + marginTop;
           }
           else {
             const previousBottom = this.documentComments[i - 1].bottom;
-            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : 0;
+            marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : this.minCommentMargin;
             bottom = previousBottom + marginTop + height;
+            top = previousBottom + marginTop;
+            if (c.dummy) {
+              bottom -= 10;
+            }
           }
-          this.documentComments.splice(i, 1, Object.assign({}, c, {bottom, marginTop}));
+          this.documentComments.splice(i, 1, Object.assign({}, c, {height, bottom, marginTop, top}));
         }
+
+        // If there is a focused comment, move the focused comment next to the
+        // related highlight. Also move the other comments if necessary.
+        if (focusedCommentIndex > -1) {
+          const focused = this.documentComments[focusedCommentIndex];
+          const distance = Math.abs(focused.top - focused.highlightTop);
+          this.moveUpwards(focusedCommentIndex, distance);
+          this.moveDownwards(focusedCommentIndex, distance);
+        }
+      },
+
+      focusComment(highlightKey) {
+        this.documentComments = this.documentComments.map((x) => {
+          return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
+        });
+        this.currentHighlightKey = highlightKey;
+        this.layoutCommentsAfterRender();
       },
     },
   };
@@ -243,26 +499,20 @@
 </script>
 
 <style lang="scss">
-  .sidebar__user {
-    flex: 0 0 auto;
-
-    button {
-      margin: 2px;
-      border-radius: 50%;
-      height: 42px;
-      width: 42px;
-      border-width: 2px;
-      border-style: solid;
-      padding: 1px;
-
-      .btn__content {
-        height: 100%;
-      }
-    }
-  }
-
   .sidebar__users {
     padding-top: 0;
     padding-right: 0;
+  }
+
+  .doc_status__label {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+
+  .sidebar__comments_container {
+    overflow-y:hidden;
+    padding-left:12px;
+    padding-right:12px;
+    padding-bottom:20px;
   }
 </style>
