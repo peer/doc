@@ -366,9 +366,8 @@
               this.moveUpwards(i, newDistance);
               break;
             }
-            // If the current comment isn't aligned with the related highlighted text and
-            // its the second comment.
-            else if (i === 1 && c.marginTop <= this.minCommentMargin) {
+            // If its the second comment.
+            else if (i === 1) {
               last.top -= distance;
               last.marginTop -= distance;
               // Update modified comments.
