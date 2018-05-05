@@ -21,7 +21,7 @@
     "bcrypt": "^2.0.1",
     "core-js": "^2.5.5",
     "css-loader": "^0.28.11",
-    "material-design-icons": "^3.0.1",
+    "material-design-icons": "git://github.com/mitar/material-design-icons.git",
     "meteor-node-stubs": "^0.3.2",
     "moment": "^2.22.1",
     "postcss": "^6.0.22",
