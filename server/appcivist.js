@@ -47,7 +47,7 @@ function update(id, fields) {
     params.title = fields.title;
   }
   if (Object.prototype.hasOwnProperty.call(fields, 'lastActivity')) {
-    params.lastUpdate = moment(fields.lastActivity).format('YYYY-MM-DD HH:mm:ss');
+    params.lastUpdate = moment(fields.lastActivity).toISOString();
   }
 
   HTTP.call('PUT', `${Meteor.settings.appCivistIntegration.endpoint}/api/contribution/${id}`, {
