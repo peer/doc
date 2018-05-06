@@ -36,4 +36,4 @@ meteortesting:mocha
 lmieulet:meteor-coverage
 peerlibrary:peerdb-migrations
 runisland:static-assets
-juliancwirkopostcss
+juliancwirko:postcss
