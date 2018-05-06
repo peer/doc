@@ -22,26 +22,11 @@ Meteor.methods({
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
 
-    const timestamp = new Date();
-
-    const removed = Cursor.documents.remove({
+    Cursor.documents.remove({
       contentKey: args.contentKey,
       clientId: args.clientId,
       connectionId: this.connection.id,
     });
-
-    if (removed) {
-      Document.documents.update({
-        contentKey: args.contentKey,
-        lastActivity: {
-          $lt: timestamp,
-        },
-      }, {
-        $set: {
-          lastActivity: timestamp,
-        },
-      });
-    }
   },
 
   'Cursor.update'(args) {
@@ -85,17 +70,6 @@ Meteor.methods({
       },
     }, {
       upsert: true,
-    });
-
-    Document.documents.update({
-      contentKey: args.contentKey,
-      lastActivity: {
-        $lt: timestamp,
-      },
-    }, {
-      $set: {
-        lastActivity: timestamp,
-      },
     });
   },
 });
