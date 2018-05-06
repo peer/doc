@@ -26,6 +26,7 @@
     "moment": "^2.22.1",
     "postcss": "^6.0.22",
     "postcss-easy-import": "^3.0.0",
+    "postcss-load-config": "^1.2.0",
     "prosemirror-collab": "^1.0.0",
     "prosemirror-commands": "^1.0.7",
     "prosemirror-dropcursor": "^1.0.0",
