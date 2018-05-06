@@ -84,8 +84,8 @@ msgid "documents"
 msgstr "Documentos"
 
 #: client/components/utils/placeholder.js:40
-msgid "edit-content"
-msgstr "Editar conteúdo"
+msgid "add-content"
+msgstr "Adicionar conteúdo"
 
 #: client/components/editor.vue:123
 msgid "editor-saved"
