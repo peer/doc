@@ -1,7 +1,11 @@
 <template>
-  <p v-translate>
-    front-page
-  </p>
+  <v-layout row>
+    <v-flex xs12>
+      <p v-translate>
+        front-page
+      </p>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script>
