@@ -1,7 +1,7 @@
 <template>
   <v-container
+    :fill-height="!documentComments.length"
     fluid
-    fill-height
     class="sidebar"
     @mousedown.stop
   >
