@@ -27,26 +27,24 @@
     <v-layout
       ref="commentsList"
       class="sidebar__comments_container"
+      row
+      wrap
     >
-      <div
-        class="layout row wrap"
+      <v-flex
+        v-for="comment of documentComments"
+        :key="comment._id ? comment._id : 'dummy'"
+        :style="{marginTop: `${comment.marginTop}px`}"
+        xs12
+        @click.stop="onViewAllReplies(comment)"
       >
-        <v-flex
-          v-for="comment of documentComments"
-          :key="comment._id ? comment._id : 'dummy'"
-          :style="{marginTop: `${comment.marginTop}px`}"
-          xs12
-          @click.stop="onViewAllReplies(comment)"
-        >
-          <thread
-            ref="comments"
-            :comment="comment"
-            :can-user-create-comments="canUserCreateComments"
-            @view-all-replies="onViewAllReplies"
-            @comment-submitted="onCommentSubmitted"
-          />
-        </v-flex>
-      </div>
+        <thread
+          ref="comments"
+          :comment="comment"
+          :can-user-create-comments="canUserCreateComments"
+          @view-all-replies="onViewAllReplies"
+          @comment-submitted="onCommentSubmitted"
+        />
+      </v-flex>
     </v-layout>
   </v-container>
 </template>
