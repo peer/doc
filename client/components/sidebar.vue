@@ -366,8 +366,8 @@
               this.moveUpwards(i, newDistance);
               break;
             }
-            // If its the second comment.
-            else if (i === 1) {
+            // If its the second comment (normal or aligned dummy comment).
+            else if (i === 1 && ((!c.dummy) || (c.dummy && c.marginTop <= this.minCommentMargin))) {
               last.top -= distance;
               last.marginTop -= distance;
               // Update modified comments.
