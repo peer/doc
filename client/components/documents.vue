@@ -64,7 +64,7 @@
         <v-card-text
           v-translate
           v-else-if="$subscriptionsReady()"
-          class="text-xs-center documents__none"
+          class="text-xs-center text--secondary"
         >
           no-documents
         </v-card-text>
@@ -151,10 +151,6 @@
 <style lang="scss">
   .documents__label {
     cursor: pointer;
-  }
-
-  .documents__none {
-    font-style: italic;
   }
 
   .documents__untitled {

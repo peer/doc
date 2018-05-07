@@ -4,27 +4,32 @@
     class="sidebar__users"
     @mousedown.stop
   >
-    <v-card>
-      <v-toolbar
-        dense
-        card
-      >
-        <v-chip
-          v-if="documentPublished"
-          label
-          disabled
-          color="green"
-          text-color="white"
-          class="doc_status__label"
-        ><translate>document-published</translate></v-chip>
-        <v-btn
-          v-if="!documentPublished && canAdministerDocuments"
-          :to="{name: 'publishDocument', params: {documentId}}"
-          color="success"
-        ><translate>document-publish</translate></v-btn>
-      </v-toolbar>
-    </v-card>
+    <v-layout row>
+      <v-flex xs12>
+        <v-card>
+          <v-toolbar
+            dense
+            card
+          >
+            <v-chip
+              v-if="documentPublished"
+              label
+              disabled
+              color="green"
+              text-color="white"
+              class="doc_status__label"
+            ><translate>document-published</translate></v-chip>
+            <v-btn
+              v-if="!documentPublished && canAdministerDocuments"
+              :to="{name: 'publishDocument', params: {documentId}}"
+              color="success"
+            ><translate>document-publish</translate></v-btn>
+          </v-toolbar>
+        </v-card>
+      </v-flex>
+    </v-layout>
     <v-layout
+      v-if="documentComments.length"
       ref="commentsList"
       class="sidebar__comments_container"
       row
@@ -44,6 +49,26 @@
           @view-all-replies="onViewAllReplies"
           @comment-submitted="onCommentSubmitted"
         />
+      </v-flex>
+    </v-layout>
+    <v-layout
+      v-else
+      class="sidebar__comments_container"
+      row
+      wrap
+      align-center
+    >
+      <v-flex
+        class="text--secondary text-xs-center"
+        xs12
+      >
+        <p v-translate>no-comments</p>
+        <p
+          v-translate
+          v-if="canUserCreateComments"
+        >
+          start-a-new-comment
+        </p>
       </v-flex>
     </v-layout>
   </v-container>

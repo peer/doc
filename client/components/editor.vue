@@ -118,12 +118,12 @@
 
         <div
           v-translate
-          v-if="unconfirmedCount"
+          v-if="canUserUpdateDocument && unconfirmedCount"
           class="editor__saving text--secondary"
         >editor-saving</div>
         <div
           v-translate
-          v-else
+          v-else-if="canUserUpdateDocument"
           class="editor__saving text--secondary"
         >editor-saved</div>
 
