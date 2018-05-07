@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-06 21:14-0700\n"
+"POT-Creation-Date: 2018-05-07 02:30-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -25,6 +25,26 @@ msgstr "Access denied."
 msgid "add-content"
 msgstr "Add content"
 
+#: client/vue-extensions.js:108
+msgid "calendar-last-day"
+msgstr "[yesterday at] LT"
+
+#: client/vue-extensions.js:111
+msgid "calendar-last-week"
+msgstr "[last] dddd [at] LT"
+
+#: client/vue-extensions.js:110
+msgid "calendar-next-day"
+msgstr "[tomorrow at] LT"
+
+#: client/vue-extensions.js:112
+msgid "calendar-next-week"
+msgstr "dddd [at] LT"
+
+#: client/vue-extensions.js:109
+msgid "calendar-same-day"
+msgstr "[today at] LT"
+
 #: client/components/link-dialog.vue:31
 #: client/components/publish-confirmation.vue:21
 #: client/components/thread.vue:75
@@ -35,7 +55,7 @@ msgstr "Cancel"
 msgid "choose-title"
 msgstr "Choose a title"
 
-#: client/components/app-layout.vue:68
+#: client/components/app-layout.vue:71
 msgid "close"
 msgstr "Close"
 
@@ -50,6 +70,12 @@ msgstr "Enter a comment"
 #: client/components/comment-editor.vue:109
 msgid "comment-reply-hint"
 msgstr "Enter a reply"
+
+#: client/vue-extensions.js:168
+msgid "day"
+msgid_plural "days"
+msgstr[0] "%{value} day"
+msgstr[1] "%{value} days"
 
 #: client/components/documents.vue:12
 msgid "document-create"
@@ -71,11 +97,11 @@ msgstr "New document has been created."
 msgid "document-draft"
 msgstr "draft"
 
-#: client/components/sidebar.vue:23
+#: client/components/sidebar.vue:30
 msgid "document-publish"
 msgstr "Publish"
 
-#: client/components/sidebar.vue:18
+#: client/components/sidebar.vue:25
 msgid "document-published"
 msgstr "published"
 
@@ -95,7 +121,7 @@ msgstr "Saved"
 msgid "editor-saving"
 msgstr "Saving..."
 
-#: client/components/front-page.vue:1
+#: client/components/front-page.vue:3
 msgid "front-page"
 msgstr "Front page."
 
@@ -111,6 +137,12 @@ msgstr "h2"
 msgid "h3"
 msgstr "h3"
 
+#: client/vue-extensions.js:169
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "%{value} hour"
+msgstr[1] "%{value} hours"
+
 #: client/components/link-dialog.vue:43 client/components/thread.vue:81
 msgid "insert"
 msgstr "Insert"
@@ -119,11 +151,21 @@ msgstr "Insert"
 msgid "invalid-url"
 msgstr "Invalid URL."
 
+#: client/vue-extensions.js:221
+msgid "less-than-a-minute"
+msgstr "less than a minute"
+
 #: client/components/link-dialog.vue:60
 msgid "link-hint"
 msgstr "Enter a link"
 
-#: client/components/sidebar.vue:58
+#: client/vue-extensions.js:170
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "%{value} minute"
+msgstr[1] "m%{value} minutes"
+
+#: client/components/sidebar.vue:70
 msgid "no-comments"
 msgstr "No comments."
 
@@ -171,15 +213,15 @@ msgstr "Sign Out"
 msgid "signed-in-success"
 msgstr "You have been signed in."
 
-#: client/components/app-layout.vue:102
+#: client/components/app-layout.vue:105
 msgid "signed-out-error"
 msgstr "Error signing out: %{error}"
 
-#: client/components/app-layout.vue:106
+#: client/components/app-layout.vue:109
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
-#: client/components/sidebar.vue:60
+#: client/components/sidebar.vue:74
 msgid "start-a-new-comment"
 msgstr "Start a new comment by selecting content on the left."
 
@@ -258,3 +300,9 @@ msgstr "Username too short, it should be 4 characters or more"
 #: client/components/thread.vue:27
 msgid "view-all-replies"
 msgstr "View all replies (%{count})"
+
+#: client/vue-extensions.js:167
+msgid "week"
+msgid_plural "weeks"
+msgstr[0] "%{value} week"
+msgstr[1] "%{value} weeks"

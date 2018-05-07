@@ -3,6 +3,8 @@ import {Tracker} from 'meteor/tracker';
 
 import {nativeScrollBehavior, RouterFactory} from 'meteor/akryum:vue-router2';
 
+import moment from 'moment';
+import 'moment/locale/pt-br';
 import Vue from 'vue';
 import GetTextPlugin from 'vue-gettext';
 import Vuetify from 'vuetify';
@@ -22,6 +24,8 @@ Vue.use(GetTextPlugin, {
   translations,
 });
 Vue.use(VueExtensions);
+
+moment.locale(Meteor.settings.public.defaultLanguage || 'en_US');
 
 Meteor.startup(() => {
   const router = new RouterFactory({
