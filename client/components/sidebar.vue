@@ -8,7 +8,7 @@
     <v-layout column>
       <v-layout
         row
-        class="sidebar__controlbox_container"
+        class="sidebar__controlbox"
       >
         <v-flex xs12>
           <v-card>
@@ -36,10 +36,11 @@
       <v-layout
         v-if="documentComments.length"
         ref="commentsList"
-        class="sidebar__comments_container"
+        class="sidebar__comments"
         row
         wrap
         fill-height
+        align-content-start
       >
         <v-flex
           v-for="comment of documentComments"
@@ -538,8 +539,7 @@
     padding-right: 0;
     padding-bottom: 0;
 
-    .sidebar__controlbox_container.layout {
-      height: auto;
+    .sidebar__controlbox {
       z-index: 1;
     }
 
@@ -548,7 +548,7 @@
       font-weight: bold;
     }
 
-    .sidebar__comments_container {
+    .sidebar__comments {
       // We want comments to not force a vertical scrollbar. But setting overflow to hidden also cuts shadows.
       // So we use a trick where we use negative margin and positive padding to make space for shadows.
       overflow-y: hidden;
