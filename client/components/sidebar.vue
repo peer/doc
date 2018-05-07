@@ -1,75 +1,86 @@
 <template>
   <v-container
     fluid
-    class="sidebar__users"
+    fill-height
+    class="sidebar"
     @mousedown.stop
   >
-    <v-layout row>
-      <v-flex xs12>
-        <v-card>
-          <v-toolbar
-            dense
-            card
-          >
-            <v-chip
-              v-if="documentPublished"
-              label
-              disabled
-              color="green"
-              text-color="white"
-              class="doc_status__label"
-            ><translate>document-published</translate></v-chip>
-            <v-btn
-              v-if="!documentPublished && canAdministerDocuments"
-              :to="{name: 'publishDocument', params: {documentId}}"
-              color="success"
-            ><translate>document-publish</translate></v-btn>
-          </v-toolbar>
-        </v-card>
-      </v-flex>
-    </v-layout>
-    <v-layout
-      v-if="documentComments.length"
-      ref="commentsList"
-      class="sidebar__comments_container"
-      row
-      wrap
-    >
-      <v-flex
-        v-for="comment of documentComments"
-        :key="comment._id ? comment._id : 'dummy'"
-        :style="{marginTop: `${comment.marginTop}px`}"
-        xs12
-        @click.stop="onViewAllReplies(comment)"
+    <v-layout column>
+      <v-layout
+        row
+        class="sidebar__controlbox_container"
       >
-        <thread
-          ref="comments"
-          :comment="comment"
-          :can-user-create-comments="canUserCreateComments"
-          @view-all-replies="onViewAllReplies"
-          @comment-submitted="onCommentSubmitted"
-        />
-      </v-flex>
-    </v-layout>
-    <v-layout
-      v-else
-      class="sidebar__comments_container"
-      row
-      wrap
-      align-center
-    >
-      <v-flex
-        class="text--secondary text-xs-center"
-        xs12
+        <v-flex xs12>
+          <v-card>
+            <v-toolbar
+              dense
+              card
+            >
+              <v-chip
+                v-if="documentPublished"
+                label
+                disabled
+                color="green"
+                text-color="white"
+                class="sidebar__status"
+              ><translate>document-published</translate></v-chip>
+              <v-btn
+                v-if="!documentPublished && canAdministerDocuments"
+                :to="{name: 'publishDocument', params: {documentId}}"
+                color="success"
+              ><translate>document-publish</translate></v-btn>
+            </v-toolbar>
+          </v-card>
+        </v-flex>
+      </v-layout>
+      <v-layout
+        v-if="documentComments.length"
+        ref="commentsList"
+        class="sidebar__comments_container"
+        row
+        wrap
+        fill-height
       >
-        <p v-translate>no-comments</p>
-        <p
-          v-translate
-          v-if="canUserCreateComments"
+        <v-flex
+          v-for="comment of documentComments"
+          :key="comment._id ? comment._id : 'dummy'"
+          :style="{marginTop: `${comment.marginTop}px`}"
+          xs12
+          @click.stop="onViewAllReplies(comment)"
         >
-          start-a-new-comment
-        </p>
-      </v-flex>
+          <thread
+            ref="comments"
+            :comment="comment"
+            :can-user-create-comments="canUserCreateComments"
+            @view-all-replies="onViewAllReplies"
+            @comment-submitted="onCommentSubmitted"
+          />
+        </v-flex>
+      </v-layout>
+      <v-layout
+        v-else
+        row
+        wrap
+        fill-height
+        align-center
+      >
+        <v-flex
+          class="text--secondary text-xs-center"
+          xs12
+        >
+          <p
+            v-translate
+            class="mb-0"
+          >no-comments</p>
+          <p
+            v-translate
+            v-if="canUserCreateComments"
+            class="mb-0 mt-3"
+          >
+            start-a-new-comment
+          </p>
+        </v-flex>
+      </v-layout>
     </v-layout>
   </v-container>
 </template>
@@ -522,20 +533,31 @@
 </script>
 
 <style lang="scss">
-  .sidebar__users {
+  .sidebar {
     padding-top: 0;
     padding-right: 0;
-  }
+    padding-bottom: 0;
 
-  .doc_status__label {
-    text-transform: uppercase;
-    font-weight: bold;
-  }
+    .sidebar__controlbox_container.layout {
+      height: auto;
+      z-index: 1;
+    }
 
-  .sidebar__comments_container {
-    overflow-y:hidden;
-    padding-left:12px;
-    padding-right:12px;
-    padding-bottom:20px;
+    .sidebar__status {
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .sidebar__comments_container {
+      // We want comments to not force a vertical scrollbar. But setting overflow to hidden also cuts shadows.
+      // So we use a trick where we use negative margin and positive padding to make space for shadows.
+      overflow-y: hidden;
+      margin-left: -16px;
+      padding-left: 16px;
+      margin-right: -16px;
+      padding-right: 16px;
+      margin-bottom: -16px;
+      padding-bottom: 16px;
+    }
   }
 </style>
