@@ -70,21 +70,21 @@
             :title="h1Hint"
             flat
             @input="onButtonChange('heading')"
-          >h1</v-btn>
+          ><translate>h1</translate></v-btn>
           <v-btn
             ref="buttonH2"
             :disabled="!canUserUpdateDocument || disabledButtons.h2"
             :title="h2Hint"
             flat
             @input="onButtonChange('heading')"
-          >h2</v-btn>
+          ><translate>h2</translate></v-btn>
           <v-btn
             ref="buttonH3"
             :disabled="!canUserUpdateDocument || disabledButtons.h3"
             :title="h3Hint"
             flat
             @input="onButtonChange('heading')"
-          >h3</v-btn>
+          ><translate>h3</translate></v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle

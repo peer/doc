@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 03:44-0700\n"
+"POT-Creation-Date: 2018-05-06 14:51-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -21,9 +21,13 @@ msgstr ""
 msgid "access-denied"
 msgstr "Acesso negado."
 
+#: client/components/utils/placeholder.js:40
+msgid "add-content"
+msgstr "Adicionar conteúdo"
+
 #: client/components/link-dialog.vue:31
 #: client/components/publish-confirmation.vue:21
-#: client/components/thread.vue:70
+#: client/components/thread.vue:75
 msgid "cancel"
 msgstr "Cancelar"
 
@@ -83,15 +87,11 @@ msgstr "Publicado %{at}"
 msgid "documents"
 msgstr "Documentos"
 
-#: client/components/utils/placeholder.js:40
-msgid "add-content"
-msgstr "Adicionar conteúdo"
-
-#: client/components/editor.vue:123
+#: client/components/editor.vue:126
 msgid "editor-saved"
 msgstr "Salvo"
 
-#: client/components/editor.vue:118
+#: client/components/editor.vue:121
 msgid "editor-saving"
 msgstr "Salvando..."
 
@@ -99,7 +99,19 @@ msgstr "Salvando..."
 msgid "front-page"
 msgstr "Página inicial."
 
-#: client/components/link-dialog.vue:43 client/components/thread.vue:76
+#: client/components/editor.vue:66
+msgid "h1"
+msgstr "t1"
+
+#: client/components/editor.vue:74
+msgid "h2"
+msgstr "t2"
+
+#: client/components/editor.vue:82
+msgid "h3"
+msgstr "t3"
+
+#: client/components/link-dialog.vue:43 client/components/thread.vue:81
 msgid "insert"
 msgstr "Inserir"
 
@@ -163,51 +175,51 @@ msgstr "Erro durante a saída: %{error}"
 msgid "signed-out-success"
 msgstr "Você saiu com sucesso."
 
-#: client/components/editor.vue:241
+#: client/components/editor.vue:239
 msgid "toolbar-bold"
 msgstr "Negrito (%{shortcut})"
 
-#: client/components/editor.vue:249
+#: client/components/editor.vue:247
 msgid "toolbar-bulleted-list"
 msgstr "Lista com marcadores"
 
-#: client/components/editor.vue:245
+#: client/components/editor.vue:243
 msgid "toolbar-h1"
 msgstr "Título 1"
 
-#: client/components/editor.vue:246
+#: client/components/editor.vue:244
 msgid "toolbar-h2"
 msgstr "Título 2"
 
-#: client/components/editor.vue:247
+#: client/components/editor.vue:245
 msgid "toolbar-h3"
 msgstr "Título 3"
 
-#: client/components/editor.vue:242
+#: client/components/editor.vue:240
 msgid "toolbar-italic"
 msgstr "Itálico (%{shortcut})"
 
-#: client/components/editor.vue:244
+#: client/components/editor.vue:242
 msgid "toolbar-link"
 msgstr "Link (%{shortcut})"
 
-#: client/components/editor.vue:250
+#: client/components/editor.vue:248
 msgid "toolbar-numbered-list"
 msgstr "Lista numerada"
 
-#: client/components/editor.vue:248
+#: client/components/editor.vue:246
 msgid "toolbar-quote"
 msgstr "Recuar texto"
 
-#: client/components/editor.vue:240
+#: client/components/editor.vue:238
 msgid "toolbar-redo"
 msgstr "Refazer (%{shortcut})"
 
-#: client/components/editor.vue:243
+#: client/components/editor.vue:241
 msgid "toolbar-strikethrough"
 msgstr "Tachar (%{shortcut})"
 
-#: client/components/editor.vue:239
+#: client/components/editor.vue:237
 msgid "toolbar-undo"
 msgstr "Desfazer (%{shortcut})"
 
@@ -235,6 +247,6 @@ msgstr "O nome de usuário é obrigatório"
 msgid "username-too-short"
 msgstr "O nome de usuário é muito curto, deve ser pelo menos 4 caracteres"
 
-#: client/components/thread.vue:22
+#: client/components/thread.vue:27
 msgid "view-all-replies"
 msgstr "Ver todas as respostas (%{count})"
