@@ -27,23 +27,23 @@ msgstr "Adicionar conteúdo"
 
 #: client/vue-extensions.js:108
 msgid "calendar-last-day"
-msgstr ""
+msgstr "[ontem às] LT"
 
 #: client/vue-extensions.js:111
 msgid "calendar-last-week"
-msgstr ""
+msgstr "[último] dddd [às] LT"
 
 #: client/vue-extensions.js:110
 msgid "calendar-next-day"
-msgstr ""
+msgstr "[amanhã às] LT"
 
 #: client/vue-extensions.js:112
 msgid "calendar-next-week"
-msgstr ""
+msgstr "dddd [às] LT"
 
 #: client/vue-extensions.js:109
 msgid "calendar-same-day"
-msgstr ""
+msgstr "[hoje às] LT"
 
 #: client/components/link-dialog.vue:31
 #: client/components/publish-confirmation.vue:21
@@ -72,11 +72,10 @@ msgid "comment-reply-hint"
 msgstr "Insira uma resposta"
 
 #: client/vue-extensions.js:168
-#, fuzzy
 msgid "day"
 msgid_plural "days"
-msgstr[0] "Atualizar"
-msgstr[1] "Atualizar"
+msgstr[0] "%{value} dia"
+msgstr[1] "%{value} dias"
 
 #: client/components/documents.vue:12
 msgid "document-create"
@@ -141,8 +140,8 @@ msgstr "t3"
 #: client/vue-extensions.js:169
 msgid "hour"
 msgid_plural "hours"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%{value} hora"
+msgstr[1] "%{value} horas"
 
 #: client/components/link-dialog.vue:43 client/components/thread.vue:81
 msgid "insert"
@@ -154,7 +153,7 @@ msgstr "Endereço inválido."
 
 #: client/vue-extensions.js:221
 msgid "less-than-a-minute"
-msgstr ""
+msgstr "menos que um minuto"
 
 #: client/components/link-dialog.vue:60
 msgid "link-hint"
@@ -163,12 +162,12 @@ msgstr "Insira um link"
 #: client/vue-extensions.js:170
 msgid "minute"
 msgid_plural "minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%{value} minuto"
+msgstr[1] "%{value} minutos"
 
 #: client/components/sidebar.vue:70
 msgid "no-comments"
-msgstr ""
+msgstr "Sem comentários."
 
 #: client/components/documents.vue:63
 msgid "no-documents"
@@ -224,7 +223,7 @@ msgstr "Você saiu com sucesso."
 
 #: client/components/sidebar.vue:74
 msgid "start-a-new-comment"
-msgstr ""
+msgstr "Iniciar um comentário selecionando o conteúdo à esquerda."
 
 #: client/components/editor.vue:236
 msgid "toolbar-bold"
@@ -305,5 +304,5 @@ msgstr "Ver todas as respostas (%{count})"
 #: client/vue-extensions.js:167
 msgid "week"
 msgid_plural "weeks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%{value} semana"
+msgstr[1] "%{value} semanas"
