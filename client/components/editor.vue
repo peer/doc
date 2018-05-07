@@ -119,12 +119,12 @@
         <div
           v-translate
           v-if="unconfirmedCount"
-          class="editor__saving"
+          class="editor__saving text--secondary"
         >editor-saving</div>
         <div
           v-translate
           v-else
-          class="editor__saving"
+          class="editor__saving text--secondary"
         >editor-saved</div>
 
         <div class="editor__users">
@@ -780,13 +780,17 @@
   .editor {
     .empty-node::before {
       float: left;
-      color: #aaa;
+      // Same as ".text--secondary".
+      color: rgba(0, 0, 0, 0.54);
       pointer-events: none;
       height: 0;
+      // Same as "opacity" for ".btn-toggle .btn".
+      opacity: 0.4;
     }
 
     .empty-node:hover::before {
-      color: #777;
+      // Same as ".text--primary".
+      color: rgba(0, 0, 0, 0.87);
     }
 
     h1.empty-node::before {
