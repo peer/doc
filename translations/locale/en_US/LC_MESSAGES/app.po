@@ -163,7 +163,7 @@ msgstr "Enter a link"
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "%{value} minute"
-msgstr[1] "m%{value} minutes"
+msgstr[1] "%{value} minutes"
 
 #: client/components/sidebar.vue:70
 msgid "no-comments"
