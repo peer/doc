@@ -2,6 +2,7 @@ import {Meteor} from 'meteor/meteor';
 import {Tracker} from 'meteor/tracker';
 
 import {nativeScrollBehavior, RouterFactory} from 'meteor/akryum:vue-router2';
+import {init} from 'meteor/tozd:activity-instrument';
 
 import moment from 'moment';
 import 'moment/locale/pt-br';
@@ -12,6 +13,7 @@ import Vuetify from 'vuetify';
 // TODO: Load translations only for user's language?
 import translations from '/translations/translations.json';
 
+import {Activity} from '/lib/documents/activity';
 import VueExtensions from './vue-extensions';
 
 Vue.use(Vuetify);
@@ -33,8 +35,7 @@ Meteor.startup(() => {
     scrollBehavior: nativeScrollBehavior,
   }).create();
 
-  // eslint-disable-next-line no-new
-  new Vue({
+  const vm = new Vue({
     router,
     // Loading message will be replaced by the app.
     el: '#app',
@@ -42,6 +43,8 @@ Meteor.startup(() => {
       return createElement(Vue.component('app-layout'));
     },
   });
+
+  init(Activity, vm);
 });
 
 if (!Tracker._vue) {
