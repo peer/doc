@@ -1,4 +1,4 @@
-/* eslint-disable global-require */
+/* eslint-disable global-require, import/no-unresolved */
 /* globals __meteor_runtime_config__ */
 
 try {
