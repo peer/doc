@@ -37,7 +37,7 @@ export function placeholderPlugin(vueInstance, paragraphPlaceholder) {
 
         if (emptyParagraph && !isThereParagraphWithContent) {
           decorations.push(Decoration.node(emptyParagraph.pos, emptyParagraph.pos + emptyParagraph.node.nodeSize, {
-            'data-text': paragraphPlaceholder || vueInstance.$gettext("edit-content"),
+            'data-text': paragraphPlaceholder || vueInstance.$gettext("add-content"),
             class: 'empty-node',
           }));
         }

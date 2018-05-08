@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 03:44-0700\n"
+"POT-Creation-Date: 2018-05-07 02:30-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -21,9 +21,33 @@ msgstr ""
 msgid "access-denied"
 msgstr "Acesso negado."
 
+#: client/components/utils/placeholder.js:40
+msgid "add-content"
+msgstr "Adicionar conteúdo"
+
+#: client/vue-extensions.js:108
+msgid "calendar-last-day"
+msgstr "[ontem às] LT"
+
+#: client/vue-extensions.js:111
+msgid "calendar-last-week"
+msgstr "[último] dddd [às] LT"
+
+#: client/vue-extensions.js:110
+msgid "calendar-next-day"
+msgstr "[amanhã às] LT"
+
+#: client/vue-extensions.js:112
+msgid "calendar-next-week"
+msgstr "dddd [às] LT"
+
+#: client/vue-extensions.js:109
+msgid "calendar-same-day"
+msgstr "[hoje às] LT"
+
 #: client/components/link-dialog.vue:31
 #: client/components/publish-confirmation.vue:21
-#: client/components/thread.vue:70
+#: client/components/thread.vue:75
 msgid "cancel"
 msgstr "Cancelar"
 
@@ -31,7 +55,7 @@ msgstr "Cancelar"
 msgid "choose-title"
 msgstr "Escolher um título"
 
-#: client/components/app-layout.vue:68
+#: client/components/app-layout.vue:71
 msgid "close"
 msgstr "Fechar"
 
@@ -46,6 +70,12 @@ msgstr "Insira um comentário"
 #: client/components/comment-editor.vue:109
 msgid "comment-reply-hint"
 msgstr "Insira uma resposta"
+
+#: client/vue-extensions.js:168
+msgid "day"
+msgid_plural "days"
+msgstr[0] "%{value} dia"
+msgstr[1] "%{value} dias"
 
 #: client/components/documents.vue:12
 msgid "document-create"
@@ -67,11 +97,11 @@ msgstr "O novo documento foi criado."
 msgid "document-draft"
 msgstr "Rascunho"
 
-#: client/components/sidebar.vue:23
+#: client/components/sidebar.vue:30
 msgid "document-publish"
 msgstr "Publicar"
 
-#: client/components/sidebar.vue:18
+#: client/components/sidebar.vue:25
 msgid "document-published"
 msgstr "publicado"
 
@@ -83,10 +113,6 @@ msgstr "Publicado %{at}"
 msgid "documents"
 msgstr "Documentos"
 
-#: client/components/utils/placeholder.js:40
-msgid "edit-content"
-msgstr "Editar conteúdo"
-
 #: client/components/editor.vue:123
 msgid "editor-saved"
 msgstr "Salvo"
@@ -95,11 +121,29 @@ msgstr "Salvo"
 msgid "editor-saving"
 msgstr "Salvando..."
 
-#: client/components/front-page.vue:1
+#: client/components/front-page.vue:3
 msgid "front-page"
 msgstr "Página inicial."
 
-#: client/components/link-dialog.vue:43 client/components/thread.vue:76
+#: client/components/editor.vue:72
+msgid "h1"
+msgstr "t1"
+
+#: client/components/editor.vue:79
+msgid "h2"
+msgstr "t2"
+
+#: client/components/editor.vue:86
+msgid "h3"
+msgstr "t3"
+
+#: client/vue-extensions.js:169
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "%{value} hora"
+msgstr[1] "%{value} horas"
+
+#: client/components/link-dialog.vue:43 client/components/thread.vue:81
 msgid "insert"
 msgstr "Inserir"
 
@@ -107,9 +151,23 @@ msgstr "Inserir"
 msgid "invalid-url"
 msgstr "Endereço inválido."
 
+#: client/vue-extensions.js:221
+msgid "less-than-a-minute"
+msgstr "menos que um minuto"
+
 #: client/components/link-dialog.vue:60
 msgid "link-hint"
 msgstr "Insira um link"
+
+#: client/vue-extensions.js:170
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "%{value} minuto"
+msgstr[1] "%{value} minutos"
+
+#: client/components/sidebar.vue:70
+msgid "no-comments"
+msgstr "Sem comentários."
 
 #: client/components/documents.vue:63
 msgid "no-documents"
@@ -155,59 +213,63 @@ msgstr "Sair"
 msgid "signed-in-success"
 msgstr "Você entrou com sucesso."
 
-#: client/components/app-layout.vue:102
+#: client/components/app-layout.vue:105
 msgid "signed-out-error"
 msgstr "Erro durante a saída: %{error}"
 
-#: client/components/app-layout.vue:106
+#: client/components/app-layout.vue:109
 msgid "signed-out-success"
 msgstr "Você saiu com sucesso."
 
-#: client/components/editor.vue:241
+#: client/components/sidebar.vue:74
+msgid "start-a-new-comment"
+msgstr "Iniciar um comentário selecionando o conteúdo à esquerda."
+
+#: client/components/editor.vue:236
 msgid "toolbar-bold"
 msgstr "Negrito (%{shortcut})"
 
-#: client/components/editor.vue:249
+#: client/components/editor.vue:244
 msgid "toolbar-bulleted-list"
 msgstr "Lista com marcadores"
 
-#: client/components/editor.vue:245
+#: client/components/editor.vue:240
 msgid "toolbar-h1"
 msgstr "Título 1"
 
-#: client/components/editor.vue:246
+#: client/components/editor.vue:241
 msgid "toolbar-h2"
 msgstr "Título 2"
 
-#: client/components/editor.vue:247
+#: client/components/editor.vue:242
 msgid "toolbar-h3"
 msgstr "Título 3"
 
-#: client/components/editor.vue:242
+#: client/components/editor.vue:237
 msgid "toolbar-italic"
 msgstr "Itálico (%{shortcut})"
 
-#: client/components/editor.vue:244
+#: client/components/editor.vue:239
 msgid "toolbar-link"
 msgstr "Link (%{shortcut})"
 
-#: client/components/editor.vue:250
+#: client/components/editor.vue:245
 msgid "toolbar-numbered-list"
 msgstr "Lista numerada"
 
-#: client/components/editor.vue:248
+#: client/components/editor.vue:243
 msgid "toolbar-quote"
 msgstr "Recuar texto"
 
-#: client/components/editor.vue:240
+#: client/components/editor.vue:235
 msgid "toolbar-redo"
 msgstr "Refazer (%{shortcut})"
 
-#: client/components/editor.vue:243
+#: client/components/editor.vue:238
 msgid "toolbar-strikethrough"
 msgstr "Tachar (%{shortcut})"
 
-#: client/components/editor.vue:239
+#: client/components/editor.vue:234
 msgid "toolbar-undo"
 msgstr "Desfazer (%{shortcut})"
 
@@ -235,6 +297,12 @@ msgstr "O nome de usuário é obrigatório"
 msgid "username-too-short"
 msgstr "O nome de usuário é muito curto, deve ser pelo menos 4 caracteres"
 
-#: client/components/thread.vue:22
+#: client/components/thread.vue:27
 msgid "view-all-replies"
 msgstr "Ver todas as respostas (%{count})"
+
+#: client/vue-extensions.js:167
+msgid "week"
+msgid_plural "weeks"
+msgstr[0] "%{value} semana"
+msgstr[1] "%{value} semanas"

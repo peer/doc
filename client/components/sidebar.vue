@@ -1,35 +1,46 @@
 <template>
   <v-container
     fluid
-    class="sidebar__users"
+    fill-height
+    class="sidebar"
     @mousedown.stop
   >
-    <v-card>
-      <v-toolbar
-        dense
-        card
+    <v-layout column>
+      <v-layout
+        row
+        class="sidebar__controlbox"
       >
-        <v-chip
-          v-if="documentPublished"
-          label
-          disabled
-          color="green"
-          text-color="white"
-          class="doc_status__label"
-        ><translate>document-published</translate></v-chip>
-        <v-btn
-          v-if="!documentPublished && canAdministerDocuments"
-          :to="{name: 'publishDocument', params: {documentId}}"
-          color="success"
-        ><translate>document-publish</translate></v-btn>
-      </v-toolbar>
-    </v-card>
-    <v-layout
-      ref="commentsList"
-      class="sidebar__comments_container"
-    >
-      <div
-        class="layout row wrap"
+        <v-flex xs12>
+          <v-card>
+            <v-toolbar
+              dense
+              card
+            >
+              <v-chip
+                v-if="documentPublished"
+                label
+                disabled
+                color="green"
+                text-color="white"
+                class="sidebar__status"
+              ><translate>document-published</translate></v-chip>
+              <v-btn
+                v-if="!documentPublished && canAdministerDocuments"
+                :to="{name: 'publishDocument', params: {documentId}}"
+                color="success"
+              ><translate>document-publish</translate></v-btn>
+            </v-toolbar>
+          </v-card>
+        </v-flex>
+      </v-layout>
+      <v-layout
+        v-if="documentComments.length"
+        ref="commentsList"
+        class="sidebar__comments"
+        row
+        wrap
+        fill-height
+        align-content-start
       >
         <v-flex
           v-for="comment of documentComments"
@@ -46,7 +57,31 @@
             @comment-submitted="onCommentSubmitted"
           />
         </v-flex>
-      </div>
+      </v-layout>
+      <v-layout
+        v-else
+        row
+        wrap
+        fill-height
+        align-center
+      >
+        <v-flex
+          class="text--secondary text-xs-center"
+          xs12
+        >
+          <p
+            v-translate
+            class="mb-0"
+          >no-comments</p>
+          <p
+            v-translate
+            v-if="canUserCreateComments"
+            class="mb-0 mt-3"
+          >
+            start-a-new-comment
+          </p>
+        </v-flex>
+      </v-layout>
     </v-layout>
   </v-container>
 </template>
@@ -498,20 +533,30 @@
 </script>
 
 <style lang="scss">
-  .sidebar__users {
+  .sidebar {
     padding-top: 0;
     padding-right: 0;
-  }
+    padding-bottom: 0;
 
-  .doc_status__label {
-    text-transform: uppercase;
-    font-weight: bold;
-  }
+    .sidebar__controlbox {
+      z-index: 1;
+    }
 
-  .sidebar__comments_container {
-    overflow-y:hidden;
-    padding-left:12px;
-    padding-right:12px;
-    padding-bottom:20px;
+    .sidebar__status {
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .sidebar__comments {
+      // We want comments to not force a vertical scrollbar. But setting overflow to hidden also cuts shadows.
+      // So we use a trick where we use negative margin and positive padding to make space for shadows.
+      overflow-y: hidden;
+      margin-left: -16px;
+      padding-left: 16px;
+      margin-right: -16px;
+      padding-right: 16px;
+      margin-bottom: -16px;
+      padding-bottom: 16px;
+    }
   }
 </style>

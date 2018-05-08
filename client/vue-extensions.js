@@ -105,15 +105,16 @@ export function install(Vue, options) {
   //   <span :title="playStart | formatDate(DEFAULT_DATETIME_FORMAT)">{{$calendarDate(playStart)}}</span>
   Vue.prototype.$calendarDate = function calendarDate(date) {
     return moment(date).calendar(null, {
-      lastDay: '[yesterday at] LT',
-      sameDay: '[today at] LT',
-      nextDay: '[tomorrow at] LT',
-      lastWeek: '[last] dddd [at] LT',
-      nextWeek: 'dddd [at] LT',
+      lastDay: this.$gettext('calendar-last-day'),
+      sameDay: this.$gettext('calendar-same-day'),
+      nextDay: this.$gettext('calendar-next-day'),
+      lastWeek: this.$gettext('calendar-last-week'),
+      nextWeek: this.$gettext('calendar-next-week'),
       sameElse: this.DEFAULT_DATETIME_FORMAT,
     });
   };
   Vue.filter('calendarDate', Vue.prototype.$calendarDate);
+
 
   // Similar to moment.js "humanize" function (http://momentjs.com/docs/#/durations/humanize/) it returns
   // a friendly string representing the duration.
@@ -131,8 +132,6 @@ export function install(Vue, options) {
   // Example:
   //
   //   <span title="{{$formatDuration(startedAt, null)}}">{{$formatDuration(startedAt, null, 3)}}</span>
-  //
-  // TODO: Support localization.
   Vue.prototype.$formatDuration = function $formatDuration(from, to, size) {
     const reactive = !(from && to);
 
@@ -163,6 +162,12 @@ export function install(Vue, options) {
       key: 'minute',
       value: minutes,
     }];
+
+    // Dummy calls which make sure we can extract these strings for translation.
+    this.$ngettext('week', 'weeks', 0);
+    this.$ngettext('day', 'days', 0);
+    this.$ngettext('hour', 'hours', 0);
+    this.$ngettext('minute', 'minutes', 0);
 
     // Trim zero values from the left.
     while (partials.length && (partials[0].value === 0)) {
@@ -205,18 +210,15 @@ export function install(Vue, options) {
         continue;
       }
 
-      if (value !== 1) {
-        key = `${key}s`;
-      }
-
-      result.push(`${value} ${key}`);
+      const translated = this.$ngettext(key, `${key}s`, value);
+      result.push(this.$gettextInterpolate(translated, {value}));
     }
 
     if (result.length) {
       return result.join(' ');
     }
     else {
-      return "less than a minute";
+      return this.$gettext('less-than-a-minute');
     }
   };
 

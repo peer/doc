@@ -70,21 +70,21 @@
             :title="h1Hint"
             flat
             @input="onButtonChange('heading')"
-          >h1</v-btn>
+          ><translate>h1</translate></v-btn>
           <v-btn
             ref="buttonH2"
             :disabled="!canUserUpdateDocument || disabledButtons.h2"
             :title="h2Hint"
             flat
             @input="onButtonChange('heading')"
-          >h2</v-btn>
+          ><translate>h2</translate></v-btn>
           <v-btn
             ref="buttonH3"
             :disabled="!canUserUpdateDocument || disabledButtons.h3"
             :title="h3Hint"
             flat
             @input="onButtonChange('heading')"
-          >h3</v-btn>
+          ><translate>h3</translate></v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle
@@ -118,13 +118,13 @@
 
         <div
           v-translate
-          v-if="unconfirmedCount"
-          class="editor__saving"
+          v-if="canUserUpdateDocument && unconfirmedCount"
+          class="editor__saving text--secondary"
         >editor-saving</div>
         <div
           v-translate
-          v-else
-          class="editor__saving"
+          v-else-if="canUserUpdateDocument"
+          class="editor__saving text--secondary"
         >editor-saved</div>
 
         <div class="editor__users">
@@ -780,13 +780,17 @@
   .editor {
     .empty-node::before {
       float: left;
-      color: #aaa;
+      // Same as ".text--secondary".
+      color: rgba(0, 0, 0, 0.54);
       pointer-events: none;
       height: 0;
+      // Same as "opacity" for ".btn-toggle .btn".
+      opacity: 0.4;
     }
 
     .empty-node:hover::before {
-      color: #777;
+      // Same as ".text--primary".
+      color: rgba(0, 0, 0, 0.87);
     }
 
     h1.empty-node::before {

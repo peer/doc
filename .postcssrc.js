@@ -2,6 +2,7 @@ module.exports = (ctx) => {
   if (ctx.meteor) {
     const config = {
       plugins: {
+        // To import CSS files from NPM packages.
         'postcss-easy-import': {},
       },
     };
@@ -18,6 +19,7 @@ module.exports = (ctx) => {
 
     return config;
   }
+  // In our case, this is done when processing <style> tags inside Vue components.
   else {
     return {};
   }
