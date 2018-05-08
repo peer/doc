@@ -88,6 +88,7 @@
 
 <script>
   import {Random} from 'meteor/random';
+  import {Tracker} from 'meteor/tracker';
 
   import {Comment} from '/lib/documents/comment';
   import {Document} from '/lib/documents/document';
@@ -175,7 +176,9 @@
       this.$autorun((computation) => {
         const comments = Comment.documents.find(this.commentsHandle.scopeQuery()).fetch();
         if (comments.length) {
-          this.showComments(comments);
+          Tracker.nonreactive(() => {
+            this.showComments(comments);
+          });
         }
       });
 
@@ -219,7 +222,7 @@
       },
 
       onContentChanged() {
-        this.layoutComments();
+        this.layoutComments(true);
       },
 
       onViewAllReplies(comment) {
@@ -372,15 +375,15 @@
           */
           return Object.assign({}, c, {marginTop: 0});
         });
-        this.layoutCommentsAfterRender();
+        this.layoutCommentsAfterRender(true);
       },
 
-      layoutCommentsAfterRender() {
+      layoutCommentsAfterRender(force) {
         this.$nextTick().then(() => {
           // After the cards have been rendered we can start measuring the
           // distance between each cards with the next, and adjust the margins
           // accordingly.
-          this.layoutComments();
+          this.layoutComments(force);
         });
       },
 
@@ -401,7 +404,7 @@
               this.moveUpwards(i, newDistance);
               break;
             }
-            // If its the second comment (normal or aligned dummy comment).
+            // If its the second comment (normal comment or aligned dummy comment).
             else if (i === 1 && ((!c.dummy) || (c.dummy && c.marginTop <= this.minCommentMargin))) {
               last.top -= distance;
               last.marginTop -= distance;
@@ -455,8 +458,12 @@
         }
       },
 
-      layoutComments() {
-        if (!this.$refs.comments) {
+      layoutComments(force) {
+        const dummy = this.documentComments.filter((c) => {
+          return c.dummy;
+        });
+        // Stop if there are no comments or if there are no dummy comments and force is not true.
+        if (!this.$refs.comments || (dummy.length === 0 && !this.currentHighlightKey && !force)) {
           return;
         }
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
