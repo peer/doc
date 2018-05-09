@@ -6,7 +6,6 @@
   >
     <v-card
       :class="['thread__card', {'elevation-10': comment.focus}]"
-      :style="{'padding-top': `${commentCardPaddingTop}px`, 'padding-bottom': `${commentCardPaddingBottom}px`}"
       @mousedown.stop
     >
       <v-container
@@ -110,8 +109,6 @@
     data() {
       return {
         newCommentBody: null,
-        commentCardPaddingTop: 10,
-        commentCardPaddingBottom: 10,
         showActions: false,
       };
     },
@@ -171,6 +168,8 @@
 
   .thread__card {
     cursor: pointer;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
 
   .thread__form-enter {
