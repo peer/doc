@@ -43,6 +43,7 @@
       </v-container>
       <v-container
         v-if="canUserCreateComments"
+        ref="inputContainer"
         class="thread__input_container"
       >
         <v-layout row>

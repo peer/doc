@@ -538,9 +538,19 @@
       },
 
       focusComment(highlightKey) {
-        this.documentComments = this.documentComments.map((x) => {
+        let lastFocusedIndex = -1;
+        this.documentComments = this.documentComments.map((x, i) => {
+          if (x.highlightKey === this.currentHighlightKey) {
+            lastFocusedIndex = i;
+          }
           return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
         });
+
+        // Adjust below comment margin on defocus.
+        if (!highlightKey && this.documentComments.length - 1 > lastFocusedIndex) {
+          const thread = this.$refs.comments[lastFocusedIndex];
+          this.documentComments[lastFocusedIndex + 1].marginTop += thread.$refs.inputContainer.offsetHeight;
+        }
         this.currentHighlightKey = highlightKey;
         this.layoutCommentsAfterRender();
       },
