@@ -59,14 +59,14 @@ class AddComment {
       // Hide the comment box if the selection is empty or the selection
       // only contains highlight marks.
       if (state.selection.empty || onlyHighlightMarkInRange) {
-        this.vueInstance.showNewCommentForm(false);
+        this.vueInstance.updateNewCommentForm(false);
       }
       else {
-        this.vueInstance.showNewCommentForm(true, start);
+        this.vueInstance.updateNewCommentForm(true, start);
       }
     }
     else {
-      this.vueInstance.showNewCommentForm(false);
+      this.vueInstance.updateNewCommentForm(false);
     }
   }
 }
