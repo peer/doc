@@ -1,6 +1,7 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
+import {Activity} from '/lib/documents/activity';
 import {Document} from '/lib/documents/document';
 import {User} from '/lib/documents/user';
 
@@ -12,18 +13,36 @@ Meteor.methods({
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
 
-    const timestamp = new Date();
+    const publishedAt = new Date();
 
-    return Document.documents.update(Document.restrictQuery({
+    const changed = Document.documents.update(Document.restrictQuery({
       _id: args.documentId,
     }, Document.PERMISSIONS.ADMIN, user), {
       $set: {
-        updatedAt: timestamp,
-        lastActivity: timestamp,
+        publishedAt,
+        updatedAt: publishedAt,
+        lastActivity: publishedAt,
         publishedBy: user.getReference(),
-        publishedAt: timestamp,
       },
     });
+
+    if (changed) {
+      Activity.documents.insert({
+        timestamp: publishedAt,
+        connection: this.connection.id,
+        byUser: user.getReference(),
+        // We inform all followers of this document.
+        // TODO: Implement once we have followers.
+        forUsers: [],
+        type: 'documentPublished',
+        level: Activity.LEVEL.GENERAL,
+        data: {
+          document: {
+            _id: args.documentId,
+          },
+        },
+      });
+    }
   },
 });
 
