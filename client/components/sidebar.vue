@@ -547,7 +547,7 @@
         });
 
         // Adjust below comment margin on defocus.
-        if (!highlightKey && this.documentComments.length - 1 > lastFocusedIndex) {
+        if (!highlightKey && lastFocusedIndex >= 0 && lastFocusedIndex < this.documentComments.length - 1) {
           const thread = this.$refs.comments[lastFocusedIndex];
           this.documentComments[lastFocusedIndex + 1].marginTop += thread.$refs.inputContainer.offsetHeight;
         }
