@@ -404,34 +404,45 @@
               this.moveUpwards(i, newDistance);
               break;
             }
-            // If its the second comment (normal comment or aligned dummy comment).
-            else if (i === 1 && ((!c.dummy) || (c.dummy && c.marginTop <= this.minCommentMargin))) {
+            // If the current comment isn't aligned with the related highlighted text and
+            // its the second comment..
+            else if (i === 1 && c.marginTop <= this.minCommentMargin) {
               last.top -= distance;
               last.marginTop -= distance;
-              // Update modified comments.
-              for (let j = 1; j <= from; j += 1) {
-                const marginTop = this.documentComments[j - 1].marginTop + this.documentComments[j - 1].height + (this.commentCardPaddingBottom / 2);
-                // The comment will be on visible area.
-                if (marginTop > 0) {
-                  this.documentComments[j].top -= this.documentComments[j].marginTop - this.minCommentMargin;
-                  this.documentComments[j].marginTop = this.minCommentMargin;
-                }
-                // The comment will be outside visible area.
-                else {
-                  this.documentComments[j].top -= this.documentComments[j].marginTop - marginTop;
-                  this.documentComments[j].marginTop = marginTop;
-                }
-              }
+              this.updateDownwards(from);
               break;
             }
             else {
               c.top -= distance;
               c.marginTop -= distance;
+              if (i === 1 && c.top <= last.top + last.height) {
+                const newDistance = (last.top + last.height) - c.top;
+                last.top -= newDistance;
+                last.marginTop -= newDistance;
+                this.updateDownwards(from);
+              }
               break;
             }
           }
           else {
             c.top -= distance;
+          }
+        }
+      },
+
+      // Update modified margins.
+      updateDownwards(from) {
+        for (let j = 1; j <= from; j += 1) {
+          const marginTop = this.documentComments[j - 1].marginTop + this.documentComments[j - 1].height + (this.commentCardPaddingBottom / 2);
+          // The comment will be on visible area.
+          if (marginTop > 0) {
+            this.documentComments[j].top -= this.documentComments[j].marginTop - this.minCommentMargin;
+            this.documentComments[j].marginTop = this.minCommentMargin;
+          }
+          // The comment will be outside visible area.
+          else {
+            this.documentComments[j].top -= this.documentComments[j].marginTop - marginTop;
+            this.documentComments[j].marginTop = marginTop;
           }
         }
       },
