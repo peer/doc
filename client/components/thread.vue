@@ -51,38 +51,36 @@
             xs10
             offset-xs1
           >
-            <transition name="thread__form">
-              <div
-                v-show="comment.focus"
-                @click.stop
+            <div
+              v-show="comment.focus"
+              @click.stop
+            >
+              <comment-editor
+                ref="threadInput"
+                v-model="newCommentBody"
+                :read-only="false"
+                :is-reply="!comment.dummy"
+                class="thread__input"
+                @body-empty="showActions = !$event"
+              />
+              <v-card-actions
+                v-if="showActions"
+                class="thread__actions"
               >
-                <comment-editor
-                  ref="threadInput"
-                  v-model="newCommentBody"
-                  :read-only="false"
-                  :is-reply="!comment.dummy"
-                  class="thread__input"
-                  @body-empty="showActions = !$event"
-                />
-                <v-card-actions
-                  v-if="showActions"
-                  class="thread__actions"
-                >
-                  <v-btn
-                    small
-                    color="secondary"
-                    flat
-                    @click.stop="onCancel"
-                  ><translate>cancel</translate></v-btn>
-                  <v-btn
-                    small
-                    color="primary"
-                    flat
-                    @click.stop="onSubmit"
-                  ><translate>insert</translate></v-btn>
-                </v-card-actions>
-              </div>
-            </transition>
+                <v-btn
+                  small
+                  color="secondary"
+                  flat
+                  @click.stop="onCancel"
+                ><translate>cancel</translate></v-btn>
+                <v-btn
+                  small
+                  color="primary"
+                  flat
+                  @click.stop="onSubmit"
+                ><translate>insert</translate></v-btn>
+              </v-card-actions>
+            </div>
           </v-flex>
         </v-layout>
       </v-container>
@@ -171,21 +169,6 @@
     cursor: pointer;
     padding-top: 10px;
     padding-bottom: 10px;
-  }
-
-  .thread__form-enter {
-    opacity: 0;
-  }
-
-  .thread__form-enter-active {
-    transition: opacity 0.2s;
-    -webkit-transition: opacity 0.2s;
-  }
-
-  .thread__form-leave-active {
-    transition: opacity 0.2s;
-    -webkit-transition: opacity 0.2s;
-    opacity: 0;
   }
 
   .thread__container {
