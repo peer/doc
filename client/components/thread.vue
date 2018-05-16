@@ -12,7 +12,10 @@
         v-if="!comment.dummy"
         class="thread__container"
       >
-        <comment :comment="comment" />
+        <comment
+          :comment="comment"
+          @delete-clicked="onDeleteClicked(comment)"
+        />
         <v-container
           v-if="!comment.focus && comment.hasManyReplies"
           class="thread__show_replies"
@@ -38,6 +41,7 @@
             v-if="comment.focus || (!comment.focus && index == comment.replies.length - 1)"
             :comment="reply"
             class="thread__reply"
+            @delete-clicked="onDeleteClicked(reply)"
           />
         </v-layout>
       </v-container>
@@ -139,6 +143,10 @@
             {complete: done},
           );
         }, 300);
+      },
+
+      onDeleteClicked(comment) {
+        this.$emit("show-deletion-dialog", comment);
       },
 
     },

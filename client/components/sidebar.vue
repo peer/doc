@@ -55,6 +55,7 @@
             :can-user-create-comments="canUserCreateComments"
             @view-all-replies="onViewAllReplies"
             @comment-submitted="onCommentSubmitted"
+            @show-deletion-dialog="onShowDeletionDialog"
           />
         </v-flex>
       </v-layout>
@@ -83,6 +84,10 @@
         </v-flex>
       </v-layout>
     </v-layout>
+    <comment-deletion-dialog
+      ref="commentDeletionDialog"
+      :dialog-type="dialogType"
+    />
   </v-container>
 </template>
 
@@ -138,6 +143,7 @@
 
     data() {
       return {
+        dialogType: 'single',
         commentsHandle: null,
         documentComments: [],
         commentCardPaddingTop: 10,
@@ -202,7 +208,7 @@
             showDetails: false,
             showAllReplies: false,
             hasManyReplies: false,
-            isReply: false,
+            isMain: false,
             replies: [],
           };
           this.documentComments.push(dummyComment);
@@ -346,7 +352,7 @@
             highlightTop: getOffset(el).top,
             showDetails: false,
             hasManyReplies: c.replies.length > 1,
-            isReply: c.replyTo === null,
+            isMain: c.replyTo === null,
             focus: currentHighlightKey === c.highlightKey,
           });
         }).filter((c) => {
@@ -526,6 +532,11 @@
         });
         this.currentHighlightKey = highlightKey;
         this.layoutCommentsAfterRender();
+      },
+
+      onShowDeletionDialog(comment) {
+        this.$refs.commentDeletionDialog.show = true;
+        this.dialogType = comment.isMain ? 'thread' : 'single';
       },
     },
   };

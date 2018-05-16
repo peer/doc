@@ -35,6 +35,7 @@
               flat
               icon
               small
+              @click.stop="onDeleteClicked"
             >
               <v-icon>delete</v-icon>
             </v-btn>
@@ -66,6 +67,11 @@
       comment: {
         type: Object,
         required: true,
+      },
+    },
+    methods: {
+      onDeleteClicked() {
+        this.$emit("delete-clicked");
       },
     },
   };
