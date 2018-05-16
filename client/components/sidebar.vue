@@ -241,24 +241,6 @@
         }
       },
 
-      collapseComments() {
-        this.documentComments = this.documentComments.map((c) => {
-          return Object.assign({}, c, {
-            replies: c.replies.map((x) => {
-              return Object.assign({}, x, {
-                showDetails: false,
-              });
-            }),
-            showDetails: false,
-            focus: false,
-          });
-        }).filter((x) => {
-          return !x.dummy;
-        });
-        this.currentHighlightKey = null;
-        this.layoutCommentsAfterRender();
-      },
-
       onCommentSubmitted(comment, newCommentBody) {
         if (comment.dummy) {
           const key = Random.id();
@@ -546,10 +528,28 @@
           return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
         });
 
-        // Adjust below comment margin on defocus.
-        if (!highlightKey && lastFocusedIndex >= 0 && lastFocusedIndex < this.documentComments.length - 1) {
-          const thread = this.$refs.comments[lastFocusedIndex];
-          this.documentComments[lastFocusedIndex + 1].marginTop += thread.$refs.inputContainer.offsetHeight;
+        // Defocus.
+        if (!highlightKey) {
+          // If there are comments below.
+          if (lastFocusedIndex >= 0 && lastFocusedIndex < this.documentComments.length - 1) {
+            const thread = this.$refs.comments[lastFocusedIndex];
+            // Adjust below comment margin.
+            this.documentComments[lastFocusedIndex + 1].marginTop += thread.$refs.inputContainer.offsetHeight;
+          }
+          // Collapse comments.
+          this.documentComments = this.documentComments.map((c) => {
+            return Object.assign({}, c, {
+              replies: c.replies.map((x) => {
+                return Object.assign({}, x, {
+                  showDetails: false,
+                });
+              }),
+              showDetails: false,
+              focus: false,
+            });
+          }).filter((x) => {
+            return !x.dummy;
+          });
         }
         this.currentHighlightKey = highlightKey;
         this.layoutCommentsAfterRender();
