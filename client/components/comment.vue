@@ -31,6 +31,13 @@
               :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
               class="timestamp"
             >comment-created-at</span>
+            <v-btn
+              flat
+              icon
+              small
+            >
+              <v-icon>delete</v-icon>
+            </v-btn>
           </div>
         </transition>
       </div>
