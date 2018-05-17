@@ -87,6 +87,7 @@
     <comment-deletion-dialog
       ref="commentDeletionDialog"
       :dialog-type="dialogType"
+      @delete-clicked="deleteComment"
     />
   </v-container>
 </template>
@@ -150,6 +151,7 @@
         commentCardPaddingBottom: 10,
         minCommentMargin: 5,
         currentHighlightKey: null,
+        commentToDelete: null,
       };
     },
 
@@ -535,8 +537,13 @@
       },
 
       onShowDeletionDialog(comment) {
+        this.commentToDelete = comment;
         this.$refs.commentDeletionDialog.show = true;
         this.dialogType = comment.isMain ? 'thread' : 'single';
+      },
+
+      deleteComment() {
+        this.$emit("delete-comment", this.commentToDelete);
       },
     },
   };

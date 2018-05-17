@@ -628,6 +628,15 @@
           version: collab.getVersion(this.$editorView.state),
         });
       },
+
+      deleteComment(comment) {
+        Comment.delete({
+          _id: comment._id,
+          documentId: this.documentId,
+          version: collab.getVersion(this.$editorView.state),
+        });
+      },
+
     },
   };
 

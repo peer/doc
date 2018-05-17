@@ -48,7 +48,7 @@
     },
     methods: {
       deleteComment() {
-        this.$emit('delete-comment');
+        this.$emit('delete-clicked');
         this.show = false;
       },
     },

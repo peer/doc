@@ -27,6 +27,7 @@
         @commentClicked="onCommentClicked"
         @commentAdded="onCommentAdded"
         @afterCommentAdded="onAfterCommentAdded"
+        @delete-comment="onDeleteComment"
       />
     </v-flex>
   </v-layout>
@@ -74,8 +75,8 @@
           this.$refs.sidebar.collapseComments();
         }
       },
-      onContentChanged() {
-        this.$refs.sidebar.onContentChanged();
+      onContentChanged(version) {
+        this.$refs.sidebar.onContentChanged(version);
       },
       onHighlightSelected(highlightKey) {
         this.$refs.sidebar.focusComment(highlightKey);
@@ -91,6 +92,9 @@
       },
       onAfterCommentAdded(highlightKey) {
         this.$refs.editor.onAfterCommentAdded(highlightKey);
+      },
+      onDeleteComment(comment) {
+        this.$refs.editor.deleteComment(comment);
       },
     },
   };
