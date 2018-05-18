@@ -8,10 +8,10 @@
       <v-card>
         <v-card-title>
           <div v-if="dialogType === 'thread'">
-            Delete Thread?
+            <translate>thread-deletion-confirmation</translate>
           </div>
           <div v-else>
-            Delete Comment?
+            <translate>comment-deletion-confirmation</translate>
           </div>
         </v-card-title>
         <v-card-actions>
@@ -24,7 +24,7 @@
             color="error"
             flat
             @click="deleteComment"
-          ><translate>remove</translate></v-btn>
+          ><translate>delete</translate></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
