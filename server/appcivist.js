@@ -50,6 +50,10 @@ function update(id, fields) {
     params.lastUpdate = moment(fields.lastActivity).toISOString();
   }
 
+  if (_.isEmpty(params)) {
+    return;
+  }
+
   HTTP.call('PUT', `${Meteor.settings.appCivistIntegration.endpoint}/api/contribution/${id}`, {
     params,
     data: {},
