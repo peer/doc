@@ -236,7 +236,7 @@ msgstr "Start a new comment by selecting content on the left."
 
 #: client/components/comment-deletion-dialog.vue:10
 msgid "thread-deletion-confirmation"
-msgstr "Are you sure you want to delete this thread?"
+msgstr "Are you sure you want to delete this comments thread?"
 
 #: client/components/editor.vue:236
 msgid "toolbar-bold"
