@@ -48,6 +48,8 @@
     "vuetify": "^1.0.17"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-beta.38",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.38",
     "babel-eslint": "^8.2.3",
     "chai": "^3.5.0",
     "chimp": "^0.51.1",
@@ -65,6 +67,16 @@
   },
   "meteor": {
     "vueVersion": 2
+  },
+  "babel": {
+    "plugins": [
+      [
+        "@babel/plugin-proposal-class-properties",
+        {
+          "loose": true
+        }
+      ]
+    ]
   },
   "eslintConfig": {
     "env": {

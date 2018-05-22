@@ -94,6 +94,7 @@
 
 <script>
   import {Random} from 'meteor/random';
+  import {Tracker} from 'meteor/tracker';
 
   import {Comment} from '/lib/documents/comment';
   import {Document} from '/lib/documents/document';
@@ -183,7 +184,9 @@
       this.$autorun((computation) => {
         const comments = Comment.documents.find(this.commentsHandle.scopeQuery()).fetch();
         if (comments.length) {
-          this.showComments(comments);
+          Tracker.nonreactive(() => {
+            this.showComments(comments);
+          });
         }
       });
 
@@ -227,7 +230,7 @@
       },
 
       onContentChanged() {
-        this.layoutComments();
+        this.layoutComments(true);
       },
 
       onViewAllReplies(comment) {
@@ -244,24 +247,6 @@
           this.$emit("commentClicked", comment.highlightKey);
           this.layoutCommentsAfterRender();
         }
-      },
-
-      collapseComments() {
-        this.documentComments = this.documentComments.map((c) => {
-          return Object.assign({}, c, {
-            replies: c.replies.map((x) => {
-              return Object.assign({}, x, {
-                showDetails: false,
-              });
-            }),
-            showDetails: false,
-            focus: false,
-          });
-        }).filter((x) => {
-          return !x.dummy;
-        });
-        this.currentHighlightKey = null;
-        this.layoutCommentsAfterRender();
       },
 
       onCommentSubmitted(comment, newCommentBody) {
@@ -380,15 +365,15 @@
           */
           return Object.assign({}, c, {marginTop: 0});
         });
-        this.layoutCommentsAfterRender();
+        this.layoutCommentsAfterRender(true);
       },
 
-      layoutCommentsAfterRender() {
+      layoutCommentsAfterRender(force) {
         this.$nextTick().then(() => {
           // After the cards have been rendered we can start measuring the
           // distance between each cards with the next, and adjust the margins
           // accordingly.
-          this.layoutComments();
+          this.layoutComments(force);
         });
       },
 
@@ -410,34 +395,44 @@
               break;
             }
             // If the current comment isn't aligned with the related highlighted text and
-            // its the second comment.
+            // its the second comment..
             else if (i === 1 && c.marginTop <= this.minCommentMargin) {
               last.top -= distance;
               last.marginTop -= distance;
-              // Update modified comments.
-              for (let j = 1; j <= from; j += 1) {
-                const marginTop = this.documentComments[j - 1].marginTop + this.documentComments[j - 1].height + (this.commentCardPaddingBottom / 2);
-                // The comment will be on visible area.
-                if (marginTop > 0) {
-                  this.documentComments[j].top -= this.documentComments[j].marginTop - this.minCommentMargin;
-                  this.documentComments[j].marginTop = this.minCommentMargin;
-                }
-                // The comment will be outside visible area.
-                else {
-                  this.documentComments[j].top -= this.documentComments[j].marginTop - marginTop;
-                  this.documentComments[j].marginTop = marginTop;
-                }
-              }
+              this.updateDownwards(from);
               break;
             }
             else {
               c.top -= distance;
               c.marginTop -= distance;
+              if (i === 1 && c.top <= last.top + last.height) {
+                const newDistance = (last.top + last.height) - c.top;
+                last.top -= newDistance;
+                last.marginTop -= newDistance;
+                this.updateDownwards(from);
+              }
               break;
             }
           }
           else {
             c.top -= distance;
+          }
+        }
+      },
+
+      // Update modified margins.
+      updateDownwards(from) {
+        for (let j = 1; j <= from; j += 1) {
+          const marginTop = this.documentComments[j - 1].marginTop + this.documentComments[j - 1].height + (this.commentCardPaddingBottom / 2);
+          // The comment will be on visible area.
+          if (marginTop > 0) {
+            this.documentComments[j].top -= this.documentComments[j].marginTop - this.minCommentMargin;
+            this.documentComments[j].marginTop = this.minCommentMargin;
+          }
+          // The comment will be outside visible area.
+          else {
+            this.documentComments[j].top -= this.documentComments[j].marginTop - marginTop;
+            this.documentComments[j].marginTop = marginTop;
           }
         }
       },
@@ -464,8 +459,12 @@
         }
       },
 
-      layoutComments() {
-        if (!this.$refs.comments) {
+      layoutComments(force) {
+        const dummy = this.documentComments.filter((c) => {
+          return c.dummy;
+        });
+        // Stop if there are no comments or if there are no dummy comments and force is not true.
+        if (!this.$refs.comments || (dummy.length === 0 && !this.currentHighlightKey && !force)) {
           return;
         }
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
@@ -529,9 +528,37 @@
       },
 
       focusComment(highlightKey) {
-        this.documentComments = this.documentComments.map((x) => {
+        let lastFocusedIndex = -1;
+        this.documentComments = this.documentComments.map((x, i) => {
+          if (x.highlightKey === this.currentHighlightKey) {
+            lastFocusedIndex = i;
+          }
           return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
         });
+
+        // Defocus.
+        if (!highlightKey) {
+          // If there are comments below.
+          if (lastFocusedIndex >= 0 && lastFocusedIndex < this.documentComments.length - 1) {
+            const thread = this.$refs.comments[lastFocusedIndex];
+            // Adjust below comment margin.
+            this.documentComments[lastFocusedIndex + 1].marginTop += thread.$refs.inputContainer.offsetHeight;
+          }
+          // Collapse comments.
+          this.documentComments = this.documentComments.map((c) => {
+            return Object.assign({}, c, {
+              replies: c.replies.map((x) => {
+                return Object.assign({}, x, {
+                  showDetails: false,
+                });
+              }),
+              showDetails: false,
+              focus: false,
+            });
+          }).filter((x) => {
+            return !x.dummy;
+          });
+        }
         this.currentHighlightKey = highlightKey;
         this.layoutCommentsAfterRender();
       },

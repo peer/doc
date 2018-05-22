@@ -72,7 +72,7 @@
     methods: {
       onMouseDown(event) {
         if (event.target.className !== 'highlight--selected') {
-          this.$refs.sidebar.collapseComments();
+          this.$refs.sidebar.focusComment();
         }
       },
       onContentChanged(version) {

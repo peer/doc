@@ -502,8 +502,12 @@
         return this.$gettextInterpolate(translated, {shortcut});
       },
 
-      showNewCommentForm(show, start) {
-        this.$emit('showNewCommentForm', show, start, this.$editorView.state.selection);
+      updateNewCommentForm(show, start) {
+        // Emit showNewCommentForm event only if showNewCommentForm has changed or show is true (selection).
+        if (this.showNewCommentForm !== show || show) {
+          this.showNewCommentForm = show;
+          this.$emit('showNewCommentForm', show, start, this.$editorView.state.selection);
+        }
       },
 
       updateCursor(highlightKey) {
