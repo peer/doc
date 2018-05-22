@@ -87,7 +87,7 @@
     <comment-deletion-dialog
       ref="commentDeletionDialog"
       :dialog-type="dialogType"
-      @delete-clicked="deleteComment"
+      @comment-delete-clicked="deleteComment"
     />
   </v-container>
 </template>
@@ -144,7 +144,7 @@
 
     data() {
       return {
-        dialogType: 'single',
+        dialogType: 'comment',
         commentsHandle: null,
         documentComments: [],
         commentCardPaddingTop: 10,
@@ -539,7 +539,7 @@
       onShowDeletionDialog(comment) {
         this.commentToDelete = comment;
         this.$refs.commentDeletionDialog.show = true;
-        this.dialogType = comment.isMain ? 'thread' : 'single';
+        this.dialogType = comment.isMain ? 'thread' : 'comment';
       },
 
       deleteComment() {

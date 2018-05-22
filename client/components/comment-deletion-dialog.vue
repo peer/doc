@@ -32,7 +32,6 @@
 </template>
 
 <script>
-
   // @vue/component
   const component = {
     props: {
@@ -41,14 +40,16 @@
         default: 'single',
       },
     },
+
     data() {
       return {
         show: false,
       };
     },
+
     methods: {
       deleteComment() {
-        this.$emit('delete-clicked');
+        this.$emit('comment-delete-clicked');
         this.show = false;
       },
     },

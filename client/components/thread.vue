@@ -148,7 +148,6 @@
       onDeleteClicked(comment) {
         this.$emit("show-deletion-dialog", comment);
       },
-
     },
   };
 
