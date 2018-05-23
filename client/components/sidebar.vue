@@ -293,7 +293,7 @@
       showComments(comments) {
         let currentComments = comments
         .filter((comment) => {
-          return !comment.versionTo;
+          return !comment.versionTo && comment.status === Comment.STATUS.CREATED;
         });
 
         if (!currentComments.length) {

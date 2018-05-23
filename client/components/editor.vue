@@ -641,7 +641,7 @@
         });
         if (deleteHighlight) {
           const cursorPos = this.$editorView.state.doc.resolve(this.$editorView.state.selection.$cursor.pos);
-          removeHighlight(schema, this.$editorView.state, cursorPos.pos - cursorPos.parentOffset, cursorPos.pos + cursorPos.nodeAfter.nodeSize, this.$editorView.dispatch);
+          removeHighlight(schema, this.$editorView.state, cursorPos.pos - cursorPos.textOffset, cursorPos.pos + cursorPos.nodeAfter.nodeSize, this.$editorView.dispatch);
         }
       },
 
