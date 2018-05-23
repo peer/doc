@@ -633,12 +633,16 @@
         });
       },
 
-      deleteComment(comment) {
+      deleteComment(comment, deleteHighlight) {
         Comment.delete({
           _id: comment._id,
           documentId: this.documentId,
           version: collab.getVersion(this.$editorView.state),
         });
+        if (deleteHighlight) {
+          const cursorPos = this.$editorView.state.doc.resolve(this.$editorView.state.selection.$cursor.pos);
+          removeHighlight(schema, this.$editorView.state, cursorPos.pos - cursorPos.parentOffset, cursorPos.pos + cursorPos.nodeAfter.nodeSize, this.$editorView.dispatch);
+        }
       },
 
     },

@@ -570,7 +570,10 @@
       },
 
       deleteComment() {
-        this.$emit("delete-comment", this.commentToDelete);
+        const comments = this.documentComments.filter((x) => {
+          return x.highlightKey === this.commentToDelete.highlightKey && x.status === Comment.STATUS.CREATED;
+        });
+        this.$emit("delete-comment", this.commentToDelete, comments.length === 1);
       },
     },
   };

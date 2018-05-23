@@ -93,8 +93,8 @@
       onAfterCommentAdded(highlightKey) {
         this.$refs.editor.onAfterCommentAdded(highlightKey);
       },
-      onDeleteComment(comment) {
-        this.$refs.editor.deleteComment(comment);
+      onDeleteComment(comment, deleteHighlight) {
+        this.$refs.editor.deleteComment(comment, deleteHighlight);
       },
     },
   };
