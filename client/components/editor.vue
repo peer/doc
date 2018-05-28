@@ -641,7 +641,46 @@
         });
         if (deleteHighlight) {
           const cursorPos = this.$editorView.state.doc.resolve(this.$editorView.state.selection.$cursor.pos);
-          removeHighlight(schema, this.$editorView.state, cursorPos.pos - cursorPos.textOffset, cursorPos.pos + cursorPos.nodeAfter.nodeSize, this.$editorView.dispatch);
+          const afterPos = cursorPos.nodeAfter;
+          const afterPosMarks = afterPos ? cursorPos.nodeAfter.marks : [];
+          let hasHighlight = true;
+          const marks = [];
+          let pos = cursorPos;
+          let posNode = cursorPos.nodeAfter;
+          let posMarks = afterPosMarks;
+          while (hasHighlight) {
+            for (let i = 0; i < posMarks.length; i += 1) {
+              const x = posMarks[i];
+              let otherKeys = x.attrs["highlight-keys"].split(",").filter((y) => {
+                return y !== comment.highlightKey;
+              });
+              otherKeys = otherKeys || [];
+              if (otherKeys.length < x.attrs["highlight-keys"].split(",").length) {
+                marks.push({pos, posNode, posMarks, otherKeys});
+                pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
+                posNode = pos.nodeAfter;
+                posMarks = pos.nodeAfter.marks;
+                hasHighlight = posMarks.length !== 0;
+              }
+              else {
+                hasHighlight = false;
+              }
+            }
+          }
+          removeHighlight(
+            schema, this.$editorView.state, marks[0].pos.pos - marks[0].pos.textOffset,
+            marks[marks.length - 1].pos.pos + marks[marks.length - 1].pos.nodeAfter.nodeSize,
+            this.$editorView.dispatch,
+            );
+
+          marks.forEach((d, i) => {
+            if (d.otherKeys.length > 0) {
+              addHighlight(
+                d.otherKeys.join(','), schema, this.$editorView.state, d.pos.pos - d.pos.textOffset,
+                d.pos.pos + d.pos.nodeAfter.nodeSize, this.$editorView.dispatch,
+                );
+            }
+          });
         }
       },
 
