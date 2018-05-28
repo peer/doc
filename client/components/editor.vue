@@ -656,7 +656,7 @@
               });
               otherKeys = otherKeys || [];
               if (otherKeys.length < x.attrs["highlight-keys"].split(",").length) {
-                marks.push({pos, posNode, posMarks, otherKeys});
+                marks.push({pos, otherKeys});
                 pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
                 posNode = pos.nodeAfter;
                 posMarks = pos.nodeAfter.marks;
@@ -667,6 +667,39 @@
               }
             }
           }
+
+          const firstPos = this.$editorView.state.doc.resolve(marks[0].pos.pos - marks[0].pos.textOffset - 1);
+
+          firstPos.nodeBefore.marks.forEach((x) => {
+            if (x.attrs["highlight-keys"]) {
+              const otherKeys = x.attrs["highlight-keys"].split(",").filter((y) => {
+                return marks[0].otherKeys.indexOf(y) >= 0;
+              });
+              if (otherKeys.length > 0) {
+                marks.unshift({
+                  pos: firstPos,
+                  otherKeys,
+                });
+              }
+            }
+          });
+
+          const lastPos = this.$editorView.state.doc.resolve(marks[marks.length - 1].pos.pos + marks[marks.length - 1].pos.nodeAfter.nodeSize + 1);
+
+          lastPos.nodeAfter.marks.forEach((x) => {
+            if (x.attrs["highlight-keys"]) {
+              const otherKeys = x.attrs["highlight-keys"].split(",").filter((y) => {
+                return marks[marks.length - 1].otherKeys.indexOf(y) >= 0;
+              });
+              if (otherKeys.length > 0) {
+                marks.push({
+                  pos: lastPos,
+                  otherKeys: x.attrs["highlight-keys"].split(","),
+                });
+              }
+            }
+          });
+
           removeHighlight(
             schema, this.$editorView.state, marks[0].pos.pos - marks[0].pos.textOffset,
             marks[marks.length - 1].pos.pos + marks[marks.length - 1].pos.nodeAfter.nodeSize,
