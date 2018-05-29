@@ -597,7 +597,12 @@
             newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             const currentKeys = marks[0].attrs["highlight-keys"];
             removeHighlight(schema, this.$editorView.state, start, end, this.$editorView.dispatch);
-            addHighlight(`${currentKeys},${key}`, schema, this.$editorView.state, start, end, this.$editorView.dispatch);
+            let keys = `${key},${currentKeys}`;
+            // If the new highlight contains the initial part of another highlight.
+            if (selection.from < start) {
+              keys = `${currentKeys},${key}`;
+            }
+            addHighlight(keys, schema, this.$editorView.state, start, end, this.$editorView.dispatch);
           });
         }
         newChunks.filter((chunk) => {
@@ -669,7 +674,6 @@
           }
 
           const firstPos = this.$editorView.state.doc.resolve(marks[0].pos.pos - marks[0].pos.textOffset - 1);
-
           firstPos.nodeBefore.marks.forEach((x) => {
             if (x.attrs["highlight-keys"]) {
               const otherKeys = x.attrs["highlight-keys"].split(",").filter((y) => {
@@ -685,7 +689,6 @@
           });
 
           const lastPos = this.$editorView.state.doc.resolve(marks[marks.length - 1].pos.pos + marks[marks.length - 1].pos.nodeAfter.nodeSize + 1);
-
           lastPos.nodeAfter.marks.forEach((x) => {
             if (x.attrs["highlight-keys"]) {
               const otherKeys = x.attrs["highlight-keys"].split(",").filter((y) => {
