@@ -638,6 +638,42 @@
         });
       },
 
+      // Adds nearby highlight nodes (after or before the cursor position) to highlightNodes.
+      getNearbyHighlights(highlightNodes, cursorPos, mode, commentHighlightKey) {
+        let pos = cursorPos;
+        let posNode = mode === "after" ? cursorPos.nodeAfter : cursorPos.nodeBefore;
+        let posMarks = mode === "after" ? posNode.marks : posNode.marks;
+        let hasHighlight = posMarks.length !== 0;
+        while (hasHighlight) {
+          for (let i = 0; i < posMarks.length; i += 1) {
+            const x = posMarks[i];
+            const highlightKeys = x.attrs["highlight-keys"].split(",");
+            let otherKeys = highlightKeys.filter((y) => {
+              return y !== commentHighlightKey;
+            });
+            otherKeys = otherKeys || [];
+            if (otherKeys.length < highlightKeys.length) {
+              if (mode === "after") {
+                highlightNodes.push({pos, otherKeys});
+                pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
+                posNode = pos.nodeAfter;
+                posMarks = pos.nodeAfter.marks;
+              }
+              else {
+                highlightNodes.unshift({pos, otherKeys});
+                pos = this.$editorView.state.doc.resolve(pos.pos - pos.textOffset - 1);
+                posNode = pos.nodeBefore;
+                posMarks = pos.nodeBefore.marks;
+              }
+              hasHighlight = posMarks.length !== 0;
+            }
+            else {
+              hasHighlight = false;
+            }
+          }
+        }
+      },
+
       deleteComment(comment, deleteHighlight) {
         Comment.delete({
           _id: comment._id,
@@ -646,61 +682,16 @@
         });
         if (deleteHighlight) {
           const cursorPos = this.$editorView.state.doc.resolve(this.$editorView.state.selection.$cursor.pos);
-          const afterPos = cursorPos.nodeAfter;
-          const afterPosMarks = afterPos ? cursorPos.nodeAfter.marks : [];
-          let hasHighlight = true;
-          const marks = [];
-          let pos = cursorPos;
-          let posNode = cursorPos.nodeAfter;
-          let posMarks = afterPosMarks;
-          while (hasHighlight) {
-            for (let i = 0; i < posMarks.length; i += 1) {
-              const x = posMarks[i];
-              let otherKeys = x.attrs["highlight-keys"].split(",").filter((y) => {
-                return y !== comment.highlightKey;
-              });
-              otherKeys = otherKeys || [];
-              if (otherKeys.length < x.attrs["highlight-keys"].split(",").length) {
-                marks.push({pos, otherKeys});
-                pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
-                posNode = pos.nodeAfter;
-                posMarks = pos.nodeAfter.marks;
-                hasHighlight = posMarks.length !== 0;
-              }
-              else {
-                hasHighlight = false;
-              }
-            }
-          }
-          pos = cursorPos;
-          posNode = pos.nodeBefore;
-          posMarks = pos.nodeBefore.marks;
-          hasHighlight = posMarks.length !== 0;
-          while (hasHighlight) {
-            for (let i = 0; i < posMarks.length; i += 1) {
-              const x = posMarks[i];
-              let otherKeys = x.attrs["highlight-keys"].split(",").filter((y) => {
-                return y !== comment.highlightKey;
-              });
-              otherKeys = otherKeys || [];
-              if (otherKeys.length < x.attrs["highlight-keys"].split(",").length) {
-                marks.unshift({pos, otherKeys});
-                pos = this.$editorView.state.doc.resolve(pos.pos - pos.textOffset - 1);
-                posNode = pos.nodeBefore;
-                posMarks = pos.nodeBefore.marks;
-                hasHighlight = posMarks.length !== 0;
-              }
-              else {
-                hasHighlight = false;
-              }
-            }
-          }
+          const highlightNodes = [];
+          this.getNearbyHighlights(highlightNodes, cursorPos, "after", comment.highlightKey);
+          this.getNearbyHighlights(highlightNodes, cursorPos, "before", comment.highlightKey);
+          // Update nearby highlights.
           removeHighlight(
-            schema, this.$editorView.state, marks[0].pos.pos - marks[0].pos.textOffset,
-            marks[marks.length - 1].pos.pos + marks[marks.length - 1].pos.nodeAfter.nodeSize,
+            schema, this.$editorView.state, highlightNodes[0].pos.pos - highlightNodes[0].pos.textOffset,
+            highlightNodes[highlightNodes.length - 1].pos.pos + highlightNodes[highlightNodes.length - 1].pos.nodeAfter.nodeSize,
             this.$editorView.dispatch,
             );
-          marks.forEach((d, i) => {
+          highlightNodes.forEach((d, i) => {
             if (d.otherKeys.length > 0) {
               addHighlight(
                 d.otherKeys.join(','), schema, this.$editorView.state, d.pos.pos - d.pos.textOffset,
