@@ -672,43 +672,34 @@
               }
             }
           }
-
-          const firstPos = this.$editorView.state.doc.resolve(marks[0].pos.pos - marks[0].pos.textOffset - 1);
-          firstPos.nodeBefore.marks.forEach((x) => {
-            if (x.attrs["highlight-keys"]) {
-              const otherKeys = x.attrs["highlight-keys"].split(",").filter((y) => {
-                return marks[0].otherKeys.indexOf(y) >= 0;
+          pos = cursorPos;
+          posNode = pos.nodeBefore;
+          posMarks = pos.nodeBefore.marks;
+          hasHighlight = posMarks.length !== 0;
+          while (hasHighlight) {
+            for (let i = 0; i < posMarks.length; i += 1) {
+              const x = posMarks[i];
+              let otherKeys = x.attrs["highlight-keys"].split(",").filter((y) => {
+                return y !== comment.highlightKey;
               });
-              if (otherKeys.length > 0) {
-                marks.unshift({
-                  pos: firstPos,
-                  otherKeys,
-                });
+              otherKeys = otherKeys || [];
+              if (otherKeys.length < x.attrs["highlight-keys"].split(",").length) {
+                marks.unshift({pos, otherKeys});
+                pos = this.$editorView.state.doc.resolve(pos.pos - pos.textOffset - 1);
+                posNode = pos.nodeBefore;
+                posMarks = pos.nodeBefore.marks;
+                hasHighlight = posMarks.length !== 0;
+              }
+              else {
+                hasHighlight = false;
               }
             }
-          });
-
-          const lastPos = this.$editorView.state.doc.resolve(marks[marks.length - 1].pos.pos + marks[marks.length - 1].pos.nodeAfter.nodeSize + 1);
-          lastPos.nodeAfter.marks.forEach((x) => {
-            if (x.attrs["highlight-keys"]) {
-              const otherKeys = x.attrs["highlight-keys"].split(",").filter((y) => {
-                return marks[marks.length - 1].otherKeys.indexOf(y) >= 0;
-              });
-              if (otherKeys.length > 0) {
-                marks.push({
-                  pos: lastPos,
-                  otherKeys: x.attrs["highlight-keys"].split(","),
-                });
-              }
-            }
-          });
-
+          }
           removeHighlight(
             schema, this.$editorView.state, marks[0].pos.pos - marks[0].pos.textOffset,
             marks[marks.length - 1].pos.pos + marks[marks.length - 1].pos.nodeAfter.nodeSize,
             this.$editorView.dispatch,
             );
-
           marks.forEach((d, i) => {
             if (d.otherKeys.length > 0) {
               addHighlight(
