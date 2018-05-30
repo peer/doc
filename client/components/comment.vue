@@ -26,19 +26,77 @@
         <transition name="comment__details">
           <div v-show="comment.showDetails">
             <v-divider />
-            <v-chip>{{comment.author.username}}</v-chip> <span
-              v-translate="{at: $fromNow(comment.createdAt)}"
-              :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
-              class="timestamp"
-            >comment-created-at</span>
-            <v-btn
-              flat
-              icon
-              small
-              @click.stop="onDeleteClicked"
-            >
-              <v-icon>delete</v-icon>
-            </v-btn>
+            <v-layout row>
+              <v-flex
+                lg4
+                md5
+                x12
+              >
+                <v-chip>{{comment.author.username}}</v-chip>
+              </v-flex>
+              <v-flex
+                lg6
+                md5
+                hidden-sm-and-down
+                class="comment__timestamp-container"
+              >
+                <span
+                  v-translate="{at: $fromNow(comment.createdAt)}"
+                  :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
+                  class="timestamp"
+                >
+                  comment-created-at
+                </span>
+              </v-flex>
+              <v-flex
+                lg2
+                md2
+                xs12
+                hidden-sm-and-down
+              >
+                <v-btn
+                  flat
+                  icon
+                  small
+                  @click.stop="onDeleteClicked"
+                >
+                  <v-icon>delete</v-icon>
+                </v-btn>
+              </v-flex>
+            </v-layout>
+            <v-layout row>
+              <v-flex
+                lg4
+                md5
+                x12
+                hidden-md-and-up
+              >
+                <span
+                  v-translate="{at: $fromNow(comment.createdAt)}"
+                  :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
+                  class="timestamp"
+                >
+                  comment-created-at
+                </span>
+              </v-flex>
+            </v-layout>
+            <v-layout row>
+              <v-flex
+                lg4
+                md5
+                x12
+                hidden-md-and-up
+              >
+                <v-btn
+                  flat
+                  icon
+                  small
+                  @click.stop="onDeleteClicked"
+                >
+                  <v-icon>delete</v-icon>
+                </v-btn>
+              </v-flex>
+            </v-layout>
           </div>
         </transition>
       </div>
@@ -85,6 +143,10 @@
     padding-top: 5px;
     word-wrap: break-word;
     margin-bottom: 10px;
+  }
+
+  .comment__timestamp-container {
+    margin-top: 12px;
   }
 
   .comment__details-enter {
