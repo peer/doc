@@ -19,5 +19,46 @@ Meteor.publish('Comment.list', function commentList(args) {
   });
 });
 
+// Server-side only methods, so we are not using ValidatedMethod.
+Meteor.methods({
+  'Comment.delete'(args) {
+    check(args, {
+      _id: Match.DocumentId,
+      documentId: Match.DocumentId,
+      version: Match.Integer,
+    });
+
+    const user = Meteor.user({_id: 1});
+    const deletedAt = new Date();
+
+    if (!user || !user.hasPermission(Comment.PERMISSIONS.DELETE)) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    }
+
+    Comment.documents.update(
+      {
+        $or: [{
+          _id: args._id,
+        },
+        {
+          replyTo: {
+            _id: args._id,
+          },
+        }],
+        versionTo: null,
+      },
+      {
+        $set: {
+          versionTo: args.version,
+          status: Comment.STATUS.DELETED,
+          deletedAt,
+        },
+      }, {
+        multi: true,
+      },
+    );
+  },
+});
+
 // For testing.
 export {Comment};
