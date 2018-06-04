@@ -84,6 +84,51 @@ Meteor.methods({
       multi: true,
     });
   },
+  'Comment.filterOrphan'(args) {
+    check(args, {
+      documentId: Match.DocumentId,
+      highlightKeys: [Match.DocumentId],
+      version: Match.Integer,
+    });
+
+    const user = Meteor.user({_id: 1});
+
+    // TODO: This check is temporary, we should not need this method at all.
+    if (!user || !user.hasPermission(Comment.PERMISSIONS.CREATE)) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    }
+
+    // Set versionTo to all CREATED comments with highlights present in the current editor state, in case of
+    // re-applying a previous step, e.g., with Ctrl+Z.
+    Comment.documents.update({
+      'document._id': args.documentId,
+      highlightKey: {
+        $in: args.highlightKeys,
+      },
+      status: Comment.STATUS.CREATED,
+    }, {
+      $set: {
+        versionTo: null,
+      },
+    }, {
+      multi: true,
+    });
+
+    Comment.documents.update({
+      'document._id': args.documentId,
+      highlightKey: {
+        $nin: args.highlightKeys,
+      },
+      status: Comment.STATUS.CREATED,
+      versionTo: null,
+    }, {
+      $set: {
+        versionTo: args.version,
+      },
+    }, {
+      multi: true,
+    });
+  },
 });
 
 // For testing.
