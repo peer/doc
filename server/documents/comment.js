@@ -65,7 +65,7 @@ Meteor.methods({
     });
 
     const user = Meteor.user({_id: 1});
-    
+
     // TODO: This check is temporary, we should not need this method at all.
     if (!user || !user.hasPermission(Comment.PERMISSIONS.CREATE)) {
       throw new Meteor.Error('unauthorized', "Unauthorized.");
