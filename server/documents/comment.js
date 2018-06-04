@@ -58,6 +58,32 @@ Meteor.methods({
       },
     );
   },
+  'Comment.setInitialVersion'(args) {
+    check(args, {
+      version: Match.Integer,
+      highlightKeys: [Match.DocumentId],
+    });
+
+    const user = Meteor.user({_id: 1});
+    
+    // TODO: This check is temporary, we should not need this method at all.
+    if (!user || !user.hasPermission(Comment.PERMISSIONS.CREATE)) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    }
+
+    return Comment.documents.update({
+      highlightKey: {
+        $in: args.highlightKeys,
+      },
+      versionFrom: null,
+    }, {
+      $set: {
+        versionFrom: args.version,
+      },
+    }, {
+      multi: true,
+    });
+  },
 });
 
 // For testing.
