@@ -4,6 +4,7 @@ import {Meteor} from 'meteor/meteor';
 import {Node} from 'prosemirror-model';
 
 import {Comment} from '/lib/documents/comment';
+import {Content} from '/lib/documents/content';
 import {schema} from '/lib/simple-schema.js';
 import {User} from './user';
 import {Document} from './document';
@@ -142,6 +143,8 @@ Meteor.methods({
       highlightKey: Match.DocumentId,
       body: Object,
       replyTo: Match.Maybe(Match.DocumentId),
+      versionFrom: Match.Maybe(Match.Integer),
+      contentKey: Match.DocumentId,
     });
 
     // Validate body.
@@ -161,6 +164,13 @@ Meteor.methods({
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
 
+    let version = args.versionFrom;
+
+    if (!version) {
+      const current = Content.getCurrentState({contentKey: args.contentKey});
+      version = current.version;
+    }
+
     let replyTo = null;
     if (args.replyTo) {
       replyTo = Comment.documents.findOne(Comment.restrictQuery({
@@ -178,7 +188,7 @@ Meteor.methods({
       author: user.getReference(),
       document: document.getReference(),
       body: args.body,
-      versionFrom: null,
+      versionFrom: version,
       versionTo: null,
       // TODO: Validate highlight key.
       highlightKey: args.highlightKey,

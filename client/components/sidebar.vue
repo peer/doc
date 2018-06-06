@@ -252,18 +252,12 @@
       onCommentSubmitted(comment, newCommentBody) {
         if (comment.dummy) {
           const key = Random.id();
-          // Emit commentAdded event first (for adding highlight to selected text) and then persist the comment.
-          // This way, the highlight marks will be rendered before the comments. It must be in this order, because
-          // when a comment is rendered on sidebar it must be related to a highlighted text (which should already be
-          // rendered on the editor). This fixes a bug related to new comments that are not shown in other tabs.
-          // See: https://github.com/peer/doc/issues/69
-          this.$emit("commentAdded", key);
-          Comment.create({
+          this.$emit("commentAdded", {
             highlightKey: key,
             body: newCommentBody,
             documentId: this.documentId,
+            contentKey: this.contentKey,
           });
-          this.$emit("afterCommentAdded", key);
           return;
         }
         else {
@@ -272,6 +266,7 @@
             body: newCommentBody,
             documentId: this.documentId,
             replyTo: comment._id,
+            contentKey: this.contentKey,
           });
         }
         comment.focus = true; // eslint-disable-line no-param-reassign

@@ -361,14 +361,9 @@
               const commentMarks = _.filter(transaction.steps, (s) => {
                 return s.mark && s.mark.type.name === "highlight";
               });
-              if (commentMarks) {
-                commentMarks.forEach((c) => {
-                  const highlightKeys = c.mark.attrs["highlight-keys"].split(',');
-                  this.pendingSetVersionDocuments.push({
-                    highlightKeys,
-                    version: sendable.version,
-                  });
-                });
+              if (commentMarks.length > 0) {
+                this.commentToAdd.versionFrom = sendable.version;
+                Comment.create(this.commentToAdd);
               }
             }
 
@@ -568,7 +563,10 @@
         return !!hasMark(state, state.schema.marks.link);
       },
 
-      onCommentAdded(key) {
+      onCommentAdded(args) {
+        const key = args.highlightKey;
+        this.commentToAdd = args;
+
         const {selection} = this.$editorView.state;
         let newChunks = [{
           from: selection.from,
@@ -611,16 +609,6 @@
           addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
         });
         this.updateCursor();
-      },
-
-      onAfterCommentAdded(key) {
-        // TODO: Just temporary.
-        //       See: https://github.com/peer/doc/issues/45
-        //       See: https://github.com/peer/doc/issues/69
-        while (this.pendingSetVersionDocuments.length) {
-          const setVersionDocument = this.pendingSetVersionDocuments.shift();
-          Comment.setInitialVersion(setVersionDocument);
-        }
       },
 
       filterComments(keys) {
