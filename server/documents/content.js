@@ -120,41 +120,11 @@ Meteor.methods({
 
     let doc;
     let version;
-    if (documents.has(args.contentKey)) {
-      ({doc, version} = documents.get(args.contentKey));
-      assert(version <= args.currentVersion);
-    }
-    else {
-      doc = schema.topNodeType.createAndFill();
-      version = 0;
-    }
 
-    Content.documents.find({
-      contentKey: args.contentKey,
-      version: {
-        $gt: version,
-        $lte: args.currentVersion,
-      },
-    }, {
-      sort: {
-        version: 1,
-      },
-      fields: {
-        step: 1,
-        version: 1,
-      },
-    }).forEach((content) => {
-      const result = Step.fromJSON(schema, content.step).apply(doc);
+    const state = Content.getCurrentState(args);
 
-      if (!result.doc) {
-        // eslint-disable-next-line no-console
-        console.error("Error applying a step.", result.failed);
-        throw new Meteor.Error('invalid-request', "Invalid step.");
-      }
-
-      doc = result.doc;
-      version = content.version;
-    });
+    doc = state.doc;
+    version = state.version;
 
     assert(version === args.currentVersion);
 
