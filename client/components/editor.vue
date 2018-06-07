@@ -161,7 +161,6 @@
 </template>
 
 <script>
-  import {Meteor} from 'meteor/meteor';
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
@@ -610,21 +609,6 @@
           addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
         });
         this.updateCursor();
-      },
-
-      filterComments(keys) {
-        if (!Meteor.userId()) {
-          return;
-        }
-        if (!this.$editorView.state) {
-          return;
-        }
-        // Set final version for any orphan comment that could stay in database.
-        Comment.filterOrphan({
-          documentId: this.documentId,
-          highlightKeys: keys,
-          version: collab.getVersion(this.$editorView.state),
-        });
       },
 
       // Adds nearby highlight nodes (after or before the cursor position) to highlightNodes.

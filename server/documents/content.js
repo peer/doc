@@ -1,11 +1,13 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
+import {_} from 'meteor/underscore';
 
 import assert from 'assert';
 import {Step} from 'prosemirror-transform';
 
 import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
+import {Comment} from '/lib/documents/comment';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
 
@@ -179,6 +181,23 @@ Meteor.methods({
         lastActivity: timestamp,
         title: extractTitle(doc),
       },
+    });
+
+    const keys = [];
+
+    doc.descendants((node, pos) => {
+      const mark = _.find(node.marks, (m) => {
+        return m.type.name === "highlight";
+      });
+      if (mark) {
+        keys.push(mark.attrs["highlight-keys"].split(","));
+      }
+    });
+
+    Comment.filterOrphan({
+      documentId: document._id,
+      highlightKeys: _.flatten(keys),
+      version,
     });
 
     return args.currentVersion - version;

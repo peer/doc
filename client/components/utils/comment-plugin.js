@@ -4,13 +4,11 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 
 function getDecorations(doc, vueInstance) {
   const result = [];
-  const keys = [];
   doc.descendants((node, pos) => {
     const mark = _.find(node.marks, (m) => {
       return m.type.name === "highlight";
     });
     if (mark) {
-      keys.push(mark.attrs["highlight-keys"].split(","));
       if (vueInstance.currentHighlightKey && mark.attrs["highlight-keys"].split(",").indexOf(vueInstance.currentHighlightKey) >= 0) {
         result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "highlight--selected"}));
       }
@@ -19,7 +17,6 @@ function getDecorations(doc, vueInstance) {
       }
     }
   });
-  vueInstance.filterComments(_.flatten(keys));
   vueInstance.currentHighlightKeyChanged = false; // eslint-disable-line no-param-reassign
   return DecorationSet.create(doc, result);
 }
