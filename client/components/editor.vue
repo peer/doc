@@ -357,13 +357,14 @@
 
           const sendable = collab.sendableSteps(newState);
           if (sendable) {
-            if (this.canUserCreateComments) {
+            if (this.canUserCreateComments && this.commentToAdd) {
               const commentMarks = _.filter(transaction.steps, (s) => {
-                return s.mark && s.mark.type.name === "highlight";
+                return s.mark && s.mark.type.name === "highlight" && s.mark.attrs["highlight-keys"] === this.commentToAdd.highlightKey;
               });
               if (commentMarks.length > 0) {
                 this.commentToAdd.versionFrom = sendable.version;
                 Comment.create(this.commentToAdd);
+                this.commentToAdd = undefined;
               }
             }
 
