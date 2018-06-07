@@ -118,13 +118,7 @@ Meteor.methods({
       }
     }
 
-    let doc;
-    let version;
-
-    const state = Content.getCurrentState(args);
-
-    doc = state.doc;
-    version = state.version;
+    let {doc, version} = Content.getCurrentState(args);
 
     assert(version === args.currentVersion);
 
