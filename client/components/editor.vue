@@ -355,25 +355,25 @@
           this.unconfirmedCount = this.$editorView.state.collab$.unconfirmed.length;
 
           const sendable = collab.sendableSteps(newState);
+          let addingComment = false;
+
           if (sendable) {
-            if (this.canUserCreateComments && this.commentToAdd) {
+            if (this.commentToAdd) {
               const commentMarks = _.filter(transaction.steps, (s) => {
                 return s.mark && s.mark.type.name === "highlight" && s.mark.attrs["highlight-keys"] === this.commentToAdd.highlightKey;
               });
               if (commentMarks.length > 0) {
+                addingComment = true;
                 this.commentToAdd.versionFrom = sendable.version;
-                Comment.create(this.commentToAdd);
-                this.commentToAdd = undefined;
               }
             }
 
-            if (this.canUserUpdateDocument) {
+            if (this.canUserUpdateDocument || (this.canUserCreateComments && addingComment)) {
               // Steps are added to the content and the "contentChanged" event is emitted
               // only if the content version really changed. This prevents layoutComments
               // from running unnecessarily on the sidebar component.
               if (this.lastSentVersion !== sendable.version) {
                 this.lastSentVersion = sendable.version;
-
                 this.addingStepsInProgress = true;
                 Content.addSteps({
                   contentKey: this.contentKey,
@@ -382,10 +382,14 @@
                     return step.toJSON();
                   }),
                   clientId: this.clientId,
+                  commentToAdd: this.commentToAdd,
+                  commentToDelete: this.commentToDelete,
                 }, (error, stepsAdded) => {
                   this.addingStepsInProgress = false;
                   // TODO: Error handling.
                 });
+                this.commentToAdd = undefined;
+                this.commentToDelete = undefined;
                 this.$emit("contentChanged");
               }
             }
@@ -573,6 +577,7 @@
           to: selection.to,
           empty: true,
         }];
+        const {doc, tr} = this.$editorView.state;
         if (this.selectedExistingHighlights) {
           // Change existing highlight marks to add the new highlight-key after their current highlight-keys.
           this.selectedExistingHighlights.forEach((highlightMark) => {
@@ -594,20 +599,21 @@
             // update collection to reflect new segments of the selection with previous highlight marks
             newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             const currentKeys = marks[0].attrs["highlight-keys"];
-            removeHighlight(schema, this.$editorView.state, start, end, this.$editorView.dispatch);
+            removeHighlight(schema, tr, doc, start, end, this.$editorView.dispatch);
             let keys = `${key},${currentKeys}`;
             // If the new highlight contains the initial part of another highlight.
             if (selection.from < start) {
               keys = `${currentKeys},${key}`;
             }
-            addHighlight(keys, schema, this.$editorView.state, start, end, this.$editorView.dispatch);
+            addHighlight(keys, schema, tr, start, end, this.$editorView.dispatch);
           });
         }
         newChunks.filter((chunk) => {
           return chunk.empty; // only add a new highlight mark to segments with no previous highlight marks
         }).forEach((chunk) => {
-          addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
+          addHighlight(key, schema, tr, chunk.from, chunk.to, this.$editorView.dispatch);
         });
+        this.$editorView.dispatch(tr);
         this.updateCursor();
       },
 
@@ -648,29 +654,34 @@
       },
 
       deleteComment(comment, deleteHighlight) {
-        Comment.delete({
-          _id: comment._id,
-          documentId: this.documentId,
-          version: collab.getVersion(this.$editorView.state),
-        });
         if (deleteHighlight) {
+          const {doc, tr} = this.$editorView.state;
+          this.commentToDelete = comment;
           const cursorPos = this.$editorView.state.doc.resolve(this.$editorView.state.selection.$cursor.pos);
           const highlightNodes = [];
           this.getNearbyHighlights(highlightNodes, cursorPos, "after", comment.highlightKey);
           this.getNearbyHighlights(highlightNodes, cursorPos, "before", comment.highlightKey);
           // Update nearby highlights.
           removeHighlight(
-            schema, this.$editorView.state, highlightNodes[0].pos.pos - highlightNodes[0].pos.textOffset,
+            schema, tr, doc, highlightNodes[0].pos.pos - highlightNodes[0].pos.textOffset,
             highlightNodes[highlightNodes.length - 1].pos.pos + highlightNodes[highlightNodes.length - 1].pos.nodeAfter.nodeSize,
             this.$editorView.dispatch,
             );
           highlightNodes.forEach((d, i) => {
             if (d.otherKeys.length > 0) {
               addHighlight(
-                d.otherKeys.join(','), schema, this.$editorView.state, d.pos.pos - d.pos.textOffset,
+                d.otherKeys.join(','), schema, tr, d.pos.pos - d.pos.textOffset,
                 d.pos.pos + d.pos.nodeAfter.nodeSize, this.$editorView.dispatch,
                 );
             }
+          });
+          this.$editorView.dispatch(tr);
+        }
+        else {
+          Comment.delete({
+            _id: comment._id,
+            documentId: this.documentId,
+            version: collab.getVersion(this.$editorView.state),
           });
         }
       },

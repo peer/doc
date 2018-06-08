@@ -568,7 +568,7 @@
         const comments = this.documentComments.filter((x) => {
           return x.highlightKey === this.commentToDelete.highlightKey && x.status === Comment.STATUS.CREATED;
         });
-        this.$emit("delete-comment", this.commentToDelete, comments.length === 1);
+        this.$emit("delete-comment", this.commentToDelete, comments.length === 1 && !this.commentToDelete.replyTo);
       },
     },
   };

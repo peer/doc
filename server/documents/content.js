@@ -68,6 +68,8 @@ Meteor.methods({
       currentVersion: Match.Integer,
       steps: [Object],
       clientId: Match.DocumentId,
+      commentToAdd: Match.Maybe(Object),
+      commentToDelete: Match.Maybe(Object),
     });
 
     const steps = args.steps.map((step) => {
@@ -199,6 +201,18 @@ Meteor.methods({
       highlightKeys: _.flatten(keys),
       version,
     });
+
+    if (args.commentToAdd) {
+      Comment.create(args.commentToAdd);
+    }
+
+    if (args.commentToDelete) {
+      Comment.delete({
+        _id: args.commentToDelete._id,
+        documentId: document._id,
+        version,
+      });
+    }
 
     return args.currentVersion - version;
   },
