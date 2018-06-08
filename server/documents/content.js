@@ -196,11 +196,13 @@ Meteor.methods({
       }
     });
 
-    Comment.filterOrphan({
-      documentId: document._id,
-      highlightKeys: _.flatten(keys),
-      version,
-    });
+    if (keys.length > 0) {
+      Comment.filterOrphan({
+        documentId: document._id,
+        highlightKeys: _.flatten(keys),
+        version,
+      });
+    }
 
     if (args.commentToAdd) {
       Comment.create(args.commentToAdd);
