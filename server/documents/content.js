@@ -106,7 +106,7 @@ Meteor.methods({
     });
 
     if (latestContent.version !== args.currentVersion) {
-      return 0;
+      throw new Meteor.Error('version-error', `Step version doesn't match.`);
     }
 
     let stepsToProcess = steps;
@@ -196,13 +196,11 @@ Meteor.methods({
       }
     });
 
-    if (keys.length > 0) {
-      Comment.filterOrphan({
-        documentId: document._id,
-        highlightKeys: _.flatten(keys),
-        version,
-      });
-    }
+    Comment.filterOrphan({
+      documentId: document._id,
+      highlightKeys: _.flatten(keys),
+      version,
+    });
 
     if (args.commentToAdd) {
       Comment.create(args.commentToAdd);
