@@ -286,10 +286,16 @@
        * the comments text.
       */
       showComments(comments) {
+        const dummyComments = this.documentComments.filter((x) => {
+          return x.dummy;
+        });
+
         let currentComments = comments
         .filter((comment) => {
           return !comment.versionTo && comment.status === Comment.STATUS.CREATED;
         });
+
+        currentComments = currentComments.concat(dummyComments);
 
         if (!currentComments.length) {
           this.documentComments = currentComments;
