@@ -14,6 +14,8 @@
         :read-only="document.isPublished()"
         @contentChanged="onContentChanged"
         @highlightSelected="onHighlightSelected"
+        @highlight-added="onHighlightAdded"
+        @highlight-deleted="onHighlightDeleted"
         @showNewCommentForm="onShowNewCommentForm"
       />
     </v-flex>
@@ -25,9 +27,9 @@
         :document-published="document.isPublished()"
         :client-id="clientId"
         @commentClicked="onCommentClicked"
-        @commentAdded="onCommentAdded"
+        @add-highlight="addCommentHighlight"
+        @delete-highlight="deleteCommentHighlight"
         @afterCommentAdded="onAfterCommentAdded"
-        @delete-comment="onDeleteComment"
       />
     </v-flex>
   </v-layout>
@@ -87,14 +89,20 @@
       onShowNewCommentForm(show, start) {
         this.$refs.sidebar.showNewCommentForm(show, start);
       },
-      onCommentAdded(highlightKey) {
-        this.$refs.editor.onCommentAdded(highlightKey);
+      addCommentHighlight(highlightKey) {
+        this.$refs.editor.addCommentHighlight(highlightKey);
+      },
+      deleteCommentHighlight(comment, deleteHighlight) {
+        this.$refs.editor.deleteCommentHighlight(comment, deleteHighlight);
+      },
+      onHighlightAdded(highlightKey) {
+        this.$refs.sidebar.createComment(highlightKey);
+      },
+      onHighlightDeleted(comment) {
+        this.$refs.sidebar.deleteComment(comment);
       },
       onAfterCommentAdded(highlightKey) {
         this.$refs.editor.onAfterCommentAdded(highlightKey);
-      },
-      onDeleteComment(comment, deleteHighlight) {
-        this.$refs.editor.deleteComment(comment, deleteHighlight);
       },
     },
   };

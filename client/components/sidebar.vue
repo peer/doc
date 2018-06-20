@@ -87,7 +87,7 @@
     <comment-deletion-dialog
       ref="commentDeletionDialog"
       :dialog-type="dialogType"
-      @comment-delete-clicked="deleteComment"
+      @comment-delete-clicked="onDeleteClicked"
     />
   </v-container>
 </template>
@@ -249,15 +249,23 @@
         }
       },
 
+      createComment(highlightKey) {
+        if (highlightKey === this.commentToAdd.highlightKey) {
+          Comment.create(this.commentToAdd);
+          this.commentToAdd = undefined;
+        }
+      },
+
       onCommentSubmitted(comment, newCommentBody) {
         if (comment.dummy) {
           const key = Random.id();
-          this.$emit("commentAdded", {
+          this.commentToAdd = {
             highlightKey: key,
             body: newCommentBody,
             documentId: this.documentId,
             contentKey: this.contentKey,
-          });
+          };
+          this.$emit("add-highlight", key);
           return;
         }
         else {
@@ -570,12 +578,24 @@
         this.dialogType = comment.isMain ? 'thread' : 'comment';
       },
 
-      deleteComment() {
+      onDeleteClicked() {
         const comments = this.documentComments.filter((x) => {
           return x.highlightKey === this.commentToDelete.highlightKey && x.status === Comment.STATUS.CREATED;
         });
-        this.$emit("delete-comment", this.commentToDelete, comments.length === 1 && !this.commentToDelete.replyTo);
+        this.$emit("delete-highlight", this.commentToDelete, comments.length === 1 && !this.commentToDelete.replyTo);
       },
+
+      deleteComment(comment) {
+        if (comment._id === this.commentToDelete._id) {
+          Comment.delete({
+            _id: comment._id,
+            documentId: this.documentId,
+            version: comment.version,
+          });
+          this.commentToDelete = undefined;
+        }
+      },
+
     },
   };
 
