@@ -586,9 +586,9 @@
       },
 
       deleteComment(comment) {
-        if (comment._id === this.commentToDelete._id) {
+        if (comment.id === this.commentToDelete._id) {
           Comment.delete({
-            _id: comment._id,
+            _id: comment.id,
             documentId: this.documentId,
             version: comment.version,
           });
