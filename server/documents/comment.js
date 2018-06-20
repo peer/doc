@@ -92,7 +92,6 @@ Meteor.methods({
             _id: args._id,
           },
         }],
-        versionTo: null,
       },
       {
         $set: {
