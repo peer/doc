@@ -1,5 +1,6 @@
 import {Accounts} from 'meteor/accounts-base';
 import {Meteor} from 'meteor/meteor';
+import {check} from 'meteor/check';
 
 import {User} from '/lib/documents/user';
 
@@ -11,6 +12,28 @@ Accounts.onCreateUser(function onCreateUser(options, user) {
   }
 
   return user;
+});
+
+Meteor.methods({
+  'User.findByUsername'(args) {
+    check(args, {
+      username: String,
+    });
+
+    const user = User.documents.find(
+      {
+        username: {$regex: `^${args.username}`},
+      },
+      {
+        fields: {
+          username: 1,
+          avatar: 1,
+        },
+      },
+    ).fetch();
+
+    return user;
+  },
 });
 
 // Some User fields are published automatically for the current user,
