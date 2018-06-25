@@ -784,13 +784,11 @@
       color: rgba(0, 0, 0, 0.54);
       pointer-events: none;
       height: 0;
-      // Same as "opacity" for ".btn-toggle .btn".
-      opacity: 0.4;
     }
 
     .empty-node:hover::before {
-      // Same as ".text--primary".
-      color: rgba(0, 0, 0, 0.87);
+      // Same as "opacity" for ".btn-toggle .btn".
+      opacity: 0.4;
     }
 
     h1.empty-node::before {
