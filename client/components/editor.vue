@@ -187,6 +187,7 @@
   import {placeholderPlugin} from './utils/placeholder.js';
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
+  import {titleSizePlugin} from './utils/title-size-plugin.js';
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
   import {toggleLink, clearLink} from './utils/link.js';
 
@@ -321,6 +322,7 @@
           gapCursor(),
           history(),
           commentPlugin(this),
+          titleSizePlugin(100, this.$gettext("title-length")),
           menuPlugin(menuItems, this, this.disabledButtons),
           addCommentPlugin(this),
           placeholderPlugin(this),
