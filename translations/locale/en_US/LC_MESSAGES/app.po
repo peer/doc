@@ -23,7 +23,7 @@ msgstr "Access denied."
 
 #: client/components/utils/placeholder.js:40
 msgid "add-content"
-msgstr "Add content"
+msgstr "Add the text of your document here"
 
 #: client/vue-extensions.js:108
 msgid "calendar-last-day"
@@ -53,7 +53,7 @@ msgstr "Cancel"
 
 #: client/components/utils/placeholder.js:26
 msgid "choose-title"
-msgstr "Choose a title"
+msgstr "Write the Title of Your Document Here"
 
 #: client/components/app-layout.vue:71
 msgid "close"
