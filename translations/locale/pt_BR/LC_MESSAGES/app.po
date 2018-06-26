@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-07 02:30-0700\n"
+"POT-Creation-Date: 2018-06-26 12:53-0400\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -165,7 +165,7 @@ msgid_plural "minutes"
 msgstr[0] "%{value} minuto"
 msgstr[1] "%{value} minutos"
 
-#: client/components/sidebar.vue:70
+#: client/components/sidebar.vue:71
 msgid "no-comments"
 msgstr "Sem comentários."
 
@@ -221,55 +221,59 @@ msgstr "Erro durante a saída: %{error}"
 msgid "signed-out-success"
 msgstr "Você saiu com sucesso."
 
-#: client/components/sidebar.vue:74
+#: client/components/sidebar.vue:75
 msgid "start-a-new-comment"
 msgstr "Iniciar um comentário selecionando o conteúdo à esquerda."
 
-#: client/components/editor.vue:236
+#: client/components/editor.vue:325
+msgid "title-length"
+msgstr "Seu título deve ser breve, máximo de 100 caracteres, e o texto do seu documento deve ser adicionado no espaço abaixo do título."
+
+#: client/components/editor.vue:237
 msgid "toolbar-bold"
 msgstr "Negrito (%{shortcut})"
 
-#: client/components/editor.vue:244
+#: client/components/editor.vue:245
 msgid "toolbar-bulleted-list"
 msgstr "Lista com marcadores"
 
-#: client/components/editor.vue:240
+#: client/components/editor.vue:241
 msgid "toolbar-h1"
 msgstr "Título 1"
 
-#: client/components/editor.vue:241
+#: client/components/editor.vue:242
 msgid "toolbar-h2"
 msgstr "Título 2"
 
-#: client/components/editor.vue:242
+#: client/components/editor.vue:243
 msgid "toolbar-h3"
 msgstr "Título 3"
 
-#: client/components/editor.vue:237
+#: client/components/editor.vue:238
 msgid "toolbar-italic"
 msgstr "Itálico (%{shortcut})"
 
-#: client/components/editor.vue:239
+#: client/components/editor.vue:240
 msgid "toolbar-link"
 msgstr "Link (%{shortcut})"
 
-#: client/components/editor.vue:245
+#: client/components/editor.vue:246
 msgid "toolbar-numbered-list"
 msgstr "Lista numerada"
 
-#: client/components/editor.vue:243
+#: client/components/editor.vue:244
 msgid "toolbar-quote"
 msgstr "Recuar texto"
 
-#: client/components/editor.vue:235
+#: client/components/editor.vue:236
 msgid "toolbar-redo"
 msgstr "Refazer (%{shortcut})"
 
-#: client/components/editor.vue:238
+#: client/components/editor.vue:239
 msgid "toolbar-strikethrough"
 msgstr "Tachar (%{shortcut})"
 
-#: client/components/editor.vue:234
+#: client/components/editor.vue:235
 msgid "toolbar-undo"
 msgstr "Desfazer (%{shortcut})"
 
