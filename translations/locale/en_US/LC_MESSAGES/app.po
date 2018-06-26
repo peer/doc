@@ -227,7 +227,7 @@ msgstr "Start a new comment by selecting content on the left."
 
 #: client/components/editor.vue:325
 msgid "title-length"
-msgstr "Your title should be brief, a maximum of 100 characters, and the text of your document should be added in the space below the title."
+msgstr "Your title should be brief (max 100 characters) and the text of your document added below it."
 
 #: client/components/editor.vue:237
 msgid "toolbar-bold"
