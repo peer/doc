@@ -52,15 +52,23 @@
                   :key="contributor._id"
                   avatar
                 >
-                  <v-list-tile-action>
-                    <v-icon color="pink">star</v-icon>
-                  </v-list-tile-action>
-                  <v-list-tile-content>
-                    <v-list-tile-title v-text="contributor.username" />
-                  </v-list-tile-content>
                   <v-list-tile-avatar>
                     <img :src="contributor.avatar">
                   </v-list-tile-avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title>{{contributor.username}}</v-list-tile-title>
+                    <v-list-tile-sub-title class="text--primary">({{contributor.permission.name}})</v-list-tile-sub-title>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-btn
+                      flat
+                      icon
+                      color="red lighten-2"
+                      @click="removeFromList(contributor._id)"
+                    >
+                      <v-icon>clear</v-icon>
+                    </v-btn>
+                  </v-list-tile-action>
                 </v-list-tile>
               </v-list>
             </v-flex>
@@ -76,7 +84,6 @@
                 :loading="loading"
                 :items="items"
                 :return-object="true"
-                :rules="[() => select.length > 0 || 'You must choose at least one']"
                 :search-input.sync="search"
                 v-model="select"
                 item-text="username"
@@ -85,9 +92,7 @@
                 label="Users"
                 autocomplete
                 multiple
-                cache-items
                 chips
-                required
               />
             </v-flex>
             <v-menu offset-y>
@@ -107,7 +112,22 @@
               </v-list>
             </v-menu>
           </v-layout>
-          <v-btn color="primary">Share</v-btn>
+          <v-layout row>
+            <v-flex
+              xs6
+              offset-xs2
+              md8
+              offset-md1
+            >
+              <v-btn
+                :disabled="select.length <= 0"
+                color="primary"
+                @click="addToList()"
+              >Add to List
+              </v-btn>
+            </v-flex>
+          </v-layout>
+          <v-btn color="primary">Done</v-btn>
           <v-btn
             flat
             @click.native="step = 1"
@@ -140,9 +160,7 @@
         radioGroup: 1,
         visibilityLevels: ['Private', 'Public', 'Listed'],
         visibilityLevel: undefined,
-        // test data.
-        contributors: [{avatar: "https://randomuser.me/api/portraits/men/32.jpg", _id: "6Dzu6Fj2wM83P7Cd5", username: "username"},
-        {avatar: "https://randomuser.me/api/portraits/men/33.jpg", _id: "6Dzu6Fj2wM83P7Cd2", username: "username2"}],
+        contributors: [],
       };
     },
     watch: {
@@ -156,6 +174,24 @@
       this.documentId = this.$route.params.documentId;
     },
     methods: {
+      addToList() {
+        const newContributors = this.select.map((x) => {
+          return {
+            _id: x._id,
+            username: x.username,
+            avatar: x.avatar,
+            permission: this.permission,
+          };
+        });
+        this.contributors = this.contributors.concat(newContributors);
+        this.select = [];
+        this.items = [];
+      },
+      removeFromList(id) {
+        this.contributors = this.contributors.filter((x) => {
+          return x._id !== id;
+        });
+      },
       querySelections(v) {
         this.loading = true;
 
@@ -164,7 +200,12 @@
             this.loading = false;
           }
           else {
-            this.items = document;
+            this.items = document.filter((x) => {
+              const found = this.contributors.find((y) => {
+                return x._id === y._id;
+              });
+              return !found;
+            });
             this.loading = false;
           }
         });
