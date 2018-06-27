@@ -8,13 +8,10 @@ import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
+import {extractTitle} from '/lib/utils';
 
 // TODO: Make documents expire after a while.
 const documents = new Map();
-
-function extractTitle(doc) {
-  return doc.content.firstChild.textContent;
-}
 
 // Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
