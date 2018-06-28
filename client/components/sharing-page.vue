@@ -19,9 +19,9 @@
           <v-radio-group v-model="visibilityLevel">
             <v-radio
               v-for="level in visibilityLevels"
-              :key="level"
-              :label="level"
-              :value="level"
+              :key="level.value"
+              :label="level.label"
+              :value="level.value"
             />
           </v-radio-group>
           <v-btn
@@ -57,7 +57,7 @@
                   </v-list-tile-avatar>
                   <v-list-tile-content>
                     <v-list-tile-title>{{contributor.username}}</v-list-tile-title>
-                    <v-list-tile-sub-title class="text--primary">({{contributor.permission.name}})</v-list-tile-sub-title>
+                    <v-list-tile-sub-title class="text--primary">({{contributor.permission.label}})</v-list-tile-sub-title>
                   </v-list-tile-content>
                   <v-list-tile-action>
                     <v-btn
@@ -107,7 +107,7 @@
                   :key="index"
                   @click="permission = item"
                 >
-                  <v-list-tile-title>{{item.name}}</v-list-tile-title>
+                  <v-list-tile-title>{{item.label}}</v-list-tile-title>
                 </v-list-tile>
               </v-list>
             </v-menu>
@@ -156,13 +156,46 @@
         },
         loading: false,
         items: [],
-        permissions: [{name: 'Edit', icon: 'edit'}, {name: 'See', icon: 'visibility'}, {name: 'Admin', icon: 'settings'}],
-        permission: {name: 'Edit', icon: 'edit'},
+        permissions: [
+          {
+            value: 'edit',
+            label: this.$gettext("edit"),
+            icon: 'edit',
+          },
+          {
+            value: 'see',
+            label: this.$gettext("see"),
+            icon: 'visibility',
+          },
+          {
+            value: 'admin',
+            label: this.$gettext("admin"),
+            icon: 'settings',
+          },
+        ],
+        permission: {
+          value: 'edit',
+          label: this.$gettext("edit"),
+          icon: 'edit',
+        },
         search: null,
         select: [],
         step: 1,
         radioGroup: 1,
-        visibilityLevels: ['Private', 'Public', 'Listed'],
+        visibilityLevels: [
+          {
+            value: Document.VISIBILITY_LEVELS.PRIVATE,
+            label: this.$gettext("private"),
+          },
+          {
+            value: Document.VISIBILITY_LEVELS.PUBLIC,
+            label: this.$gettext("public"),
+          },
+          {
+            value: Document.VISIBILITY_LEVELS.LISTED,
+            label: this.$gettext("listed"),
+          },
+        ],
         visibilityLevel: undefined,
         contributors: [],
       };
@@ -225,7 +258,7 @@
                 username: x.username,
                 avatar: x.avatar,
               },
-              selectedPermission: x.permission.name,
+              selectedPermission: x.permission.value,
             };
           }),
         });

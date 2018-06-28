@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-07 02:30-0700\n"
+"POT-Creation-Date: 2018-06-28 15:00-0400\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -24,6 +24,10 @@ msgstr "Access denied."
 #: client/components/utils/placeholder.js:40
 msgid "add-content"
 msgstr "Add content"
+
+#: client/components/sharing-page.vue:172
+msgid "admin"
+msgstr "Admin"
 
 #: client/vue-extensions.js:108
 msgid "calendar-last-day"
@@ -47,7 +51,7 @@ msgstr "[today at] LT"
 
 #: client/components/link-dialog.vue:31
 #: client/components/publish-confirmation.vue:21
-#: client/components/thread.vue:75
+#: client/components/thread.vue:74
 msgid "cancel"
 msgstr "Cancel"
 
@@ -113,6 +117,11 @@ msgstr "Published %{at}"
 msgid "documents"
 msgstr "Documents"
 
+#: client/components/sharing-page.vue:162
+#: client/components/sharing-page.vue:178
+msgid "edit"
+msgstr "Edit"
+
 #: client/components/editor.vue:123
 msgid "editor-saved"
 msgstr "Saved"
@@ -143,7 +152,7 @@ msgid_plural "hours"
 msgstr[0] "%{value} hour"
 msgstr[1] "%{value} hours"
 
-#: client/components/link-dialog.vue:43 client/components/thread.vue:81
+#: client/components/link-dialog.vue:43 client/components/thread.vue:80
 msgid "insert"
 msgstr "Insert"
 
@@ -159,13 +168,17 @@ msgstr "less than a minute"
 msgid "link-hint"
 msgstr "Enter a link"
 
+#: client/components/sharing-page.vue:196
+msgid "listed"
+msgstr "Listed"
+
 #: client/vue-extensions.js:170
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "%{value} minute"
 msgstr[1] "%{value} minutes"
 
-#: client/components/sidebar.vue:70
+#: client/components/sidebar.vue:76
 msgid "no-comments"
 msgstr "No comments."
 
@@ -176,6 +189,14 @@ msgstr "No documents."
 #: client/components/not-found.vue:3
 msgid "not-found"
 msgstr "Not found."
+
+#: client/components/sharing-page.vue:188
+msgid "private"
+msgstr "Private"
+
+#: client/components/sharing-page.vue:192
+msgid "public"
+msgstr "Public"
 
 #: client/components/publish-confirmation.vue:28
 msgid "publish"
@@ -201,6 +222,14 @@ msgstr "The document was successfully published."
 msgid "remove"
 msgstr "Remove"
 
+#: client/components/sharing-page.vue:167
+msgid "see"
+msgstr "See"
+
+#: client/components/sidebar.vue:35
+msgid "share"
+msgstr "Share"
+
 #: client/components/app-layout.vue:50 client/components/user-signin.vue:46
 msgid "sign-in"
 msgstr "Sign In"
@@ -221,7 +250,7 @@ msgstr "Error signing out: %{error}"
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
-#: client/components/sidebar.vue:74
+#: client/components/sidebar.vue:80
 msgid "start-a-new-comment"
 msgstr "Start a new comment by selecting content on the left."
 
@@ -297,7 +326,7 @@ msgstr "Username is required"
 msgid "username-too-short"
 msgstr "Username too short, it should be 4 characters or more"
 
-#: client/components/thread.vue:27
+#: client/components/thread.vue:26
 msgid "view-all-replies"
 msgstr "View all replies (%{count})"
 

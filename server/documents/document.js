@@ -60,11 +60,12 @@ Meteor.methods({
     args.contributors.forEach((x) => {
       const permissions = Document.getPermissions(x.selectedPermission);
       permissions.forEach((p) => {
-        contributors.push(Object.assign({}, x, {
+        contributors.push({
+          user: x.user,
           addedAt: now,
           addedBy: user.getReference(),
           permission: p,
-        }));
+        });
       });
     });
 
