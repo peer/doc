@@ -127,7 +127,10 @@
               </v-btn>
             </v-flex>
           </v-layout>
-          <v-btn color="primary">Done</v-btn>
+          <v-btn
+            color="primary"
+            @click="share()"
+          >Done</v-btn>
           <v-btn
             flat
             @click.native="step = 1"
@@ -141,6 +144,7 @@
 <script>
   import {RouterFactory} from 'meteor/akryum:vue-router2';
   import {User} from '/lib/documents/user';
+  import {Document} from '/lib/documents/document';
 
   // @vue/component
   const component = {
@@ -208,6 +212,22 @@
             });
             this.loading = false;
           }
+        });
+      },
+      share() {
+        Document.share({
+          documentId: this.documentId,
+          visibilityLevel: this.visibilityLevel,
+          contributors: this.contributors.map((x) => {
+            return {
+              user: {
+                _id: x._id,
+                username: x.username,
+                avatar: x.avatar,
+              },
+              permission: x.permission.name,
+            };
+          }),
         });
       },
     },

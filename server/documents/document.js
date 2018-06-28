@@ -44,6 +44,53 @@ Meteor.methods({
       });
     }
   },
+  'Document.share'(args) {
+    check(args, {
+      documentId: String,
+      visibilityLevel: String,
+      contributors: [{user: {_id: Match.DocumentId, username: String, avatar: String}, permission: String}],
+    });
+
+    const user = Meteor.user(User.REFERENCE_FIELDS());
+
+    const now = new Date();
+
+    const contributors = args.contributors.map((x) => {
+      return Object.assign({}, x, {
+        addedAt: now,
+        addedBy: user.getReference(),
+      });
+    });
+
+    const changed = Document.documents.update(Document.restrictQuery({
+      _id: args.documentId,
+    }, Document.PERMISSIONS.ADMIN, user), {
+      $set: {
+        updatedAt: now,
+        lastActivity: now,
+        userPermissions: contributors,
+        visibilityLevel: args.visibilityLevel,
+      },
+    });
+
+    if (changed) {
+      Activity.documents.insert({
+        timestamp: now,
+        connection: this.connection.id,
+        byUser: user.getReference(),
+        // We inform all followers of this document.
+        // TODO: Implement once we have followers.
+        forUsers: [],
+        type: 'documentShared',
+        level: Activity.LEVEL.GENERAL,
+        data: {
+          document: {
+            _id: args.documentId,
+          },
+        },
+      });
+    }
+  },
 });
 
 Meteor.publish('Document.list', function documentList(args) {
