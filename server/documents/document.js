@@ -48,17 +48,23 @@ Meteor.methods({
     check(args, {
       documentId: String,
       visibilityLevel: String,
-      contributors: [{user: {_id: Match.DocumentId, username: String, avatar: String}, permission: String}],
+      contributors: [{user: {_id: Match.DocumentId, username: String, avatar: String}, selectedPermission: String}],
     });
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
 
     const now = new Date();
 
-    const contributors = args.contributors.map((x) => {
-      return Object.assign({}, x, {
-        addedAt: now,
-        addedBy: user.getReference(),
+    const contributors = [];
+
+    args.contributors.forEach((x) => {
+      const permissions = Document.getPermissions(x.selectedPermission);
+      permissions.forEach((p) => {
+        contributors.push(Object.assign({}, x, {
+          addedAt: now,
+          addedBy: user.getReference(),
+          permission: p,
+        }));
       });
     });
 

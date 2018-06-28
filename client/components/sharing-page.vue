@@ -225,7 +225,7 @@
                 username: x.username,
                 avatar: x.avatar,
               },
-              permission: x.permission.name,
+              selectedPermission: x.permission.name,
             };
           }),
         });
