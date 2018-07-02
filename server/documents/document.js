@@ -55,18 +55,10 @@ Meteor.methods({
 
     const now = new Date();
 
-    const contributors = [];
+    let contributors = [];
 
     args.contributors.forEach((x) => {
-      const permissions = Document.getPermissions(x.selectedPermission);
-      permissions.forEach((p) => {
-        contributors.push({
-          user: x.user,
-          addedAt: now,
-          addedBy: user.getReference(),
-          permission: p,
-        });
-      });
+      contributors = contributors.concat(Document.getUserPermissions(x.selectedPermission, x.user, now, user.getReference()));
     });
 
     const changed = Document.documents.update(Document.restrictQuery({
@@ -76,7 +68,7 @@ Meteor.methods({
         updatedAt: now,
         lastActivity: now,
         userPermissions: contributors,
-        visibilityLevel: args.visibilityLevel,
+        visibility: args.visibilityLevel,
       },
     });
 
