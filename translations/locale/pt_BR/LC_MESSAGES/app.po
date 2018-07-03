@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-28 15:00-0400\n"
+"POT-Creation-Date: 2018-07-03 16:08-0400\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -25,7 +25,7 @@ msgstr "Acesso negado."
 msgid "add-content"
 msgstr "Adicionar conteúdo"
 
-#: client/components/sharing-page.vue:172
+#: client/components/sharing-page.vue:173
 msgid "admin"
 msgstr "Administrar"
 
@@ -113,12 +113,20 @@ msgstr "publicado"
 msgid "document-published-at"
 msgstr "Publicado %{at}"
 
+#: client/components/sharing-page.vue:309
+msgid "document-shared-error"
+msgstr "Erro ao compartilhar o documento."
+
+#: client/components/sharing-page.vue:312
+msgid "document-shared-success"
+msgstr "O documento foi compartilhado."
+
 #: client/components/app-layout.vue:20
 msgid "documents"
 msgstr "Documentos"
 
-#: client/components/sharing-page.vue:162
-#: client/components/sharing-page.vue:178
+#: client/components/sharing-page.vue:163
+#: client/components/sharing-page.vue:179
 msgid "edit"
 msgstr "Editar"
 
@@ -168,7 +176,7 @@ msgstr "menos que um minuto"
 msgid "link-hint"
 msgstr "Insira um link"
 
-#: client/components/sharing-page.vue:196
+#: client/components/sharing-page.vue:197
 msgid "listed"
 msgstr "Listagem"
 
@@ -190,11 +198,11 @@ msgstr "Nenhum documento."
 msgid "not-found"
 msgstr "Não encontrado."
 
-#: client/components/sharing-page.vue:188
+#: client/components/sharing-page.vue:189
 msgid "private"
 msgstr "Privado"
 
-#: client/components/sharing-page.vue:192
+#: client/components/sharing-page.vue:193
 msgid "public"
 msgstr "Público"
 
@@ -222,7 +230,7 @@ msgstr "O documento foi publicado com sucesso."
 msgid "remove"
 msgstr "Remover"
 
-#: client/components/sharing-page.vue:167
+#: client/components/sharing-page.vue:168
 msgid "see"
 msgstr "Ver"
 

@@ -27,7 +27,7 @@
           <v-btn
             :disabled="!visibilityLevel"
             color="primary"
-            @click.native="step = 2"
+            @click.native="nextStep(2)"
           >Continue</v-btn>
           <v-btn
             :to="{name: 'document',params: {documentId: documentId}}"
@@ -133,7 +133,7 @@
           >Done</v-btn>
           <v-btn
             flat
-            @click.native="step = 1"
+            @click.native="nextStep(1)"
           >Back</v-btn>
         </v-stepper-content>
       </v-stepper>
@@ -145,6 +145,8 @@
   import {RouterFactory} from 'meteor/akryum:vue-router2';
   import {User} from '/lib/documents/user';
   import {Document} from '/lib/documents/document';
+  import {_} from 'meteor/underscore';
+  import {Snackbar} from '../snackbar';
 
   // @vue/component
   const component = {
@@ -200,17 +202,60 @@
         contributors: [],
       };
     },
+    computed: {
+      document() {
+        return Document.documents.findOne({
+          _id: this.documentId,
+        });
+      },
+    },
     watch: {
       search(val) {
         if (val) {
           this.querySelections(val);
         }
       },
+      document(val) {
+        if (val) {
+          const userPermissions = this.document ? this.document.userPermissions : undefined;
+
+          const users = _.groupBy(userPermissions, (x) => {
+            return x.user._id;
+          });
+
+          let contributors;
+
+          if (!_.isEmpty(users)) {
+            contributors = _.map(users, (x) => {
+              const permissions = x.map((y) => {
+                return y.permission;
+              });
+              const role = Document.getRoleByPermissions(permissions);
+              return {
+                _id: x[0].user._id,
+                username: x[0].user.username,
+                avatar: x[0].user.avatar,
+                role: this.roles.find((r) => {
+                  return r.value === role;
+                }),
+              };
+            });
+          }
+          this.visibilityLevel = this.document.visibility;
+          this.contributors = contributors;
+        }
+      },
     },
-    mounted() {
+    created() {
       this.documentId = this.$route.params.documentId;
+      this.$autorun((computation) => {
+        this.$subscribe('Document.one', {documentId: this.documentId});
+      });
     },
     methods: {
+      nextStep(step) {
+        this.step = step;
+      },
       addToList() {
         const newContributors = this.select.map((x) => {
           return {
@@ -261,6 +306,14 @@
               role: x.role.value,
             };
           }),
+        }, (error, document) => {
+          if (error) {
+            Snackbar.enqueue(this.$gettext("document-shared-error"), 'error');
+          }
+          else {
+            Snackbar.enqueue(this.$gettext("document-shared-success"), 'success');
+            this.$router.push({name: 'document', params: {documentId: this.document._id}});
+          }
         });
       },
     },
