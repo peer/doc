@@ -22,7 +22,7 @@ class Migration extends Document.MinorMigration {
       let userPermissions = doc.userPermissions || [];
       contributors.forEach((c) => {
         const user = User.documents.findOne({_id: c}, {fields: User.REFERENCE_FIELDS()});
-        userPermissions = userPermissions.concat(DocumentCollection.getUserPermissions('edit', user, doc.createdAt, doc.author));
+        userPermissions = userPermissions.concat(DocumentCollection.getUserPermissions(Document.ROLES.EDIT, user, doc.createdAt, doc.author));
       });
       count += collection.update(doc, {
         $set: {

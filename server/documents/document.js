@@ -48,7 +48,7 @@ Meteor.methods({
     check(args, {
       documentId: String,
       visibilityLevel: String,
-      contributors: [{user: {_id: Match.DocumentId, username: String, avatar: String}, selectedPermission: String}],
+      contributors: [{user: {_id: Match.DocumentId, username: String, avatar: String}, role: String}],
     });
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
@@ -58,7 +58,7 @@ Meteor.methods({
     let contributors = [];
 
     args.contributors.forEach((x) => {
-      contributors = contributors.concat(Document.getUserPermissions(x.selectedPermission, x.user, now, user.getReference()));
+      contributors = contributors.concat(Document.getUserPermissions(x.role, x.user, now, user.getReference()));
     });
 
     const changed = Document.documents.update(Document.restrictQuery({

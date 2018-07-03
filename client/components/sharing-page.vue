@@ -57,7 +57,7 @@
                   </v-list-tile-avatar>
                   <v-list-tile-content>
                     <v-list-tile-title>{{contributor.username}}</v-list-tile-title>
-                    <v-list-tile-sub-title class="text--primary">({{contributor.permission.label}})</v-list-tile-sub-title>
+                    <v-list-tile-sub-title class="text--primary">({{contributor.role.label}})</v-list-tile-sub-title>
                   </v-list-tile-content>
                   <v-list-tile-action>
                     <v-btn
@@ -100,12 +100,12 @@
                 slot="activator"
                 color="primary"
                 dark
-              ><v-icon>{{permission? permission.icon : 'settings'}}</v-icon></v-btn>
+              ><v-icon>{{role? role.icon : 'settings'}}</v-icon></v-btn>
               <v-list>
                 <v-list-tile
-                  v-for="(item, index) in permissions"
+                  v-for="(item, index) in roles"
                   :key="index"
-                  @click="permission = item"
+                  @click="role = item"
                 >
                   <v-list-tile-title>{{item.label}}</v-list-tile-title>
                 </v-list-tile>
@@ -156,25 +156,25 @@
         },
         loading: false,
         items: [],
-        permissions: [
+        roles: [
           {
-            value: 'edit',
+            value: Document.ROLES.EDIT,
             label: this.$gettext("edit"),
             icon: 'edit',
           },
           {
-            value: 'see',
+            value: Document.ROLES.SEE,
             label: this.$gettext("see"),
             icon: 'visibility',
           },
           {
-            value: 'admin',
+            value: Document.ROLES.ADMIN,
             label: this.$gettext("admin"),
             icon: 'settings',
           },
         ],
-        permission: {
-          value: 'edit',
+        role: {
+          value: Document.ROLES.EDIT,
           label: this.$gettext("edit"),
           icon: 'edit',
         },
@@ -217,7 +217,7 @@
             _id: x._id,
             username: x.username,
             avatar: x.avatar,
-            permission: this.permission,
+            role: this.role,
           };
         });
         this.contributors = this.contributors.concat(newContributors);
@@ -258,7 +258,7 @@
                 username: x.username,
                 avatar: x.avatar,
               },
-              selectedPermission: x.permission.value,
+              role: x.role.value,
             };
           }),
         });
