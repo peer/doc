@@ -11,9 +11,9 @@ class Migration extends Document.MinorMigration {
     collection.findEach({_schema: currentSchema}, {_schema: 1, author: 1, createdAt: 1, contentKey: 1, userPermissions: 1}, (doc) => {
       let contributors = _.uniq(Content.documents.find({contentKey: doc.contentKey}, {
         fields: {author: 1},
-      }).fetch().map((x) => {
+      }).map((x) => {
         return x.author._id;
-      }), true);
+      }));
 
       contributors = contributors.filter((x) => {
         return x !== doc.author._id;
@@ -21,8 +21,8 @@ class Migration extends Document.MinorMigration {
 
       let userPermissions = doc.userPermissions || [];
       contributors.forEach((c) => {
-        const user = User.documents.find({_id: c});
-        userPermissions = userPermissions.concat(DocumentCollection.getUserPermissions('edit', user.getReference(), doc.createdAt, doc.author));
+        const user = User.documents.findOne({_id: c}, {fields: User.REFERENCE_FIELDS()});
+        userPermissions = userPermissions.concat(DocumentCollection.getUserPermissions('edit', user, doc.createdAt, doc.author));
       });
       count += collection.update(doc, {
         $set: {
