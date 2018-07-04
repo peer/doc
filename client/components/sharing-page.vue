@@ -1,6 +1,11 @@
 <template>
-  <v-layout row>
+  <access-denied v-if="!canAccess" />
+  <v-layout
+    v-else
+    row
+  >
     <v-flex
+      v-if="document"
       sm6
       offset-sm3
     >
@@ -204,6 +209,7 @@
         ],
         visibilityLevel: undefined,
         contributors: [],
+        canAccess: true,
       };
     },
     computed: {
@@ -266,8 +272,21 @@
     },
     created() {
       this.documentId = this.$route.params.documentId;
-      this.$autorun((computation) => {
-        this.$subscribe('Document.one', {documentId: this.documentId});
+      Document.checkDocumentPermissions({
+        permission: Document.PERMISSIONS.ADMIN,
+        documentId: this.documentId,
+      }, (error, hasPermission) => {
+        if (error) {
+          this.canAccess = false;
+        }
+        else {
+          this.canAccess = hasPermission;
+          if (hasPermission) {
+            this.$autorun((computation) => {
+              this.$subscribe('Document.one', {documentId: this.documentId});
+            });
+          }
+        }
       });
     },
     methods: {

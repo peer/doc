@@ -90,6 +90,26 @@ Meteor.methods({
       });
     }
   },
+  'Document.checkDocumentPermissions'(args) {
+    check(args, {
+      permission: String,
+      documentId: String,
+    });
+
+    const user = Meteor.user(User.REFERENCE_FIELDS());
+
+    const document = Document.documents.findOne({_id: args.documentId});
+
+    let hasPermission = false;
+
+    document.userPermissions.forEach((p) => {
+      if (p.user._id === user._id && p.permission === args.permission) {
+        hasPermission = true;
+      }
+    });
+
+    return hasPermission;
+  },
 });
 
 Meteor.publish('Document.list', function documentList(args) {
