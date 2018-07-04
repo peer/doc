@@ -243,6 +243,7 @@
         quoteHint: this.$gettext("toolbar-quote"),
         bulletedListHint: this.$gettext("toolbar-bulleted-list"),
         numberedListHint: this.$gettext("toolbar-numbered-list"),
+        userPermissions: {},
       };
     },
 
@@ -255,12 +256,12 @@
 
       canUserUpdateCursor() {
         // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.SEE));
+        return !!(this.$currentUserId && this.document && this.userPermissions[Document.PERMISSIONS.SEE]);
       },
 
       canUserUpdateDocument() {
         // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.UPDATE));
+        return !!(this.$currentUserId && this.document && this.userPermissions[Document.PERMISSIONS.UPDATE]);
       },
 
       canUserCreateComments() {
@@ -281,8 +282,19 @@
       this.$autorun((computation) => {
         this.cursorsHandle = this.$subscribe('Cursor.list', {contentKey: this.contentKey});
       });
-    },
 
+      Document.checkDocumentPermissions({
+        permissions: [Document.PERMISSIONS.ADMIN, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.SEE],
+        documentId: this.documentId,
+      }, (error, permissions) => {
+        if (error) {
+          // TODO: Handle error.
+        }
+        else {
+          this.userPermissions = permissions;
+        }
+      });
+    },
     mounted() {
       const menuItems = [
         // "node" is used to attach a click event handler and set "isActive" if a button is active.
