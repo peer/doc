@@ -150,6 +150,7 @@
         commentCardPaddingBottom: 10,
         minCommentMargin: 5,
         currentHighlightKey: null,
+        userPermissions: {},
       };
     },
 
@@ -167,11 +168,22 @@
 
       canAdministerDocuments() {
         // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
+        return !!(this.$currentUserId && this.document && this.userPermissions[Document.PERMISSIONS.ADMIN]);
       },
     },
-
     created() {
+      Document.checkDocumentPermissions({
+        permissions: [Document.PERMISSIONS.ADMIN],
+        documentId: this.documentId,
+      }, (error, permissions) => {
+        if (error) {
+          // TODO: Handle error.
+        }
+        else {
+          this.userPermissions = permissions;
+        }
+      });
+
       this.$autorun((computation) => {
         this.commentsHandle = this.$subscribe('Comment.list', {documentId: this.documentId});
       });
