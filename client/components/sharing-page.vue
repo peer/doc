@@ -273,15 +273,15 @@
     created() {
       this.documentId = this.$route.params.documentId;
       Document.checkDocumentPermissions({
-        permission: Document.PERMISSIONS.ADMIN,
+        permissions: [Document.PERMISSIONS.ADMIN],
         documentId: this.documentId,
-      }, (error, hasPermission) => {
+      }, (error, permissions) => {
         if (error) {
           this.canAccess = false;
         }
         else {
-          this.canAccess = hasPermission;
-          if (hasPermission) {
+          this.canAccess = permissions[Document.PERMISSIONS.ADMIN];
+          if (this.canAccess) {
             this.$autorun((computation) => {
               this.$subscribe('Document.one', {documentId: this.documentId});
             });

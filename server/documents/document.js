@@ -92,7 +92,7 @@ Meteor.methods({
   },
   'Document.checkDocumentPermissions'(args) {
     check(args, {
-      permission: String,
+      permissions: [String],
       documentId: String,
     });
 
@@ -100,15 +100,16 @@ Meteor.methods({
 
     const document = Document.documents.findOne({_id: args.documentId});
 
-    let hasPermission = false;
+    const permissions = {};
 
-    document.userPermissions.forEach((p) => {
-      if (p.user._id === user._id && p.permission === args.permission) {
-        hasPermission = true;
-      }
+    args.permissions.forEach((x) => {
+      const found = document.userPermissions.find((y) => {
+        return y.user._id === user._id && y.permission === x;
+      });
+      permissions[x] = !!found;
     });
 
-    return hasPermission;
+    return permissions;
   },
 });
 
