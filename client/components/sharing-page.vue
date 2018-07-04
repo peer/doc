@@ -104,6 +104,7 @@
               <v-list>
                 <v-list-tile
                   v-for="(item, index) in roles"
+                  v-if="item.show"
                   :key="index"
                   @click="role = item"
                 >
@@ -163,16 +164,19 @@
             value: Document.ROLES.EDIT,
             label: this.$gettext("edit"),
             icon: 'edit',
+            show: true,
           },
           {
             value: Document.ROLES.SEE,
             label: this.$gettext("see"),
             icon: 'visibility',
+            show: true,
           },
           {
             value: Document.ROLES.ADMIN,
             label: this.$gettext("admin"),
             icon: 'settings',
+            show: true,
           },
         ],
         role: {
@@ -210,11 +214,6 @@
       },
     },
     watch: {
-      search(val) {
-        if (val) {
-          this.querySelections(val);
-        }
-      },
       document(val) {
         if (val) {
           const userPermissions = this.document ? this.document.userPermissions : undefined;
@@ -245,6 +244,25 @@
           this.contributors = contributors;
         }
       },
+      search(val) {
+        if (val) {
+          this.querySelections(val);
+        }
+      },
+      visibilityLevel(val) {
+        if (val) {
+          // When visibilityLevel is PRIVATE, the SEE Role must be hidden.
+          this.roles = this.roles.map((x) => {
+            let show = true;
+            if (x.value === Document.ROLES.SEE) {
+              show = this.visibilityLevel === Document.VISIBILITY_LEVELS.PRIVATE;
+            }
+            return Object.assign({}, x, {
+              show,
+            });
+          });
+        }
+      },
     },
     created() {
       this.documentId = this.$route.params.documentId;
@@ -254,6 +272,12 @@
     },
     methods: {
       nextStep(step) {
+        // When visibilityLevel isn't PRIVATE, there mustn't be users with SEE Role.
+        if (step === 2 && this.visibilityLevel !== Document.VISIBILITY_LEVELS.PRIVATE) {
+          this.contributors = this.contributors.filter((x) => {
+            return x.role.value !== Document.ROLES.SEE;
+          });
+        }
         this.step = step;
       },
       addToList() {
