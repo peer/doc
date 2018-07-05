@@ -1,11 +1,9 @@
 <template>
-  <access-denied v-if="!canAccess" />
   <v-layout
-    v-else
+    v-if="document"
     row
   >
     <v-flex
-      v-if="document"
       sm6
       offset-sm3
     >
@@ -145,6 +143,7 @@
       </v-stepper>
     </v-flex>
   </v-layout>
+  <access-denied v-else-if="$subscriptionsReady()" />
 </template>
 
 <script>
@@ -209,7 +208,6 @@
         ],
         visibilityLevel: undefined,
         contributors: [],
-        canAccess: true,
       };
     },
     computed: {
@@ -272,21 +270,8 @@
     },
     created() {
       this.documentId = this.$route.params.documentId;
-      Document.checkDocumentPermissions({
-        permissions: [Document.PERMISSIONS.ADMIN],
-        documentId: this.documentId,
-      }, (error, permissions) => {
-        if (error) {
-          this.canAccess = false;
-        }
-        else {
-          this.canAccess = permissions[Document.PERMISSIONS.ADMIN];
-          if (this.canAccess) {
-            this.$autorun((computation) => {
-              this.$subscribe('Document.one', {documentId: this.documentId});
-            });
-          }
-        }
+      this.$autorun((computation) => {
+        this.$subscribe('Document.one', {documentId: this.documentId, permissions: [Document.PERMISSIONS.ADMIN]});
       });
     },
     methods: {
