@@ -13,7 +13,7 @@ const checkDocumentPermissions = (permissionList, documentId) => {
 
   permissionList.forEach((x) => {
     const found = document.userPermissions.find((y) => {
-      return y.user._id === user._id && y.permission === x;
+      return user && y.user._id === user._id && y.permission === x;
     });
     permissions[x] = !!found;
   });
@@ -142,7 +142,7 @@ Meteor.publish('Document.list', function documentList(args) {
     // TODO: Show unpublished documents to users with UPDATE permission.
     // TODO: Show public drafts to users.
     return Document.documents.find(Document.restrictQuery({
-      publishedAt: {$ne: null},
+      $or: [{publishedAt: {$ne: null}}, {visibility: Document.VISIBILITY_LEVELS.LISTED}],
     }, Document.PERMISSIONS.SEE), {
       fields: Document.PUBLISH_FIELDS(),
     });
@@ -157,11 +157,21 @@ Meteor.publish('Document.one', function documentOne(args) {
   const user = Meteor.user(User.REFERENCE_FIELDS());
 
   this.autorun((computation) => {
-    return Document.documents.find(Document.restrictQuery({
-      _id: args.documentId,
-    }, [], user, {$and: [{$or: [{visibility: {$ne: Document.VISIBILITY_LEVELS.PRIVATE}}, {userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.SEE}}}]}]}), {
-      fields: Document.PUBLISH_FIELDS(),
-    });
+    if (user) {
+      return Document.documents.find(Document.restrictQuery({
+        _id: args.documentId,
+      }, [], user, {$and: [{$or: [{visibility: {$ne: Document.VISIBILITY_LEVELS.PRIVATE}}, {userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.SEE}}}]}]}), {
+        fields: Document.PUBLISH_FIELDS(),
+      });
+    }
+    else {
+      return Document.documents.find({
+        _id: args.documentId,
+        visibility: {$ne: Document.VISIBILITY_LEVELS.PRIVATE},
+      }, {
+        fields: Document.PUBLISH_FIELDS(),
+      });
+    }
   });
 });
 
