@@ -132,12 +132,23 @@ Meteor.publish('Document.list', function documentList(args) {
 Meteor.publish('Document.one', function documentOne(args) {
   check(args, {
     documentId: Match.DocumentId,
+    permissions: Match.Maybe([String]),
   });
+
+  const user = Meteor.user(User.REFERENCE_FIELDS());
+
+  const permissions = [{userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.SEE}}}];
+
+  if (args.permissions) {
+    args.permissions.forEach((p) => {
+      permissions.push({userPermissions: {$elemMatch: {'user._id': user._id, permission: p}}});
+    });
+  }
 
   this.autorun((computation) => {
     return Document.documents.find(Document.restrictQuery({
       _id: args.documentId,
-    }, Document.PERMISSIONS.SEE), {
+    }, [], user, {$and: permissions}), {
       fields: Document.PUBLISH_FIELDS(),
     });
   });
