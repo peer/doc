@@ -5,6 +5,22 @@ import {Activity} from '/lib/documents/activity';
 import {Document} from '/lib/documents/document';
 import {User} from '/lib/documents/user';
 
+
+const checkDocumentPermissions = (permissionList, documentId) => {
+  const user = Meteor.user(User.REFERENCE_FIELDS());
+  const document = Document.documents.findOne({_id: documentId});
+  const permissions = {};
+
+  permissionList.forEach((x) => {
+    const found = document.userPermissions.find((y) => {
+      return y.user._id === user._id && y.permission === x;
+    });
+    permissions[x] = !!found;
+  });
+
+  return permissions;
+};
+
 Meteor.methods({
   'Document.publish'(args) {
     check(args, {
@@ -55,11 +71,29 @@ Meteor.methods({
 
     const now = new Date();
 
+    const permissions = checkDocumentPermissions([Document.PERMISSIONS.ADMIN], args.documentId);
+
+    if (!permissions[Document.PERMISSIONS.ADMIN]) {
+      throw new Meteor.Error('not-allowed', `User not allowed to share this document.`);
+    }
+
     let contributors = [];
 
+    let adminCount = 0;
+
     args.contributors.forEach((x) => {
+      adminCount += x.role === Document.ROLES.ADMIN;
+
+      if (args.visibilityLevel !== Document.VISIBILITY_LEVELS.PRIVATE && x.role === Document.ROLES.SEE) {
+        throw new Meteor.Error('invalid-selection', `There can be no users with ${Document.ROLES.SEE} role when visibility is not ${Document.VISIBILITY_LEVELS.PRIVATE}`);
+      }
+
       contributors = contributors.concat(Document.getUserPermissions(x.role, x.user, now, user.getReference()));
     });
+
+    if (adminCount === 0) {
+      throw new Meteor.Error('no-admin', `There must be at least one admin user for this document.`);
+    }
 
     const changed = Document.documents.update(Document.restrictQuery({
       _id: args.documentId,
@@ -95,21 +129,7 @@ Meteor.methods({
       permissions: [String],
       documentId: String,
     });
-
-    const user = Meteor.user(User.REFERENCE_FIELDS());
-
-    const document = Document.documents.findOne({_id: args.documentId});
-
-    const permissions = {};
-
-    args.permissions.forEach((x) => {
-      const found = document.userPermissions.find((y) => {
-        return y.user._id === user._id && y.permission === x;
-      });
-      permissions[x] = !!found;
-    });
-
-    return permissions;
+    return checkDocumentPermissions(args.permissions, args.documentId);
   },
 });
 
@@ -132,24 +152,33 @@ Meteor.publish('Document.list', function documentList(args) {
 Meteor.publish('Document.one', function documentOne(args) {
   check(args, {
     documentId: Match.DocumentId,
-    permissions: Match.Maybe([String]),
   });
 
   const user = Meteor.user(User.REFERENCE_FIELDS());
 
-  const permissions = [{userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.SEE}}}];
-
-  if (args.permissions) {
-    args.permissions.forEach((p) => {
-      permissions.push({userPermissions: {$elemMatch: {'user._id': user._id, permission: p}}});
+  this.autorun((computation) => {
+    return Document.documents.find(Document.restrictQuery({
+      _id: args.documentId,
+    }, [], user, {$and: [{$or: [{visibility: {$ne: Document.VISIBILITY_LEVELS.PRIVATE}}, {userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.SEE}}}]}]}), {
+      fields: Document.PUBLISH_FIELDS(),
     });
-  }
+  });
+});
+
+Meteor.publish('Document.admin', function documentOne(args) {
+  check(args, {
+    documentId: Match.DocumentId,
+  });
+
+  const user = Meteor.user(User.REFERENCE_FIELDS());
+  const adminFields = Document.PUBLISH_FIELDS();
+  adminFields.userPermissions = 1;
 
   this.autorun((computation) => {
     return Document.documents.find(Document.restrictQuery({
       _id: args.documentId,
-    }, [], user, {$and: permissions}), {
-      fields: Document.PUBLISH_FIELDS(),
+    }, [], user, {$and: [{userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.ADMIN}}}]}), {
+      fields: adminFields,
     });
   });
 });

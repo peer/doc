@@ -271,7 +271,7 @@
     created() {
       this.documentId = this.$route.params.documentId;
       this.$autorun((computation) => {
-        this.$subscribe('Document.one', {documentId: this.documentId, permissions: [Document.PERMISSIONS.ADMIN]});
+        this.$subscribe('Document.admin', {documentId: this.documentId});
       });
     },
     methods: {
