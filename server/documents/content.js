@@ -41,11 +41,18 @@ Meteor.methods({
       contentKey: args.contentKey,
     }, Document.PERMISSIONS.UPDATE, user), {
       fields: {
+        _id: 1,
         publishedAt: 1,
       },
     });
     if (!document) {
       throw new Meteor.Error('not-found', `Document cannot be found.`);
+    }
+
+    const permissions = Document.checkDocumentPermissions({permissions: [Document.PERMISSIONS.UPDATE], documentId: document._id});
+
+    if (!permissions[Document.PERMISSIONS.UPDATE]) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
     }
 
     const latestContent = Content.documents.findOne({
