@@ -187,6 +187,11 @@
             icon: 'settings',
             show: true,
           },
+          {
+            value: Document.ROLES.CUSTOM,
+            label: 'custom',
+            show: false,
+          },
         ],
         role: {
           value: Document.ROLES.EDIT,
