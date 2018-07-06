@@ -3,8 +3,10 @@ import {Meteor} from 'meteor/meteor';
 
 import {Activity} from '/lib/documents/activity';
 import {Document} from '/lib/documents/document';
+import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
 
+import {schema} from "../../lib/full-schema";
 
 const checkDocumentPermissions = (permissionList, documentId) => {
   const user = Meteor.user(User.REFERENCE_FIELDS());
@@ -19,6 +21,64 @@ const checkDocumentPermissions = (permissionList, documentId) => {
   });
 
   return permissions;
+};
+
+const create = (user, connectionId) => {
+  const createdAt = new Date();
+  const contentKey = Content.Meta.collection._makeNewID();
+
+  Content.documents.insert({
+    createdAt,
+    contentKey,
+    author: user.getReference(),
+    clientId: null,
+    version: 0,
+    step: null,
+  });
+
+  const userPermissions = Document.getUserPermissions('admin', user.getReference(), createdAt, user.getReference());
+
+  const documentId = Document.documents.insert({
+    contentKey,
+    createdAt,
+    updatedAt: createdAt,
+    lastActivity: createdAt,
+    author: user.getReference(),
+    publishedBy: null,
+    publishedAt: null,
+    title: '',
+    version: 0,
+    body: schema.topNodeType.createAndFill().toJSON(),
+    userPermissions,
+    visibility: Document.VISIBILITY_LEVELS.PRIVATE,
+  });
+
+  if (Meteor.isServer) {
+    // TODO: Improve once we really have groups.
+    const groupUsers = User.documents.find({}, {
+      fields: User.REFERENCE_FIELDS(),
+      transform: null,
+    }).fetch();
+
+    Activity.documents.insert({
+      timestamp: createdAt,
+      connection: connectionId,
+      byUser: user.getReference(),
+      // We inform all users in this group.
+      forUsers: groupUsers,
+      type: 'documentCreated',
+      level: Activity.LEVEL.GENERAL,
+      data: {
+        document: {
+          _id: documentId,
+        },
+      },
+    });
+  }
+
+  return {
+    _id: documentId,
+  };
 };
 
 Meteor.methods({
@@ -130,6 +190,17 @@ Meteor.methods({
       documentId: String,
     });
     return checkDocumentPermissions(args.permissions, args.documentId);
+  },
+  'Document.create'(args) {
+    check(args, {});
+    const user = Meteor.user(User.REFERENCE_FIELDS());
+
+    // We need user reference.
+    if (!user || !user.hasPermission(Document.PERMISSIONS.CREATE)) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    }
+
+    return create(user, (this.connection && this.connection.id) || null);
   },
 });
 
