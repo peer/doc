@@ -267,7 +267,7 @@
         if (val) {
           // When visibilityLevel is PRIVATE, the SEE Role must be hidden.
           this.roles = this.roles.map((x) => {
-            let show = true;
+            let show = x.value !== Document.ROLES.CUSTOM;
             if (x.value === Document.ROLES.SEE) {
               show = this.visibilityLevel === Document.VISIBILITY_LEVELS.PRIVATE;
             }
