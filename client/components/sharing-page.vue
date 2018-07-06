@@ -15,8 +15,8 @@
           :complete="step > 1"
           step="1"
         >
-          Document visibility
-          <small>Select a visibility level</small>
+          <translate>document-visibility</translate>
+          <small><translate>select-visibility-level</translate></small>
         </v-stepper-step>
         <v-stepper-content step="1">
           <v-radio-group v-model="visibilityLevel">
@@ -31,16 +31,16 @@
             :disabled="!visibilityLevel"
             color="primary"
             @click.native="nextStep(2)"
-          >Continue</v-btn>
+          ><translate>continue-share</translate></v-btn>
           <v-btn
             :to="{name: 'document',params: {documentId: documentId}}"
             flat
-          >Cancel</v-btn>
+          ><translate>cancel-share</translate></v-btn>
         </v-stepper-content>
         <v-stepper-step
           :complete="step > 2"
           step="2"
-        >Add users</v-stepper-step>
+        ><translate>add-users-share</translate></v-stepper-step>
         <v-stepper-content step="2">
           <v-layout row>
             <v-flex
@@ -88,11 +88,11 @@
                 :items="items"
                 :return-object="true"
                 :search-input.sync="search"
+                :label="usersLabel"
                 v-model="select"
                 item-text="username"
                 item-value="_id"
                 item-avatar="avatar"
-                label="Users"
                 autocomplete
                 multiple
                 chips
@@ -127,18 +127,22 @@
                 :disabled="select.length <= 0"
                 color="primary"
                 @click="addToList()"
-              >Add to List
+              ><translate>add-to-list-share</translate>
               </v-btn>
             </v-flex>
           </v-layout>
           <v-btn
             color="primary"
             @click="share()"
-          >Done</v-btn>
+          ><translate>done-share</translate></v-btn>
           <v-btn
             flat
             @click.native="nextStep(1)"
-          >Back</v-btn>
+          ><translate>back-share</translate></v-btn>
+          <v-btn
+            :to="{name: 'document',params: {documentId: documentId}}"
+            flat
+          ><translate>cancel-share</translate></v-btn>
         </v-stepper-content>
       </v-stepper>
     </v-flex>
@@ -163,6 +167,7 @@
         },
         loading: false,
         items: [],
+        usersLabel: this.$gettext("users-share"),
         roles: [
           {
             value: Document.ROLES.EDIT,

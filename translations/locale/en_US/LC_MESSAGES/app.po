@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-03 16:08-0400\n"
+"POT-Creation-Date: 2018-07-06 13:53-0400\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -25,9 +25,21 @@ msgstr "Access denied."
 msgid "add-content"
 msgstr "Add content"
 
-#: client/components/sharing-page.vue:173
+#: client/components/sharing-page.vue:129
+msgid "add-to-list-share"
+msgstr "Add to list"
+
+#: client/components/sharing-page.vue:42
+msgid "add-users-share"
+msgstr "Add users."
+
+#: client/components/sharing-page.vue:186
 msgid "admin"
 msgstr "Admin"
+
+#: client/components/sharing-page.vue:140
+msgid "back-share"
+msgstr "Back"
 
 #: client/vue-extensions.js:108
 msgid "calendar-last-day"
@@ -55,6 +67,10 @@ msgstr "[today at] LT"
 msgid "cancel"
 msgstr "Cancel"
 
+#: client/components/sharing-page.vue:37 client/components/sharing-page.vue:144
+msgid "cancel-share"
+msgstr "Cancel"
+
 #: client/components/utils/placeholder.js:26
 msgid "choose-title"
 msgstr "Choose a title"
@@ -74,6 +90,10 @@ msgstr "Enter a comment"
 #: client/components/comment-editor.vue:109
 msgid "comment-reply-hint"
 msgstr "Enter a reply"
+
+#: client/components/sharing-page.vue:33
+msgid "continue-share"
+msgstr "Continue"
 
 #: client/vue-extensions.js:168
 msgid "day"
@@ -113,20 +133,28 @@ msgstr "published"
 msgid "document-published-at"
 msgstr "Published %{at}"
 
-#: client/components/sharing-page.vue:309
+#: client/components/sharing-page.vue:344
 msgid "document-shared-error"
 msgstr "Error sharing the document"
 
-#: client/components/sharing-page.vue:312
+#: client/components/sharing-page.vue:347
 msgid "document-shared-success"
 msgstr "The document has been shared."
+
+#: client/components/sharing-page.vue:17
+msgid "document-visibility"
+msgstr "Document visibility"
 
 #: client/components/app-layout.vue:20
 msgid "documents"
 msgstr "Documents"
 
-#: client/components/sharing-page.vue:163
-#: client/components/sharing-page.vue:179
+#: client/components/sharing-page.vue:136
+msgid "done-share"
+msgstr "Done"
+
+#: client/components/sharing-page.vue:174
+#: client/components/sharing-page.vue:193
 msgid "edit"
 msgstr "Edit"
 
@@ -176,7 +204,7 @@ msgstr "less than a minute"
 msgid "link-hint"
 msgstr "Enter a link"
 
-#: client/components/sharing-page.vue:197
+#: client/components/sharing-page.vue:211
 msgid "listed"
 msgstr "Listed"
 
@@ -198,11 +226,11 @@ msgstr "No documents."
 msgid "not-found"
 msgstr "Not found."
 
-#: client/components/sharing-page.vue:189
+#: client/components/sharing-page.vue:203
 msgid "private"
 msgstr "Private"
 
-#: client/components/sharing-page.vue:193
+#: client/components/sharing-page.vue:207
 msgid "public"
 msgstr "Public"
 
@@ -230,9 +258,13 @@ msgstr "The document was successfully published."
 msgid "remove"
 msgstr "Remove"
 
-#: client/components/sharing-page.vue:168
+#: client/components/sharing-page.vue:180
 msgid "see"
 msgstr "See"
+
+#: client/components/sharing-page.vue:18
+msgid "select-visibility-level"
+msgstr "Select a visibility level."
 
 #: client/components/sidebar.vue:35
 msgid "share"
@@ -333,6 +365,10 @@ msgstr "Username is required"
 #: client/components/user-signin.vue:68
 msgid "username-too-short"
 msgstr "Username too short, it should be 4 characters or more"
+
+#: client/components/sharing-page.vue:170
+msgid "users-share"
+msgstr "Users"
 
 #: client/components/thread.vue:26
 msgid "view-all-replies"
