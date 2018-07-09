@@ -6,7 +6,7 @@ class Migration extends Document.MinorMigration {
     let count = 0;
 
     collection.findEach({_schema: currentSchema, userPermissions: {$exists: false}, visibility: {$exists: false}}, {_schema: 1, author: 1, createdAt: 1}, (doc) => {
-      const userPermissions = DocumentCollection.getUserPermissions(Document.ROLES.ADMIN, doc.author, doc.createdAt, doc.author);
+      const userPermissions = DocumentCollection.getUserPermissions(DocumentCollection.ROLES.ADMIN, doc.author, doc.createdAt, doc.author);
       count += collection.update(doc, {
         $set: {
           visibility: DocumentCollection.VISIBILITY_LEVELS.PRIVATE,
