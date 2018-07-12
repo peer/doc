@@ -8,21 +8,6 @@ import {User} from '/lib/documents/user';
 
 import {schema} from "../../lib/full-schema";
 
-const checkDocumentPermissions = (permissionList, documentId) => {
-  const user = Meteor.user(User.REFERENCE_FIELDS());
-  const document = Document.documents.findOne({_id: documentId});
-  const permissions = {};
-
-  permissionList.forEach((x) => {
-    const found = document.userPermissions.find((y) => {
-      return user && y.user._id === user._id && y.permission === x;
-    });
-    permissions[x] = !!found;
-  });
-
-  return permissions;
-};
-
 const create = (user, connectionId) => {
   const createdAt = new Date();
   const contentKey = Content.Meta.collection._makeNewID();
@@ -131,12 +116,6 @@ Meteor.methods({
 
     const now = new Date();
 
-    const permissions = checkDocumentPermissions([Document.PERMISSIONS.ADMIN], args.documentId);
-
-    if (!permissions[Document.PERMISSIONS.ADMIN]) {
-      throw new Meteor.Error('not-allowed', `User not allowed to share this document.`);
-    }
-
     let contributors = [];
 
     let adminCount = 0;
@@ -157,7 +136,7 @@ Meteor.methods({
 
     const changed = Document.documents.update(Document.restrictQuery({
       _id: args.documentId,
-    }, Document.PERMISSIONS.ADMIN, user), {
+    }, [], user, {$and: [{userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.ADMIN}}}]}), {
       $set: {
         updatedAt: now,
         lastActivity: now,
@@ -183,13 +162,9 @@ Meteor.methods({
         },
       });
     }
-  },
-  'Document.checkDocumentPermissions'(args) {
-    check(args, {
-      permissions: [String],
-      documentId: String,
-    });
-    return checkDocumentPermissions(args.permissions, args.documentId);
+    else {
+      throw new Meteor.Error('not-found', `Document cannot be found.`);
+    }
   },
   'Document.create'(args) {
     check(args, {});

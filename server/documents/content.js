@@ -39,20 +39,15 @@ Meteor.methods({
 
     const document = Document.documents.findOne(Document.restrictQuery({
       contentKey: args.contentKey,
-    }, Document.PERMISSIONS.UPDATE, user), {
+    }, [], user, {$and: [{userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.UPDATE}}}]}), {
       fields: {
         _id: 1,
         publishedAt: 1,
       },
     });
+
     if (!document) {
       throw new Meteor.Error('not-found', `Document cannot be found.`);
-    }
-
-    const permissions = Document.checkDocumentPermissions({permissions: [Document.PERMISSIONS.UPDATE], documentId: document._id});
-
-    if (!permissions[Document.PERMISSIONS.UPDATE]) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
     }
 
     const latestContent = Content.documents.findOne({
