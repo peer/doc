@@ -97,7 +97,6 @@
 
   import {Comment} from '/lib/documents/comment';
   import {Document} from '/lib/documents/document';
-  import {User} from '/lib/documents/user';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
@@ -150,7 +149,6 @@
         commentCardPaddingBottom: 10,
         minCommentMargin: 5,
         currentHighlightKey: null,
-        userPermissions: {},
       };
     },
 
@@ -163,27 +161,17 @@
 
       canUserCreateComments() {
         // We require user reference.
-        return !!(this.$currentUserId && User.hasPermission(Comment.PERMISSIONS.CREATE) && this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE));
+        return !!(this.$currentUserId && this.document &&
+        (this.document.visibilityLevel !== Document.VISIBILITY_LEVELS.PRIVATE ||
+        (this.document.visibilityLevel === Document.VISIBILITY_LEVELS.PRIVATE && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE))));
       },
 
       canAdministerDocuments() {
         // We require user reference.
-        return !!(this.$currentUserId && this.document && this.userPermissions[Document.PERMISSIONS.ADMIN]);
+        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
       },
     },
     created() {
-      Document.checkDocumentPermissions({
-        permissions: [Document.PERMISSIONS.ADMIN],
-        documentId: this.documentId,
-      }, (error, permissions) => {
-        if (error) {
-          // TODO: Handle error.
-        }
-        else {
-          this.userPermissions = permissions;
-        }
-      });
-
       this.$autorun((computation) => {
         this.commentsHandle = this.$subscribe('Comment.list', {documentId: this.documentId});
       });

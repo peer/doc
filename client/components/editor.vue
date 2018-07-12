@@ -181,7 +181,6 @@
   import {Content} from '/lib/documents/content';
   import {Cursor} from '/lib/documents/cursor';
   import {Document} from '/lib/documents/document';
-  import {User} from '/lib/documents/user';
 
   import {menuPlugin, isMarkActive, hasMark, toggleHeading, isHeadingActive, toggleBlockquote, isBlockquoteActive, toggleList, isListActive} from './utils/menu.js';
   import {placeholderPlugin} from './utils/placeholder.js';
@@ -256,17 +255,19 @@
 
       canUserUpdateCursor() {
         // We require user reference.
-        return !!(this.$currentUserId && this.document && this.userPermissions[Document.PERMISSIONS.SEE]);
+        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.SEE));
       },
 
       canUserUpdateDocument() {
         // We require user reference.
-        return !!(this.$currentUserId && this.document && this.userPermissions[Document.PERMISSIONS.UPDATE]);
+        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.UPDATE));
       },
 
       canUserCreateComments() {
         // We require user reference.
-        return !!(this.$currentUserId && User.hasPermission(Comment.PERMISSIONS.CREATE) && this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE));
+        return !!(this.$currentUserId && this.document &&
+        (this.document.visibilityLevel !== Document.VISIBILITY_LEVELS.PRIVATE ||
+        (this.document.visibilityLevel === Document.VISIBILITY_LEVELS.PRIVATE && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE))));
       },
     },
 
@@ -281,18 +282,6 @@
 
       this.$autorun((computation) => {
         this.cursorsHandle = this.$subscribe('Cursor.list', {contentKey: this.contentKey});
-      });
-
-      Document.checkDocumentPermissions({
-        permissions: [Document.PERMISSIONS.ADMIN, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.SEE],
-        documentId: this.documentId,
-      }, (error, permissions) => {
-        if (error) {
-          // TODO: Handle error.
-        }
-        else {
-          this.userPermissions = permissions;
-        }
       });
     },
     mounted() {
