@@ -225,15 +225,31 @@ Meteor.publish('Document.one', function documentOne(args) {
     documentId: Match.DocumentId,
   });
 
+  const self = this;
   const user = Meteor.user(User.REFERENCE_FIELDS());
 
   this.autorun((computation) => {
     if (user) {
-      return Document.documents.find(Document.restrictQuery({
+      const fields = Document.PUBLISH_FIELDS();
+      fields.userPermissions = 1;
+      const handle = Document.documents.find(Document.restrictQuery({
         _id: args.documentId,
       }, [], user, {$and: [{$or: [{visibility: {$ne: Document.VISIBILITY_LEVELS.PRIVATE}}, {userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.SEE}}}]}]}), {
-        fields: Document.PUBLISH_FIELDS(),
+        fields,
+      }).observeChanges({
+        added(id, documentFields) {
+          const userPermissions = documentFields.userPermissions.filter((x) => {
+            return x.user._id === user._id;
+          });
+          self.added('Documents', id, Object.assign({}, documentFields, {
+            userPermissions,
+          }));
+        },
       });
+      self.onStop(() => {
+        handle.stop();
+      });
+      return self.ready();
     }
     else {
       return Document.documents.find({
