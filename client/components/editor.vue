@@ -188,6 +188,7 @@
   import {commentPlugin} from './utils/comment-plugin';
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
   import {toggleLink, clearLink} from './utils/link.js';
+  import {Snackbar} from '../snackbar';
 
   const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
 
@@ -364,8 +365,8 @@
                 return s.mark && s.mark.type.name === "highlight" && s.mark.attrs["highlight-keys"] === this.commentHKey;
               });
               if (commentMarks.length > 0) {
-                addingComment = commentMarks[0].jsonID === "addMark";
-                deletingComment = commentMarks[0].jsonID === "removeMark";
+                addingComment = commentMarks[0].jsonID === "addHighlight";
+                deletingComment = commentMarks[0].jsonID === "removeHighlight";
               }
             }
 
@@ -387,6 +388,7 @@
                   this.addingStepsInProgress = false;
                   if (error) {
                     // TODO: Error handling.
+                    Snackbar.enqueue("error", 'error');
                   }
                   else if (addingComment) {
                     this.$emit("highlight-added", this.commentHKey);
