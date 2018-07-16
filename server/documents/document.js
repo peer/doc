@@ -229,7 +229,7 @@ Meteor.publish('Document.one', function documentOne(args) {
     else {
       return Document.documents.find({
         _id: args.documentId,
-        visibility: {$ne: Document.VISIBILITY_LEVELS.PRIVATE},
+        publishedAt: {$ne: null},
       }, {
         fields: Document.PUBLISH_FIELDS(),
       });
