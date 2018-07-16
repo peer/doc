@@ -129,7 +129,7 @@
     },
     methods: {
       onDeleteClicked() {
-        this.$emit("delete-clicked");
+        this.$emit('delete-clicked');
       },
     },
   };

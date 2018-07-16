@@ -393,16 +393,16 @@
                     Snackbar.enqueue(this.$gettext("document-update-error"), 'error');
                   }
                   else if (addingComment) {
-                    this.$emit("highlight-added", this.commentHighlightKey);
+                    this.$emit('highlight-added', this.commentHighlightKey);
                     this.commentHighlightKey = undefined;
                   }
                   else if (deletingComment) {
-                    this.$emit("highlight-deleted", {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
+                    this.$emit('highlight-deleted', {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
                     this.commentHighlightKey = undefined;
                     this.commentToDelete = undefined;
                   }
                 });
-                this.$emit("content-changed");
+                this.$emit('content-changed');
               }
             }
           }
@@ -420,7 +420,7 @@
               if (this.currentHighlightKey !== current) {
                 this.currentHighlightKey = current;
                 this.currentHighlightKeyChanged = true;
-                this.$emit("highlight-selected", current);
+                this.$emit('highlight-selected', current);
               }
             }
           }
@@ -556,7 +556,7 @@
 
       onScroll(event) {
         // Emit scroll event to notify parent component.
-        this.$emit("scroll");
+        this.$emit('scroll');
       },
 
       onAvatarClicked(cursor) {
@@ -690,7 +690,7 @@
           this.$editorView.dispatch(tr);
         }
         else {
-          this.$emit("highlight-deleted", {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
+          this.$emit('highlight-deleted', {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
           this.commentHighlightKey = undefined;
           this.commentToDelete = undefined;
         }

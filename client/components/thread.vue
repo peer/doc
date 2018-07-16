@@ -145,7 +145,7 @@
       },
 
       onDeleteClicked(comment) {
-        this.$emit("show-deletion-dialog", comment);
+        this.$emit('show-deletion-dialog', comment);
       },
     },
   };
