@@ -44,7 +44,7 @@ class AddComment {
     }).map((marksObj) => {
       return Object.assign({}, marksObj, {
         marks: marksObj.marks.filter((m) => {
-          return m.type.name === "highlight";
+          return m.type.name === 'highlight';
         }),
       });
     }).filter((marksObj) => {

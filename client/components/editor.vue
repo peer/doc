@@ -364,11 +364,11 @@
           if (sendable) {
             if (this.commentHighlightKey) {
               const commentMarks = _.filter(transaction.steps, (s) => {
-                return s.mark && s.mark.type.name === "highlight" && s.mark.attrs["highlight-keys"] === this.commentHighlightKey;
+                return s.mark && s.mark.type.name === 'highlight' && s.mark.attrs['highlight-keys'] === this.commentHighlightKey;
               });
               if (commentMarks.length > 0) {
-                addingComment = commentMarks[0].jsonID === "addHighlight";
-                deletingComment = commentMarks[0].jsonID === "removeHighlight";
+                addingComment = commentMarks[0].jsonID === 'addHighlight';
+                deletingComment = commentMarks[0].jsonID === 'removeHighlight';
               }
             }
 
@@ -414,9 +414,9 @@
             const afterPosMarks = cursorPos.nodeAfter ? cursorPos.nodeAfter.marks : [];
             if (afterPosMarks) {
               const highlightkeys = afterPosMarks.find((x) => {
-                return x.attrs["highlight-keys"];
+                return x.attrs['highlight-keys'];
               });
-              const current = highlightkeys ? highlightkeys.attrs["highlight-keys"].split(",")[0] : undefined;
+              const current = highlightkeys ? highlightkeys.attrs['highlight-keys'].split(',')[0] : undefined;
               if (this.currentHighlightKey !== current) {
                 this.currentHighlightKey = current;
                 this.currentHighlightKeyChanged = true;
@@ -532,7 +532,7 @@
           this.$editorView.state.doc.descendants((node, pos) => {
             if (keepSearching) {
               node.marks.forEach((x) => {
-                if (x.attrs["highlight-keys"] && x.attrs["highlight-keys"].split(',').indexOf(highlightKey) >= 0) {
+                if (x.attrs['highlight-keys'] && x.attrs['highlight-keys'].split(',').indexOf(highlightKey) >= 0) {
                   highlightPos = pos;
                   keepSearching = false;
                 }
@@ -609,7 +609,7 @@
             }
             // update collection to reflect new segments of the selection with previous highlight marks
             newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
-            const currentKeys = marks[0].attrs["highlight-keys"];
+            const currentKeys = marks[0].attrs['highlight-keys'];
             removeHighlight(schema, tr, doc, start, end, this.$editorView.dispatch);
             let keys = `${this.commentHighlightKey},${currentKeys}`;
             // If the new highlight contains the initial part of another highlight.
@@ -631,19 +631,19 @@
       // Adds nearby highlight nodes (after or before the cursor position) to highlightNodes.
       getNearbyHighlights(highlightNodes, cursorPos, mode, commentHighlightKey) {
         let pos = cursorPos;
-        let posNode = mode === "after" ? cursorPos.nodeAfter : cursorPos.nodeBefore;
-        let posMarks = mode === "after" ? posNode.marks : posNode.marks;
+        let posNode = mode === 'after' ? cursorPos.nodeAfter : cursorPos.nodeBefore;
+        let posMarks = mode === 'after' ? posNode.marks : posNode.marks;
         let hasHighlight = posMarks.length !== 0;
         while (hasHighlight) {
           for (let i = 0; i < posMarks.length; i += 1) {
             const x = posMarks[i];
-            const highlightKeys = x.attrs["highlight-keys"].split(",");
+            const highlightKeys = x.attrs['highlight-keys'].split(',');
             let otherKeys = highlightKeys.filter((y) => {
               return y !== commentHighlightKey;
             });
             otherKeys = otherKeys || [];
             if (otherKeys.length < highlightKeys.length) {
-              if (mode === "after") {
+              if (mode === 'after') {
                 highlightNodes.push({pos, otherKeys});
                 pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
                 posNode = pos.nodeAfter;

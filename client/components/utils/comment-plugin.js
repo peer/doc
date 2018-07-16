@@ -6,14 +6,14 @@ function getDecorations(doc, vueInstance) {
   const result = [];
   doc.descendants((node, pos) => {
     const mark = _.find(node.marks, (m) => {
-      return m.type.name === "highlight";
+      return m.type.name === 'highlight';
     });
     if (mark) {
-      if (vueInstance.currentHighlightKey && mark.attrs["highlight-keys"].split(",").indexOf(vueInstance.currentHighlightKey) >= 0) {
-        result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "highlight--selected"}));
+      if (vueInstance.currentHighlightKey && mark.attrs['highlight-keys'].split(',').indexOf(vueInstance.currentHighlightKey) >= 0) {
+        result.push(Decoration.inline(pos, pos + node.nodeSize, {class: 'highlight--selected'}));
       }
       else {
-        result.push(Decoration.inline(pos, pos + node.nodeSize, {class: "highlight"}));
+        result.push(Decoration.inline(pos, pos + node.nodeSize, {class: 'highlight'}));
       }
     }
   });
