@@ -390,7 +390,7 @@
                   this.addingStepsInProgress = false;
                   if (error) {
                     // TODO: Error handling.
-                    Snackbar.enqueue("error", 'error');
+                    Snackbar.enqueue(this.$gettext("document-update-error"), 'error');
                   }
                   else if (addingComment) {
                     this.$emit("highlight-added", this.commentHKey);
