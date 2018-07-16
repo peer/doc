@@ -186,6 +186,7 @@
   import {placeholderPlugin} from './utils/placeholder.js';
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
+  import {titleSizePlugin} from './utils/title-size-plugin.js';
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
   import {toggleLink, clearLink} from './utils/link.js';
   import {Snackbar} from '../snackbar';
@@ -321,6 +322,7 @@
           gapCursor(),
           history(),
           commentPlugin(this),
+          titleSizePlugin(100, this.$gettext("title-length")),
           menuPlugin(menuItems, this, this.disabledButtons),
           addCommentPlugin(this),
           placeholderPlugin(this),
@@ -850,13 +852,11 @@
       color: rgba(0, 0, 0, 0.54);
       pointer-events: none;
       height: 0;
-      // Same as "opacity" for ".btn-toggle .btn".
-      opacity: 0.4;
     }
 
     .empty-node:hover::before {
-      // Same as ".text--primary".
-      color: rgba(0, 0, 0, 0.87);
+      // Same as "opacity" for ".btn-toggle .btn".
+      opacity: 0.4;
     }
 
     h1.empty-node::before {

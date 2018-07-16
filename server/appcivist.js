@@ -47,7 +47,7 @@ function update(id, fields) {
     params.title = fields.title;
   }
   if (Object.prototype.hasOwnProperty.call(fields, 'lastActivity')) {
-    params.lastUpdate = moment(fields.lastActivity).toISOString();
+    params.lastActivity = moment(fields.lastActivity).toISOString();
   }
 
   if (_.isEmpty(params)) {
