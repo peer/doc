@@ -8,7 +8,7 @@ import {Content} from '/lib/documents/content';
 import {schema} from '/lib/simple-schema.js';
 import {User} from './user';
 import {Document} from './document';
-import {Activity} from "./activity";
+import {Activity} from './activity';
 
 Meteor.publish('Comment.list', function commentList(args) {
   check(args, {

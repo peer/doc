@@ -5,7 +5,7 @@ import randomColor from 'randomcolor';
 
 import {Cursor} from '/lib/documents/cursor';
 import {User} from '/lib/documents/user';
-import {Document} from "/lib/documents/document";
+import {Document} from '/lib/documents/document';
 
 // Server-side only methods, so we are not using ValidatedMethod.
 Meteor.methods({

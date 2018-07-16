@@ -184,10 +184,10 @@ Meteor.methods({
 
     doc.descendants((node, pos) => {
       const mark = _.find(node.marks, (m) => {
-        return m.type.name === "highlight";
+        return m.type.name === 'highlight';
       });
       if (mark) {
-        keys.push(mark.attrs["highlight-keys"].split(","));
+        keys.push(mark.attrs['highlight-keys'].split(','));
       }
     });
 
