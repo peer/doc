@@ -37,7 +37,7 @@
     props: {
       dialogType: {
         type: String,
-        default: 'single',
+        default: 'comment',
       },
     },
 
