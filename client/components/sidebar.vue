@@ -244,7 +244,7 @@
           comment.focus = true; // eslint-disable-line no-param-reassign
           // Notify to parent component that a comment is focused and the
           // cursor position on the editor component should be updated.
-          this.$emit("commentClicked", comment.highlightKey);
+          this.$emit("comment-clicked", comment.highlightKey);
           this.layoutCommentsAfterRender();
         }
       },
@@ -280,7 +280,7 @@
         comment.focus = true; // eslint-disable-line no-param-reassign
         // Notify to parent component that a comment is focused and the
         // cursor position on the editor component should be updated.
-        this.$emit("commentClicked", comment.highlightKey);
+        this.$emit("comment-clicked", comment.highlightKey);
         this.currentHighlightKey = comment.highlightKey;
       },
 

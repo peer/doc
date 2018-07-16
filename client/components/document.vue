@@ -12,11 +12,11 @@
         :content-key="document.contentKey"
         :client-id="clientId"
         :read-only="document.isPublished()"
-        @contentChanged="onContentChanged"
-        @highlightSelected="onHighlightSelected"
+        @content-changed="onContentChanged"
+        @highlight-selected="onHighlightSelected"
         @highlight-added="onHighlightAdded"
         @highlight-deleted="onHighlightDeleted"
-        @showNewCommentForm="onShowNewCommentForm"
+        @show-new-comment-form="onShowNewCommentForm"
       />
     </v-flex>
     <v-flex xs4>
@@ -26,7 +26,7 @@
         :content-key="document.contentKey"
         :document-published="document.isPublished()"
         :client-id="clientId"
-        @commentClicked="onCommentClicked"
+        @comment-clicked="onCommentClicked"
         @add-highlight="addCommentHighlight"
         @delete-highlight="deleteCommentHighlight"
         @afterCommentAdded="onAfterCommentAdded"

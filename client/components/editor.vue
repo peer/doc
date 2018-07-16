@@ -373,7 +373,7 @@
             }
 
             if (this.canUserUpdateDocument || (this.canUserCreateComments && (addingComment || deletingComment))) {
-              // Steps are added to the content and the "contentChanged" event is emitted
+              // Steps are added to the content and the "content-changed" event is emitted
               // only if the content version really changed. This prevents layoutComments
               // from running unnecessarily on the sidebar component.
               if (this.lastSentVersion !== sendable.version) {
@@ -402,7 +402,7 @@
                     this.commentToDelete = undefined;
                   }
                 });
-                this.$emit("contentChanged");
+                this.$emit("content-changed");
               }
             }
           }
@@ -420,7 +420,7 @@
               if (this.currentHighlightKey !== current) {
                 this.currentHighlightKey = current;
                 this.currentHighlightKeyChanged = true;
-                this.$emit("highlightSelected", current);
+                this.$emit("highlight-selected", current);
               }
             }
           }
@@ -514,10 +514,10 @@
       },
 
       updateNewCommentForm(show, start) {
-        // Emit showNewCommentForm event only if showNewCommentForm has changed or show is true (selection).
+        // Emit show-new-comment-form event only if showNewCommentForm has changed or show is true (selection).
         if (this.showNewCommentForm !== show || show) {
           this.showNewCommentForm = show;
-          this.$emit('showNewCommentForm', show, start, this.$editorView.state.selection);
+          this.$emit('show-new-comment-form', show, start, this.$editorView.state.selection);
         }
       },
 
