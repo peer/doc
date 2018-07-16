@@ -595,7 +595,6 @@
           this.commentToDelete = undefined;
         }
       },
-
     },
   };
 
