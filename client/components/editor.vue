@@ -394,12 +394,12 @@
                   }
                   else if (addingComment) {
                     this.$emit('highlight-added', this.commentHighlightKey);
-                    this.commentHighlightKey = undefined;
+                    this.commentHighlightKey = null;
                   }
                   else if (deletingComment) {
                     this.$emit('highlight-deleted', {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
-                    this.commentHighlightKey = undefined;
-                    this.commentToDelete = undefined;
+                    this.commentHighlightKey = null;
+                    this.commentToDelete = null;
                   }
                 });
                 this.$emit('content-changed');
@@ -691,8 +691,8 @@
         }
         else {
           this.$emit('highlight-deleted', {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
-          this.commentHighlightKey = undefined;
-          this.commentToDelete = undefined;
+          this.commentHighlightKey = null;
+          this.commentToDelete = null;
         }
       },
 
