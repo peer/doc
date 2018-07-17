@@ -17,7 +17,7 @@
   import {Node} from 'prosemirror-model';
   import {EditorState} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
-  import {baseKeymap, toggleMark} from "prosemirror-commands";
+  import {baseKeymap, toggleMark} from 'prosemirror-commands';
   import {undo, redo, history} from 'prosemirror-history';
   import {keymap} from 'prosemirror-keymap';
 

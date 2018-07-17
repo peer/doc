@@ -161,11 +161,10 @@
 </template>
 
 <script>
-  import {Meteor} from 'meteor/meteor';
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
-  import {sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
+  import {sinkListItem, liftListItem, splitListItem} from 'prosemirror-schema-list';
   import {EditorState, TextSelection} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {undo, redo, history} from 'prosemirror-history';
@@ -174,10 +173,9 @@
   import {gapCursor} from 'prosemirror-gapcursor';
   import collab from 'prosemirror-collab';
   import {Step} from 'prosemirror-transform';
-  import {toggleMark, baseKeymap} from "prosemirror-commands";
+  import {toggleMark, baseKeymap} from 'prosemirror-commands';
 
   import {schema} from '/lib/full-schema.js';
-  import {Comment} from '/lib/documents/comment';
   import {Content} from '/lib/documents/content';
   import {Cursor} from '/lib/documents/cursor';
   import {Document} from '/lib/documents/document';
@@ -186,8 +184,10 @@
   import {placeholderPlugin} from './utils/placeholder.js';
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
+  import {titleSizePlugin} from './utils/title-size-plugin.js';
   import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
   import {toggleLink, clearLink} from './utils/link.js';
+  import {Snackbar} from '../snackbar';
 
   const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
 
@@ -322,6 +322,7 @@
           gapCursor(),
           history(),
           commentPlugin(this),
+          titleSizePlugin(100, this.$gettext("title-length")),
           menuPlugin(menuItems, this, this.disabledButtons),
           addCommentPlugin(this),
           placeholderPlugin(this),
@@ -357,29 +358,26 @@
           this.unconfirmedCount = this.$editorView.state.collab$.unconfirmed.length;
 
           const sendable = collab.sendableSteps(newState);
+          let addingComment = false;
+          let deletingComment = false;
+
           if (sendable) {
-            if (this.canUserCreateComments) {
+            if (this.commentHighlightKey) {
               const commentMarks = _.filter(transaction.steps, (s) => {
-                return s.mark && s.mark.type.name === "highlight";
+                return s.mark && s.mark.type.name === 'highlight' && s.mark.attrs['highlight-keys'] === this.commentHighlightKey;
               });
-              if (commentMarks) {
-                commentMarks.forEach((c) => {
-                  const highlightKeys = c.mark.attrs["highlight-keys"].split(',');
-                  this.pendingSetVersionDocuments.push({
-                    highlightKeys,
-                    version: sendable.version,
-                  });
-                });
+              if (commentMarks.length > 0) {
+                addingComment = commentMarks[0].jsonID === 'addHighlight';
+                deletingComment = commentMarks[0].jsonID === 'removeHighlight';
               }
             }
 
-            if (this.canUserUpdateDocument) {
-              // Steps are added to the content and the "contentChanged" event is emitted
+            if (this.canUserUpdateDocument || (this.canUserCreateComments && (addingComment || deletingComment))) {
+              // Steps are added to the content and the "content-changed" event is emitted
               // only if the content version really changed. This prevents layoutComments
               // from running unnecessarily on the sidebar component.
               if (this.lastSentVersion !== sendable.version) {
                 this.lastSentVersion = sendable.version;
-
                 this.addingStepsInProgress = true;
                 Content.addSteps({
                   contentKey: this.contentKey,
@@ -390,9 +388,21 @@
                   clientId: this.clientId,
                 }, (error, stepsAdded) => {
                   this.addingStepsInProgress = false;
-                  // TODO: Error handling.
+                  if (error) {
+                    // TODO: Error handling.
+                    Snackbar.enqueue(this.$gettext("document-update-error"), 'error');
+                  }
+                  else if (addingComment) {
+                    this.$emit('highlight-added', this.commentHighlightKey);
+                    this.commentHighlightKey = null;
+                  }
+                  else if (deletingComment) {
+                    this.$emit('highlight-deleted', {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
+                    this.commentHighlightKey = null;
+                    this.commentToDelete = null;
+                  }
                 });
-                this.$emit("contentChanged");
+                this.$emit('content-changed');
               }
             }
           }
@@ -404,13 +414,13 @@
             const afterPosMarks = cursorPos.nodeAfter ? cursorPos.nodeAfter.marks : [];
             if (afterPosMarks) {
               const highlightkeys = afterPosMarks.find((x) => {
-                return x.attrs["highlight-keys"];
+                return x.attrs['highlight-keys'];
               });
-              const current = highlightkeys ? highlightkeys.attrs["highlight-keys"].split(",")[0] : undefined;
+              const current = highlightkeys ? highlightkeys.attrs['highlight-keys'].split(',')[0] : null;
               if (this.currentHighlightKey !== current) {
                 this.currentHighlightKey = current;
                 this.currentHighlightKeyChanged = true;
-                this.$emit("highlightSelected", current);
+                this.$emit('highlight-selected', current);
               }
             }
           }
@@ -504,10 +514,10 @@
       },
 
       updateNewCommentForm(show, start) {
-        // Emit showNewCommentForm event only if showNewCommentForm has changed or show is true (selection).
+        // Emit show-new-comment-form event only if showNewCommentForm has changed or show is true (selection).
         if (this.showNewCommentForm !== show || show) {
           this.showNewCommentForm = show;
-          this.$emit('showNewCommentForm', show, start, this.$editorView.state.selection);
+          this.$emit('show-new-comment-form', show, start, this.$editorView.state.selection);
         }
       },
 
@@ -522,7 +532,7 @@
           this.$editorView.state.doc.descendants((node, pos) => {
             if (keepSearching) {
               node.marks.forEach((x) => {
-                if (x.attrs["highlight-keys"] && x.attrs["highlight-keys"].split(',').indexOf(highlightKey) >= 0) {
+                if (x.attrs['highlight-keys'] && x.attrs['highlight-keys'].split(',').indexOf(highlightKey) >= 0) {
                   highlightPos = pos;
                   keepSearching = false;
                 }
@@ -546,7 +556,7 @@
 
       onScroll(event) {
         // Emit scroll event to notify parent component.
-        this.$emit("scroll");
+        this.$emit('scroll');
       },
 
       onAvatarClicked(cursor) {
@@ -569,13 +579,16 @@
         return !!hasMark(state, state.schema.marks.link);
       },
 
-      onCommentAdded(key) {
+      addCommentHighlight(highlightKey) {
+        this.commentHighlightKey = highlightKey;
+
         const {selection} = this.$editorView.state;
         let newChunks = [{
           from: selection.from,
           to: selection.to,
           empty: true,
         }];
+        const {doc, tr} = this.$editorView.state;
         if (this.selectedExistingHighlights) {
           // Change existing highlight marks to add the new highlight-key after their current highlight-keys.
           this.selectedExistingHighlights.forEach((highlightMark) => {
@@ -594,45 +607,98 @@
               start = Math.max(start, chunkToSplit.from);
               end = Math.min(end, chunkToSplit.to);
             }
-            // update collection to reflect new segments of the selection with previous highlight marks
+            // Update collection to reflect new segments of the selection with previous highlight marks.
             newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
-            const currentKeys = marks[0].attrs["highlight-keys"];
-            removeHighlight(schema, this.$editorView.state, start, end, this.$editorView.dispatch);
-            addHighlight(`${currentKeys},${key}`, schema, this.$editorView.state, start, end, this.$editorView.dispatch);
+            const currentKeys = marks[0].attrs['highlight-keys'];
+            removeHighlight(schema, tr, doc, start, end);
+            let keys;
+            // If the new highlight contains the initial part of another highlight.
+            if (selection.from < start) {
+              keys = `${currentKeys},${this.commentHighlightKey}`;
+            }
+            else {
+              keys = `${this.commentHighlightKey},${currentKeys}`;
+            }
+            addHighlight(keys, schema, tr, start, end);
           });
         }
         newChunks.filter((chunk) => {
-          return chunk.empty; // only add a new highlight mark to segments with no previous highlight marks
+           // Only add a new highlight mark to segments with no previous highlight marks.
+          return chunk.empty;
         }).forEach((chunk) => {
-          addHighlight(key, schema, this.$editorView.state, chunk.from, chunk.to, this.$editorView.dispatch);
+          addHighlight(this.commentHighlightKey, schema, tr, chunk.from, chunk.to);
         });
+        this.$editorView.dispatch(tr);
         this.updateCursor();
       },
 
-      onAfterCommentAdded(key) {
-        // TODO: Just temporary.
-        //       See: https://github.com/peer/doc/issues/45
-        //       See: https://github.com/peer/doc/issues/69
-        while (this.pendingSetVersionDocuments.length) {
-          const setVersionDocument = this.pendingSetVersionDocuments.shift();
-          Comment.setInitialVersion(setVersionDocument);
+      // Adds nearby highlight nodes (after or before the cursor position) to highlightNodes.
+      getNearbyHighlights(highlightNodes, cursorPos, mode, commentHighlightKey) {
+        let pos = cursorPos;
+        let posNode = mode === 'after' ? cursorPos.nodeAfter : cursorPos.nodeBefore;
+        let posMarks = mode === 'after' ? posNode.marks : posNode.marks;
+        let hasHighlight = posMarks.length !== 0;
+        while (hasHighlight) {
+          for (let i = 0; i < posMarks.length; i += 1) {
+            const x = posMarks[i];
+            const highlightKeys = x.attrs['highlight-keys'].split(',');
+            let otherKeys = highlightKeys.filter((y) => {
+              return y !== commentHighlightKey;
+            });
+            otherKeys = otherKeys || [];
+            if (otherKeys.length < highlightKeys.length) {
+              if (mode === 'after') {
+                highlightNodes.push({pos, otherKeys});
+                pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
+                posNode = pos.nodeAfter;
+                posMarks = pos.nodeAfter.marks;
+              }
+              else {
+                highlightNodes.unshift({pos, otherKeys});
+                pos = this.$editorView.state.doc.resolve(pos.pos - pos.textOffset - 1);
+                posNode = pos.nodeBefore;
+                posMarks = pos.nodeBefore.marks;
+              }
+              hasHighlight = posMarks.length !== 0;
+            }
+            else {
+              hasHighlight = false;
+            }
+          }
         }
       },
 
-      filterComments(keys) {
-        if (!Meteor.userId()) {
-          return;
+      deleteCommentHighlight(comment, deleteHighlight) {
+        this.commentHighlightKey = comment.highlightKey;
+        this.commentToDelete = comment;
+        if (deleteHighlight) {
+          const {doc, tr} = this.$editorView.state;
+          const cursorPos = this.$editorView.state.doc.resolve(this.$editorView.state.selection.$cursor.pos);
+          const highlightNodes = [];
+          this.getNearbyHighlights(highlightNodes, cursorPos, 'after', comment.highlightKey);
+          this.getNearbyHighlights(highlightNodes, cursorPos, 'before', comment.highlightKey);
+          // Update nearby highlights.
+          removeHighlight(
+            schema, tr, doc, highlightNodes[0].pos.pos - highlightNodes[0].pos.textOffset,
+            highlightNodes[highlightNodes.length - 1].pos.pos + highlightNodes[highlightNodes.length - 1].pos.nodeAfter.nodeSize,
+          );
+          highlightNodes.forEach((d, i) => {
+            if (d.otherKeys.length > 0) {
+              addHighlight(
+                d.otherKeys.join(','), schema, tr, d.pos.pos - d.pos.textOffset,
+                d.pos.pos + d.pos.nodeAfter.nodeSize,
+              );
+            }
+          });
+          this.$editorView.dispatch(tr);
         }
-        if (!this.$editorView.state) {
-          return;
+        else {
+          this.$emit('highlight-deleted', {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
+          this.commentHighlightKey = null;
+          this.commentToDelete = null;
         }
-        // Set final version for any orphan comment that could stay in database.
-        Comment.filterOrphan({
-          documentId: this.documentId,
-          highlightKeys: keys,
-          version: collab.getVersion(this.$editorView.state),
-        });
       },
+
     },
   };
 
@@ -789,13 +855,11 @@
       color: rgba(0, 0, 0, 0.54);
       pointer-events: none;
       height: 0;
-      // Same as "opacity" for ".btn-toggle .btn".
-      opacity: 0.4;
     }
 
     .empty-node:hover::before {
-      // Same as ".text--primary".
-      color: rgba(0, 0, 0, 0.87);
+      // Same as "opacity" for ".btn-toggle .btn".
+      opacity: 0.4;
     }
 
     h1.empty-node::before {

@@ -13,9 +13,11 @@
         :client-id="clientId"
         :read-only="document.isPublished()"
         :permissions="document.userPermissions"
-        @contentChanged="onContentChanged"
-        @highlightSelected="onHighlightSelected"
-        @showNewCommentForm="onShowNewCommentForm"
+        @content-changed="onContentChanged"
+        @highlight-selected="onHighlightSelected"
+        @highlight-added="onHighlightAdded"
+        @highlight-deleted="onHighlightDeleted"
+        @show-new-comment-form="onShowNewCommentForm"
       />
     </v-flex>
     <v-flex xs4>
@@ -26,9 +28,9 @@
         :document-published="document.isPublished()"
         :client-id="clientId"
         :permissions="document.userPermissions"
-        @commentClicked="onCommentClicked"
-        @commentAdded="onCommentAdded"
-        @afterCommentAdded="onAfterCommentAdded"
+        @comment-clicked="onCommentClicked"
+        @add-highlight="addCommentHighlight"
+        @delete-highlight="deleteCommentHighlight"
       />
     </v-flex>
   </v-layout>
@@ -76,8 +78,8 @@
           this.$refs.sidebar.focusComment();
         }
       },
-      onContentChanged() {
-        this.$refs.sidebar.onContentChanged();
+      onContentChanged(version) {
+        this.$refs.sidebar.onContentChanged(version);
       },
       onHighlightSelected(highlightKey) {
         this.$refs.sidebar.focusComment(highlightKey);
@@ -88,11 +90,17 @@
       onShowNewCommentForm(show, start) {
         this.$refs.sidebar.showNewCommentForm(show, start);
       },
-      onCommentAdded(highlightKey) {
-        this.$refs.editor.onCommentAdded(highlightKey);
+      addCommentHighlight(highlightKey) {
+        this.$refs.editor.addCommentHighlight(highlightKey);
       },
-      onAfterCommentAdded(highlightKey) {
-        this.$refs.editor.onAfterCommentAdded(highlightKey);
+      deleteCommentHighlight(comment, deleteHighlight) {
+        this.$refs.editor.deleteCommentHighlight(comment, deleteHighlight);
+      },
+      onHighlightAdded(highlightKey) {
+        this.$refs.sidebar.createComment(highlightKey);
+      },
+      onHighlightDeleted(comment) {
+        this.$refs.sidebar.deleteComment(comment);
       },
     },
   };

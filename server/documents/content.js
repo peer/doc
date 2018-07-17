@@ -1,20 +1,61 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
+import {_} from 'meteor/underscore';
 
 import assert from 'assert';
 import {Step} from 'prosemirror-transform';
 
 import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
+import {Comment} from '/lib/documents/comment';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
+import {extractTitle} from '/lib/utils';
 
 // TODO: Make documents expire after a while.
 const documents = new Map();
 
-function extractTitle(doc) {
-  return doc.content.firstChild.textContent;
-}
+Content.getCurrentState = (args) => {
+  let doc;
+  let version;
+  if (args.currentVersion && documents.has(args.contentKey)) {
+    ({doc, version} = documents.get(args.contentKey));
+    assert(version <= args.currentVersion);
+  }
+  else {
+    doc = schema.topNodeType.createAndFill();
+    version = 0;
+  }
+
+  Content.documents.find({
+    contentKey: args.contentKey,
+    version: {
+      $gt: version,
+      $lte: args.currentVersion,
+    },
+  }, {
+    sort: {
+      version: 1,
+    },
+    fields: {
+      step: 1,
+      version: 1,
+    },
+  }).forEach((content) => {
+    const result = Step.fromJSON(schema, content.step).apply(doc);
+
+    if (!result.doc) {
+      // eslint-disable-next-line no-console
+      console.error("Error applying a step.", result.failed);
+      throw new Meteor.Error('invalid-request', "Invalid step.");
+    }
+
+    doc = result.doc;
+    version = content.version;
+  });
+
+  return {doc, version};
+};
 
 // Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
@@ -62,7 +103,7 @@ Meteor.methods({
     });
 
     if (latestContent.version !== args.currentVersion) {
-      return 0;
+      throw new Meteor.Error('version-error', `Step version doesn't match.`);
     }
 
     let stepsToProcess = steps;
@@ -78,43 +119,7 @@ Meteor.methods({
       }
     }
 
-    let doc;
-    let version;
-    if (documents.has(args.contentKey)) {
-      ({doc, version} = documents.get(args.contentKey));
-      assert(version <= args.currentVersion);
-    }
-    else {
-      doc = schema.topNodeType.createAndFill();
-      version = 0;
-    }
-
-    Content.documents.find({
-      contentKey: args.contentKey,
-      version: {
-        $gt: version,
-        $lte: args.currentVersion,
-      },
-    }, {
-      sort: {
-        version: 1,
-      },
-      fields: {
-        step: 1,
-        version: 1,
-      },
-    }).forEach((content) => {
-      const result = Step.fromJSON(schema, content.step).apply(doc);
-
-      if (!result.doc) {
-        // eslint-disable-next-line no-console
-        console.error("Error applying a step.", result.failed);
-        throw new Meteor.Error('invalid-request', "Invalid step.");
-      }
-
-      doc = result.doc;
-      version = content.version;
-    });
+    let {doc, version} = Content.getCurrentState(args);
 
     assert(version === args.currentVersion);
 
@@ -175,6 +180,23 @@ Meteor.methods({
         lastActivity: timestamp,
         title: extractTitle(doc),
       },
+    });
+
+    const keys = [];
+
+    doc.descendants((node, pos) => {
+      const mark = _.find(node.marks, (m) => {
+        return m.type.name === 'highlight';
+      });
+      if (mark) {
+        keys.push(mark.attrs['highlight-keys'].split(','));
+      }
+    });
+
+    Comment.filterOrphan({
+      documentId: document._id,
+      highlightKeys: _.flatten(keys),
+      version,
     });
 
     return args.currentVersion - version;

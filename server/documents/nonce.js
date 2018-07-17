@@ -1,6 +1,6 @@
 // This is a server-only collection. So we do not use Meteor methods at all.
 
-import {check, Match} from "meteor/check";
+import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 
 import {BaseDocument} from '/lib/base';

@@ -14,7 +14,9 @@
       "DOCUMENT_COMMENT_SEE",
       "DOCUMENT_COMMENT_CREATE",
       "COMMENT_SEE",
-      "COMMENT_CREATE"
+      "COMMENT_CREATE",
+      "COMMENT_DELETE",
+      "COMMENT_DELETE_OWN"
     ]
   }
 }

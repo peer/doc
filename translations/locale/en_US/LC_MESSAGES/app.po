@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-06 13:53-0400\n"
+"POT-Creation-Date: 2018-07-17 02:53-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -23,7 +23,7 @@ msgstr "Access denied."
 
 #: client/components/utils/placeholder.js:40
 msgid "add-content"
-msgstr "Add content"
+msgstr "Add the text of your document here"
 
 #: client/components/sharing-page.vue:129
 msgid "add-to-list-share"
@@ -61,9 +61,10 @@ msgstr "dddd [at] LT"
 msgid "calendar-same-day"
 msgstr "[today at] LT"
 
+#: client/components/comment-deletion-dialog.vue:21
 #: client/components/link-dialog.vue:31
 #: client/components/publish-confirmation.vue:21
-#: client/components/thread.vue:74
+#: client/components/thread.vue:78
 msgid "cancel"
 msgstr "Cancel"
 
@@ -73,15 +74,19 @@ msgstr "Cancel"
 
 #: client/components/utils/placeholder.js:26
 msgid "choose-title"
-msgstr "Choose a title"
+msgstr "Write the Title of Your Document Here"
 
 #: client/components/app-layout.vue:71
 msgid "close"
 msgstr "Close"
 
-#: client/components/comment.vue:28
+#: client/components/comment.vue:42 client/components/comment.vue:73
 msgid "comment-created-at"
 msgstr "Created %{at}"
+
+#: client/components/comment-deletion-dialog.vue:13
+msgid "comment-deletion-confirmation"
+msgstr "Are you sure you want to delete this comment?"
 
 #: client/components/comment-editor.vue:109
 msgid "comment-hint"
@@ -100,6 +105,10 @@ msgid "day"
 msgid_plural "days"
 msgstr[0] "%{value} day"
 msgstr[1] "%{value} days"
+
+#: client/components/comment-deletion-dialog.vue:26
+msgid "delete"
+msgstr "Delete"
 
 #: client/components/documents.vue:12
 msgid "document-create"
@@ -133,13 +142,17 @@ msgstr "published"
 msgid "document-published-at"
 msgstr "Published %{at}"
 
-#: client/components/sharing-page.vue:344
+#: client/components/sharing-page.vue:349
 msgid "document-shared-error"
 msgstr "Error sharing the document"
 
-#: client/components/sharing-page.vue:347
+#: client/components/sharing-page.vue:352
 msgid "document-shared-success"
 msgstr "The document has been shared."
+
+#: client/components/editor.vue:394
+msgid "document-update-error"
+msgstr "Error updating document."
 
 #: client/components/sharing-page.vue:17
 msgid "document-visibility"
@@ -154,7 +167,7 @@ msgid "done-share"
 msgstr "Done"
 
 #: client/components/sharing-page.vue:174
-#: client/components/sharing-page.vue:193
+#: client/components/sharing-page.vue:198
 msgid "edit"
 msgstr "Edit"
 
@@ -188,7 +201,7 @@ msgid_plural "hours"
 msgstr[0] "%{value} hour"
 msgstr[1] "%{value} hours"
 
-#: client/components/link-dialog.vue:43 client/components/thread.vue:80
+#: client/components/link-dialog.vue:43 client/components/thread.vue:84
 msgid "insert"
 msgstr "Insert"
 
@@ -204,7 +217,7 @@ msgstr "less than a minute"
 msgid "link-hint"
 msgstr "Enter a link"
 
-#: client/components/sharing-page.vue:211
+#: client/components/sharing-page.vue:216
 msgid "listed"
 msgstr "Listed"
 
@@ -214,7 +227,7 @@ msgid_plural "minutes"
 msgstr[0] "%{value} minute"
 msgstr[1] "%{value} minutes"
 
-#: client/components/sidebar.vue:76
+#: client/components/sidebar.vue:77
 msgid "no-comments"
 msgstr "No comments."
 
@@ -226,11 +239,11 @@ msgstr "No documents."
 msgid "not-found"
 msgstr "Not found."
 
-#: client/components/sharing-page.vue:203
+#: client/components/sharing-page.vue:208
 msgid "private"
 msgstr "Private"
 
-#: client/components/sharing-page.vue:207
+#: client/components/sharing-page.vue:212
 msgid "public"
 msgstr "Public"
 
@@ -282,17 +295,25 @@ msgstr "Sign Out"
 msgid "signed-in-success"
 msgstr "You have been signed in."
 
-#: client/components/app-layout.vue:105
+#: client/components/app-layout.vue:115
 msgid "signed-out-error"
 msgstr "Error signing out: %{error}"
 
-#: client/components/app-layout.vue:109
+#: client/components/app-layout.vue:119
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
-#: client/components/sidebar.vue:80
+#: client/components/sidebar.vue:81
 msgid "start-a-new-comment"
 msgstr "Start a new comment by selecting content on the left."
+
+#: client/components/comment-deletion-dialog.vue:10
+msgid "thread-deletion-confirmation"
+msgstr "Are you sure you want to delete this comment thread?"
+
+#: client/components/editor.vue:326
+msgid "title-length"
+msgstr "Your title should be brief (max 100 characters) and the text of your document added below it."
 
 #: client/components/editor.vue:236
 msgid "toolbar-bold"
@@ -370,7 +391,7 @@ msgstr "Username too short, it should be 4 characters or more"
 msgid "users-share"
 msgstr "Users"
 
-#: client/components/thread.vue:26
+#: client/components/thread.vue:29
 msgid "view-all-replies"
 msgstr "View all replies (%{count})"
 

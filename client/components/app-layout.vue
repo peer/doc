@@ -62,7 +62,7 @@
     <v-snackbar
       :timeout="snackbarTime"
       :color="snackbarColor"
-      v-model="snackbarShow"
+      v-model="snackbarIsShown"
     >
       {{snackbarMessage}}
       <v-btn
@@ -83,9 +83,10 @@
   const component = {
     data() {
       return {
-        snackbarShow: false,
+        snackbarIsShown: false,
         snackbarMessage: null,
         snackbarColor: null,
+        snackbarDocumentId: null,
         isEmbeded: isEmbedded(),
         passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
@@ -96,6 +97,15 @@
       this.snackbarTimeout = null;
       this.snackbarComputation = null;
       this.showNextSnackbar();
+    },
+
+    watch: {
+      snackbarIsShown(newValue, oldValue) {
+        if (newValue === false && this.snackbarDocumentId) {
+          Snackbar.documents.remove({_id: this.snackbarDocumentId});
+          this.snackbarDocumentId = null;
+        }
+      },
     },
 
     methods: {
@@ -128,17 +138,18 @@
 
         this.snackbarComputation = this.$autorun((computation) => {
           // Wait for the next snackbar to be available.
-          const snackbar = Snackbar.documents.findOne({}, {sort: {createdAt: 1}});
+          const snackbar = Snackbar.documents.findOne({shown: false}, {sort: {createdAt: 1}});
           if (!snackbar) return;
 
           // Stop current computation. We will create a new one to wait
           // when showNextSnackbar will be called again.
           computation.stop();
-          Snackbar.documents.remove({_id: snackbar._id});
+          Snackbar.documents.update({_id: snackbar._id}, {$set: {shown: true}});
 
+          this.snackbarDocumentId = snackbar._id;
           this.snackbarMessage = snackbar.message;
           this.snackbarColor = snackbar.color;
-          this.snackbarShow = true;
+          this.snackbarIsShown = true;
 
           this.snackbarTimeout = Meteor.setTimeout(() => {
             this.snackbarTimeout = null;
@@ -151,7 +162,7 @@
       onSnackbarClose() {
         this.clearSnackbarState();
 
-        this.snackbarShow = false;
+        this.snackbarIsShown = false;
 
         Meteor.setTimeout(() => {
           this.showNextSnackbar();
