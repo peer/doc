@@ -252,7 +252,7 @@
       createComment(highlightKey) {
         if (highlightKey === this.commentToAdd.highlightKey) {
           Comment.create(this.commentToAdd);
-          this.commentToAdd = undefined;
+          this.commentToAdd = null;
         }
       },
 
@@ -592,7 +592,7 @@
             documentId: this.documentId,
             version: comment.version,
           });
-          this.commentToDelete = undefined;
+          this.commentToDelete = null;
         }
       },
     },

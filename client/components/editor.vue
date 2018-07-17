@@ -394,12 +394,12 @@
                   }
                   else if (addingComment) {
                     this.$emit('highlight-added', this.commentHighlightKey);
-                    this.commentHighlightKey = undefined;
+                    this.commentHighlightKey = null;
                   }
                   else if (deletingComment) {
                     this.$emit('highlight-deleted', {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
-                    this.commentHighlightKey = undefined;
-                    this.commentToDelete = undefined;
+                    this.commentHighlightKey = null;
+                    this.commentToDelete = null;
                   }
                 });
                 this.$emit('content-changed');
@@ -416,7 +416,7 @@
               const highlightkeys = afterPosMarks.find((x) => {
                 return x.attrs['highlight-keys'];
               });
-              const current = highlightkeys ? highlightkeys.attrs['highlight-keys'].split(',')[0] : undefined;
+              const current = highlightkeys ? highlightkeys.attrs['highlight-keys'].split(',')[0] : null;
               if (this.currentHighlightKey !== current) {
                 this.currentHighlightKey = current;
                 this.currentHighlightKeyChanged = true;
@@ -671,8 +671,8 @@
           const {doc, tr} = this.$editorView.state;
           const cursorPos = this.$editorView.state.doc.resolve(this.$editorView.state.selection.$cursor.pos);
           const highlightNodes = [];
-          this.getNearbyHighlights(highlightNodes, cursorPos, "after", comment.highlightKey);
-          this.getNearbyHighlights(highlightNodes, cursorPos, "before", comment.highlightKey);
+          this.getNearbyHighlights(highlightNodes, cursorPos, 'after', comment.highlightKey);
+          this.getNearbyHighlights(highlightNodes, cursorPos, 'before', comment.highlightKey);
           // Update nearby highlights.
           removeHighlight(
             schema, tr, doc, highlightNodes[0].pos.pos - highlightNodes[0].pos.textOffset,
@@ -691,8 +691,8 @@
         }
         else {
           this.$emit('highlight-deleted', {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
-          this.commentHighlightKey = undefined;
-          this.commentToDelete = undefined;
+          this.commentHighlightKey = null;
+          this.commentToDelete = null;
         }
       },
 
