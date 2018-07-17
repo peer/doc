@@ -607,20 +607,24 @@
               start = Math.max(start, chunkToSplit.from);
               end = Math.min(end, chunkToSplit.to);
             }
-            // update collection to reflect new segments of the selection with previous highlight marks
+            // Update collection to reflect new segments of the selection with previous highlight marks.
             newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             const currentKeys = marks[0].attrs['highlight-keys'];
             removeHighlight(schema, tr, doc, start, end, this.$editorView.dispatch);
-            let keys = `${this.commentHighlightKey},${currentKeys}`;
+            let keys;
             // If the new highlight contains the initial part of another highlight.
             if (selection.from < start) {
               keys = `${currentKeys},${this.commentHighlightKey}`;
+            }
+            else {
+              keys = `${this.commentHighlightKey},${currentKeys}`;
             }
             addHighlight(keys, schema, tr, start, end, this.$editorView.dispatch);
           });
         }
         newChunks.filter((chunk) => {
-          return chunk.empty; // only add a new highlight mark to segments with no previous highlight marks
+           // Only add a new highlight mark to segments with no previous highlight marks.
+          return chunk.empty;
         }).forEach((chunk) => {
           addHighlight(this.commentHighlightKey, schema, tr, chunk.from, chunk.to, this.$editorView.dispatch);
         });
