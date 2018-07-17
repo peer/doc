@@ -1,4 +1,4 @@
-import {toggleMark} from "prosemirror-commands";
+import {toggleMark} from 'prosemirror-commands';
 import {TextSelection} from 'prosemirror-state';
 import {isMarkActive, hasMark} from './menu.js';
 

@@ -1,7 +1,7 @@
 import Vue from 'vue';
-import {wrapIn, lift, setBlockType} from "prosemirror-commands";
-import {wrapInList} from "prosemirror-schema-list";
-import {Plugin} from "prosemirror-state";
+import {wrapIn, lift, setBlockType} from 'prosemirror-commands';
+import {wrapInList} from 'prosemirror-schema-list';
+import {Plugin} from 'prosemirror-state';
 
 export function hasMark(state, markType) {
   const {from, $from, to, empty} = state.selection;

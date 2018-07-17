@@ -164,7 +164,7 @@
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
-  import {sinkListItem, liftListItem, splitListItem} from "prosemirror-schema-list";
+  import {sinkListItem, liftListItem, splitListItem} from 'prosemirror-schema-list';
   import {EditorState, TextSelection} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {undo, redo, history} from 'prosemirror-history';
@@ -173,7 +173,7 @@
   import {gapCursor} from 'prosemirror-gapcursor';
   import collab from 'prosemirror-collab';
   import {Step} from 'prosemirror-transform';
-  import {toggleMark, baseKeymap} from "prosemirror-commands";
+  import {toggleMark, baseKeymap} from 'prosemirror-commands';
 
   import {schema} from '/lib/full-schema.js';
   import {Comment} from '/lib/documents/comment';

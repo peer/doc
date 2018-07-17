@@ -49,7 +49,7 @@
 </template>
 
 <script>
-  import assert from "assert";
+  import assert from 'assert';
 
   // @vue/component
   const component = {

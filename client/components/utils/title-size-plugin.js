@@ -1,4 +1,5 @@
-import {Plugin} from "prosemirror-state";
+import {Plugin} from 'prosemirror-state';
+
 import {extractTitle} from '/lib/utils';
 import {Snackbar} from '../../snackbar';
 
