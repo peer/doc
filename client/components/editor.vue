@@ -610,7 +610,7 @@
             // Update collection to reflect new segments of the selection with previous highlight marks.
             newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
             const currentKeys = marks[0].attrs['highlight-keys'];
-            removeHighlight(schema, tr, doc, start, end, this.$editorView.dispatch);
+            removeHighlight(schema, tr, doc, start, end);
             let keys;
             // If the new highlight contains the initial part of another highlight.
             if (selection.from < start) {
@@ -619,14 +619,14 @@
             else {
               keys = `${this.commentHighlightKey},${currentKeys}`;
             }
-            addHighlight(keys, schema, tr, start, end, this.$editorView.dispatch);
+            addHighlight(keys, schema, tr, start, end);
           });
         }
         newChunks.filter((chunk) => {
            // Only add a new highlight mark to segments with no previous highlight marks.
           return chunk.empty;
         }).forEach((chunk) => {
-          addHighlight(this.commentHighlightKey, schema, tr, chunk.from, chunk.to, this.$editorView.dispatch);
+          addHighlight(this.commentHighlightKey, schema, tr, chunk.from, chunk.to);
         });
         this.$editorView.dispatch(tr);
         this.updateCursor();
@@ -681,14 +681,13 @@
           removeHighlight(
             schema, tr, doc, highlightNodes[0].pos.pos - highlightNodes[0].pos.textOffset,
             highlightNodes[highlightNodes.length - 1].pos.pos + highlightNodes[highlightNodes.length - 1].pos.nodeAfter.nodeSize,
-            this.$editorView.dispatch,
-            );
+          );
           highlightNodes.forEach((d, i) => {
             if (d.otherKeys.length > 0) {
               addHighlight(
                 d.otherKeys.join(','), schema, tr, d.pos.pos - d.pos.textOffset,
-                d.pos.pos + d.pos.nodeAfter.nodeSize, this.$editorView.dispatch,
-                );
+                d.pos.pos + d.pos.nodeAfter.nodeSize,
+              );
             }
           });
           this.$editorView.dispatch(tr);
