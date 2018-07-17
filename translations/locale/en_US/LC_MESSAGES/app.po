@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-26 12:53-0400\n"
+"POT-Creation-Date: 2018-07-16 13:43-0400\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -45,9 +45,10 @@ msgstr "dddd [at] LT"
 msgid "calendar-same-day"
 msgstr "[today at] LT"
 
+#: client/components/comment-deletion-dialog.vue:21
 #: client/components/link-dialog.vue:31
 #: client/components/publish-confirmation.vue:21
-#: client/components/thread.vue:75
+#: client/components/thread.vue:78
 msgid "cancel"
 msgstr "Cancel"
 
@@ -59,9 +60,13 @@ msgstr "Write the Title of Your Document Here"
 msgid "close"
 msgstr "Close"
 
-#: client/components/comment.vue:28
+#: client/components/comment.vue:42 client/components/comment.vue:73
 msgid "comment-created-at"
 msgstr "Created %{at}"
+
+#: client/components/comment-deletion-dialog.vue:13
+msgid "comment-deletion-confirmation"
+msgstr "Are you sure you want to delete this comment?"
 
 #: client/components/comment-editor.vue:109
 msgid "comment-hint"
@@ -76,6 +81,10 @@ msgid "day"
 msgid_plural "days"
 msgstr[0] "%{value} day"
 msgstr[1] "%{value} days"
+
+#: client/components/comment-deletion-dialog.vue:26
+msgid "delete"
+msgstr "Delete"
 
 #: client/components/documents.vue:12
 msgid "document-create"
@@ -108,6 +117,10 @@ msgstr "published"
 #: client/components/documents.vue:34
 msgid "document-published-at"
 msgstr "Published %{at}"
+
+#: client/components/editor.vue:393
+msgid "document-update-error"
+msgstr "Error updating document."
 
 #: client/components/app-layout.vue:20
 msgid "documents"
@@ -143,7 +156,7 @@ msgid_plural "hours"
 msgstr[0] "%{value} hour"
 msgstr[1] "%{value} hours"
 
-#: client/components/link-dialog.vue:43 client/components/thread.vue:81
+#: client/components/link-dialog.vue:43 client/components/thread.vue:84
 msgid "insert"
 msgstr "Insert"
 
@@ -165,7 +178,7 @@ msgid_plural "minutes"
 msgstr[0] "%{value} minute"
 msgstr[1] "%{value} minutes"
 
-#: client/components/sidebar.vue:71
+#: client/components/sidebar.vue:72
 msgid "no-comments"
 msgstr "No comments."
 
@@ -213,17 +226,21 @@ msgstr "Sign Out"
 msgid "signed-in-success"
 msgstr "You have been signed in."
 
-#: client/components/app-layout.vue:105
+#: client/components/app-layout.vue:115
 msgid "signed-out-error"
 msgstr "Error signing out: %{error}"
 
-#: client/components/app-layout.vue:109
+#: client/components/app-layout.vue:119
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
-#: client/components/sidebar.vue:75
+#: client/components/sidebar.vue:76
 msgid "start-a-new-comment"
 msgstr "Start a new comment by selecting content on the left."
+
+#: client/components/comment-deletion-dialog.vue:10
+msgid "thread-deletion-confirmation"
+msgstr "Are you sure you want to delete this comment thread?"
 
 #: client/components/editor.vue:325
 msgid "title-length"
@@ -301,7 +318,7 @@ msgstr "Username is required"
 msgid "username-too-short"
 msgstr "Username too short, it should be 4 characters or more"
 
-#: client/components/thread.vue:27
+#: client/components/thread.vue:29
 msgid "view-all-replies"
 msgstr "View all replies (%{count})"
 

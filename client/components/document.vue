@@ -12,9 +12,11 @@
         :content-key="document.contentKey"
         :client-id="clientId"
         :read-only="document.isPublished()"
-        @contentChanged="onContentChanged"
-        @highlightSelected="onHighlightSelected"
-        @showNewCommentForm="onShowNewCommentForm"
+        @content-changed="onContentChanged"
+        @highlight-selected="onHighlightSelected"
+        @highlight-added="onHighlightAdded"
+        @highlight-deleted="onHighlightDeleted"
+        @show-new-comment-form="onShowNewCommentForm"
       />
     </v-flex>
     <v-flex xs4>
@@ -24,8 +26,9 @@
         :content-key="document.contentKey"
         :document-published="document.isPublished()"
         :client-id="clientId"
-        @commentClicked="onCommentClicked"
-        @commentAdded="onCommentAdded"
+        @comment-clicked="onCommentClicked"
+        @add-highlight="addCommentHighlight"
+        @delete-highlight="deleteCommentHighlight"
         @afterCommentAdded="onAfterCommentAdded"
       />
     </v-flex>
@@ -74,8 +77,8 @@
           this.$refs.sidebar.focusComment();
         }
       },
-      onContentChanged() {
-        this.$refs.sidebar.onContentChanged();
+      onContentChanged(version) {
+        this.$refs.sidebar.onContentChanged(version);
       },
       onHighlightSelected(highlightKey) {
         this.$refs.sidebar.focusComment(highlightKey);
@@ -86,8 +89,17 @@
       onShowNewCommentForm(show, start) {
         this.$refs.sidebar.showNewCommentForm(show, start);
       },
-      onCommentAdded(highlightKey) {
-        this.$refs.editor.onCommentAdded(highlightKey);
+      addCommentHighlight(highlightKey) {
+        this.$refs.editor.addCommentHighlight(highlightKey);
+      },
+      deleteCommentHighlight(comment, deleteHighlight) {
+        this.$refs.editor.deleteCommentHighlight(comment, deleteHighlight);
+      },
+      onHighlightAdded(highlightKey) {
+        this.$refs.sidebar.createComment(highlightKey);
+      },
+      onHighlightDeleted(comment) {
+        this.$refs.sidebar.deleteComment(comment);
       },
       onAfterCommentAdded(highlightKey) {
         this.$refs.editor.onAfterCommentAdded(highlightKey);

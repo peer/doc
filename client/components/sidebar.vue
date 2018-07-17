@@ -55,6 +55,7 @@
             :can-user-create-comments="canUserCreateComments"
             @view-all-replies="onViewAllReplies"
             @comment-submitted="onCommentSubmitted"
+            @show-deletion-dialog="onShowDeletionDialog"
           />
         </v-flex>
       </v-layout>
@@ -83,6 +84,11 @@
         </v-flex>
       </v-layout>
     </v-layout>
+    <comment-deletion-dialog
+      ref="commentDeletionDialog"
+      :dialog-type="dialogType"
+      @comment-delete-clicked="onDeleteClicked"
+    />
   </v-container>
 </template>
 
@@ -106,7 +112,7 @@
   function getElementByHighlightKey(elements, key) {
     for (let i = 0; i < elements.length; i += 1) {
       const commentMarkEl = elements[i];
-      const keys = commentMarkEl.attributes["data-highlight-keys"].value.split(",");
+      const keys = commentMarkEl.attributes['data-highlight-keys'].value.split(',');
       if (keys.find((commentId) => {
         return commentId === key;
       })) {
@@ -139,12 +145,14 @@
 
     data() {
       return {
+        dialogType: 'comment',
         commentsHandle: null,
         documentComments: [],
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
         minCommentMargin: 5,
         currentHighlightKey: null,
+        commentToDelete: null,
       };
     },
 
@@ -205,7 +213,7 @@
             showDetails: false,
             showAllReplies: false,
             hasManyReplies: false,
-            isReply: false,
+            isMain: false,
             replies: [],
           };
           this.documentComments.push(dummyComment);
@@ -236,26 +244,28 @@
           comment.focus = true; // eslint-disable-line no-param-reassign
           // Notify to parent component that a comment is focused and the
           // cursor position on the editor component should be updated.
-          this.$emit("commentClicked", comment.highlightKey);
+          this.$emit('comment-clicked', comment.highlightKey);
           this.layoutCommentsAfterRender();
+        }
+      },
+
+      createComment(highlightKey) {
+        if (highlightKey === this.commentToAdd.highlightKey) {
+          Comment.create(this.commentToAdd);
+          this.commentToAdd = null;
         }
       },
 
       onCommentSubmitted(comment, newCommentBody) {
         if (comment.dummy) {
           const key = Random.id();
-          // Emit commentAdded event first (for adding highlight to selected text) and then persist the comment.
-          // This way, the highlight marks will be rendered before the comments. It must be in this order, because
-          // when a comment is rendered on sidebar it must be related to a highlighted text (which should already be
-          // rendered on the editor). This fixes a bug related to new comments that are not shown in other tabs.
-          // See: https://github.com/peer/doc/issues/69
-          this.$emit("commentAdded", key);
-          Comment.create({
+          this.commentToAdd = {
             highlightKey: key,
             body: newCommentBody,
             documentId: this.documentId,
-          });
-          this.$emit("afterCommentAdded", key);
+            contentKey: this.contentKey,
+          };
+          this.$emit('add-highlight', key);
           return;
         }
         else {
@@ -264,12 +274,13 @@
             body: newCommentBody,
             documentId: this.documentId,
             replyTo: comment._id,
+            contentKey: this.contentKey,
           });
         }
         comment.focus = true; // eslint-disable-line no-param-reassign
         // Notify to parent component that a comment is focused and the
         // cursor position on the editor component should be updated.
-        this.$emit("commentClicked", comment.highlightKey);
+        this.$emit('comment-clicked', comment.highlightKey);
         this.currentHighlightKey = comment.highlightKey;
       },
 
@@ -283,10 +294,16 @@
        * the comments text.
       */
       showComments(comments) {
+        const dummyComments = this.documentComments.filter((x) => {
+          return x.dummy;
+        });
+
         let currentComments = comments
         .filter((comment) => {
-          return !comment.versionTo;
+          return !comment.versionTo && comment.status === Comment.STATUS.CREATED;
         });
+
+        currentComments = currentComments.concat(dummyComments);
 
         if (!currentComments.length) {
           this.documentComments = currentComments;
@@ -331,7 +348,7 @@
             highlightTop: getOffset(el).top,
             showDetails: false,
             hasManyReplies: c.replies.length > 1,
-            isReply: c.replyTo === null,
+            isMain: c.replyTo === null,
             focus: currentHighlightKey === c.highlightKey,
           });
         }).filter((c) => {
@@ -553,6 +570,30 @@
         }
         this.currentHighlightKey = highlightKey;
         this.layoutCommentsAfterRender();
+      },
+
+      onShowDeletionDialog(comment) {
+        this.commentToDelete = comment;
+        this.$refs.commentDeletionDialog.show = true;
+        this.dialogType = comment.isMain ? 'thread' : 'comment';
+      },
+
+      onDeleteClicked() {
+        const comments = this.documentComments.filter((x) => {
+          return x.highlightKey === this.commentToDelete.highlightKey && x.status === Comment.STATUS.CREATED;
+        });
+        this.$emit('delete-highlight', this.commentToDelete, comments.length === 1 && !this.commentToDelete.replyTo);
+      },
+
+      deleteComment(comment) {
+        if (comment.id === this.commentToDelete._id) {
+          Comment.delete({
+            _id: comment.id,
+            documentId: this.documentId,
+            version: comment.version,
+          });
+          this.commentToDelete = null;
+        }
       },
     },
   };

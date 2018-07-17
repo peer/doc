@@ -78,13 +78,13 @@
         link = link.match(/^[a-zA-Z]+:\/\//) ? link : `http://${link}`;
 
         // Emit the link-inserted event to the editor to add marks.
-        this.$emit("link-inserted", link);
+        this.$emit('link-inserted', link);
         this.closeLinkDialog();
       },
 
       removeLink() {
         // Emit the link-removed event to the editor to remove marks.
-        this.$emit("link-removed");
+        this.$emit('link-removed');
         this.closeLinkDialog();
       },
 
