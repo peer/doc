@@ -662,9 +662,9 @@
             else {
               highlightNodes.unshift({pos, otherKeys});
               pos = this.$editorView.state.doc.resolve(pos.pos - pos.textOffset - 1);
-              posNode = pos.nodeBefore;
+              posNode = pos.nodeAfter;
               if (posNode) {
-                highlightMark = pos.nodeBefore.marks.find((x) => {
+                highlightMark = posNode.marks.find((x) => {
                   return x.type.name === 'highlight';
                 });
               }
