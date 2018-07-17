@@ -3,7 +3,7 @@ import {BaseDocument} from '/lib/base';
 export class Snackbar extends BaseDocument {
   // createdAt: time of document creation
   // message: text of the snackbar
-  // color: color of the snackbar ("success", "info", "error", etc.)
+  // color: color of the snackbar close action ("success", "info", "error")
   // shown: true if already shown
 
   static enqueue(message, color) {

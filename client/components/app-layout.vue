@@ -61,13 +61,12 @@
     </v-content>
     <v-snackbar
       :timeout="snackbarTime"
-      :color="snackbarColor"
       v-model="snackbarIsShown"
     >
       {{snackbarMessage}}
       <v-btn
+        :color="snackbarColor"
         flat
-        dark
         @click.native="onSnackbarClose"
       ><translate>close</translate></v-btn>
     </v-snackbar>
