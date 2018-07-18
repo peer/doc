@@ -150,6 +150,7 @@
                 autocomplete
                 multiple
                 chips
+                deletable-chips
               />
             </v-flex>
             <v-flex>
