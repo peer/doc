@@ -123,8 +123,8 @@ Meteor.methods({
     args.contributors.forEach((x) => {
       adminCount += x.role === Document.ROLES.ADMIN;
 
-      if (args.visibilityLevel !== Document.VISIBILITY_LEVELS.PRIVATE && x.role === Document.ROLES.SEE) {
-        throw new Meteor.Error('invalid-selection', `There can be no users with ${Document.ROLES.SEE} role when visibility is not ${Document.VISIBILITY_LEVELS.PRIVATE}`);
+      if (args.visibilityLevel !== Document.VISIBILITY_LEVELS.PRIVATE && x.role === Document.ROLES.VIEW) {
+        throw new Meteor.Error('invalid-selection', `There can be no users with ${Document.ROLES.VIEW} role when visibility is not ${Document.VISIBILITY_LEVELS.PRIVATE}`);
       }
 
       contributors = contributors.concat(Document.getUserPermissions(x.role, x.user, now, user.getReference()));
@@ -189,7 +189,7 @@ Meteor.publish('Document.list', function documentList(args) {
     // TODO: Show public drafts to users.
     return Document.documents.find(Document.restrictQuery({
       $or: [{publishedAt: {$ne: null}}, {visibility: Document.VISIBILITY_LEVELS.LISTED}],
-    }, Document.PERMISSIONS.SEE), {
+    }, Document.PERMISSIONS.VIEW), {
       fields: Document.PUBLISH_FIELDS(),
     });
   });
@@ -209,7 +209,7 @@ Meteor.publish('Document.one', function documentOne(args) {
       fields.userPermissions = 1;
       const handle = Document.documents.find(Document.restrictQuery({
         _id: args.documentId,
-      }, [], user, {$and: [{$or: [{visibility: {$ne: Document.VISIBILITY_LEVELS.PRIVATE}}, {userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.SEE}}}]}]}), {
+      }, [], user, {$and: [{$or: [{visibility: {$ne: Document.VISIBILITY_LEVELS.PRIVATE}}, {userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.VIEW}}}]}]}), {
         fields,
       }).observeChanges({
         added(id, documentFields) {

@@ -17,7 +17,7 @@ Meteor.methods({
 
     const documentExists = Document.documents.exists(Document.restrictQuery({
       contentKey: args.contentKey,
-    }, Document.PERMISSIONS.SEE));
+    }, Document.PERMISSIONS.VIEW));
     if (!documentExists) {
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
@@ -46,7 +46,7 @@ Meteor.methods({
 
     const documentExists = Document.documents.exists(Document.restrictQuery({
       contentKey: args.contentKey,
-    }, Document.PERMISSIONS.SEE, user));
+    }, Document.PERMISSIONS.VIEW, user));
     if (!documentExists) {
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
@@ -85,7 +85,7 @@ Meteor.publish('Cursor.list', function cursorList(args) {
   this.autorun((computation) => {
     const documentExists = Document.documents.exists(Document.restrictQuery({
       contentKey: args.contentKey,
-    }, Document.PERMISSIONS.SEE));
+    }, Document.PERMISSIONS.VIEW));
     if (!documentExists) {
       return [];
     }

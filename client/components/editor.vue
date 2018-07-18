@@ -255,7 +255,7 @@
 
       canUserUpdateCursor() {
         // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.SEE));
+        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.VIEW));
       },
 
       canUserUpdateDocument() {

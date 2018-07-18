@@ -20,7 +20,7 @@ Meteor.publish('Comment.list', function commentList(args) {
   this.autorun((computation) => {
     return Comment.documents.find(Comment.restrictQuery({
       'document._id': args.documentId,
-    }, Comment.PERMISSIONS.SEE), {
+    }, Comment.PERMISSIONS.VIEW), {
       fields: Comment.PUBLISH_FIELDS(),
     });
   });
@@ -142,7 +142,7 @@ Meteor.methods({
     if (args.replyTo) {
       replyTo = Comment.documents.findOne(Comment.restrictQuery({
         _id: args.replyTo,
-      }, Comment.PERMISSIONS.SEE, user), {fields: Document.REFERENCE_FIELDS()});
+      }, Comment.PERMISSIONS.VIEW, user), {fields: Document.REFERENCE_FIELDS()});
       if (!replyTo) {
         throw new Meteor.Error('not-found', `Comment cannot be found.`);
       }

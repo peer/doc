@@ -213,7 +213,7 @@ Meteor.publish('Content.list', function contentList(args) {
   this.autorun((computation) => {
     const documentExists = Document.documents.exists(Document.restrictQuery({
       contentKey: args.contentKey,
-    }, Document.PERMISSIONS.SEE));
+    }, Document.PERMISSIONS.VIEW));
 
     if (!documentExists) {
       return [];
