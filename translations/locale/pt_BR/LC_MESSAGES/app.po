@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-18 04:59-0700\n"
+"POT-Creation-Date: 2018-07-18 11:05-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -25,16 +25,20 @@ msgstr "Acesso negado."
 msgid "add-content"
 msgstr "Adicione aqui o texto do seu documento"
 
-#: client/components/document-share.vue:169
-msgid "add-to-user-permissions-list"
+#: client/components/document-share.vue:172
+msgid "permissions-list-add-users"
 msgstr "Adicionar"
 
-#: client/components/document-share.vue:235
-msgid "admin-role"
+#: client/components/document-share.vue:138
+msgid "permissions-list-add-users-hint"
 msgstr ""
 
-#: client/components/document-share.vue:236
-msgid "admin-user-role-hint"
+#: client/components/document-share.vue:242
+msgid "role-admin-label"
+msgstr ""
+
+#: client/components/document-share.vue:243
+msgid "role-admin-user-hint"
 msgstr ""
 
 #: client/vue-extensions.js:108
@@ -64,8 +68,8 @@ msgstr "[hoje às] LT"
 msgid "cancel"
 msgstr "Cancelar"
 
-#: client/components/document-share.vue:185
-msgid "cancel-share"
+#: client/components/document-share.vue:188
+msgid "document-share-cancel"
 msgstr "Cancelar"
 
 #: client/components/utils/placeholder.js:26
@@ -92,25 +96,25 @@ msgstr "Insira um comentário"
 msgid "comment-reply-hint"
 msgstr "Insira uma resposta"
 
-#: client/components/document-share.vue:223
-#: client/components/document-share.vue:278
-msgid "comment-role"
+#: client/components/document-share.vue:230
+#: client/components/document-share.vue:285
+msgid "role-comment-label"
 msgstr ""
 
-#: client/components/document-share.vue:224
-msgid "comment-user-role-hint"
+#: client/components/document-share.vue:231
+msgid "role-comment-user-hint"
 msgstr ""
 
-#: client/components/document-share.vue:279
-msgid "comment-users-role-hint"
+#: client/components/document-share.vue:286
+msgid "role-comment-users-hint"
 msgstr ""
 
-#: client/components/document-share.vue:241
-msgid "custom-role"
+#: client/components/document-share.vue:248
+msgid "role-custom-label"
 msgstr ""
 
-#: client/components/document-share.vue:242
-msgid "custom-user-role-hint"
+#: client/components/document-share.vue:249
+msgid "role-custom-user-hint"
 msgstr ""
 
 #: client/vue-extensions.js:168
@@ -163,11 +167,11 @@ msgstr "publicado"
 msgid "document-published-at"
 msgstr "Publicado %{at}"
 
-#: client/components/document-share.vue:417
+#: client/components/document-share.vue:424
 msgid "document-shared-error"
 msgstr "Erro ao compartilhar o documento."
 
-#: client/components/document-share.vue:420
+#: client/components/document-share.vue:427
 msgid "document-shared-success"
 msgstr "O documento foi compartilhado."
 
@@ -199,21 +203,21 @@ msgstr "Seleccionar nível de visibilidade"
 msgid "documents"
 msgstr "Documentos"
 
-#: client/components/document-share.vue:181
-msgid "done-share"
+#: client/components/document-share.vue:192
+msgid "document-share-done"
 msgstr "Pronto"
 
-#: client/components/document-share.vue:229
-#: client/components/document-share.vue:283
-msgid "edit-role"
+#: client/components/document-share.vue:236
+#: client/components/document-share.vue:290
+msgid "role-edit-label"
 msgstr ""
 
-#: client/components/document-share.vue:230
-msgid "edit-user-role-hint"
+#: client/components/document-share.vue:237
+msgid "role-edit-user-hint"
 msgstr ""
 
-#: client/components/document-share.vue:284
-msgid "edit-users-role-hint"
+#: client/components/document-share.vue:291
+msgid "role-edit-users-hint"
 msgstr ""
 
 #: client/components/editor.vue:123
@@ -262,12 +266,12 @@ msgstr "menos que um minuto"
 msgid "link-hint"
 msgstr "Insira um link"
 
-#: client/components/document-share.vue:265
-msgid "listed"
+#: client/components/document-share.vue:272
+msgid "document-visibility-listed"
 msgstr "Listagem"
 
-#: client/components/document-share.vue:266
-msgid "listed-hint"
+#: client/components/document-share.vue:273
+msgid "document-visibility-listed-hint"
 msgstr ""
 
 #: client/vue-extensions.js:170
@@ -288,20 +292,20 @@ msgstr "Nenhum documento."
 msgid "not-found"
 msgstr "Não encontrado."
 
-#: client/components/document-share.vue:255
-msgid "private"
+#: client/components/document-share.vue:262
+msgid "document-visibility-private"
 msgstr "Privado"
 
-#: client/components/document-share.vue:256
-msgid "private-hint"
+#: client/components/document-share.vue:263
+msgid "document-visibility-private-hint"
 msgstr ""
 
-#: client/components/document-share.vue:260
-msgid "public"
+#: client/components/document-share.vue:267
+msgid "document-visibility-public"
 msgstr "Público"
 
-#: client/components/document-share.vue:261
-msgid "public-hint"
+#: client/components/document-share.vue:268
+msgid "document-visibility-public-hint"
 msgstr ""
 
 #: client/components/publish-confirmation.vue:28
@@ -329,8 +333,13 @@ msgid "remove"
 msgstr "Remover"
 
 #: client/components/document-share.vue:131
-msgid "remove-from-user-permissions-list"
+msgid "permissions-list-remove-user"
 msgstr ""
+
+#: client/components/document-share.vue:220
+#, fuzzy
+msgid "permissions-list-select-users"
+msgstr "Adicionar"
 
 #: client/components/sidebar.vue:35
 msgid "share"
@@ -440,26 +449,22 @@ msgstr "O nome de usuário é obrigatório"
 msgid "username-too-short"
 msgstr "O nome de usuário é muito curto, deve ser pelo menos 4 caracteres"
 
-#: client/components/document-share.vue:213
-msgid "users-share"
-msgstr "Usuários"
-
 #: client/components/thread.vue:29
 msgid "view-all-replies"
 msgstr "Ver todas as respostas (%{count})"
 
-#: client/components/document-share.vue:217
-#: client/components/document-share.vue:248
-#: client/components/document-share.vue:273
-msgid "view-role"
+#: client/components/document-share.vue:224
+#: client/components/document-share.vue:255
+#: client/components/document-share.vue:280
+msgid "role-view-label"
 msgstr ""
 
-#: client/components/document-share.vue:218
-msgid "view-user-role-hint"
+#: client/components/document-share.vue:225
+msgid "role-view-user-hint"
 msgstr ""
 
-#: client/components/document-share.vue:274
-msgid "view-users-role-hint"
+#: client/components/document-share.vue:281
+msgid "role-view-users-hint"
 msgstr ""
 
 #: client/vue-extensions.js:167

@@ -28,10 +28,11 @@
             <v-list
               two-line
             >
-              <v-subheader class="document-share__subheader">
+              <v-subheader class="document-share__subheader--with-hint">
                 <translate>document-visibility</translate>
                 <small><translate>document-visibility-hint</translate></small>
               </v-subheader>
+
               <v-list-tile
                 v-for="level in visibilityLevels"
                 :key="level.value"
@@ -63,13 +64,12 @@
             class="document-share__radio-group"
             hide-details
           >
-            <v-list
-              two-line
-            >
-              <v-subheader class="document-share__subheader">
+            <v-list two-line>
+              <v-subheader class="document-share__subheader--with-hint">
                 <translate>document-default-permissions</translate>
                 <small><translate>document-default-permissions-hint</translate></small>
               </v-subheader>
+
               <v-list-tile
                 v-for="permission in defaultPermissions"
                 :key="permission.value"
@@ -96,13 +96,12 @@
         <v-divider />
 
         <v-card-text>
-          <v-list
-            two-line
-          >
-            <v-subheader class="document-share__subheader">
+          <v-list two-line>
+            <v-subheader class="document-share__subheader--with-hint">
               <translate>document-user-permissions</translate>
               <small><translate>document-user-permissions-hint</translate></small>
             </v-subheader>
+
             <v-list-tile
               v-for="contributor in contributors"
               :key="contributor._id"
@@ -129,49 +128,57 @@
                   color="red lighten-2"
                   @click="removeFromList(contributor._id)"
                 >
-                  <translate>remove-from-user-permissions-list</translate>
+                  <translate>permissions-list-remove-user</translate>
                 </v-btn>
               </v-list-tile-action>
             </v-list-tile>
-          </v-list>
 
-          <v-layout row>
-            <v-flex>
-              <v-select
-                :loading="loading"
-                :items="items"
-                :return-object="true"
-                :search-input.sync="search"
-                :label="usersLabel"
-                v-model="selectedUsersInList"
-                item-text="username"
-                item-value="_id"
-                item-avatar="avatar"
-                autocomplete
-                multiple
-                chips
-                deletable-chips
-              />
-            </v-flex>
-            <v-flex>
-              <v-select
-                :items="roles"
-                v-model="role"
-                return-object
-                item-text="label"
-                item-value="value"
-                outline
-              />
-            </v-flex>
-            <v-flex>
-              <v-btn
-                :disabled="selectedUsersInList.length <= 0"
-                outline
-                @click="addToList()"
-              ><translate>add-to-user-permissions-list</translate>
-              </v-btn>
-            </v-flex>
-          </v-layout>
+            <v-subheader>
+              <translate>permissions-list-add-users-hint</translate>
+            </v-subheader>
+
+            <v-list-tile>
+              <v-list-tile-content>
+                <v-select
+                  :loading="loading"
+                  :items="items"
+                  :return-object="true"
+                  :search-input.sync="search"
+                  :label="usersLabel"
+                  v-model="selectedUsersInList"
+                  item-text="username"
+                  item-value="_id"
+                  item-avatar="avatar"
+                  autocomplete
+                  multiple
+                  chips
+                  deletable-chips
+                />
+              </v-list-tile-content>
+              <v-list-tile-action>
+                <v-layout row>
+                  <v-flex>
+                    <v-select
+                      :items="roles"
+                      v-model="role"
+                      return-object
+                      item-text="label"
+                      item-value="value"
+                      outline
+                    />
+                  </v-flex>
+                  <v-flex>
+                    <v-btn
+                      :disabled="selectedUsersInList.length <= 0"
+                      outline
+                      @click="addToList()"
+                    ><translate>permissions-list-add-users</translate>
+                    </v-btn>
+                  </v-flex>
+                </v-layout>
+              </v-list-tile-action>
+            </v-list-tile>
+          </v-list>
         </v-card-text>
 
         <v-divider />
@@ -181,11 +188,11 @@
           <v-btn
             :to="{name: 'document', params: {documentId: documentId}}"
             flat
-          ><translate>cancel-share</translate></v-btn>
+          ><translate>document-share-cancel</translate></v-btn>
           <v-btn
             color="primary"
             @click="share()"
-          ><translate>done-share</translate></v-btn>
+          ><translate>document-share-done</translate></v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -212,78 +219,78 @@
         },
         loading: false,
         items: [],
-        usersLabel: this.$gettext("users-share"),
+        usersLabel: this.$gettext("permissions-list-select-users"),
         roles: [
           {
             value: Document.ROLES.VIEW,
-            label: this.$gettext("view-role"),
-            hint: this.$gettext("view-user-role-hint"),
+            label: this.$gettext("role-view-label"),
+            hint: this.$gettext("role-view-user-hint"),
             show: true,
           },
           {
             value: Document.ROLES.COMMENT,
-            label: this.$gettext("comment-role"),
-            hint: this.$gettext("comment-user-role-hint"),
+            label: this.$gettext("role-comment-label"),
+            hint: this.$gettext("role-comment-user-hint"),
             show: true,
           },
           {
             value: Document.ROLES.EDIT,
-            label: this.$gettext("edit-role"),
-            hint: this.$gettext("edit-user-role-hint"),
+            label: this.$gettext("role-edit-label"),
+            hint: this.$gettext("role-edit-user-hint"),
             show: true,
           },
           {
             value: Document.ROLES.ADMIN,
-            label: this.$gettext("admin-role"),
-            hint: this.$gettext("admin-user-role-hint"),
+            label: this.$gettext("role-admin-label"),
+            hint: this.$gettext("role-admin-user-hint"),
             show: true,
           },
           {
             value: Document.ROLES.CUSTOM,
-            label: this.$gettext("custom-role"),
-            hint: this.$gettext("custom-user-role-hint"),
+            label: this.$gettext("role-custom-label"),
+            hint: this.$gettext("role-custom-user-hint"),
             show: false,
           },
         ],
         role: {
           value: Document.ROLES.VIEW,
-          label: this.$gettext("view-role"),
+          label: this.$gettext("role-view-label"),
         },
         search: null,
         selectedUsersInList: [],
         visibilityLevels: [
           {
             value: Document.VISIBILITY_LEVELS.PRIVATE,
-            label: this.$gettext("private"),
-            hint: this.$gettext("private-hint"),
+            label: this.$gettext("document-visibility-private"),
+            hint: this.$gettext("document-visibility-private-hint"),
           },
           {
             value: Document.VISIBILITY_LEVELS.PUBLIC,
-            label: this.$gettext("public"),
-            hint: this.$gettext("public-hint"),
+            label: this.$gettext("document-visibility-public"),
+            hint: this.$gettext("document-visibility-public-hint"),
           },
           {
             value: Document.VISIBILITY_LEVELS.LISTED,
-            label: this.$gettext("listed"),
-            hint: this.$gettext("listed-hint"),
+            label: this.$gettext("document-visibility-listed"),
+            hint: this.$gettext("document-visibility-listed-hint"),
           },
         ],
         visibilityLevel: null,
         defaultPermissions: [
           {
             value: Document.ROLES.VIEW,
-            label: this.$gettext("view-role"),
-            hint: this.$gettext("view-users-role-hint"),
+            label: this.$gettext("role-view-label"),
+            hint: this.$gettext("role-view-users-hint"),
           },
           {
             value: Document.ROLES.COMMENT,
-            label: this.$gettext("comment-role"),
-            hint: this.$gettext("comment-users-role-hint"),
+            label: this.$gettext("role-comment-label"),
+            hint: this.$gettext("role-comment-users-hint"),
           },
           {
             value: Document.ROLES.EDIT,
-            label: this.$gettext("edit-role"),
-            hint: this.$gettext("edit-users-role-hint"),
+            label: this.$gettext("role-edit-label"),
+            hint: this.$gettext("role-edit-users-hint"),
           },
         ],
         defaultPermission: null,
@@ -445,7 +452,7 @@
     padding-top: 0;
   }
 
-  .document-share__subheader {
+  .document-share__subheader--with-hint {
     flex-direction: column;
     align-items: flex-start;
   }

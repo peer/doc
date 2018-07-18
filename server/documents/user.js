@@ -1,6 +1,6 @@
 import {Accounts} from 'meteor/accounts-base';
 import {Meteor} from 'meteor/meteor';
-import {check} from 'meteor/check';
+import {check, Match} from 'meteor/check';
 
 import {User} from '/lib/documents/user';
 
@@ -18,12 +18,13 @@ Meteor.methods({
   // TODO: Make into a publish endpoint. With avatars.
   'User.findByUsername'(args) {
     check(args, {
-      username: String,
+      username: Match.NonEmptyString,
     });
 
     const user = User.documents.find(
       {
-        username: {$regex: `^${args.username}`},
+        // TODO: Check that given "username" is just string and not regex.
+        username: {$regex: args.username},
       },
       {
         fields: {
