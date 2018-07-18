@@ -176,14 +176,15 @@
         <v-divider />
 
         <v-card-actions>
-          <v-btn
-            color="primary"
-            @click="share()"
-          ><translate>done-share</translate></v-btn>
+          <v-spacer />
           <v-btn
             :to="{name: 'document', params: {documentId: documentId}}"
             flat
           ><translate>cancel-share</translate></v-btn>
+          <v-btn
+            color="primary"
+            @click="share()"
+          ><translate>done-share</translate></v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
