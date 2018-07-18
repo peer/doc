@@ -636,9 +636,9 @@
       getNearbyHighlights(highlightNodes, cursorPos, mode, commentHighlightKey) {
         let pos = cursorPos;
         let posNode = mode === 'after' ? cursorPos.nodeAfter : cursorPos.nodeBefore;
-        let highlightMark = posNode.marks.find((x) => {
+        let highlightMark = posNode ? posNode.marks.find((x) => {
           return x.type.name === 'highlight';
-        });
+        }) : null;
         while (highlightMark) {
           const highlightKeys = highlightMark.attrs['highlight-keys'].split(',');
           let otherKeys = highlightKeys.filter((y) => {
@@ -649,29 +649,15 @@
             if (mode === 'after') {
               highlightNodes.push({pos, otherKeys});
               pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
-              posNode = pos.nodeAfter;
-              if (posNode) {
-                highlightMark = posNode.marks.find((x) => {
-                  return x.type.name === 'highlight';
-                });
-              }
-              else {
-                highlightMark = null;
-              }
             }
             else {
               highlightNodes.unshift({pos, otherKeys});
               pos = this.$editorView.state.doc.resolve(pos.pos - pos.textOffset - 1);
-              posNode = pos.nodeAfter;
-              if (posNode) {
-                highlightMark = posNode.marks.find((x) => {
-                  return x.type.name === 'highlight';
-                });
-              }
-              else {
-                highlightMark = null;
-              }
             }
+            posNode = pos.nodeAfter;
+            highlightMark = posNode ? posNode.marks.find((x) => {
+              return x.type.name === 'highlight';
+            }) : null;
           }
           else {
             highlightMark = null;
