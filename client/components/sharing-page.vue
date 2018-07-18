@@ -33,7 +33,7 @@
             @click.native="nextStep(2)"
           ><translate>continue-share</translate></v-btn>
           <v-btn
-            :to="{name: 'document',params: {documentId: documentId}}"
+            :to="{name: 'document', params: {documentId: documentId}}"
             flat
           ><translate>cancel-share</translate></v-btn>
         </v-stepper-content>
@@ -103,7 +103,7 @@
                 slot="activator"
                 color="primary"
                 dark
-              ><v-icon>{{role? role.icon : 'settings'}}</v-icon></v-btn>
+              ><v-icon>{{role ? role.icon : 'settings'}}</v-icon></v-btn>
               <v-list>
                 <v-list-tile
                   v-for="(item, index) in roles"
@@ -140,7 +140,7 @@
             @click.native="nextStep(1)"
           ><translate>back-share</translate></v-btn>
           <v-btn
-            :to="{name: 'document',params: {documentId: documentId}}"
+            :to="{name: 'document', params: {documentId: documentId}}"
             flat
           ><translate>cancel-share</translate></v-btn>
         </v-stepper-content>
@@ -152,9 +152,11 @@
 
 <script>
   import {RouterFactory} from 'meteor/akryum:vue-router2';
-  import {User} from '/lib/documents/user';
-  import {Document} from '/lib/documents/document';
   import {_} from 'meteor/underscore';
+
+  import {Document} from '/lib/documents/document';
+  import {User} from '/lib/documents/user';
+
   import {Snackbar} from '../snackbar';
 
   // @vue/component
@@ -216,10 +218,11 @@
             label: this.$gettext("listed"),
           },
         ],
-        visibilityLevel: undefined,
+        visibilityLevel: null,
         contributors: [],
       };
     },
+
     computed: {
       document() {
         return Document.documents.findOne({
@@ -227,10 +230,11 @@
         });
       },
     },
+
     watch: {
       document(val) {
         if (val) {
-          const userPermissions = this.document ? this.document.userPermissions : undefined;
+          const userPermissions = this.document ? this.document.userPermissions : [];
 
           const users = _.groupBy(userPermissions, (x) => {
             return x.user._id;
@@ -258,11 +262,13 @@
           this.contributors = contributors;
         }
       },
+
       search(val) {
         if (val) {
           this.querySelections(val);
         }
       },
+
       visibilityLevel(val) {
         if (val) {
           // When visibilityLevel is PRIVATE, the SEE Role must be hidden.
@@ -278,12 +284,14 @@
         }
       },
     },
+
     created() {
       this.documentId = this.$route.params.documentId;
       this.$autorun((computation) => {
         this.$subscribe('Document.admin', {documentId: this.documentId});
       });
     },
+
     methods: {
       nextStep(step) {
         // When visibilityLevel isn't PRIVATE, there mustn't be users with SEE Role.
@@ -294,6 +302,7 @@
         }
         this.step = step;
       },
+
       addToList() {
         const newContributors = this.select.map((x) => {
           return {
@@ -307,11 +316,13 @@
         this.select = [];
         this.items = [];
       },
+
       removeFromList(id) {
         this.contributors = this.contributors.filter((x) => {
           return x._id !== id;
         });
       },
+
       querySelections(v) {
         this.loading = true;
 
@@ -330,6 +341,7 @@
           }
         });
       },
+
       share() {
         Document.share({
           documentId: this.documentId,
