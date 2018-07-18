@@ -15,6 +15,7 @@ Accounts.onCreateUser(function onCreateUser(options, user) {
 });
 
 Meteor.methods({
+  // TODO: Make into a publish endpoint. With avatars.
   'User.findByUsername'(args) {
     check(args, {
       username: String,
