@@ -94,7 +94,7 @@
         <v-divider v-if="!visibilityLevelIsPrivate" />
 
         <v-card-text>
-          <v-list>
+          <v-list two-line>
             <v-subheader class="document-share__subheader--with-hint">
               <translate>document-user-permissions</translate>
               <small><translate>document-user-permissions-hint</translate></small>
@@ -112,22 +112,28 @@
                 <v-list-tile-title>{{contributor.username}}</v-list-tile-title>
                 <v-list-tile-sub-title>{{contributor.role.hint}}</v-list-tile-sub-title>
               </v-list-tile-content>
-              <v-list-tile-action>
-                <v-select
-                  :items="roles"
-                  v-model="contributor.role"
-                  return-object
-                  item-text="label"
-                  item-value="value"
-                  outline
-                />
-                <v-btn
-                  outline
-                  color="red lighten-2"
-                  @click="removeFromList(contributor._id)"
-                >
-                  <translate>permissions-list-remove-user</translate>
-                </v-btn>
+              <v-list-tile-action class="document-share__role-actions">
+                <v-layout row>
+                  <v-flex>
+                    <v-select
+                      :items="roles"
+                      v-model="contributor.role"
+                      return-object
+                      item-text="label"
+                      item-value="value"
+                      class="document-share__role-select"
+                    />
+                  </v-flex>
+                  <v-flex>
+                    <v-btn
+                      outline
+                      color="red lighten-2"
+                      @click="removeFromList(contributor._id)"
+                    >
+                      <translate>permissions-list-remove-user</translate>
+                    </v-btn>
+                  </v-flex>
+                </v-layout>
               </v-list-tile-action>
             </v-list-tile>
 
@@ -135,7 +141,7 @@
               <translate>permissions-list-add-users-hint</translate>
             </v-subheader>
 
-            <v-list-tile class="document_share__user-search_wrapper">
+            <v-list-tile class="document_share__user-search">
               <v-list-tile-content>
                 <v-autocomplete
                   :loading="loading"
@@ -153,10 +159,9 @@
                   deletable-chips
                   small-chips
                   hide-selected
-                  class="document-share__user-search"
                 />
               </v-list-tile-content>
-              <v-list-tile-action class="document-share__list-action">
+              <v-list-tile-action class="document-share__role-actions">
                 <v-layout row>
                   <v-flex>
                     <v-select
@@ -165,7 +170,7 @@
                       return-object
                       item-text="label"
                       item-value="value"
-                      class="document-share__action-button mx-4"
+                      class="document-share__role-select"
                     />
                   </v-flex>
                   <v-flex>
@@ -173,7 +178,9 @@
                       :disabled="selectedUsersInList.length <= 0"
                       outline
                       @click="addToList()"
-                    ><translate>permissions-list-add-users</translate></v-btn>
+                    >
+                      <translate>permissions-list-add-users</translate>
+                    </v-btn>
                   </v-flex>
                 </v-layout>
               </v-list-tile-action>
@@ -458,13 +465,14 @@
     align-items: flex-start;
   }
 
-  .document-share__list-action {
-    align-items: flex-start;
-    flex: 0 0 auto;
-  }
-
-  .document-share__action-button {
+  .document-share__role-select {
     max-width: 150px;
+
+    // To make selector specific enough to override margins.
+    &.v-input {
+      margin-left: 24px;
+      margin-right: 24px;
+    }
 
     .v-select__selection {
       white-space: nowrap;
@@ -480,23 +488,37 @@
     }
   }
 
-  .document-share__user-search {
-    width: 100%;
+  .document-share__role-actions {
+    flex: 0 0 auto;
   }
 
-  .document_share__user-search_wrapper {
+  .document_share__user-search {
     .v-list__tile {
       // Instead of having the list items be fixed based on number of rows we just set the minimal
-      // height (to what was otherwise fixed height), and allow it to expand so that if many users
-      // are selected, the autocomplete component has space to grow.
+      // height (to what was otherwise fixed height for two-line), and allow it to expand so that
+      // if many users are selected, the autocomplete component has space to grow.
       height: auto;
-      min-height: 48px;
-      // And we want buttons to be aligned on top while the autocomplete component grows.
+      min-height: 72px;
+      // And we want buttons to be aligned on the top while the autocomplete component grows.
       align-items: flex-start;
     }
 
     .v-list__tile__content {
+      // So that autocomplete's label is not cut when it moves up.
       overflow: visible;
+      // And that there is enough space for the lable.
+      margin-top: 10px;
+    }
+
+    .document-share__role-actions {
+      // We want actions to stay at the top as the autocomplete component grows.
+      align-items: flex-start;
+      // And that there is enough space for the lable.
+      margin-top: 10px;
+    }
+
+    .v-autocomplete {
+      width: 100%;
     }
   }
 </style>
