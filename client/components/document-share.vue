@@ -102,14 +102,14 @@
 
             <v-list-tile
               v-for="contributor in contributors"
-              :key="contributor._id"
+              :key="contributor.user._id"
               avatar
             >
               <v-list-tile-avatar>
-                <img :src="contributor.avatar">
+                <img :src="contributor.user.avatar">
               </v-list-tile-avatar>
               <v-list-tile-content>
-                <v-list-tile-title>{{contributor.username}}</v-list-tile-title>
+                <v-list-tile-title>{{contributor.user.username}}</v-list-tile-title>
                 <v-list-tile-sub-title>{{contributor.role.hint}}</v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action class="document-share__role-actions">
@@ -128,7 +128,7 @@
                     <v-btn
                       outline
                       color="red lighten-2"
-                      @click="removeUserFromContributors(contributor._id)"
+                      @click="removeUserFromContributors(contributor.user._id)"
                     >
                       <translate>permissions-list-remove-user</translate>
                     </v-btn>
@@ -218,15 +218,6 @@
 
   import {Snackbar} from '../snackbar';
 
-  function filterUsers(allUsers, withoutUsers) {
-    return allUsers.filter((x) => {
-      const found = withoutUsers.find((y) => {
-        return x._id === y._id;
-      });
-      return !found;
-    });
-  }
-
   // @vue/component
   const component = {
     props: {
@@ -299,6 +290,7 @@
         role: {
           value: Document.ROLES.VIEW,
           label: this.$gettext("role-view-label"),
+          hint: this.$gettext("role-view-user-hint"),
         },
         userSearchLoading: false,
         userSearchResults: [],
@@ -306,6 +298,7 @@
         userSearchLabel: this.$gettext("permissions-list-select-users"),
         userSearchNoUsersMessage: this.$gettext("permissions-list-no-users-found"),
         selectedUsers: [],
+        // This is a list of {user, role} objects.
         contributors: [],
       };
     },
@@ -340,9 +333,7 @@
               });
               const role = Document.getRoleByPermissions(permissions);
               return {
-                _id: x[0].user._id,
-                username: x[0].user.username,
-                avatar: x[0].user.avatar,
+                user: x[0].user,
                 role: this.roles.find((r) => {
                   return r.value === role;
                 }),
@@ -383,32 +374,34 @@
     methods: {
       addSelectedUsersToContributors() {
         const newContributors = this.selectedUsers.map((user) => {
-          return {
-            _id: user._id,
-            username: user.username,
-            avatar: user.avatar,
-            role: this.role,
-          };
+          return {user, role: this.role};
         });
+
         // It should not be really possible that "newContributors" contain users
         // from "oldContributors" because the user should not be able to select them.
         // But we still make sure this is the case and make things consistent.
-        const oldContributors = filterUsers(this.contributors, newContributors);
+        const oldContributors = this.contributors.filter((x) => {
+          const found = newContributors.find((y) => {
+            return x.user._id === y.user._id;
+          });
+          return !found;
+        });
+
         this.contributors = oldContributors.concat(newContributors);
         this.selectedUsers = [];
       },
 
       removeUserFromContributors(userId) {
-        this.contributors = this.contributors.filter((x) => {
-          return x._id !== userId;
+        this.contributors = this.contributors.filter((contributor) => {
+          return contributor.user._id !== userId;
         });
       },
 
       // TODO: This does not really filter items when queryText is empty, because it is not called.
       //       See: https://github.com/vuetifyjs/vuetify/issues/4670
       filterUserSearchResults(item, queryText, itemText) {
-        const found = this.contributors.find((user) => {
-          return user._id === item._id;
+        const found = this.contributors.find((contributor) => {
+          return contributor.user._id === item._id;
         });
 
         // We filter out all existing contributors.
@@ -433,17 +426,15 @@
           visibilityLevel: this.visibilityLevel,
           contributors: this.contributors.map((x) => {
             return {
-              user: {
-                _id: x._id,
-                username: x.username,
-                avatar: x.avatar,
-              },
+              user: x.user,
               role: x.role.value,
             };
           }),
-        }, (error, document) => {
+        }, (error, changed) => {
           if (error) {
+            // TODO: Should we show the error to the user? Maybe as a form error?
             Snackbar.enqueue(this.$gettext("document-shared-error"), 'error');
+            console.error(error);
           }
           else {
             Snackbar.enqueue(this.$gettext("document-shared-success"), 'success');

@@ -165,6 +165,8 @@ Meteor.methods({
     else {
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
+
+    return changed;
   },
   'Document.create'(args) {
     check(args, {});
