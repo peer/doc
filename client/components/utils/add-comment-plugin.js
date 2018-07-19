@@ -75,7 +75,7 @@ class AddComment {
 }
 
 // Add the given mark to the inline content between `from` and `to`.
-function addHighlightMark(tr, from, to, mark) {
+function addHighlightMark(tr, from, to, mark, originator) {
   const removed = [];
   const added = [];
   let removing = null;
@@ -95,7 +95,7 @@ function addHighlightMark(tr, from, to, mark) {
             removing.to = end;
           }
           else {
-            removed.push(removing = new RemoveHighlightStep(start, end, marks[i]));
+            removed.push(removing = new RemoveHighlightStep(start, end, marks[i], originator));
           }
         }
       }
@@ -104,7 +104,7 @@ function addHighlightMark(tr, from, to, mark) {
         adding.to = end;
       }
       else {
-        added.push(adding = new AddHighlightStep(start, end, mark));
+        added.push(adding = new AddHighlightStep(start, end, mark, originator));
       }
     }
   });
@@ -122,7 +122,7 @@ function addHighlightMark(tr, from, to, mark) {
 // is a single mark, remove precisely that mark. When it is a mark type,
 // remove all marks of that type. When it is null, remove all marks of
 // any type.
-function removeHighlightMark(tr, from, to, mark = null) {
+function removeHighlightMark(tr, from, to, mark = null, originator) {
   const matched = [];
   let step = 0;
   tr.doc.nodesBetween(from, to, (node, pos) => {
@@ -153,13 +153,13 @@ function removeHighlightMark(tr, from, to, mark = null) {
           found.step = step;
         }
         else {
-          matched.push({style, from: Math.max(pos, from), to: end, step});
+          matched.push({style, from: Math.max(pos, from), to: end, step, originator});
         }
       }
     }
   });
   matched.forEach((m) => {
-    tr.step(new RemoveHighlightStep(m.from, m.to, m.style));
+    tr.step(new RemoveHighlightStep(m.from, m.to, m.style, m.originator));
   });
   return tr;
 }
@@ -172,16 +172,16 @@ export default function addCommentPlugin(vueInstance) {
   });
 }
 
-export function addHighlight(keys, schema, tr, from, to) {
+export function addHighlight(keys, schema, tr, from, to, originator) {
   const attrs = {'highlight-keys': keys};
   tr.setMeta('addToHistory', false);
-  addHighlightMark(tr, from, to, schema.marks.highlight.create(attrs));
+  addHighlightMark(tr, from, to, schema.marks.highlight.create(attrs), originator);
 }
 
-export function removeHighlight(schema, tr, doc, from, to) {
+export function removeHighlight(schema, tr, doc, from, to, originator) {
   if (doc.rangeHasMark(from, to, schema.marks.highlight)) {
     tr.setMeta('addToHistory', false);
-    removeHighlightMark(tr, from, to, schema.marks.highlight);
+    removeHighlightMark(tr, from, to, schema.marks.highlight, originator);
   }
 }
 
