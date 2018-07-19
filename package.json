@@ -46,8 +46,8 @@
     "vue": "git://github.com/meteor-vue/vue.git#meteor",
     "vue-gettext": "^2.0.31",
     "vue-router": "^3.0.1",
-    "vue-template-compiler": "2.5.2",
-    "vuetify": "^1.0.17"
+    "vue-template-compiler": "^2.5.16",
+    "vuetify": "^1.1.6"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.3",
