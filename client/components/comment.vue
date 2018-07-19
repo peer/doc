@@ -58,7 +58,7 @@
                   flat
                   icon
                   small
-                  @click.stop="onDeleteClicked"
+                  @click="onDeleteClicked"
                 >
                   <v-icon>delete</v-icon>
                 </v-btn>
@@ -110,7 +110,7 @@
         flat
         icon
         small
-        @click.stop="comment.showDetails = !comment.showDetails"
+        @click="comment.showDetails = !comment.showDetails"
       >
         <v-icon>more_horiz</v-icon>
       </v-btn>

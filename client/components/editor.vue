@@ -636,34 +636,31 @@
       getNearbyHighlights(highlightNodes, cursorPos, mode, commentHighlightKey) {
         let pos = cursorPos;
         let posNode = mode === 'after' ? cursorPos.nodeAfter : cursorPos.nodeBefore;
-        let posMarks = mode === 'after' ? posNode.marks : posNode.marks;
-        let hasHighlight = posMarks.length !== 0;
-        while (hasHighlight) {
-          for (let i = 0; i < posMarks.length; i += 1) {
-            const x = posMarks[i];
-            const highlightKeys = x.attrs['highlight-keys'].split(',');
-            let otherKeys = highlightKeys.filter((y) => {
-              return y !== commentHighlightKey;
-            });
-            otherKeys = otherKeys || [];
-            if (otherKeys.length < highlightKeys.length) {
-              if (mode === 'after') {
-                highlightNodes.push({pos, otherKeys});
-                pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
-                posNode = pos.nodeAfter;
-                posMarks = pos.nodeAfter.marks;
-              }
-              else {
-                highlightNodes.unshift({pos, otherKeys});
-                pos = this.$editorView.state.doc.resolve(pos.pos - pos.textOffset - 1);
-                posNode = pos.nodeBefore;
-                posMarks = pos.nodeBefore.marks;
-              }
-              hasHighlight = posMarks.length !== 0;
+        let highlightMark = posNode ? posNode.marks.find((x) => {
+          return x.type.name === 'highlight';
+        }) : null;
+        while (highlightMark) {
+          const highlightKeys = highlightMark.attrs['highlight-keys'].split(',');
+          let otherKeys = highlightKeys.filter((y) => {
+            return y !== commentHighlightKey;
+          });
+          otherKeys = otherKeys || [];
+          if (otherKeys.length < highlightKeys.length) {
+            if (mode === 'after') {
+              highlightNodes.push({pos, otherKeys});
+              pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
             }
             else {
-              hasHighlight = false;
+              highlightNodes.unshift({pos, otherKeys});
+              pos = this.$editorView.state.doc.resolve(pos.pos - pos.textOffset - 1);
             }
+            posNode = pos.nodeAfter;
+            highlightMark = posNode ? posNode.marks.find((x) => {
+              return x.type.name === 'highlight';
+            }) : null;
+          }
+          else {
+            highlightMark = null;
           }
         }
       },
