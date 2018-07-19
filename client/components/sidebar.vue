@@ -614,6 +614,10 @@
 
     .sidebar__controlbox {
       z-index: 1;
+
+      .v-toolbar__content {
+        padding: 0 8px;
+      }
     }
 
     .sidebar__status {
