@@ -71,6 +71,15 @@ Meteor.methods({
       return Step.fromJSON(schema, step);
     });
 
+    const highlightStep = args.steps.find((x) => {
+      return x.stepType === 'removeHighlight' || x.stepType === 'addHighlight';
+    });
+
+    let action;
+    if (highlightStep) {
+      action = highlightStep.originator;
+    }
+
     const user = Meteor.user(User.REFERENCE_FIELDS());
 
     // We need user reference.
@@ -101,7 +110,7 @@ Meteor.methods({
     });
 
     if (latestContent.version !== args.currentVersion) {
-      throw new Meteor.Error('version-error', `Step version doesn't match.`);
+      return {stepsAdded: 0, action};
     }
 
     let stepsToProcess = steps;
@@ -113,7 +122,7 @@ Meteor.methods({
         return step.mark && step.mark.type.name === 'highlight';
       });
       if (!stepsToProcess.length) {
-        return 0;
+        return {stepsAdded: 0, action};
       }
     }
 
@@ -196,8 +205,7 @@ Meteor.methods({
       highlightKeys: _.flatten(keys),
       version,
     });
-
-    return args.currentVersion - version;
+    return {stepsAdded: version - args.currentVersion, action};
   },
 });
 
