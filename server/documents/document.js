@@ -237,7 +237,7 @@ Meteor.publish('Document.one', function documentOne(args) {
   });
 });
 
-Meteor.publish('Document.admin', function documentOne(args) {
+Meteor.publish('Document.admin', function documentadmin(args) {
   check(args, {
     documentId: Match.DocumentId,
   });
