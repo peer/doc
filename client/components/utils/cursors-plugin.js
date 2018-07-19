@@ -4,9 +4,8 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 
 /**
  * Helper function that creates a DOM.node with the cursor to render.
- * @param {*} color - String with the hex color to use.
  */
-function createCaret(color, name, avatar) {
+function createCaret(color, name, avatarUrl) {
   const caretContainer = document.createElement('div');
   caretContainer.className = 'caret-container';
   const caretHead = document.createElement('div');
@@ -18,10 +17,10 @@ function createCaret(color, name, avatar) {
   caretBody.style.borderLeftColor = color;
   const caretName = document.createElement('div');
   caretName.className = 'caret-name';
-  if (avatar) {
+  if (avatarUrl) {
     const imgAvatar = document.createElement('img');
     imgAvatar.className = 'caret-img';
-    imgAvatar.setAttribute('src', avatar);
+    imgAvatar.setAttribute('src', avatarUrl);
     imgAvatar.setAttribute('height', '25px');
     caretName.appendChild(imgAvatar);
   }
@@ -36,9 +35,7 @@ function createCaret(color, name, avatar) {
   return caretContainer;
 }
 /**
- * Creates decorations for each user current position in the document
- * @param {*} doc - Current document
- * @param {*} positions - Positions array, each object needs a 'from' and 'to' property
+ * Creates decorations for each user current position in the document.
  */
 function getDecorations(doc, positions) {
   const decosInline = _.flatten(positions.map((pos) => {
@@ -55,16 +52,16 @@ function getDecorations(doc, positions) {
   }));
 
   const decosWidget = positions.map((pos) => {
-    return Decoration.widget(pos.head, createCaret(pos.color, pos.username, pos.avatar));
+    return Decoration.widget(pos.head, createCaret(pos.color, pos.username, pos.avatarUrl));
   });
   return DecorationSet.create(doc, [...decosInline, ...decosWidget]);
 }
 
 /**
- * Cursors Plugin for ProseMirror that excpects to use
+ * Cursors Plugin for ProseMirror that expects to use
  * an array of other users positions as a metadata for
  * the current transaction.
- * It stores an DecoarionSet as its state.
+ * It stores an DecorationSet as its state.
  */
 export const cursorsPlugin = new Plugin({
   state: {
