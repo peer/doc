@@ -58,7 +58,7 @@
 
         <v-card-text v-if="!visibilityLevelIsPrivate">
           <v-radio-group
-            v-model="defaultPermission"
+            v-model="defaultRole"
             class="mt-0"
             hide-details
           >
@@ -69,22 +69,22 @@
               </v-subheader>
 
               <v-list-tile
-                v-for="permission in defaultPermissions"
-                :key="permission.value"
+                v-for="role in defaultRoles"
+                :key="role.value"
                 ripple
-                @click="defaultPermission = permission.value"
+                @click="defaultRole = role.value"
               >
                 <v-list-tile-action>
                   <v-radio
-                    :key="permission.value"
-                    :value="permission.value"
+                    :key="role.value"
+                    :value="role.value"
                   />
                 </v-list-tile-action>
                 <v-list-tile-content
-                  @click="defaultPermission = permission.value"
+                  @click="defaultRole = role.value"
                 >
-                  <v-list-tile-title>{{permission.label}}</v-list-tile-title>
-                  <v-list-tile-sub-title>{{permission.hint}}</v-list-tile-sub-title>
+                  <v-list-tile-title>{{role.label}}</v-list-tile-title>
+                  <v-list-tile-sub-title>{{role.hint}}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
             </v-list>
@@ -128,7 +128,7 @@
                     <v-btn
                       outline
                       color="red lighten-2"
-                      @click="removeFromList(contributor._id)"
+                      @click="removeUserFromContributors(contributor._id)"
                     >
                       <translate>permissions-list-remove-user</translate>
                     </v-btn>
@@ -144,13 +144,14 @@
             <v-list-tile class="document_share__user-search">
               <v-list-tile-content>
                 <v-autocomplete
-                  :loading="loading"
-                  :items="foundUsers"
-                  :return-object="true"
-                  :search-input.sync="search"
-                  :label="usersLabel"
-                  :no-data-text="noUserMessage"
-                  v-model="selectedUsersInList"
+                  :loading="userSearchLoading"
+                  :items="userSearchResults"
+                  :filter="filterUserSearchResults"
+                  :search-input.sync="userSearchQuery"
+                  :label="userSearchLabel"
+                  :no-data-text="userSearchNoUsersMessage"
+                  v-model="selectedUsers"
+                  return-object
                   item-text="username"
                   item-value="_id"
                   item-avatar="avatar"
@@ -159,6 +160,7 @@
                   deletable-chips
                   small-chips
                   hide-selected
+                  cache-items
                 />
               </v-list-tile-content>
               <v-list-tile-action class="document-share__role-actions">
@@ -175,9 +177,9 @@
                   </v-flex>
                   <v-flex>
                     <v-btn
-                      :disabled="selectedUsersInList.length <= 0"
+                      :disabled="selectedUsers.length <= 0"
                       outline
-                      @click="addToList()"
+                      @click="addSelectedUsersToContributors()"
                     >
                       <translate>permissions-list-add-users</translate>
                     </v-btn>
@@ -216,56 +218,26 @@
 
   import {Snackbar} from '../snackbar';
 
+  function filterUsers(allUsers, withoutUsers) {
+    return allUsers.filter((x) => {
+      const found = withoutUsers.find((y) => {
+        return x._id === y._id;
+      });
+      return !found;
+    });
+  }
+
   // @vue/component
   const component = {
+    props: {
+      documentId: {
+        type: String,
+        required: true,
+      },
+    },
+
     data() {
       return {
-        documentId: {
-          type: String,
-          required: true,
-        },
-        loading: false,
-        foundUsers: [],
-        usersLabel: this.$gettext("permissions-list-select-users"),
-        noUserMessage: this.$gettext("permissions-list-no-users-found"),
-        roles: [
-          {
-            value: Document.ROLES.VIEW,
-            label: this.$gettext("role-view-label"),
-            hint: this.$gettext("role-view-user-hint"),
-            show: true,
-          },
-          {
-            value: Document.ROLES.COMMENT,
-            label: this.$gettext("role-comment-label"),
-            hint: this.$gettext("role-comment-user-hint"),
-            show: true,
-          },
-          {
-            value: Document.ROLES.EDIT,
-            label: this.$gettext("role-edit-label"),
-            hint: this.$gettext("role-edit-user-hint"),
-            show: true,
-          },
-          {
-            value: Document.ROLES.ADMIN,
-            label: this.$gettext("role-admin-label"),
-            hint: this.$gettext("role-admin-user-hint"),
-            show: true,
-          },
-          {
-            value: Document.ROLES.CUSTOM,
-            label: this.$gettext("role-custom-label"),
-            hint: this.$gettext("role-custom-user-hint"),
-            show: false,
-          },
-        ],
-        role: {
-          value: Document.ROLES.VIEW,
-          label: this.$gettext("role-view-label"),
-        },
-        search: null,
-        selectedUsersInList: [],
         visibilityLevels: [
           {
             value: Document.VISIBILITY_LEVELS.PRIVATE,
@@ -284,7 +256,7 @@
           },
         ],
         visibilityLevel: null,
-        defaultPermissions: [
+        defaultRoles: [
           {
             value: Document.ROLES.VIEW,
             label: this.$gettext("role-view-label"),
@@ -301,7 +273,39 @@
             hint: this.$gettext("role-edit-users-hint"),
           },
         ],
-        defaultPermission: null,
+        defaultRole: null,
+        roles: [
+          {
+            value: Document.ROLES.VIEW,
+            label: this.$gettext("role-view-label"),
+            hint: this.$gettext("role-view-user-hint"),
+          },
+          {
+            value: Document.ROLES.COMMENT,
+            label: this.$gettext("role-comment-label"),
+            hint: this.$gettext("role-comment-user-hint"),
+          },
+          {
+            value: Document.ROLES.EDIT,
+            label: this.$gettext("role-edit-label"),
+            hint: this.$gettext("role-edit-user-hint"),
+          },
+          {
+            value: Document.ROLES.ADMIN,
+            label: this.$gettext("role-admin-label"),
+            hint: this.$gettext("role-admin-user-hint"),
+          },
+        ],
+        role: {
+          value: Document.ROLES.VIEW,
+          label: this.$gettext("role-view-label"),
+        },
+        userSearchLoading: false,
+        userSearchResults: [],
+        userSearchQuery: null,
+        userSearchLabel: this.$gettext("permissions-list-select-users"),
+        userSearchNoUsersMessage: this.$gettext("permissions-list-no-users-found"),
+        selectedUsers: [],
         contributors: [],
       };
     },
@@ -319,8 +323,8 @@
     },
 
     watch: {
-      document(val) {
-        if (val) {
+      document(value, oldValue) {
+        if (value) {
           const userPermissions = this.document ? this.document.userPermissions : [];
 
           const users = _.groupBy(userPermissions, (x) => {
@@ -350,73 +354,77 @@
         }
       },
 
-      search(val) {
-        if (val) {
-          this.querySelections(val);
-        }
-      },
-
-      visibilityLevel(val) {
-        if (val) {
-          // When visibilityLevel is not PRIVATE, the VIEW role must be hidden.
-          this.roles = this.roles.map((x) => {
-            let show = x.value !== Document.ROLES.CUSTOM;
-            if (x.value === Document.ROLES.VIEW) {
-              show = this.visibilityLevel === Document.VISIBILITY_LEVELS.PRIVATE;
+      userSearchQuery(value, oldValue) {
+        if (value) {
+          this.userSearchLoading = true;
+          User.findByUsername({username: value}, (error, foundUsers) => {
+            if (error) {
+              // TODO: Handle error.
+              this.userSearchLoading = false;
             }
-            return Object.assign({}, x, {
-              show,
-            });
+            else {
+              this.userSearchResults = foundUsers;
+              this.userSearchLoading = false;
+            }
           });
+        }
+        else {
+          this.userSearchResults = [];
         }
       },
     },
 
     created() {
-      this.documentId = this.$route.params.documentId;
       this.$autorun((computation) => {
         this.$subscribe('Document.admin', {documentId: this.documentId});
       });
     },
 
     methods: {
-      addToList() {
-        const newContributors = this.selectedUsersInList.map((x) => {
+      addSelectedUsersToContributors() {
+        const newContributors = this.selectedUsers.map((user) => {
           return {
-            _id: x._id,
-            username: x.username,
-            avatar: x.avatar,
+            _id: user._id,
+            username: user.username,
+            avatar: user.avatar,
             role: this.role,
           };
         });
-        this.contributors = this.contributors.concat(newContributors);
-        this.selectedUsersInList = [];
-        this.foundUsers = [];
+        // It should not be really possible that "newContributors" contain users
+        // from "oldContributors" because the user should not be able to select them.
+        // But we still make sure this is the case and make things consistent.
+        const oldContributors = filterUsers(this.contributors, newContributors);
+        this.contributors = oldContributors.concat(newContributors);
+        this.selectedUsers = [];
       },
 
-      removeFromList(id) {
+      removeUserFromContributors(userId) {
         this.contributors = this.contributors.filter((x) => {
-          return x._id !== id;
+          return x._id !== userId;
         });
       },
 
-      querySelections(v) {
-        this.loading = true;
-
-        User.findByUsername({username: v}, (error, foundUsers) => {
-          if (error) {
-            this.loading = false;
-          }
-          else {
-            this.foundUsers = foundUsers.filter((x) => {
-              const found = this.contributors.find((y) => {
-                return x._id === y._id;
-              });
-              return !found;
-            });
-            this.loading = false;
-          }
+      // TODO: This does not really filter items when queryText is empty, because it is not called.
+      //       See: https://github.com/vuetifyjs/vuetify/issues/4670
+      filterUserSearchResults(item, queryText, itemText) {
+        const found = this.contributors.find((user) => {
+          return user._id === item._id;
         });
+
+        // We filter out all existing contributors.
+        if (found) {
+          return false;
+        }
+
+        const hasValue = (val) => {
+          return val != null ? val : '';
+        };
+
+        const text = hasValue(itemText);
+        const query = hasValue(queryText);
+
+        // Default comparison.
+        return text.toString().toLowerCase().indexOf(query.toString().toLowerCase()) > -1;
       },
 
       share() {
@@ -452,6 +460,7 @@
         component,
         path: '/document/share/:documentId',
         name: 'shareDocument',
+        props: true,
       },
     ]);
   });
