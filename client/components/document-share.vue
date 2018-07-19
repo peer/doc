@@ -461,7 +461,7 @@
       {
         component,
         path: '/document/share/:documentId',
-        name: 'shareDocument',
+        name: 'document-share',
         props: true,
       },
     ]);

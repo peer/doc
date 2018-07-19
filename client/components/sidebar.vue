@@ -26,12 +26,12 @@
               ><translate>document-published</translate></v-chip>
               <v-btn
                 v-if="!documentPublished && canAdministerDocuments"
-                :to="{name: 'publishDocument', params: {documentId}}"
+                :to="{name: 'document-publish', params: {documentId}}"
                 color="success"
               ><translate>document-publish</translate></v-btn>
               <v-btn
                 v-if="!documentPublished && canAdministerDocuments"
-                :to="{name: 'shareDocument', params: {documentId}}"
+                :to="{name: 'document-share', params: {documentId}}"
                 color="primary"
               ><translate>share</translate></v-btn>
             </v-toolbar>

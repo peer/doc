@@ -108,7 +108,7 @@
       {
         component,
         path: '/document/publish/:documentId',
-        name: 'publishDocument',
+        name: 'document-publish',
         props: true,
       },
     ]);
