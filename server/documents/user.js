@@ -15,7 +15,7 @@ Accounts.onCreateUser(function onCreateUser(options, user) {
 });
 
 Meteor.methods({
-  // TODO: Make into a publish endpoint. With avatars.
+  // TODO: Make into a publish endpoint, so that we update the list reactively.
   // TODO: Restrict who can query (maybe just logged in users) and how many results.
   'User.findByUsername'(args) {
     check(args, {
@@ -28,10 +28,7 @@ Meteor.methods({
         username: {$regex: args.username},
       },
       {
-        fields: {
-          username: 1,
-          avatar: 1,
-        },
+        fields: User.REFERENCE_FIELDS(),
       },
     ).fetch();
 

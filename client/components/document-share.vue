@@ -106,7 +106,7 @@
               avatar
             >
               <v-list-tile-avatar>
-                <img :src="contributor.user.avatar">
+                <img :src="contributor.user.avatarUrl()">
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-title>{{contributor.user.username}}</v-list-tile-title>
@@ -154,7 +154,6 @@
                   return-object
                   item-text="username"
                   item-value="_id"
-                  item-avatar="avatar"
                   multiple
                   chips
                   deletable-chips
@@ -348,13 +347,18 @@
       userSearchQuery(value, oldValue) {
         if (value) {
           this.userSearchLoading = true;
+          // TODO: Make into a subscribe, so that we update the list reactively.
           User.findByUsername({username: value}, (error, foundUsers) => {
             if (error) {
               // TODO: Handle error.
               this.userSearchLoading = false;
             }
             else {
-              this.userSearchResults = foundUsers;
+              // We have to map to get access to "User" methods. This would not
+              // be necessary if we were accessing documents through a subscription.
+              this.userSearchResults = foundUsers.map((user) => {
+                return new User(user);
+              });
               this.userSearchLoading = false;
             }
           });
