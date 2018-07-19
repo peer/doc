@@ -36,6 +36,7 @@ const create = (user, connectionId) => {
     body: schema.topNodeType.createAndFill().toJSON(),
     userPermissions,
     visibility: Document.VISIBILITY_LEVELS.PRIVATE,
+    defaultPermissions: Document.getRolePermissions(Document.ROLES.VIEW),
   });
 
   if (Meteor.isServer) {
