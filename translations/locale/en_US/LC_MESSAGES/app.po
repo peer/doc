@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-18 11:05-0700\n"
+"POT-Creation-Date: 2018-07-18 18:43-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -24,22 +24,6 @@ msgstr "Access denied."
 #: client/components/utils/placeholder.js:40
 msgid "add-content"
 msgstr "Add the text of your document here"
-
-#: client/components/document-share.vue:172
-msgid "permissions-list-add-users"
-msgstr "Assign"
-
-#: client/components/document-share.vue:138
-msgid "permissions-list-add-users-hint"
-msgstr "Assign permissions to users"
-
-#: client/components/document-share.vue:242
-msgid "role-admin-label"
-msgstr "Can administer"
-
-#: client/components/document-share.vue:243
-msgid "role-admin-user-hint"
-msgstr "Alongside everything else, user can manage sharing of the document and publish it."
 
 #: client/vue-extensions.js:108
 msgid "calendar-last-day"
@@ -68,15 +52,11 @@ msgstr "[today at] LT"
 msgid "cancel"
 msgstr "Cancel"
 
-#: client/components/document-share.vue:188
-msgid "document-share-cancel"
-msgstr "Cancel"
-
 #: client/components/utils/placeholder.js:26
 msgid "choose-title"
 msgstr "Write the Title of Your Document Here"
 
-#: client/components/app-layout.vue:71
+#: client/components/app-layout.vue:70
 msgid "close"
 msgstr "Close"
 
@@ -95,27 +75,6 @@ msgstr "Enter a comment"
 #: client/components/comment-editor.vue:109
 msgid "comment-reply-hint"
 msgstr "Enter a reply"
-
-#: client/components/document-share.vue:230
-#: client/components/document-share.vue:285
-msgid "role-comment-label"
-msgstr "Can comment"
-
-#: client/components/document-share.vue:231
-msgid "role-comment-user-hint"
-msgstr "User can view the document and comment publicly."
-
-#: client/components/document-share.vue:286
-msgid "role-comment-users-hint"
-msgstr "Users who can acccess the document can view it and comment publicly."
-
-#: client/components/document-share.vue:248
-msgid "role-custom-label"
-msgstr "Custom permissions"
-
-#: client/components/document-share.vue:249
-msgid "role-custom-user-hint"
-msgstr "User has custom permissions."
 
 #: client/vue-extensions.js:168
 msgid "day"
@@ -143,11 +102,11 @@ msgstr "Error creating a new document: %{error}"
 msgid "document-created-success"
 msgstr "New document has been created."
 
-#: client/components/document-share.vue:69
+#: client/components/document-share.vue:68
 msgid "document-default-permissions"
 msgstr "Default permissions"
 
-#: client/components/document-share.vue:70
+#: client/components/document-share.vue:69
 msgid "document-default-permissions-hint"
 msgstr "Default permissions for users who can access the document."
 
@@ -167,11 +126,19 @@ msgstr "published"
 msgid "document-published-at"
 msgstr "Published %{at}"
 
-#: client/components/document-share.vue:424
+#: client/components/document-share.vue:184
+msgid "document-share-cancel"
+msgstr "Cancel"
+
+#: client/components/document-share.vue:188
+msgid "document-share-done"
+msgstr "Done"
+
+#: client/components/document-share.vue:425
 msgid "document-shared-error"
 msgstr "Error updating document sharing."
 
-#: client/components/document-share.vue:427
+#: client/components/document-share.vue:428
 msgid "document-shared-success"
 msgstr "Document sharing has been updated."
 
@@ -179,15 +146,15 @@ msgstr "Document sharing has been updated."
 msgid "document-sharing"
 msgstr "Document sharing"
 
-#: client/components/editor.vue:393
+#: client/components/editor.vue:392
 msgid "document-update-error"
 msgstr "Error updating document."
 
-#: client/components/document-share.vue:102
+#: client/components/document-share.vue:100
 msgid "document-user-permissions"
 msgstr "User permissions"
 
-#: client/components/document-share.vue:103
+#: client/components/document-share.vue:101
 msgid "document-user-permissions-hint"
 msgstr "Permissions for specific users."
 
@@ -199,26 +166,33 @@ msgstr "Document visibility"
 msgid "document-visibility-hint"
 msgstr "Who can access the document?"
 
+#: client/components/document-share.vue:269
+msgid "document-visibility-listed"
+msgstr "Listed"
+
+#: client/components/document-share.vue:270
+msgid "document-visibility-listed-hint"
+msgstr "The document is listed for everyone to find it and access it."
+
+#: client/components/document-share.vue:259
+msgid "document-visibility-private"
+msgstr "Private"
+
+#: client/components/document-share.vue:260
+msgid "document-visibility-private-hint"
+msgstr "Only specific users can access the document."
+
+#: client/components/document-share.vue:264
+msgid "document-visibility-public"
+msgstr "Public"
+
+#: client/components/document-share.vue:265
+msgid "document-visibility-public-hint"
+msgstr "Anyone with the link to the document can access the document."
+
 #: client/components/app-layout.vue:20
 msgid "documents"
 msgstr "Documents"
-
-#: client/components/document-share.vue:192
-msgid "document-share-done"
-msgstr "Done"
-
-#: client/components/document-share.vue:236
-#: client/components/document-share.vue:290
-msgid "role-edit-label"
-msgstr "Can edit"
-
-#: client/components/document-share.vue:237
-msgid "role-edit-user-hint"
-msgstr "User can view the document, comment privately and publicly, and edit it."
-
-#: client/components/document-share.vue:291
-msgid "role-edit-users-hint"
-msgstr "Users who can access the document can view it, comment privately and publicly, and edit it."
 
 #: client/components/editor.vue:123
 msgid "editor-saved"
@@ -266,14 +240,6 @@ msgstr "less than a minute"
 msgid "link-hint"
 msgstr "Enter a link"
 
-#: client/components/document-share.vue:272
-msgid "document-visibility-listed"
-msgstr "Listed"
-
-#: client/components/document-share.vue:273
-msgid "document-visibility-listed-hint"
-msgstr "The document is listed for everyone to find it and access it."
-
 #: client/vue-extensions.js:170
 msgid "minute"
 msgid_plural "minutes"
@@ -292,21 +258,25 @@ msgstr "No documents."
 msgid "not-found"
 msgstr "Not found."
 
-#: client/components/document-share.vue:262
-msgid "document-visibility-private"
-msgstr "Private"
+#: client/components/document-share.vue:171
+msgid "permissions-list-add-users"
+msgstr "Assign"
 
-#: client/components/document-share.vue:263
-msgid "document-visibility-private-hint"
-msgstr "Only specific users can access the document."
+#: client/components/document-share.vue:136
+msgid "permissions-list-add-users-hint"
+msgstr "Assign permissions to users"
 
-#: client/components/document-share.vue:267
-msgid "document-visibility-public"
-msgstr "Public"
+#: client/components/document-share.vue:217
+msgid "permissions-list-no-users-found"
+msgstr "No users found."
 
-#: client/components/document-share.vue:268
-msgid "document-visibility-public-hint"
-msgstr "Anyone with the link to the document can access the document."
+#: client/components/document-share.vue:130
+msgid "permissions-list-remove-user"
+msgstr "Remove"
+
+#: client/components/document-share.vue:216
+msgid "permissions-list-select-users"
+msgstr "Select users"
 
 #: client/components/publish-confirmation.vue:28
 msgid "publish"
@@ -332,13 +302,61 @@ msgstr "The document was successfully published."
 msgid "remove"
 msgstr "Remove"
 
-#: client/components/document-share.vue:131
-msgid "permissions-list-remove-user"
-msgstr "Remove"
+#: client/components/document-share.vue:239
+msgid "role-admin-label"
+msgstr "Can administer"
 
-#: client/components/document-share.vue:220
-msgid "permissions-list-select-users"
-msgstr "Select users"
+#: client/components/document-share.vue:240
+msgid "role-admin-user-hint"
+msgstr "Alongside everything else, user can manage sharing of the document and publish it."
+
+#: client/components/document-share.vue:227
+#: client/components/document-share.vue:282
+msgid "role-comment-label"
+msgstr "Can comment"
+
+#: client/components/document-share.vue:228
+msgid "role-comment-user-hint"
+msgstr "User can view the document and comment publicly."
+
+#: client/components/document-share.vue:283
+msgid "role-comment-users-hint"
+msgstr "Users who can acccess the document can view it and comment publicly."
+
+#: client/components/document-share.vue:245
+msgid "role-custom-label"
+msgstr "Custom permissions"
+
+#: client/components/document-share.vue:246
+msgid "role-custom-user-hint"
+msgstr "User has custom permissions."
+
+#: client/components/document-share.vue:233
+#: client/components/document-share.vue:287
+msgid "role-edit-label"
+msgstr "Can edit"
+
+#: client/components/document-share.vue:234
+msgid "role-edit-user-hint"
+msgstr "User can view the document, comment privately and publicly, and edit it."
+
+#: client/components/document-share.vue:288
+msgid "role-edit-users-hint"
+msgstr "Users who can access the document can view it, comment privately and publicly, and edit it."
+
+#: client/components/document-share.vue:221
+#: client/components/document-share.vue:252
+#: client/components/document-share.vue:277
+msgid "role-view-label"
+msgstr "Can view"
+
+#: client/components/document-share.vue:222
+msgid "role-view-user-hint"
+msgstr "User can view the document."
+
+#: client/components/document-share.vue:278
+msgid "role-view-users-hint"
+msgstr "Users who can access the document can view it."
 
 #: client/components/sidebar.vue:35
 msgid "share"
@@ -356,11 +374,11 @@ msgstr "Sign Out"
 msgid "signed-in-success"
 msgstr "You have been signed in."
 
-#: client/components/app-layout.vue:115
+#: client/components/app-layout.vue:114
 msgid "signed-out-error"
 msgstr "Error signing out: %{error}"
 
-#: client/components/app-layout.vue:119
+#: client/components/app-layout.vue:118
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
@@ -372,7 +390,7 @@ msgstr "Start a new comment by selecting content on the left."
 msgid "thread-deletion-confirmation"
 msgstr "Are you sure you want to delete this comment thread?"
 
-#: client/components/editor.vue:325
+#: client/components/editor.vue:324
 msgid "title-length"
 msgstr "Your title should be brief (max 100 characters) and the text of your document added below it."
 
@@ -451,20 +469,6 @@ msgstr "Username too short, it should be 4 characters or more"
 #: client/components/thread.vue:29
 msgid "view-all-replies"
 msgstr "View all replies (%{count})"
-
-#: client/components/document-share.vue:224
-#: client/components/document-share.vue:255
-#: client/components/document-share.vue:280
-msgid "role-view-label"
-msgstr "Can view"
-
-#: client/components/document-share.vue:225
-msgid "role-view-user-hint"
-msgstr "User can view the document."
-
-#: client/components/document-share.vue:281
-msgid "role-view-users-hint"
-msgstr "Users who can access the document can view it."
 
 #: client/vue-extensions.js:167
 msgid "week"
