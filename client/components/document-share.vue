@@ -357,6 +357,7 @@
           User.findByUsername({username: value}, (error, foundUsers) => {
             if (error) {
               // TODO: Handle error.
+              console.error(error); // eslint-disable-line no-console
               this.userSearchLoading = false;
             }
             else {
@@ -443,8 +444,8 @@
         }, (error, changed) => {
           if (error) {
             // TODO: Should we show the error to the user? Maybe as a form error?
+            console.error(error); // eslint-disable-line no-console
             Snackbar.enqueue(this.$gettext("document-shared-error"), 'error');
-            console.error(error);
           }
           else {
             Snackbar.enqueue(this.$gettext("document-shared-success"), 'success');
