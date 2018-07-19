@@ -22,12 +22,10 @@
         <v-card-text>
           <v-radio-group
             v-model="visibilityLevel"
-            class="document-share__radio-group"
+            class="mt-0"
             hide-details
           >
-            <v-list
-              two-line
-            >
+            <v-list two-line>
               <v-subheader class="document-share__subheader--with-hint">
                 <translate>document-visibility</translate>
                 <small><translate>document-visibility-hint</translate></small>
@@ -58,10 +56,10 @@
 
         <v-divider />
 
-        <v-card-text>
+        <v-card-text v-if="!visibilityLevelIsPrivate">
           <v-radio-group
-            v-model="defaultPermissions"
-            class="document-share__radio-group"
+            v-model="defaultPermission"
+            class="mt-0"
             hide-details
           >
             <v-list two-line>
@@ -93,10 +91,10 @@
           </v-radio-group>
         </v-card-text>
 
-        <v-divider />
+        <v-divider v-if="!visibilityLevelIsPrivate" />
 
         <v-card-text>
-          <v-list two-line>
+          <v-list>
             <v-subheader class="document-share__subheader--with-hint">
               <translate>document-user-permissions</translate>
               <small><translate>document-user-permissions-hint</translate></small>
@@ -137,25 +135,28 @@
               <translate>permissions-list-add-users-hint</translate>
             </v-subheader>
 
-            <v-list-tile>
+            <v-list-tile class="document_share__user-search_wrapper">
               <v-list-tile-content>
-                <v-select
+                <v-autocomplete
                   :loading="loading"
-                  :items="items"
+                  :items="foundUsers"
                   :return-object="true"
                   :search-input.sync="search"
                   :label="usersLabel"
+                  :no-data-text="noUserMessage"
                   v-model="selectedUsersInList"
                   item-text="username"
                   item-value="_id"
                   item-avatar="avatar"
-                  autocomplete
                   multiple
                   chips
                   deletable-chips
+                  small-chips
+                  hide-selected
+                  class="document-share__user-search"
                 />
               </v-list-tile-content>
-              <v-list-tile-action>
+              <v-list-tile-action class="document-share__list-action">
                 <v-layout row>
                   <v-flex>
                     <v-select
@@ -164,7 +165,7 @@
                       return-object
                       item-text="label"
                       item-value="value"
-                      outline
+                      class="document-share__action-button mx-4"
                     />
                   </v-flex>
                   <v-flex>
@@ -172,8 +173,7 @@
                       :disabled="selectedUsersInList.length <= 0"
                       outline
                       @click="addToList()"
-                    ><translate>permissions-list-add-users</translate>
-                    </v-btn>
+                    ><translate>permissions-list-add-users</translate></v-btn>
                   </v-flex>
                 </v-layout>
               </v-list-tile-action>
@@ -218,8 +218,9 @@
           required: true,
         },
         loading: false,
-        items: [],
+        foundUsers: [],
         usersLabel: this.$gettext("permissions-list-select-users"),
+        noUserMessage: this.$gettext("permissions-list-no-users-found"),
         roles: [
           {
             value: Document.ROLES.VIEW,
@@ -304,6 +305,10 @@
           _id: this.documentId,
         });
       },
+
+      visibilityLevelIsPrivate() {
+        return this.visibilityLevel === Document.VISIBILITY_LEVELS.PRIVATE;
+      },
     },
 
     watch: {
@@ -379,7 +384,7 @@
         });
         this.contributors = this.contributors.concat(newContributors);
         this.selectedUsersInList = [];
-        this.items = [];
+        this.foundUsers = [];
       },
 
       removeFromList(id) {
@@ -391,12 +396,12 @@
       querySelections(v) {
         this.loading = true;
 
-        User.findByUsername({username: v}, (error, document) => {
+        User.findByUsername({username: v}, (error, foundUsers) => {
           if (error) {
             this.loading = false;
           }
           else {
-            this.items = document.filter((x) => {
+            this.foundUsers = foundUsers.filter((x) => {
               const found = this.contributors.find((y) => {
                 return x._id === y._id;
               });
@@ -448,12 +453,50 @@
 </script>
 
 <style lang="scss">
-  .document-share__radio-group {
-    padding-top: 0;
-  }
-
   .document-share__subheader--with-hint {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .document-share__list-action {
+    align-items: flex-start;
+    flex: 0 0 auto;
+  }
+
+  .document-share__action-button {
+    max-width: 150px;
+
+    .v-select__selection {
+      white-space: nowrap;
+      // This was determined by having whole component fixed to 150px with "max-width"
+      // above and then changing while content being very long, to see when does the
+      // dropdown icon stops moving from right to left. Otherwise despite the "max-width"
+      // above, the icon was still moved out of the component into empty space around the
+      // component. We do not want that.
+      max-width: 118px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+  }
+
+  .document-share__user-search {
+    width: 100%;
+  }
+
+  .document_share__user-search_wrapper {
+    .v-list__tile {
+      // Instead of having the list items be fixed based on number of rows we just set the minimal
+      // height (to what was otherwise fixed height), and allow it to expand so that if many users
+      // are selected, the autocomplete component has space to grow.
+      height: auto;
+      min-height: 48px;
+      // And we want buttons to be aligned on top while the autocomplete component grows.
+      align-items: flex-start;
+    }
+
+    .v-list__tile__content {
+      overflow: visible;
+    }
   }
 </style>
