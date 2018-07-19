@@ -143,6 +143,11 @@
 
             <v-list-tile class="document_share__user-search">
               <v-list-tile-content>
+                <!--
+                  TODO: Make sure avatar is shown both in the menu and the results list.
+                        Currently "item-avatar" option does not really work.
+                        See: https://github.com/vuetifyjs/vuetify/issues/4169
+                -->
                 <v-autocomplete
                   :loading="userSearchLoading"
                   :items="userSearchResults"
@@ -150,6 +155,7 @@
                   :search-input.sync="userSearchQuery"
                   :label="userSearchLabel"
                   :no-data-text="userSearchNoUsersMessage"
+                  :item-avatar="(user) => user.avatarUrl()"
                   v-model="selectedUsers"
                   return-object
                   item-text="username"
