@@ -21,7 +21,7 @@ Meteor.methods({
       username: Match.NonEmptyString,
     });
 
-    const user = User.documents.find(
+    const users = User.documents.find(
       {
         // TODO: Check that given "username" is just string and not regex.
         username: {$regex: args.username},
@@ -34,7 +34,7 @@ Meteor.methods({
       },
     ).fetch();
 
-    return user;
+    return users;
   },
 });
 
