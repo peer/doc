@@ -77,30 +77,39 @@
           this.$refs.sidebar.focusComment();
         }
       },
+
       onContentChanged(version) {
         this.$refs.sidebar.onContentChanged(version);
       },
+
       onHighlightSelected(highlightKey) {
         this.$refs.sidebar.focusComment(highlightKey);
       },
+
       onCommentClicked(highlightKey) {
         this.$refs.editor.updateCursor(highlightKey);
       },
+
       onShowNewCommentForm(show, start) {
         this.$refs.sidebar.showNewCommentForm(show, start);
       },
+
       addCommentHighlight(highlightKey) {
         this.$refs.editor.addCommentHighlight(highlightKey);
       },
+
       deleteCommentHighlight(comment, deleteHighlight) {
         this.$refs.editor.deleteCommentHighlight(comment, deleteHighlight);
       },
+
       onHighlightAdded(highlightKey) {
         this.$refs.sidebar.createComment(highlightKey);
       },
+
       onHighlightDeleted(comment) {
         this.$refs.sidebar.deleteComment(comment);
       },
+
       onAfterCommentAdded(highlightKey) {
         this.$refs.editor.onAfterCommentAdded(highlightKey);
       },
