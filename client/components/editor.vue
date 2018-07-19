@@ -242,7 +242,6 @@
         quoteHint: this.$gettext("toolbar-quote"),
         bulletedListHint: this.$gettext("toolbar-bulleted-list"),
         numberedListHint: this.$gettext("toolbar-numbered-list"),
-        userPermissions: {},
       };
     },
 
