@@ -612,7 +612,7 @@
             if (!chunkToSplit) {
               // Chunk to split if the new highlight includes parts of highlights from other comments.
               chunkToSplit = newChunks.find((chunk) => {
-                return chunk.from <= start || chunk.to >= end;
+                return chunk.from <= start || chunk.to >= end || (chunk.from >= start && chunk.to <= end);
               });
               start = Math.max(start, chunkToSplit.from);
               end = Math.min(end, chunkToSplit.to);
