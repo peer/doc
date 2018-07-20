@@ -39,7 +39,6 @@
               >
                 <v-list-tile-action>
                   <v-radio
-                    :key="level.value"
                     :value="level.value"
                   />
                 </v-list-tile-action>
@@ -76,7 +75,6 @@
               >
                 <v-list-tile-action>
                   <v-radio
-                    :key="role.value"
                     :value="role.value"
                   />
                 </v-list-tile-action>
