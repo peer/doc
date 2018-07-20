@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-19 17:40-0700\n"
+"POT-Creation-Date: 2018-07-20 00:27-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -125,19 +125,23 @@ msgstr "published"
 msgid "document-published-at"
 msgstr "Published %{at}"
 
-#: client/components/document-share.vue:202
+#: client/components/document-share.vue:204
 msgid "document-share-cancel"
 msgstr "Cancel"
 
-#: client/components/document-share.vue:206
+#: client/components/document-share.vue:208
 msgid "document-share-done"
 msgstr "Done"
 
-#: client/components/document-share.vue:489
+#: client/components/document-share.vue:491
 msgid "document-shared-error"
 msgstr "Error updating document sharing."
 
-#: client/components/document-share.vue:492
+#: client/components/document-share.vue:498
+msgid "document-shared-no-change"
+msgstr "No changes to document sharing."
+
+#: client/components/document-share.vue:495
 msgid "document-shared-success"
 msgstr "Document sharing has been updated."
 
@@ -165,27 +169,27 @@ msgstr "Document visibility"
 msgid "document-visibility-hint"
 msgstr "Who can access the document?"
 
-#: client/components/document-share.vue:248
+#: client/components/document-share.vue:250
 msgid "document-visibility-listed"
 msgstr "Listed"
 
-#: client/components/document-share.vue:249
+#: client/components/document-share.vue:251
 msgid "document-visibility-listed-hint"
 msgstr "The document is listed for everyone to find it and access it."
 
-#: client/components/document-share.vue:238
+#: client/components/document-share.vue:240
 msgid "document-visibility-private"
 msgstr "Private"
 
-#: client/components/document-share.vue:239
+#: client/components/document-share.vue:241
 msgid "document-visibility-private-hint"
 msgstr "Only specific users can access the document."
 
-#: client/components/document-share.vue:243
+#: client/components/document-share.vue:245
 msgid "document-visibility-public"
 msgstr "Public"
 
-#: client/components/document-share.vue:244
+#: client/components/document-share.vue:246
 msgid "document-visibility-public-hint"
 msgstr "Anyone with the link to the document can access the document."
 
@@ -257,23 +261,23 @@ msgstr "No documents."
 msgid "not-found"
 msgstr "Not found."
 
-#: client/components/document-share.vue:186
+#: client/components/document-share.vue:188
 msgid "permissions-list-add-users"
 msgstr "Assign"
 
-#: client/components/document-share.vue:138
+#: client/components/document-share.vue:140
 msgid "permissions-list-add-users-hint"
 msgstr "Assign permissions to users"
 
-#: client/components/document-share.vue:302
+#: client/components/document-share.vue:304
 msgid "permissions-list-no-users-found"
 msgstr "No users found."
 
-#: client/components/document-share.vue:130
+#: client/components/document-share.vue:132
 msgid "permissions-list-remove-user"
 msgstr "Remove"
 
-#: client/components/document-share.vue:301
+#: client/components/document-share.vue:303
 msgid "permissions-list-select-users"
 msgstr "Select users"
 
@@ -301,67 +305,67 @@ msgstr "The document was successfully published."
 msgid "remove"
 msgstr "Remove"
 
-#: client/components/document-share.vue:289
+#: client/components/document-share.vue:291
 msgid "role-admin-label"
 msgstr "Can administer"
 
-#: client/components/document-share.vue:290
+#: client/components/document-share.vue:292
 msgid "role-admin-user-hint"
 msgstr "Alongside everything else, user can manage sharing of the document and publish it."
 
-#: client/components/document-share.vue:261
-#: client/components/document-share.vue:279
+#: client/components/document-share.vue:263
+#: client/components/document-share.vue:281
 msgid "role-comment-label"
 msgstr "Can comment"
 
-#: client/components/document-share.vue:280
+#: client/components/document-share.vue:282
 msgid "role-comment-user-hint"
 msgstr "User can view the document and comment publicly."
 
-#: client/components/document-share.vue:262
+#: client/components/document-share.vue:264
 msgid "role-comment-users-hint"
 msgstr "Users who can access the document can view it and comment publicly."
 
-#: client/components/document-share.vue:386
-#: client/components/document-share.vue:403
-#: client/components/document-share.vue:464
+#: client/components/document-share.vue:388
+#: client/components/document-share.vue:405
+#: client/components/document-share.vue:466
 msgid "role-custom-label"
 msgstr "Custom permissions"
 
-#: client/components/document-share.vue:387
-#: client/components/document-share.vue:465
+#: client/components/document-share.vue:389
+#: client/components/document-share.vue:467
 msgid "role-custom-user-hint"
 msgstr "User has custom permissions."
 
-#: client/components/document-share.vue:404
+#: client/components/document-share.vue:406
 msgid "role-custom-users-hint"
 msgstr "Users who can access the document have custom permissions."
 
-#: client/components/document-share.vue:266
-#: client/components/document-share.vue:284
+#: client/components/document-share.vue:268
+#: client/components/document-share.vue:286
 msgid "role-edit-label"
 msgstr "Can edit"
 
-#: client/components/document-share.vue:285
+#: client/components/document-share.vue:287
 msgid "role-edit-user-hint"
 msgstr "User can view the document, comment privately and publicly, and edit it."
 
-#: client/components/document-share.vue:267
+#: client/components/document-share.vue:269
 msgid "role-edit-users-hint"
 msgstr "Users who can access the document can view it, comment privately and publicly, and edit it."
 
-#: client/components/document-share.vue:256
-#: client/components/document-share.vue:274
-#: client/components/document-share.vue:295
+#: client/components/document-share.vue:258
+#: client/components/document-share.vue:276
+#: client/components/document-share.vue:297
 msgid "role-view-label"
 msgstr "Can view"
 
-#: client/components/document-share.vue:275
-#: client/components/document-share.vue:296
+#: client/components/document-share.vue:277
+#: client/components/document-share.vue:298
 msgid "role-view-user-hint"
 msgstr "User can view the document."
 
-#: client/components/document-share.vue:257
+#: client/components/document-share.vue:259
 msgid "role-view-users-hint"
 msgstr "Users who can access the document can view it."
 

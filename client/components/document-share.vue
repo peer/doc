@@ -377,7 +377,7 @@
             return userPermission.permission;
           });
 
-          const roleValue = Document.getRoleByPermissions(permissions);
+          const roleValue = Document.getRoleFromPermissions(permissions);
           let role = this.roles.find((r) => {
             return r.value === roleValue;
           });
@@ -397,7 +397,7 @@
           };
         });
         this.visibilityLevel = this.document.visibility;
-        this.defaultRole = Document.getRoleByPermissions(this.document.defaultPermissions || []);
+        this.defaultRole = Document.getRoleFromPermissions(this.document.defaultPermissions || []);
 
         if (this.defaultRole === null) {
           this.defaultRoles.push({
@@ -476,12 +476,12 @@
       share() {
         Document.share({
           documentId: this.documentId,
-          visibilityLevel: this.visibilityLevel,
+          visibility: this.visibilityLevel,
           defaultRole: this.defaultRole,
           contributors: this.contributors.map((x) => {
             return {
               userId: x.user._id,
-              roleValue: x.role.value,
+              role: x.role.value,
             };
           }),
         }, (error, changed) => {
@@ -491,7 +491,12 @@
             Snackbar.enqueue(this.$gettext("document-shared-error"), 'error');
           }
           else {
-            Snackbar.enqueue(this.$gettext("document-shared-success"), 'success');
+            if (changed) {
+              Snackbar.enqueue(this.$gettext("document-shared-success"), 'success');
+            }
+            else {
+              Snackbar.enqueue(this.$gettext("document-shared-no-change"), 'success');
+            }
             this.$router.push({name: 'document', params: {documentId: this.document._id}});
           }
         });

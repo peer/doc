@@ -15,7 +15,12 @@ class Migration extends Document.PatchMigration {
         return;
       }
 
-      const userPermissions = Document.getUserPermissions(Document.ROLES.ADMIN, document.author, document.createdAt, document.author);
+      const userPermissions = Document.getPermissionObjects(
+        Document.getRolePermissions(Document.ROLES.ADMIN),
+        document.author,
+        document.createdAt,
+        document.author,
+      );
 
       let changed = 0;
 

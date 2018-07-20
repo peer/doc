@@ -39,7 +39,12 @@ class Migration extends Document.PatchMigration {
       let changed = 0;
 
       contributors.forEach((contributor) => {
-        const userPermissions = Document.getUserPermissions(Document.ROLES.EDIT, contributor, document.createdAt, document.author);
+        const userPermissions = Document.getPermissionObjects(
+          Document.getRolePermissions(Document.ROLES.EDIT),
+          contributor,
+          document.createdAt,
+          document.author,
+        );
 
         userPermissions.forEach((userPermission) => {
           changed += collection.update({
