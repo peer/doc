@@ -114,7 +114,7 @@
                 <v-layout row>
                   <v-flex>
                     <v-select
-                      :items="roles"
+                      :items="contributorRoles(contributor)"
                       v-model="contributor.role"
                       return-object
                       item-text="label"
@@ -303,6 +303,8 @@
         selectedUsers: [],
         // This is a list of {user, role} objects.
         contributors: [],
+        // We have to remember them so that we can display a "custom" option.
+        contributorsStartingWithCustomRoles: new Set(),
       };
     },
 
@@ -367,20 +369,41 @@
           return userPermission.user._id;
         });
 
+        this.contributorsStartingWithCustomRoles = new Set();
         this.contributors = _.map(permissionsByUsers, (permissionsByUser, userId) => {
           const permissions = permissionsByUser.map((userPermission) => {
             return userPermission.permission;
           });
-          const role = Document.getRoleByPermissions(permissions);
+
+          const roleValue = Document.getRoleByPermissions(permissions);
+          let role = this.roles.find((r) => {
+            return r.value === roleValue;
+          });
+
+          if (!role) {
+            role = {
+              value: null,
+              label: this.$gettext("role-custom-label"),
+              hint: this.$gettext("role-custom-user-hint"),
+            };
+            this.contributorsStartingWithCustomRoles.add(permissionsByUser[0].user._id);
+          }
+
           return {
+            role,
             user: permissionsByUser[0].user,
-            role: this.roles.find((r) => {
-              return r.value === role;
-            }) || null,
           };
         });
         this.visibilityLevel = this.document.visibility;
         this.defaultRole = Document.getRoleByPermissions(this.document.defaultPermissions || []);
+
+        if (this.defaultRole === null) {
+          this.defaultRoles.push({
+            value: null,
+            label: this.$gettext("role-custom-label"),
+            hint: this.$gettext("role-custom-users-hint"),
+          });
+        }
       });
     },
 
@@ -433,14 +456,30 @@
         return text.toString().toLowerCase().indexOf(query.toString().toLowerCase()) > -1;
       },
 
+      contributorRoles(contributor) {
+        if (this.contributorsStartingWithCustomRoles.has(contributor.user._id)) {
+          return [].concat(this.roles, [
+            {
+              value: null,
+              label: this.$gettext("role-custom-label"),
+              hint: this.$gettext("role-custom-user-hint"),
+            },
+          ]);
+        }
+        else {
+          return this.roles;
+        }
+      },
+
       share() {
         Document.share({
           documentId: this.documentId,
           visibilityLevel: this.visibilityLevel,
+          defaultRole: this.defaultRole,
           contributors: this.contributors.map((x) => {
             return {
-              user: x.user,
-              role: x.role.value,
+              userId: x.user._id,
+              roleValue: x.role.value,
             };
           }),
         }, (error, changed) => {
