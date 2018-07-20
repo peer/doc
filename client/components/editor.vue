@@ -192,6 +192,7 @@
   import {Snackbar} from '../snackbar';
 
   const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
+  const retries = [];
 
   // @vue/component
   const component = {
@@ -387,9 +388,10 @@
                     if (stepsAdded.action.type === 'add') {
                       if (stepsAdded.stepsAdded > 0) {
                         this.$emit('highlight-added', stepsAdded.action.highlightKey);
+                        this.updateCursor();
                       }
                       else {
-                        // TODO: Retry transaction.
+                        retries.push(stepsAdded.action);
                       }
                     }
                     else if (stepsAdded.action.type === 'remove') {
@@ -397,7 +399,7 @@
                         this.$emit('highlight-deleted', {id: stepsAdded.action.id, version: collab.getVersion(this.$editorView.state)});
                       }
                       else {
-                        // TODO: Retry transaction.
+                        retries.push(stepsAdded.action);
                       }
                     }
                   }
@@ -468,6 +470,15 @@
             this.$editorView.dispatch(collab.receiveTransaction(this.$editorView.state, _.pluck(newContents, 'step').map((step) => {
               return Step.fromJSON(schema, step);
             }), _.pluck(newContents, 'clientId')));
+            if (retries.length) {
+              const action = retries.shift();
+              if (action.type === 'add') {
+                this.addCommentHighlight(action.highlightKey);
+              }
+              else if (action.type === 'remove') {
+                // this.deleteCommentHighlight({_id: action.id, highlightKey: action.highlightKey}, true);
+              }
+            }
           }
         });
       });
@@ -628,7 +639,6 @@
           addHighlight(highlightKey, schema, tr, chunk.from, chunk.to, action);
         });
         this.$editorView.dispatch(tr);
-        this.updateCursor();
       },
 
       // Adds nearby highlight nodes (after or before the cursor position) to highlightNodes.
