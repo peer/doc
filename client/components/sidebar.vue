@@ -100,6 +100,8 @@
   import {Document} from '/lib/documents/document';
   import {User} from '/lib/documents/user';
 
+  let commentsToAdd = [];
+
   function getOffset(el) {
     const e = el.getBoundingClientRect();
     return {
@@ -250,21 +252,26 @@
       },
 
       createComment(highlightKey) {
-        if (highlightKey === this.commentToAdd.highlightKey) {
-          Comment.create(this.commentToAdd);
-          this.commentToAdd = null;
+        const commentToAdd = commentsToAdd.find((x) => {
+          return x.highlightKey === highlightKey;
+        });
+        if (commentToAdd) {
+          Comment.create(commentToAdd);
+          commentsToAdd = commentsToAdd.filter((x) => {
+            return x.highlightKey !== highlightKey;
+          });
         }
       },
 
       onCommentSubmitted(comment, newCommentBody) {
         if (comment.dummy) {
           const key = Random.id();
-          this.commentToAdd = {
+          commentsToAdd.push({
             highlightKey: key,
             body: newCommentBody,
             documentId: this.documentId,
             contentKey: this.contentKey,
-          };
+          });
           this.$emit('add-highlight', key);
           return;
         }
@@ -586,14 +593,11 @@
       },
 
       deleteComment(comment) {
-        if (comment.id === this.commentToDelete._id) {
-          Comment.delete({
-            _id: comment.id,
-            documentId: this.documentId,
-            version: comment.version,
-          });
-          this.commentToDelete = null;
-        }
+        Comment.delete({
+          _id: comment.id,
+          documentId: this.documentId,
+          version: comment.version,
+        });
       },
     },
   };
