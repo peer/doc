@@ -115,6 +115,7 @@
                   <v-flex>
                     <v-select
                       :items="contributorRoles(contributor)"
+                      :disabled="contributor.user._id === $currentUserId"
                       v-model="contributor.role"
                       return-object
                       item-text="label"
@@ -124,6 +125,7 @@
                   </v-flex>
                   <v-flex>
                     <v-btn
+                      :disabled="contributor.user._id === $currentUserId"
                       outline
                       color="red lighten-2"
                       @click="removeUserFromContributors(contributor.user._id)"
