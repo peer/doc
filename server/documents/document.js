@@ -248,6 +248,7 @@ Meteor.publish('Document.admin', function documentadmin(args) {
   const user = Meteor.user(User.REFERENCE_FIELDS());
   const adminFields = Document.PUBLISH_FIELDS();
   adminFields.userPermissions = 1;
+  adminFields.defaultPermissions = 1;
 
   this.autorun((computation) => {
     return Document.documents.find(Document.restrictQuery({

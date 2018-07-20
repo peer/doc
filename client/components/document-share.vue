@@ -321,35 +321,6 @@
     },
 
     watch: {
-      document(value, oldValue) {
-        if (value) {
-          const userPermissions = this.document ? this.document.userPermissions : [];
-
-          const users = _.groupBy(userPermissions, (x) => {
-            return x.user._id;
-          });
-
-          let contributors;
-
-          if (!_.isEmpty(users)) {
-            contributors = _.map(users, (x) => {
-              const permissions = x.map((y) => {
-                return y.permission;
-              });
-              const role = Document.getRoleByPermissions(permissions);
-              return {
-                user: x[0].user,
-                role: this.roles.find((r) => {
-                  return r.value === role;
-                }),
-              };
-            });
-          }
-          this.visibilityLevel = this.document.visibility;
-          this.contributors = contributors;
-        }
-      },
-
       userSearchQuery(value, oldValue) {
         if (value) {
           this.userSearchLoading = true;
@@ -379,6 +350,39 @@
     created() {
       this.$autorun((computation) => {
         this.$subscribe('Document.admin', {documentId: this.documentId});
+      });
+
+      this.$autorun((computation) => {
+        // We wait for the document to be available.
+        if (!this.$subscriptionsReady() || !this.document) {
+          return;
+        }
+        // We wait only once. This means that if document permissions are changed at
+        // the same time by somebody else, those changes will not reflect to this user.
+        // The last user who saves the permissions sets the permissions.
+        // TODO: Reflect changes to permissions by somebody else to the current user.
+        computation.stop();
+
+        const userPermissions = this.document.userPermissions || [];
+
+        const permissionsByUsers = _.groupBy(userPermissions, (userPermission) => {
+          return userPermission.user._id;
+        });
+
+        this.contributors = _.map(permissionsByUsers, (permissionsByUser, userId) => {
+          const permissions = permissionsByUser.map((userPermission) => {
+            return userPermission.permission;
+          });
+          const role = Document.getRoleByPermissions(permissions);
+          return {
+            user: permissionsByUser[0].user,
+            role: this.roles.find((r) => {
+              return r.value === role;
+            }) || null,
+          };
+        });
+        this.visibilityLevel = this.document.visibility;
+        this.defaultRole = Document.getRoleByPermissions(this.document.defaultPermissions || []);
       });
     },
 
