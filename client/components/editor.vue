@@ -476,7 +476,8 @@
                 this.addCommentHighlight(action.highlightKey);
               }
               else if (action.type === 'remove') {
-                // this.deleteCommentHighlight({_id: action.id, highlightKey: action.highlightKey}, true);
+                this.updateCursor(action.highlightKey);
+                this.deleteCommentHighlight({_id: action.id, highlightKey: action.highlightKey}, true);
               }
             }
           }
