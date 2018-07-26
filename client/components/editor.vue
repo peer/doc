@@ -189,7 +189,6 @@
   import {titleSizePlugin} from './utils/title-size-plugin.js';
   import addCommentPlugin, {addHighlight, removeHighlight} from './utils/add-comment-plugin';
   import {toggleLink, clearLink} from './utils/link.js';
-  import {Snackbar} from '../snackbar';
 
   const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
 
@@ -363,41 +362,32 @@
               return x.stepType === 'removeHighlight' || x.stepType === 'addHighlight';
             });
             if (this.canUserUpdateDocument || (this.canUserCreateComments && (containsHighlightStep))) {
-              // Steps are added to the content and the "content-changed" event is emitted
-              // only if the content version really changed. This prevents layoutComments
-              // from running unnecessarily on the sidebar component.
-              if (this.lastSentVersion !== sendable.version) {
-                this.lastSentVersion = sendable.version;
-                this.addingStepsInProgress = true;
-                Content.addSteps({
-                  contentKey: this.contentKey,
-                  currentVersion: sendable.version,
-                  steps: sendable.steps.map((step) => {
-                    return step.toJSON();
-                  }),
-                  clientId: this.clientId,
-                }, (error, stepsAdded) => {
-                  this.addingStepsInProgress = false;
-                  if (error) {
-                    // TODO: Error handling.
-                    Snackbar.enqueue(this.$gettext("document-update-error"), 'error');
-                  }
-                  else if (stepsAdded.action) {
+              this.lastSentVersion = sendable.version;
+              this.addingStepsInProgress = true;
+              Content.addSteps({
+                contentKey: this.contentKey,
+                currentVersion: sendable.version,
+                steps: sendable.steps.map((step) => {
+                  return step.toJSON();
+                }),
+                clientId: this.clientId,
+              }, (error, stepsAdded) => {
+                this.addingStepsInProgress = false;
+                if (!error) {
+                  if (stepsAdded.action && stepsAdded.stepsAdded > 0) {
                     if (stepsAdded.action.type === 'add') {
-                      if (stepsAdded.stepsAdded > 0) {
-                        this.$emit('highlight-added', stepsAdded.action.highlightKey);
-                        this.updateCursor();
-                      }
+                      this.$emit('highlight-added', stepsAdded.action.highlightKey);
+                      this.updateCursor();
                     }
                     else if (stepsAdded.action.type === 'remove') {
-                      if (stepsAdded.stepsAdded > 0) {
-                        this.$emit('highlight-deleted', {id: stepsAdded.action.id, version: collab.getVersion(this.$editorView.state)});
-                      }
+                      this.$emit('highlight-deleted', {id: stepsAdded.action.id, version: collab.getVersion(this.$editorView.state)});
                     }
                   }
-                });
-                this.$emit('content-changed');
-              }
+                  // "content-changed" event is emitted only when all steps are added successfully.
+                  // This prevents layoutComments from running unnecessarily on the sidebar component.
+                  this.$emit('content-changed');
+                }
+              });
             }
           }
 
