@@ -192,7 +192,6 @@
   import {Snackbar} from '../snackbar';
 
   const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
-  const retries = [];
 
   // @vue/component
   const component = {
@@ -389,16 +388,10 @@
                         this.$emit('highlight-added', stepsAdded.action.highlightKey);
                         this.updateCursor();
                       }
-                      else {
-                        retries.push(stepsAdded.action);
-                      }
                     }
                     else if (stepsAdded.action.type === 'remove') {
                       if (stepsAdded.stepsAdded > 0) {
                         this.$emit('highlight-deleted', {id: stepsAdded.action.id, version: collab.getVersion(this.$editorView.state)});
-                      }
-                      else {
-                        retries.push(stepsAdded.action);
                       }
                     }
                   }
@@ -469,16 +462,6 @@
             this.$editorView.dispatch(collab.receiveTransaction(this.$editorView.state, _.pluck(newContents, 'step').map((step) => {
               return Step.fromJSON(schema, step);
             }), _.pluck(newContents, 'clientId')));
-            if (retries.length) {
-              const action = retries.shift();
-              if (action.type === 'add') {
-                this.addCommentHighlight(action.highlightKey);
-              }
-              else if (action.type === 'remove') {
-                this.updateCursor(action.highlightKey);
-                this.deleteCommentHighlight({_id: action.id, highlightKey: action.highlightKey}, true);
-              }
-            }
           }
         });
       });
