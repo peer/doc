@@ -5,11 +5,15 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 function getDecorations(doc, vueInstance) {
   const result = [];
   doc.descendants((node, pos) => {
-    const mark = _.find(node.marks, (m) => {
+    const highlightMarks = _.filter(node.marks, (m) => {
       return m.type.name === 'highlight';
     });
-    if (mark) {
-      if (vueInstance.currentHighlightKey && mark.attrs['highlight-keys'].split(',').indexOf(vueInstance.currentHighlightKey) >= 0) {
+
+    if (highlightMarks.length) {
+      const mark = highlightMarks.find((x) => {
+        return x.attrs['highlight-keys'] === vueInstance.currentHighlightKey;
+      });
+      if (mark) {
         result.push(Decoration.inline(pos, pos + node.nodeSize, {class: 'highlight--selected'}));
       }
       else {
