@@ -599,7 +599,7 @@
           this.$editorView.dispatch(tr);
         }
         else {
-          this.$emit('highlight-deleted', {id: this.comment._id, version: collab.getVersion(this.$editorView.state)});
+          this.$emit('highlight-deleted', {id: comment._id, version: collab.getVersion(this.$editorView.state)});
         }
       },
 
