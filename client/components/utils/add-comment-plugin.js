@@ -130,7 +130,10 @@ function removeHighlightMark(tr, from, to, mark = null, originator) {
     step += 1;
     let toRemove = null;
     if (mark instanceof MarkType) {
-      const found = mark.isInSet(node.marks);
+      const found = node.marks.find((x) => {
+        return x.attrs['highlight-keys'] === originator.highlightKey;
+      });
+
       if (found) toRemove = [found];
     }
     else if (mark) {
