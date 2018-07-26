@@ -397,14 +397,18 @@
             const cursorPos = newState.doc.resolve(newState.selection.$cursor.pos);
             const afterPosMarks = cursorPos.nodeAfter ? cursorPos.nodeAfter.marks : [];
             if (afterPosMarks) {
-              const highlightkeys = afterPosMarks.find((x) => {
+              const highlightkeys = afterPosMarks.filter((x) => {
                 return x.attrs['highlight-keys'];
+              }).map((x) => {
+                return {key: x.attrs['highlight-keys'], pos: this.getHighlightPos(x.attrs['highlight-keys'])};
               });
-              const current = highlightkeys ? highlightkeys.attrs['highlight-keys'] : null;
-              if (this.currentHighlightKey !== current) {
-                this.currentHighlightKey = current;
+              const current = highlightkeys ? _.max(highlightkeys, (x) => {
+                return x.pos;
+              }) : null;
+              if (this.currentHighlightKey !== current.key) {
+                this.currentHighlightKey = current.key;
                 this.currentHighlightKeyChanged = true;
-                this.$emit('highlight-selected', current);
+                this.$emit('highlight-selected', current.key);
               }
             }
           }
@@ -509,9 +513,18 @@
         const {tr} = this.$editorView.state;
         this.currentHighlightKey = highlightKey;
         this.currentHighlightKeyChanged = true;
-        let highlightPos = tr.selection.from;
+        const highlightPos = this.getHighlightPos(highlightKey) || tr.selection.from;
+        // Cursor position update.
+        tr.setSelection(TextSelection.create(tr.doc, highlightPos));
+        tr.scrollIntoView();
+        this.$editorView.focus();
+        this.$editorView.dispatch(tr);
+      },
+
+      // Highlighted selection position search.
+      getHighlightPos(highlightKey) {
+        let highlightPos;
         let keepSearching = true;
-        // Highlighted selection position search.
         if (highlightKey) {
           this.$editorView.state.doc.descendants((node, pos) => {
             if (keepSearching) {
@@ -525,11 +538,7 @@
             return keepSearching;
           });
         }
-        // Cursor position update.
-        tr.setSelection(TextSelection.create(tr.doc, highlightPos));
-        tr.scrollIntoView();
-        this.$editorView.focus();
-        this.$editorView.dispatch(tr);
+        return highlightPos;
       },
 
       onButtonChange(reference) {
