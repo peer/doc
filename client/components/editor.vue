@@ -187,7 +187,7 @@
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
   import {titleSizePlugin} from './utils/title-size-plugin.js';
-  import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
+  import addCommentPlugin, {addHighlight, removeHighlight} from './utils/add-comment-plugin';
   import {toggleLink, clearLink} from './utils/link.js';
   import {Snackbar} from '../snackbar';
 
@@ -359,7 +359,6 @@
           this.unconfirmedCount = this.$editorView.state.collab$.unconfirmed.length;
 
           const sendable = collab.sendableSteps(newState);
-
           if (sendable) {
             const containsHighlightStep = sendable.steps.find((x) => {
               return x.stepType === 'removeHighlight' || x.stepType === 'addHighlight';
@@ -418,7 +417,7 @@
               const highlightkeys = afterPosMarks.find((x) => {
                 return x.attrs['highlight-keys'];
               });
-              const current = highlightkeys ? highlightkeys.attrs['highlight-keys'].split(',')[0] : null;
+              const current = highlightkeys ? highlightkeys.attrs['highlight-keys'] : null;
               if (this.currentHighlightKey !== current) {
                 this.currentHighlightKey = current;
                 this.currentHighlightKeyChanged = true;
@@ -594,109 +593,25 @@
       addCommentHighlight(highlightKey) {
         const action = {type: 'add', highlightKey};
         const {selection} = this.$editorView.state;
-        let newChunks = [{
-          from: selection.from,
-          to: selection.to,
-          empty: true,
-        }];
-        const {doc, tr} = this.$editorView.state;
-        if (this.selectedExistingHighlights) {
-          // Change existing highlight marks to add the new highlight-key after their current highlight-keys.
-          this.selectedExistingHighlights.forEach((highlightMark) => {
-            const {size, marks} = highlightMark;
-            let {start} = highlightMark;
-            let end = start + size;
-            // Chunk to split if the new highlight includes highlights from other comments.
-            let chunkToSplit = newChunks.find((chunk) => {
-              return chunk.from <= start && chunk.to >= end;
-            });
-            if (!chunkToSplit) {
-              // Chunk to split if the new highlight includes parts of highlights from other comments.
-              chunkToSplit = newChunks.find((chunk) => {
-                return chunk.from <= start || chunk.to >= end || (chunk.from >= start && chunk.to <= end);
-              });
-              start = Math.max(start, chunkToSplit.from);
-              end = Math.min(end, chunkToSplit.to);
-            }
-            // Update collection to reflect new segments of the selection with previous highlight marks.
-            newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
-            const currentKeys = marks[0].attrs['highlight-keys'];
-            removeHighlight(schema, tr, doc, start, end, action);
-            let keys;
-            // If the new highlight contains the initial part of another highlight.
-            if (selection.from < start) {
-              keys = `${currentKeys},${highlightKey}`;
-            }
-            else {
-              keys = `${highlightKey},${currentKeys}`;
-            }
-            addHighlight(keys, schema, tr, start, end, action);
-          });
-        }
-        newChunks.filter((chunk) => {
-           // Only add a new highlight mark to segments with no previous highlight marks.
-          return chunk.empty;
-        }).forEach((chunk) => {
-          addHighlight(highlightKey, schema, tr, chunk.from, chunk.to, action);
-        });
+        const {tr} = this.$editorView.state;
+        addHighlight(highlightKey, schema, tr, selection.from, selection.to, action);
         this.$editorView.dispatch(tr);
-      },
-
-      // Adds nearby highlight nodes (after or before the cursor position) to highlightNodes.
-      getNearbyHighlights(highlightNodes, cursorPos, mode, commentHighlightKey) {
-        let pos = cursorPos;
-        let posNode = mode === 'after' ? cursorPos.nodeAfter : cursorPos.nodeBefore;
-        let highlightMark = posNode ? posNode.marks.find((x) => {
-          return x.type.name === 'highlight';
-        }) : null;
-        while (highlightMark) {
-          const highlightKeys = highlightMark.attrs['highlight-keys'].split(',');
-          let otherKeys = highlightKeys.filter((y) => {
-            return y !== commentHighlightKey;
-          });
-          otherKeys = otherKeys || [];
-          if (otherKeys.length < highlightKeys.length) {
-            if (mode === 'after') {
-              highlightNodes.push({pos, otherKeys});
-              pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
-            }
-            else {
-              highlightNodes.unshift({pos, otherKeys});
-              pos = this.$editorView.state.doc.resolve(pos.pos - pos.textOffset - 1);
-            }
-            posNode = pos.nodeAfter;
-            highlightMark = posNode ? posNode.marks.find((x) => {
-              return x.type.name === 'highlight';
-            }) : null;
-          }
-          else {
-            highlightMark = null;
-          }
-        }
       },
 
       deleteCommentHighlight(comment, deleteHighlight) {
         if (deleteHighlight) {
           const action = {type: 'remove', highlightKey: comment.highlightKey, id: comment._id};
           const {doc, tr} = this.$editorView.state;
-          const cursorPos = this.$editorView.state.doc.resolve(this.$editorView.state.selection.$cursor.pos);
-          const highlightNodes = [];
-          this.getNearbyHighlights(highlightNodes, cursorPos, 'after', comment.highlightKey);
-          this.getNearbyHighlights(highlightNodes, cursorPos, 'before', comment.highlightKey);
-          // Update nearby highlights.
-          removeHighlight(
-            schema, tr, doc, highlightNodes[0].pos.pos - highlightNodes[0].pos.textOffset,
-            highlightNodes[highlightNodes.length - 1].pos.pos + highlightNodes[highlightNodes.length - 1].pos.nodeAfter.nodeSize,
-            action,
-          );
-          highlightNodes.forEach((d, i) => {
-            if (d.otherKeys.length > 0) {
-              addHighlight(
-                d.otherKeys.join(','), schema, tr, d.pos.pos - d.pos.textOffset,
-                d.pos.pos + d.pos.nodeAfter.nodeSize,
-                action,
-              );
-            }
+          this.$editorView.state.doc.descendants((node, pos) => {
+            node.marks.forEach((x) => {
+              if (x.attrs['highlight-keys'] && x.attrs['highlight-keys'].split(',').indexOf(comment.highlightKey) >= 0) {
+                removeHighlight(
+                  schema, tr, doc, pos,
+                  pos + node.nodeSize,
+                  action,
+                );
+              }
+            });
           });
           this.$editorView.dispatch(tr);
         }
