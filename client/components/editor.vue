@@ -191,6 +191,7 @@
   import {toggleLink, clearLink} from './utils/link.js';
 
   const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
+  const highlightIds = new Map();
 
   // @vue/component
   const component = {
@@ -371,17 +372,19 @@
                   return step.toJSON();
                 }),
                 clientId: this.clientId,
-              }, (error, stepsAdded) => {
+              }, (error, response) => {
                 this.addingStepsInProgress = false;
                 if (!error) {
-                  if (stepsAdded.action && stepsAdded.stepsAdded > 0) {
-                    if (stepsAdded.action.type === 'add') {
-                      this.$emit('highlight-added', stepsAdded.action.highlightKey);
-                      this.updateCursor();
-                    }
-                    else if (stepsAdded.action.type === 'remove') {
-                      this.$emit('highlight-deleted', {id: stepsAdded.action.id, version: collab.getVersion(this.$editorView.state)});
-                    }
+                  if (response.highlightSteps.length && response.stepsAdded > 0) {
+                    response.highlightSteps.forEach((x) => {
+                      if (x.type === 'addMark') {
+                        this.$emit('highlight-added', x.highlightKey);
+                        this.updateCursor();
+                      }
+                      else if (x.type === 'removeMark') {
+                        this.$emit('highlight-deleted', {id: highlightIds.get(x.highlightKey), version: collab.getVersion(this.$editorView.state)});
+                      }
+                    });
                   }
                   // "content-changed" event is emitted only when all steps are added successfully.
                   // This prevents layoutComments from running unnecessarily on the sidebar component.
@@ -573,16 +576,14 @@
       },
 
       addCommentHighlight(highlightKey) {
-        const action = {type: 'add', highlightKey};
         const {selection} = this.$editorView.state;
         const {tr} = this.$editorView.state;
-        addHighlight(highlightKey, schema, tr, selection.from, selection.to, action);
+        addHighlight(highlightKey, schema, tr, selection.from, selection.to);
         this.$editorView.dispatch(tr);
       },
 
       deleteCommentHighlight(comment, deleteHighlight) {
         if (deleteHighlight) {
-          const action = {type: 'remove', highlightKey: comment.highlightKey, id: comment._id};
           const {doc, tr} = this.$editorView.state;
           this.$editorView.state.doc.descendants((node, pos) => {
             node.marks.forEach((x) => {
@@ -590,11 +591,12 @@
                 removeHighlight(
                   schema, tr, doc, pos,
                   pos + node.nodeSize,
-                  action,
+                  comment.highlightKey,
                 );
               }
             });
           });
+          highlightIds.set(comment.highlightKey, comment._id);
           this.$editorView.dispatch(tr);
         }
         else {

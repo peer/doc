@@ -71,14 +71,7 @@ Meteor.methods({
       return Step.fromJSON(schema, step);
     });
 
-    const highlightStep = args.steps.find((x) => {
-      return x.stepType === 'removeHighlight' || x.stepType === 'addHighlight';
-    });
-
-    let action;
-    if (highlightStep) {
-      action = highlightStep.originator;
-    }
+    const highlightSteps = [];
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
 
@@ -110,7 +103,7 @@ Meteor.methods({
     });
 
     if (latestContent.version !== args.currentVersion) {
-      return {stepsAdded: 0, action};
+      return {stepsAdded: 0, highlightSteps};
     }
 
     let stepsToProcess = steps;
@@ -122,7 +115,7 @@ Meteor.methods({
         return step.mark && step.mark.type.name === 'highlight';
       });
       if (!stepsToProcess.length) {
-        return {stepsAdded: 0, action};
+        return {stepsAdded: 0, highlightSteps};
       }
     }
 
@@ -172,6 +165,10 @@ Meteor.methods({
       else {
         documents.set(args.contentKey, {doc, version});
       }
+
+      if (step.mark && step.mark.type.name === 'highlight') {
+        highlightSteps.push({type: step.jsonID, highlightKey: step.mark.attrs['highlight-keys']});
+      }
     }
 
     Document.documents.update({
@@ -205,7 +202,7 @@ Meteor.methods({
       highlightKeys: _.flatten(keys),
       version,
     });
-    return {stepsAdded: version - args.currentVersion, action};
+    return {stepsAdded: version - args.currentVersion, highlightSteps};
   },
 });
 

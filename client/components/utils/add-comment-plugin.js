@@ -1,7 +1,6 @@
 import {Plugin} from 'prosemirror-state';
 import {MarkType} from 'prosemirror-model';
-
-import {AddHighlightStep, RemoveHighlightStep} from '/lib/transform/highlight_step';
+import {RemoveMarkStep} from "prosemirror-transform";
 
 class AddComment {
   constructor(view, vueInstance) {
@@ -74,55 +73,11 @@ class AddComment {
   }
 }
 
-// Add the given mark to the inline content between `from` and `to`.
-function addHighlightMark(tr, from, to, mark, originator) {
-  const removed = [];
-  const added = [];
-  let removing = null;
-  let adding = null;
-
-  tr.doc.nodesBetween(from, to, (node, pos, parent) => {
-    if (!node.isInline) return;
-    const marks = node.marks;
-    if (!mark.isInSet(marks) && parent.type.allowsMarkType(mark.type)) {
-      const start = Math.max(pos, from);
-      const end = Math.min(pos + node.nodeSize, to);
-      const newSet = mark.addToSet(marks);
-
-      for (let i = 0; i < marks.length; i += 1) {
-        if (!marks[i].isInSet(newSet)) {
-          if (removing && removing.to === start && removing.mark.eq(marks[i])) {
-            removing.to = end;
-          }
-          else {
-            removed.push(removing = new RemoveHighlightStep(start, end, marks[i], originator));
-          }
-        }
-      }
-
-      if (adding && adding.to === start) {
-        adding.to = end;
-      }
-      else {
-        added.push(adding = new AddHighlightStep(start, end, mark, originator));
-      }
-    }
-  });
-
-  removed.forEach((s) => {
-    tr.step(s);
-  });
-  added.forEach((s) => {
-    tr.step(s);
-  });
-  return tr;
-}
-
 // Remove marks from inline nodes between `from` and `to`. When `mark`
 // is a single mark, remove precisely that mark. When it is a mark type,
 // remove all marks of that type. When it is null, remove all marks of
 // any type.
-function removeHighlightMark(tr, from, to, mark = null, originator) {
+function removeHighlightMark(tr, from, to, mark = null, highlightKey) {
   const matched = [];
   let step = 0;
   tr.doc.nodesBetween(from, to, (node, pos) => {
@@ -131,7 +86,7 @@ function removeHighlightMark(tr, from, to, mark = null, originator) {
     let toRemove = null;
     if (mark instanceof MarkType) {
       const found = node.marks.find((x) => {
-        return x.attrs['highlight-keys'] === originator.highlightKey;
+        return x.attrs['highlight-keys'] === highlightKey;
       });
 
       if (found) toRemove = [found];
@@ -156,13 +111,13 @@ function removeHighlightMark(tr, from, to, mark = null, originator) {
           found.step = step;
         }
         else {
-          matched.push({style, from: Math.max(pos, from), to: end, step, originator});
+          matched.push({style, from: Math.max(pos, from), to: end, step});
         }
       }
     }
   });
   matched.forEach((m) => {
-    tr.step(new RemoveHighlightStep(m.from, m.to, m.style, m.originator));
+    tr.step(new RemoveMarkStep(m.from, m.to, m.style));
   });
   return tr;
 }
@@ -175,15 +130,15 @@ export default function addCommentPlugin(vueInstance) {
   });
 }
 
-export function addHighlight(keys, schema, tr, from, to, originator) {
+export function addHighlight(keys, schema, tr, from, to) {
   const attrs = {'highlight-keys': keys};
   tr.setMeta('addToHistory', false);
-  addHighlightMark(tr, from, to, schema.marks.highlight.create(attrs), originator);
+  return tr.addMark(from, to, schema.marks.highlight.create(attrs));
 }
 
-export function removeHighlight(schema, tr, doc, from, to, originator) {
+export function removeHighlight(schema, tr, doc, from, to, highlightKey) {
   if (doc.rangeHasMark(from, to, schema.marks.highlight)) {
     tr.setMeta('addToHistory', false);
-    removeHighlightMark(tr, from, to, schema.marks.highlight, originator);
+    removeHighlightMark(tr, from, to, schema.marks.highlight, highlightKey);
   }
 }
