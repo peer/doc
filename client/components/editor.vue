@@ -375,17 +375,15 @@
               }, (error, response) => {
                 this.addingStepsInProgress = false;
                 if (!error) {
-                  if (response.highlightSteps.length && response.stepsAdded > 0) {
-                    response.highlightSteps.forEach((x) => {
-                      if (x.type === 'addMark') {
-                        this.$emit('highlight-added', x.highlightKey);
-                        this.updateCursor();
-                      }
-                      else if (x.type === 'removeMark') {
-                        this.$emit('highlight-deleted', {id: highlightIds.get(x.highlightKey), version: collab.getVersion(this.$editorView.state)});
-                      }
-                    });
-                  }
+                  response.highlightSteps.forEach((x) => {
+                    if (x.type === 'addMark') {
+                      this.$emit('highlight-added', x.highlightKey);
+                      this.updateCursor();
+                    }
+                    else if (x.type === 'removeMark') {
+                      this.$emit('highlight-deleted', {id: highlightIds.get(x.highlightKey), version: collab.getVersion(this.$editorView.state)});
+                    }
+                  });
                   // "content-changed" event is emitted only when all steps are added successfully.
                   // This prevents layoutComments from running unnecessarily on the sidebar component.
                   this.$emit('content-changed');
@@ -585,17 +583,26 @@
       deleteCommentHighlight(comment, deleteHighlight) {
         if (deleteHighlight) {
           const {doc, tr} = this.$editorView.state;
+          const markPositions = [];
           this.$editorView.state.doc.descendants((node, pos) => {
             node.marks.forEach((x) => {
               if (x.attrs['highlight-keys'] && x.attrs['highlight-keys'].split(',').indexOf(comment.highlightKey) >= 0) {
-                removeHighlight(
-                  schema, tr, doc, pos,
-                  pos + node.nodeSize,
-                  comment.highlightKey,
-                );
+                markPositions.push(pos);
+                markPositions.push(pos + node.nodeSize);
               }
             });
           });
+
+          if (markPositions.length) {
+            removeHighlight(
+              schema,
+              tr,
+              doc,
+              _.min(markPositions),
+              _.max(markPositions),
+              comment.highlightKey,
+            );
+          }
           highlightIds.set(comment.highlightKey, comment._id);
           this.$editorView.dispatch(tr);
         }
