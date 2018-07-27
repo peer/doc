@@ -360,7 +360,7 @@
           const sendable = collab.sendableSteps(newState);
           if (sendable) {
             const containsHighlightStep = sendable.steps.find((x) => {
-              return x.stepType === 'removeHighlight' || x.stepType === 'addHighlight';
+              return (x.jsonID === 'addMark' || x.jsonID === 'removeMark') && x.mark && x.mark.type.name === 'highlight';
             });
             if (this.canUserUpdateDocument || (this.canUserCreateComments && (containsHighlightStep))) {
               this.lastSentVersion = sendable.version;
