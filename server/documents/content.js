@@ -103,7 +103,7 @@ Meteor.methods({
     });
 
     if (latestContent.version !== args.currentVersion) {
-      return {stepsAdded: 0, highlightSteps};
+      return {stepsAdded: 0, totalSteps: args.steps.length, highlightSteps};
     }
 
     let stepsToProcess = steps;
@@ -115,7 +115,7 @@ Meteor.methods({
         return step.mark && step.mark.type.name === 'highlight';
       });
       if (!stepsToProcess.length) {
-        return {stepsAdded: 0, highlightSteps};
+        return {stepsAdded: 0, totalSteps: args.steps.length, highlightSteps};
       }
     }
 
@@ -130,7 +130,6 @@ Meteor.methods({
 
       if (!result.doc) {
         // eslint-disable-next-line no-console
-        console.error("Error applying a step.", result.failed);
         throw new Meteor.Error('invalid-request', "Invalid step.");
       }
 
@@ -202,7 +201,13 @@ Meteor.methods({
       highlightKeys: _.flatten(keys),
       version,
     });
-    return {stepsAdded: version - args.currentVersion, highlightSteps};
+    return {
+      stepsAdded: version - args.currentVersion,
+      totalSteps: args.steps.length,
+      highlightSteps: _.uniq(highlightSteps, (x) => {
+        return `${x.type}-${x.highlightKey}`;
+      }),
+    };
   },
 });
 
