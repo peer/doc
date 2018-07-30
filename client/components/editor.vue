@@ -375,16 +375,7 @@
               }, (error, response) => {
                 this.addingStepsInProgress = false;
                 if (!error) {
-                  response.highlightSteps.forEach((x) => {
-                    if (x.type === 'addMark') {
-                      this.$emit('highlight-added', x.highlightKey);
-                      this.updateCursor();
-                    }
-                    else if (x.type === 'removeMark') {
-                      this.$emit('highlight-deleted', {id: highlightIds.get(x.highlightKey), version: collab.getVersion(this.$editorView.state)});
-                    }
-                  });
-                  // "content-changed" event is emitted only when all steps are added successfully.
+                  // "content-changed" event is emitted only when addSteps returns without errors.
                   // This prevents layoutComments from running unnecessarily on the sidebar component.
                   this.$emit('content-changed');
                 }
@@ -454,6 +445,23 @@
           }).fetch();
 
           if (newContents.length) {
+            // Observe new confirmed steps.
+            if (collab.getVersion(this.$editorView.state) > 0) {
+              newContents.filter((x) => {
+                return x.clientId === this.clientId;
+              }).forEach((x) => {
+                // Emit corresponding events when highlights are added.
+                if (x.step.mark && x.step.mark.type === 'highlight') {
+                  if (x.step.stepType === 'removeMark') {
+                    this.$emit('highlight-deleted', {id: highlightIds.get(x.step.mark.attrs['highlight-keys']), version: collab.getVersion(this.$editorView.state)});
+                  }
+                  else if (x.step.stepType === 'addMark') {
+                    this.$emit('highlight-added', x.step.mark.attrs['highlight-keys']);
+                    this.updateCursor();
+                  }
+                }
+              });
+            }
             this.$editorView.dispatch(collab.receiveTransaction(this.$editorView.state, _.pluck(newContents, 'step').map((step) => {
               return Step.fromJSON(schema, step);
             }), _.pluck(newContents, 'clientId')));
