@@ -450,13 +450,14 @@
               newContents.filter((x) => {
                 return x.clientId === this.clientId;
               }).forEach((x) => {
+                const step = Step.fromJSON(schema, x.step);
                 // Emit corresponding events when highlights are added.
-                if (x.step.mark && x.step.mark.type === 'highlight') {
-                  if (x.step.stepType === 'removeMark') {
-                    this.$emit('highlight-deleted', {id: highlightIds.get(x.step.mark.attrs['highlight-keys']), version: collab.getVersion(this.$editorView.state)});
+                if (step.mark && step.mark.type.name === 'highlight') {
+                  if (step.jsonID === 'removeMark') {
+                    this.$emit('highlight-deleted', {id: highlightIds.get(step.mark.attrs['highlight-keys']), version: x.version});
                   }
-                  else if (x.step.stepType === 'addMark') {
-                    this.$emit('highlight-added', x.step.mark.attrs['highlight-keys']);
+                  else if (step.jsonID === 'addMark') {
+                    this.$emit('highlight-added', step.mark.attrs['highlight-keys']);
                     this.updateCursor();
                   }
                 }
