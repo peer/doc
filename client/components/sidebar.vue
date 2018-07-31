@@ -114,10 +114,8 @@
   function getElementByHighlightKey(elements, key) {
     for (let i = 0; i < elements.length; i += 1) {
       const commentMarkEl = elements[i];
-      const keys = commentMarkEl.attributes['data-highlight-keys'].value.split(',');
-      if (keys.find((commentId) => {
-        return commentId === key;
-      })) {
+      const highlightKey = commentMarkEl.attributes['data-highlight-key'].value;
+      if (highlightKey === key) {
         return commentMarkEl;
       }
     }
@@ -339,7 +337,7 @@
           });
         });
 
-        const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
+        const commentMarksEls = document.querySelectorAll(`span[data-highlight-key]`);
         const {currentHighlightKey} = this;
         this.documentComments = currentComments.map((c, i) => {
           if (c.dummy) {
@@ -483,7 +481,7 @@
         if (!this.$refs.comments || (dummy.length === 0 && !this.currentHighlightKey && !force)) {
           return;
         }
-        const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
+        const commentMarksEls = document.querySelectorAll(`span[data-highlight-key]`);
         const highlightTops = this.documentComments.map((c, i) => {
           if (c.dummy) {
             return c.highlightTop;

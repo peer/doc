@@ -186,13 +186,13 @@ Meteor.methods({
         return m.type.name === 'highlight';
       });
       if (mark) {
-        keys.push(mark.attrs['highlight-keys'].split(','));
+        keys.push(mark.attrs['highlight-key']);
       }
     });
 
     Comment.filterOrphan({
       documentId: document._id,
-      highlightKeys: _.flatten(keys),
+      highlightKeys: keys,
       version,
     });
     return {

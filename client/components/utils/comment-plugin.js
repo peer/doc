@@ -11,7 +11,7 @@ function getDecorations(doc, vueInstance) {
 
     if (highlightMarks.length) {
       const mark = highlightMarks.find((x) => {
-        return x.attrs['highlight-keys'] === vueInstance.currentHighlightKey;
+        return x.attrs['highlight-key'] === vueInstance.currentHighlightKey;
       });
       if (mark) {
         result.push(Decoration.inline(pos, pos + node.nodeSize, {class: 'highlight--selected'}));

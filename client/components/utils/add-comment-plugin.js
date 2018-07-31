@@ -86,7 +86,7 @@ function removeHighlightMark(tr, from, to, mark = null, highlightKey) {
     let toRemove = null;
     if (mark instanceof MarkType) {
       const found = node.marks.find((x) => {
-        return x.attrs['highlight-keys'] === highlightKey;
+        return x.attrs['highlight-key'] === highlightKey;
       });
 
       if (found) toRemove = [found];
@@ -130,8 +130,8 @@ export default function addCommentPlugin(vueInstance) {
   });
 }
 
-export function addHighlight(keys, schema, tr, from, to) {
-  const attrs = {'highlight-keys': keys};
+export function addHighlight(key, schema, tr, from, to) {
+  const attrs = {'highlight-key': key};
   tr.setMeta('addToHistory', false);
   return tr.addMark(from, to, schema.marks.highlight.create(attrs));
 }

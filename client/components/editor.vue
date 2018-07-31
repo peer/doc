@@ -390,9 +390,9 @@
             const afterPosMarks = cursorPos.nodeAfter ? cursorPos.nodeAfter.marks : [];
             if (afterPosMarks) {
               const highlightkeys = afterPosMarks.filter((x) => {
-                return x.attrs['highlight-keys'];
+                return x.attrs['highlight-key'];
               }).map((x) => {
-                return {key: x.attrs['highlight-keys'], pos: this.getHighlightPos(x.attrs['highlight-keys'])};
+                return {key: x.attrs['highlight-key'], pos: this.getHighlightPos(x.attrs['highlight-key'])};
               });
               const current = highlightkeys ? _.max(highlightkeys, (x) => {
                 return x.pos;
@@ -454,10 +454,10 @@
                 // Emit corresponding events when highlights are added.
                 if (step.mark && step.mark.type.name === 'highlight') {
                   if (step.jsonID === 'removeMark') {
-                    this.$emit('highlight-deleted', {id: highlightIds.get(step.mark.attrs['highlight-keys']), version: x.version});
+                    this.$emit('highlight-deleted', {id: highlightIds.get(step.mark.attrs['highlight-key']), version: x.version});
                   }
                   else if (step.jsonID === 'addMark') {
-                    this.$emit('highlight-added', step.mark.attrs['highlight-keys']);
+                    this.$emit('highlight-added', step.mark.attrs['highlight-key']);
                     this.updateCursor();
                   }
                 }
@@ -539,7 +539,7 @@
           this.$editorView.state.doc.descendants((node, pos) => {
             if (keepSearching) {
               node.marks.forEach((x) => {
-                if (x.attrs['highlight-keys'] && x.attrs['highlight-keys'].split(',').indexOf(highlightKey) >= 0) {
+                if (x.attrs['highlight-key'] === highlightKey) {
                   highlightPos = pos;
                   keepSearching = false;
                 }
@@ -595,7 +595,7 @@
           const markPositions = [];
           this.$editorView.state.doc.descendants((node, pos) => {
             node.marks.forEach((x) => {
-              if (x.attrs['highlight-keys'] && x.attrs['highlight-keys'].split(',').indexOf(comment.highlightKey) >= 0) {
+              if (x.attrs['highlight-key'] === comment.highlightKey) {
                 markPositions.push(pos);
                 markPositions.push(pos + node.nodeSize);
               }
