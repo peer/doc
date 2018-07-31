@@ -442,7 +442,12 @@
             sort: {
               version: 1,
             },
-          }).fetch();
+          }).fetch()
+            .map((x) => {
+              return Object.assign({}, x, {
+                step: Step.fromJSON(schema, x.step),
+              });
+            });
 
           if (newContents.length) {
             // Observe new confirmed steps.
@@ -450,22 +455,22 @@
               newContents.filter((x) => {
                 return x.clientId === this.clientId;
               }).forEach((x) => {
-                const step = Step.fromJSON(schema, x.step);
                 // Emit corresponding events when highlights are added.
-                if (step.mark && step.mark.type.name === 'highlight') {
-                  if (step.jsonID === 'removeMark') {
-                    this.$emit('highlight-deleted', {id: highlightIds.get(step.mark.attrs['highlight-key']), version: x.version});
+                if (x.step.mark && x.step.mark.type.name === 'highlight') {
+                  if (x.step.jsonID === 'removeMark') {
+                    this.$emit('highlight-deleted', {id: highlightIds.get(x.step.mark.attrs['highlight-key']), version: x.version});
                   }
-                  else if (step.jsonID === 'addMark') {
-                    this.$emit('highlight-added', step.mark.attrs['highlight-key']);
+                  else if (x.step.jsonID === 'addMark') {
+                    this.$emit('highlight-added', x.step.mark.attrs['highlight-key']);
                     this.updateCursor();
                   }
                 }
               });
             }
-            this.$editorView.dispatch(collab.receiveTransaction(this.$editorView.state, _.pluck(newContents, 'step').map((step) => {
-              return Step.fromJSON(schema, step);
-            }), _.pluck(newContents, 'clientId')));
+            this.$editorView.dispatch(collab.receiveTransaction(
+              this.$editorView.state, _.pluck(newContents, 'step'),
+              _.pluck(newContents, 'clientId'),
+            ));
           }
         });
       });
