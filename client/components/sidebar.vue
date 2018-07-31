@@ -100,7 +100,7 @@
   import {Document} from '/lib/documents/document';
   import {User} from '/lib/documents/user';
 
-  let commentsToAdd = [];
+  const commentsToAdd = [];
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
@@ -250,14 +250,11 @@
       },
 
       createComment(highlightKey) {
-        const commentToAdd = commentsToAdd.find((x) => {
-          return x.highlightKey === highlightKey;
-        });
-        if (commentToAdd) {
-          Comment.create(commentToAdd);
-          commentsToAdd = commentsToAdd.filter((x) => {
-            return x.highlightKey !== highlightKey;
-          });
+        for (let i = commentsToAdd.length - 1; i >= 0; i -= 1) {
+          if (commentsToAdd[i].highlightKey === highlightKey) {
+            Comment.create(commentsToAdd[i]);
+            commentsToAdd.splice(i, 1);
+          }
         }
       },
 
