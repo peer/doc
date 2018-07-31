@@ -373,12 +373,10 @@
                 }),
                 clientId: this.clientId,
               }, (error, response) => {
-                this.addingStepsInProgress = false;
-                if (!error) {
-                  // "content-changed" event is emitted only when addSteps returns without errors.
-                  // This prevents layoutComments from running unnecessarily on the sidebar component.
-                  this.$emit('content-changed');
+                if (error) {
+                  // TODO: Error handling.
                 }
+                this.addingStepsInProgress = false;
               });
             }
           }
@@ -450,6 +448,8 @@
             });
 
           if (newContents.length) {
+            // Notify to other components that there is new content.
+            this.$emit('content-changed');
             // Observe new confirmed steps.
             if (collab.getVersion(this.$editorView.state) > 0) {
               newContents.filter((x) => {
