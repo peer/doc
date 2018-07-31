@@ -100,8 +100,6 @@
   import {Document} from '/lib/documents/document';
   import {User} from '/lib/documents/user';
 
-  const commentsToAdd = [];
-
   function getOffset(el) {
     const e = el.getBoundingClientRect();
     return {
@@ -181,6 +179,7 @@
     },
 
     mounted() {
+      this.$commentsToAdd = [];
       this.$autorun((computation) => {
         const comments = Comment.documents.find(this.commentsHandle.scopeQuery()).fetch();
         if (comments.length) {
@@ -250,10 +249,10 @@
       },
 
       createComment(highlightKey) {
-        for (let i = commentsToAdd.length - 1; i >= 0; i -= 1) {
-          if (commentsToAdd[i].highlightKey === highlightKey) {
-            Comment.create(commentsToAdd[i]);
-            commentsToAdd.splice(i, 1);
+        for (let i = this.$commentsToAdd.length - 1; i >= 0; i -= 1) {
+          if (this.$commentsToAdd[i].highlightKey === highlightKey) {
+            Comment.create(this.$commentsToAdd[i]);
+            this.$commentsToAdd.splice(i, 1);
           }
         }
       },
@@ -261,7 +260,7 @@
       onCommentSubmitted(comment, newCommentBody) {
         if (comment.dummy) {
           const key = Random.id();
-          commentsToAdd.push({
+          this.$commentsToAdd.push({
             highlightKey: key,
             body: newCommentBody,
             documentId: this.documentId,

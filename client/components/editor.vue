@@ -191,7 +191,6 @@
   import {toggleLink, clearLink} from './utils/link.js';
 
   const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
-  const highlightIds = new Map();
 
   // @vue/component
   const component = {
@@ -285,6 +284,7 @@
     },
 
     mounted() {
+      this.$highlightIdsToCommentIds = new Map();
       const menuItems = [
         // "node" is used to attach a click event handler and set "isActive" if a button is active.
         // "isActive" is used to check if button is active. "name" is used to know which value in
@@ -458,7 +458,7 @@
                 // Emit corresponding events when highlights are added.
                 if (x.step.mark && x.step.mark.type.name === 'highlight') {
                   if (x.step.jsonID === 'removeMark') {
-                    this.$emit('highlight-deleted', {id: highlightIds.get(x.step.mark.attrs['highlight-key']), version: x.version});
+                    this.$emit('highlight-deleted', {id: this.$highlightIdsToCommentIds.get(x.step.mark.attrs['highlight-key']), version: x.version});
                   }
                   else if (x.step.jsonID === 'addMark') {
                     this.$emit('highlight-added', x.step.mark.attrs['highlight-key']);
@@ -617,7 +617,7 @@
               comment.highlightKey,
             );
           }
-          highlightIds.set(comment.highlightKey, comment._id);
+          this.$highlightIdsToCommentIds.set(comment.highlightKey, comment._id);
           this.$editorView.dispatch(tr);
         }
         else {
