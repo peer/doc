@@ -29,6 +29,10 @@
                 :to="{name: 'publishDocument', params: {documentId}}"
                 color="success"
               ><translate>document-publish</translate></v-btn>
+              <v-btn
+                color="default"
+                @click="forkDocument()"
+              ><translate>fork</translate></v-btn>
             </v-toolbar>
           </v-card>
         </v-flex>
@@ -99,6 +103,7 @@
   import {Comment} from '/lib/documents/comment';
   import {Document} from '/lib/documents/document';
   import {User} from '/lib/documents/user';
+  import {Snackbar} from '../snackbar';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
@@ -198,6 +203,14 @@
     },
 
     methods: {
+      forkDocument() {
+        Document.fork({documentId: this.documentId}, (error, response) => {
+          if (!error) {
+            Snackbar.enqueue(this.$gettext("document-forked-success"), 'success');
+            this.$router.push({name: 'document', params: {documentId: response.documentId}});
+          }
+        });
+      },
       showNewCommentForm(show, start, selection) {
         this.documentComments = this.documentComments.filter((x) => {
           return !x.dummy;
