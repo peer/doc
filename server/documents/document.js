@@ -48,6 +48,61 @@ Meteor.methods({
       });
     }
   },
+  'Document.fork'(args) {
+    check(args, {
+      documentId: String,
+    });
+
+    const user = Meteor.user(User.REFERENCE_FIELDS());
+
+    // We need user reference.
+    if (!user || !user.hasPermission(Document.PERMISSIONS.CREATE)) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    }
+    const doc = Document.documents.findOne({
+      _id: args.documentId,
+    });
+
+    const {contentKey} = doc;
+
+    const createdAt = new Date();
+    const forkContentKey = Content.Meta.collection._makeNewID();
+
+    Content.documents.update(
+      {
+        contentKeys:
+        {
+          $elemMatch: {
+            $in: [contentKey],
+          },
+        },
+      },
+      {
+        $push:
+        {
+          contentKeys: forkContentKey,
+        },
+      }, {
+        multi: true,
+      },
+    );
+
+    const documentId = Document.documents.insert({
+      contentKey: forkContentKey,
+      createdAt,
+      updatedAt: createdAt,
+      lastActivity: createdAt,
+      author: user.getReference(),
+      publishedBy: null,
+      publishedAt: null,
+      title: doc.title,
+      version: doc.version,
+      body: doc.body,
+      forkedFrom: doc.getReference(),
+      forkedAtVersion: doc.version,
+    });
+    return {documentId};
+  },
   'Document.merge'(args) {
     check(args, {
       documentId: String,
