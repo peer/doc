@@ -30,9 +30,15 @@
                 color="success"
               ><translate>document-publish</translate></v-btn>
               <v-btn
+                v-if="!document.forkedFrom"
                 color="default"
                 @click="forkDocument()"
               ><translate>fork</translate></v-btn>
+              <v-btn
+                v-if="document.forkedFrom"
+                color="warning"
+                @click="mergeDocument()"
+              ><translate>merge</translate></v-btn>
             </v-toolbar>
           </v-card>
         </v-flex>
@@ -208,6 +214,15 @@
           if (!error) {
             Snackbar.enqueue(this.$gettext("document-forked-success"), 'success');
             this.$router.push({name: 'document', params: {documentId: response.documentId}});
+          }
+        });
+      },
+      mergeDocument() {
+        Document.merge({documentId: this.documentId}, (error, response) => {
+          if (!error) {
+            // eslint-disable-next-line no-console
+            console.log(error, response);
+            Snackbar.enqueue(this.$gettext("document-merged-success"), 'success');
           }
         });
       },

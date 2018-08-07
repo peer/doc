@@ -1,9 +1,13 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
+import {Step} from 'prosemirror-transform';
 
 import {Activity} from '/lib/documents/activity';
+import {Content} from '/lib/documents/content';
 import {Document} from '/lib/documents/document';
 import {User} from '/lib/documents/user';
+
+import {schema} from '../../lib/full-schema';
 
 Meteor.methods({
   'Document.publish'(args) {
@@ -43,6 +47,149 @@ Meteor.methods({
         },
       });
     }
+  },
+  'Document.merge'(args) {
+    check(args, {
+      documentId: String,
+    });
+
+    const user = Meteor.user(User.REFERENCE_FIELDS());
+
+    if (!user || !user.hasPermission(Document.PERMISSIONS.CREATE)) {
+      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    }
+
+    const fork = Document.documents.findOne(
+      {
+        _id: args.documentId,
+      },
+      {
+        fields: {
+          contentKey: 1,
+          forkedAtVersion: 1,
+          forkedFrom: 1,
+          _id: 1,
+        },
+      },
+    );
+
+    const forkSteps = Content.documents.find(
+      {
+        version: {
+          $gt: fork.forkedAtVersion,
+        },
+        contentKeys:
+        {
+          $elemMatch: {
+            $in: [fork.contentKey],
+          },
+        },
+      },
+      {
+        sort: {
+          version: 1,
+        },
+      },
+    ).fetch()
+    .map((x) => {
+      return Step.fromJSON(schema, x.step);
+    });
+
+    const original = Document.documents.findOne({
+      _id: fork.forkedFrom._id,
+    });
+
+    let doc = schema.topNodeType.createAndFill();
+    let version = 0;
+
+    Content.documents.find({
+      contentKeys: {
+        $elemMatch: {
+          $in: [fork.contentKey],
+        },
+      },
+      version: {
+        $gt: version,
+      },
+    }, {
+      sort: {
+        version: 1,
+      },
+      fields: {
+        step: 1,
+        version: 1,
+      },
+    }).fetch().forEach((content) => {
+      const result = Step.fromJSON(schema, content.step).apply(doc);
+
+      if (!result.doc) {
+        // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+      doc = result.doc;
+      version = content.version;
+    });
+
+    const originalSteps = Content.documents.find(
+      {
+        version: {
+          $gt: fork.forkedAtVersion,
+        },
+        contentKeys:
+        {
+          $elemMatch: {
+            $in: [original.contentKey],
+          },
+        },
+      },
+      {
+        sort: {
+          version: 1,
+        },
+      },
+    ).fetch()
+    .map((x) => {
+      return Step.fromJSON(schema, x.step);
+    });
+
+    for (let i = forkSteps.length - 1; i >= 0; i -= 1) {
+      const result = forkSteps[i].invert(doc).apply(doc);
+
+      if (!result.doc) {
+        // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+      doc = result.doc;
+      version += 1;
+    }
+
+    for (let i = 0; i < originalSteps.length; i += 1) {
+      const result = originalSteps[i].apply(doc);
+
+      if (!result.doc) {
+        // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+      doc = result.doc;
+      version += 1;
+    }
+
+    for (let i = forkSteps.length - 1; i >= 0; i -= 1) {
+      const result = forkSteps[i].apply(doc);
+
+      if (!result.doc) {
+        // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+      doc = result.doc;
+      version += 1;
+    }
+    // eslint-disable-next-line no-console
+    console.log(doc.content.content[0].content.content[0].text);
   },
 });
 
