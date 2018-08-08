@@ -103,7 +103,7 @@ Meteor.methods({
     });
 
     if (latestContent.version !== args.currentVersion) {
-      throw new Meteor.Error('version-error', `Step version doesn't match.`);
+      return {stepsAdded: 0, totalSteps: args.steps.length};
     }
 
     let stepsToProcess = steps;
@@ -115,7 +115,7 @@ Meteor.methods({
         return step.mark && step.mark.type.name === 'highlight';
       });
       if (!stepsToProcess.length) {
-        return 0;
+        return {stepsAdded: 0, totalSteps: args.steps.length};
       }
     }
 
@@ -130,7 +130,6 @@ Meteor.methods({
 
       if (!result.doc) {
         // eslint-disable-next-line no-console
-        console.error("Error applying a step.", result.failed);
         throw new Meteor.Error('invalid-request', "Invalid step.");
       }
 
@@ -189,17 +188,19 @@ Meteor.methods({
         return m.type.name === 'highlight';
       });
       if (mark) {
-        keys.push(mark.attrs['highlight-keys'].split(','));
+        keys.push(mark.attrs['highlight-key']);
       }
     });
 
     Comment.filterOrphan({
       documentId: document._id,
-      highlightKeys: _.flatten(keys),
+      highlightKeys: keys,
       version,
     });
-
-    return args.currentVersion - version;
+    return {
+      stepsAdded: version - args.currentVersion,
+      totalSteps: args.steps.length,
+    };
   },
 });
 
