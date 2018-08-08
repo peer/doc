@@ -1,6 +1,6 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
-import {Step} from 'prosemirror-transform';
+import {Step, Transform} from 'prosemirror-transform';
 
 import {Activity} from '/lib/documents/activity';
 import {Content} from '/lib/documents/content';
@@ -208,9 +208,11 @@ Meteor.methods({
       return Step.fromJSON(schema, x.step);
     });
 
+    const transform = new Transform(doc);
+
     for (let i = forkSteps.length - 1; i >= 0; i -= 1) {
       const result = forkSteps[i].invert(doc).apply(doc);
-
+      transform.step(forkSteps[i].invert(doc));
       if (!result.doc) {
         // eslint-disable-next-line no-console
         console.error("Error applying a step.", result.failed);
@@ -222,7 +224,7 @@ Meteor.methods({
 
     for (let i = 0; i < originalSteps.length; i += 1) {
       const result = originalSteps[i].apply(doc);
-
+      transform.step(originalSteps[i]);
       if (!result.doc) {
         // eslint-disable-next-line no-console
         console.error("Error applying a step.", result.failed);
@@ -232,17 +234,23 @@ Meteor.methods({
       version += 1;
     }
 
-    for (let i = forkSteps.length - 1; i >= 0; i -= 1) {
-      const result = forkSteps[i].apply(doc);
+    for (let i = 0, mapFrom = forkSteps.length; i < forkSteps.length; i += 1) {
+      const mapped = forkSteps[i].map(transform.mapping.slice(mapFrom));
+      mapFrom -= 1;
+      if (mapped && !transform.maybeStep(mapped).failed) {
+        transform.mapping.setMirror(mapFrom, transform.steps.length - 1);
+        const result = mapped.apply(doc);
 
-      if (!result.doc) {
-        // eslint-disable-next-line no-console
-        console.error("Error applying a step.", result.failed);
-        throw new Meteor.Error('invalid-request', "Invalid step.");
+        if (!result.doc) {
+          // eslint-disable-next-line no-console
+          console.error("Error applying a step.", result.failed);
+          throw new Meteor.Error('invalid-request', "Invalid step.");
+        }
+        doc = result.doc;
+        version += 1;
       }
-      doc = result.doc;
-      version += 1;
     }
+
     // eslint-disable-next-line no-console
     console.log(doc.content.content[0].content.content[0].text);
   },
