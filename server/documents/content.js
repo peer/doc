@@ -15,6 +15,10 @@ import {extractTitle} from '/lib/utils';
 // TODO: Make documents expire after a while.
 const documents = new Map();
 
+Content.removeDocumentState = (args) => {
+  documents.delete(args.contentKey);
+};
+
 Content.getCurrentState = (args) => {
   let doc;
   let version;

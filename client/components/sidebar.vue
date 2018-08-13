@@ -39,6 +39,11 @@
                 color="warning"
                 @click="mergeDocument()"
               ><translate>merge</translate></v-btn>
+              <v-btn
+                v-if="document.forkedFrom"
+                color="default"
+                @click="undoChanges()"
+              ><translate>undo changes</translate></v-btn>
             </v-toolbar>
           </v-card>
         </v-flex>
@@ -226,6 +231,17 @@
           }
         });
       },
+
+      undoChanges() {
+        Document.undoChanges({documentId: this.documentId}, (error, response) => {
+          if (!error) {
+            // eslint-disable-next-line no-console
+            console.log(error, response);
+            Snackbar.enqueue(this.$gettext("undo-success"), 'success');
+          }
+        });
+      },
+
       showNewCommentForm(show, start, selection) {
         this.documentComments = this.documentComments.filter((x) => {
           return !x.dummy;

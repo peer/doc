@@ -103,6 +103,39 @@ Meteor.methods({
     });
     return {documentId};
   },
+  'Document.undoChanges'(args) {
+    check(args, {
+      documentId: String,
+    });
+
+    const fork = Document.documents.findOne(
+      {
+        _id: args.documentId,
+      },
+      {
+        fields: {
+          contentKey: 1,
+          forkedAtVersion: 1,
+          forkedFrom: 1,
+          _id: 1,
+        },
+      },
+    );
+
+    Content.documents.remove({
+      version: {
+        $gt: fork.forkedAtVersion,
+      },
+      contentKeys:
+      {
+        $elemMatch: {
+          $in: [fork.contentKey],
+        },
+      },
+    });
+
+    Content.removeDocumentState({contentKey: fork.contentKey});
+  },
   'Document.merge'(args) {
     check(args, {
       documentId: String,
@@ -226,7 +259,6 @@ Meteor.methods({
         throw new Meteor.Error('invalid-request', "Invalid step.");
       }
       doc = result.doc;
-      version += 1;
     }
 
     for (let i = 0; i < originalSteps.length; i += 1) {
@@ -238,7 +270,6 @@ Meteor.methods({
         throw new Meteor.Error('invalid-request', "Invalid step.");
       }
       doc = result.doc;
-      version += 1;
     }
 
     for (let i = 0, mapFrom = forkSteps.length * 2; i < forkSteps.length; i += 1) {
@@ -254,12 +285,32 @@ Meteor.methods({
           throw new Meteor.Error('invalid-request', "Invalid step.");
         }
         doc = result.doc;
-        version += 1;
       }
     }
 
-    // eslint-disable-next-line no-console
-    console.log(doc.content.content[0].content.content[0].text);
+    const timestamp = new Date();
+
+    transform.steps.forEach((x, i) => {
+      if (i >= forkSteps.length) {
+        version += 1;
+        Content.documents.upsert({
+          version,
+          contentKeys: {
+            $elemMatch: {
+              $in: [fork.contentKey],
+            },
+          },
+        }, {
+          $setOnInsert: {
+            contentKeys: [fork.contentKey],
+            createdAt: timestamp,
+            author: user.getReference(),
+            clientId: args.clientId,
+            step: x.toJSON(),
+          },
+        });
+      }
+    });
   },
 });
 
