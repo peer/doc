@@ -155,6 +155,7 @@ Meteor.methods({
     });
 
     let doc = schema.topNodeType.createAndFill();
+    let transform;
     let version = 0;
 
     Content.documents.find({
@@ -175,6 +176,13 @@ Meteor.methods({
         version: 1,
       },
     }).fetch().forEach((content) => {
+      if (content.version > fork.forkedAtVersion) {
+        if (!transform) {
+          transform = new Transform(doc);
+        }
+        transform.step(Step.fromJSON(schema, content.step));
+      }
+
       const result = Step.fromJSON(schema, content.step).apply(doc);
 
       if (!result.doc) {
@@ -208,11 +216,10 @@ Meteor.methods({
       return Step.fromJSON(schema, x.step);
     });
 
-    const transform = new Transform(doc);
 
-    for (let i = forkSteps.length - 1; i >= 0; i -= 1) {
-      const result = forkSteps[i].invert(doc).apply(doc);
-      transform.step(forkSteps[i].invert(doc));
+    for (let i = transform.steps.length - 1; i >= 0; i -= 1) {
+      const result = transform.steps[i].invert(transform.docs[i]).apply(doc);
+      transform.step(transform.steps[i].invert(transform.docs[i]));
       if (!result.doc) {
         // eslint-disable-next-line no-console
         console.error("Error applying a step.", result.failed);
@@ -234,12 +241,12 @@ Meteor.methods({
       version += 1;
     }
 
-    for (let i = 0, mapFrom = forkSteps.length; i < forkSteps.length; i += 1) {
+    for (let i = 0, mapFrom = forkSteps.length * 2; i < forkSteps.length; i += 1) {
       const mapped = forkSteps[i].map(transform.mapping.slice(mapFrom));
       mapFrom -= 1;
       if (mapped && !transform.maybeStep(mapped).failed) {
-        transform.mapping.setMirror(mapFrom, transform.steps.length - 1);
         const result = mapped.apply(doc);
+        transform.mapping.setMirror(mapFrom, transform.steps.length - 1);
 
         if (!result.doc) {
           // eslint-disable-next-line no-console
