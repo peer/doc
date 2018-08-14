@@ -238,6 +238,7 @@
             // eslint-disable-next-line no-console
             console.log(error, response);
             Snackbar.enqueue(this.$gettext("undo-success"), 'success');
+            this.$emit('undo-changes', `editor-${Date.now()}`);
           }
         });
       },

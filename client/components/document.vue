@@ -12,6 +12,7 @@
         :content-key="document.contentKey"
         :client-id="clientId"
         :read-only="document.isPublished()"
+        :key="key"
         @content-changed="onContentChanged"
         @highlight-selected="onHighlightSelected"
         @highlight-added="onHighlightAdded"
@@ -30,6 +31,7 @@
         @add-highlight="addCommentHighlight"
         @delete-highlight="deleteCommentHighlight"
         @afterCommentAdded="onAfterCommentAdded"
+        @undo-changes="reloadEditor"
       />
     </v-flex>
   </v-layout>
@@ -54,6 +56,7 @@
     data() {
       return {
         clientId: Random.id(),
+        key: `editor-${Date.now()}`,
       };
     },
 
@@ -72,6 +75,10 @@
     },
 
     methods: {
+      reloadEditor(key) {
+        this.key = key;
+      },
+
       onMouseDown(event) {
         if (event.target.className !== 'highlight--selected') {
           this.$refs.sidebar.focusComment();
