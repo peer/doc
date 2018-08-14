@@ -55,7 +55,7 @@ Meteor.methods({
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
 
-    // We need user reference.
+    // TODO: Check fork permissions.
     if (!user || !user.hasPermission(Document.PERMISSIONS.CREATE)) {
       throw new Meteor.Error('unauthorized', "Unauthorized.");
     }
@@ -68,6 +68,7 @@ Meteor.methods({
     const createdAt = new Date();
     const forkContentKey = Content.Meta.collection._makeNewID();
 
+    // Add forkContentKey to the existing contents.
     Content.documents.update(
       {
         contentKeys:
@@ -87,6 +88,7 @@ Meteor.methods({
       },
     );
 
+    // Create a new document for the forked document.
     const documentId = Document.documents.insert({
       contentKey: forkContentKey,
       createdAt,
@@ -143,10 +145,12 @@ Meteor.methods({
 
     const user = Meteor.user(User.REFERENCE_FIELDS());
 
+    // TODO: Check Merge permissions.
     if (!user || !user.hasPermission(Document.PERMISSIONS.CREATE)) {
       throw new Meteor.Error('unauthorized', "Unauthorized.");
     }
 
+    // Get forked document.
     const fork = Document.documents.findOne(
       {
         _id: args.documentId,
@@ -161,6 +165,7 @@ Meteor.methods({
       },
     );
 
+    // Get forked document steps.
     const forkSteps = Content.documents.find(
       {
         version: {
@@ -183,14 +188,17 @@ Meteor.methods({
       return Step.fromJSON(schema, x.step);
     });
 
+    // Get original document.
     const original = Document.documents.findOne({
       _id: fork.forkedFrom._id,
     });
 
+    // Initialize doc and transform.
     let doc = schema.topNodeType.createAndFill();
     let transform;
     let version = 0;
 
+    // Apply all the original document steps to doc.
     Content.documents.find({
       contentKeys: {
         $elemMatch: {
@@ -227,6 +235,7 @@ Meteor.methods({
       version = content.version;
     });
 
+    // Get original document steps that were applied after fork.
     const originalSteps = Content.documents.find(
       {
         version: {
@@ -252,6 +261,7 @@ Meteor.methods({
     const shouldRebase = transform !== undefined && forkSteps.length > 0;
 
     if (shouldRebase) {
+      // Revert steps that were applied on the original document after fork.
       for (let i = transform.steps.length - 1; i >= 0; i -= 1) {
         const result = transform.steps[i].invert(transform.docs[i]).apply(doc);
         transform.step(transform.steps[i].invert(transform.docs[i]));
@@ -267,6 +277,7 @@ Meteor.methods({
       transform = new Transform(doc);
     }
 
+    // Apply all the forked document steps.
     for (let i = 0; i < forkSteps.length; i += 1) {
       const result = forkSteps[i].apply(doc);
       transform.step(forkSteps[i]);
@@ -279,6 +290,7 @@ Meteor.methods({
     }
 
     if (shouldRebase) {
+      // Remap original document steps and apply.
       for (let i = 0, mapFrom = originalSteps.length * 2; i < originalSteps.length; i += 1) {
         const mapped = originalSteps[i].map(transform.mapping.slice(mapFrom));
         mapFrom -= 1;
@@ -298,6 +310,7 @@ Meteor.methods({
 
     const timestamp = new Date();
 
+    // Save merge steps.
     transform.steps.forEach((x, i) => {
       if (i >= originalSteps.length) {
         version += 1;
