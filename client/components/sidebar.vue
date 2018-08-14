@@ -227,6 +227,7 @@
           if (!error) {
             // eslint-disable-next-line no-console
             console.log(error, response);
+            this.$router.push({name: 'document', params: {documentId: this.document.forkedFrom._id}});
             Snackbar.enqueue(this.$gettext("document-merged-success"), 'success');
           }
         });
