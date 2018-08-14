@@ -194,7 +194,7 @@ Meteor.methods({
     Content.documents.find({
       contentKeys: {
         $elemMatch: {
-          $in: [fork.contentKey],
+          $in: [original.contentKey],
         },
       },
       version: {
@@ -249,36 +249,12 @@ Meteor.methods({
       return Step.fromJSON(schema, x.step);
     });
 
+    const shouldRebase = transform !== undefined && forkSteps.length > 0;
 
-    for (let i = transform.steps.length - 1; i >= 0; i -= 1) {
-      const result = transform.steps[i].invert(transform.docs[i]).apply(doc);
-      transform.step(transform.steps[i].invert(transform.docs[i]));
-      if (!result.doc) {
-        // eslint-disable-next-line no-console
-        console.error("Error applying a step.", result.failed);
-        throw new Meteor.Error('invalid-request', "Invalid step.");
-      }
-      doc = result.doc;
-    }
-
-    for (let i = 0; i < originalSteps.length; i += 1) {
-      const result = originalSteps[i].apply(doc);
-      transform.step(originalSteps[i]);
-      if (!result.doc) {
-        // eslint-disable-next-line no-console
-        console.error("Error applying a step.", result.failed);
-        throw new Meteor.Error('invalid-request', "Invalid step.");
-      }
-      doc = result.doc;
-    }
-
-    for (let i = 0, mapFrom = forkSteps.length * 2; i < forkSteps.length; i += 1) {
-      const mapped = forkSteps[i].map(transform.mapping.slice(mapFrom));
-      mapFrom -= 1;
-      if (mapped && !transform.maybeStep(mapped).failed) {
-        const result = mapped.apply(doc);
-        transform.mapping.setMirror(mapFrom, transform.steps.length - 1);
-
+    if (shouldRebase) {
+      for (let i = transform.steps.length - 1; i >= 0; i -= 1) {
+        const result = transform.steps[i].invert(transform.docs[i]).apply(doc);
+        transform.step(transform.steps[i].invert(transform.docs[i]));
         if (!result.doc) {
           // eslint-disable-next-line no-console
           console.error("Error applying a step.", result.failed);
@@ -287,22 +263,54 @@ Meteor.methods({
         doc = result.doc;
       }
     }
+    else {
+      transform = new Transform(doc);
+    }
+
+    for (let i = 0; i < forkSteps.length; i += 1) {
+      const result = forkSteps[i].apply(doc);
+      transform.step(forkSteps[i]);
+      if (!result.doc) {
+        // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+      doc = result.doc;
+    }
+
+    if (shouldRebase) {
+      for (let i = 0, mapFrom = originalSteps.length * 2; i < originalSteps.length; i += 1) {
+        const mapped = originalSteps[i].map(transform.mapping.slice(mapFrom));
+        mapFrom -= 1;
+        if (mapped && !transform.maybeStep(mapped).failed) {
+          const result = mapped.apply(doc);
+          transform.mapping.setMirror(mapFrom, transform.steps.length - 1);
+
+          if (!result.doc) {
+            // eslint-disable-next-line no-console
+            console.error("Error applying a step.", result.failed);
+            throw new Meteor.Error('invalid-request', "Invalid step.");
+          }
+          doc = result.doc;
+        }
+      }
+    }
 
     const timestamp = new Date();
 
     transform.steps.forEach((x, i) => {
-      if (i >= forkSteps.length) {
+      if (i >= originalSteps.length) {
         version += 1;
         Content.documents.upsert({
           version,
           contentKeys: {
             $elemMatch: {
-              $in: [fork.contentKey],
+              $in: [original.contentKey],
             },
           },
         }, {
           $setOnInsert: {
-            contentKeys: [fork.contentKey],
+            contentKeys: [original.contentKey],
             createdAt: timestamp,
             author: user.getReference(),
             clientId: args.clientId,
