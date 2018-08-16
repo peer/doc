@@ -33,17 +33,17 @@
                 v-if="!document.forkedFrom"
                 color="default"
                 @click="forkDocument()"
-              ><translate>fork</translate></v-btn>
+              ><translate>document-fork</translate></v-btn>
               <v-btn
                 v-if="document.forkedFrom"
                 color="warning"
                 @click="mergeDocument()"
-              ><translate>merge</translate></v-btn>
+              ><translate>document-merge</translate></v-btn>
               <v-btn
                 v-if="document.forkedFrom"
                 color="default"
                 @click="undoChanges()"
-              ><translate>undo changes</translate></v-btn>
+              ><translate>document-undo-changes</translate></v-btn>
             </v-toolbar>
           </v-card>
         </v-flex>
@@ -238,7 +238,7 @@
           if (!error) {
             // eslint-disable-next-line no-console
             console.log(error, response);
-            Snackbar.enqueue(this.$gettext("undo-success"), 'success');
+            Snackbar.enqueue(this.$gettext("document-undo-success"), 'success');
             this.$emit('undo-changes', `editor-${Date.now()}`);
           }
         });
