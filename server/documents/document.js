@@ -332,6 +332,17 @@ Meteor.methods({
         });
       }
     });
+
+    if (original.version < version) {
+      // Update document version
+      Document.documents.update({
+        _id: original._id,
+      }, {
+        $set: {
+          version,
+        },
+      });
+    }
   },
 });
 
