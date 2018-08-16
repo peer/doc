@@ -1,6 +1,6 @@
-import {Content} from '/lib/documents/content';
+import {Content} from '/lib/documents/content'; // eslint-disable-line
 
-class Migration extends Document.MajorMigration {
+class Migration extends Document.MajorMigration { // eslint-disable-line
   name = "Changing contentKey field to contentKeys";
 
   // Transforms contentKey field to an array and renames it to contentKeys
@@ -70,4 +70,4 @@ class Migration extends Document.MajorMigration {
   }
 }
 
-Content.addMigration(new Migration());
+// Content.addMigration(new Migration());
