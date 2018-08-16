@@ -1,4 +1,4 @@
-import {Document} from '/lib/documents/comment';
+import {Document} from '/lib/documents/document';
 
 class Migration extends Document.AddRequiredFieldsMigration {
   name = "Adding forkedAtVersion and forkedFrom fields"
