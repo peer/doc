@@ -6,6 +6,7 @@ import {Activity} from '/lib/documents/activity';
 import {Content} from '/lib/documents/content';
 import {Document} from '/lib/documents/document';
 import {User} from '/lib/documents/user';
+import {extractTitle} from '/lib/utils';
 
 import {schema} from '../../lib/full-schema';
 
@@ -340,6 +341,10 @@ Meteor.methods({
       }, {
         $set: {
           version,
+          body: doc.toJSON(),
+          updatedAt: timestamp,
+          lastActivity: timestamp,
+          title: extractTitle(doc),
         },
       });
     }
