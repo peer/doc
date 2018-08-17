@@ -137,6 +137,51 @@ Meteor.methods({
       },
     });
 
+    let doc = schema.topNodeType.createAndFill();
+
+    Content.documents.find({
+      contentKeys: {
+        $elemMatch: {
+          $in: [fork.contentKey],
+        },
+      },
+      version: {
+        $gt: 0,
+      },
+    }, {
+      sort: {
+        version: 1,
+      },
+      fields: {
+        step: 1,
+        version: 1,
+      },
+    }).fetch().forEach((content) => {
+      const result = Step.fromJSON(schema, content.step).apply(doc);
+
+      if (!result.doc) {
+        // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+      doc = result.doc;
+    });
+
+    const timestamp = new Date();
+
+    // Update document version.
+    Document.documents.update({
+      _id: args.documentId,
+    }, {
+      $set: {
+        version: fork.forkedAtVersion,
+        body: doc.toJSON(),
+        updatedAt: timestamp,
+        lastActivity: timestamp,
+        title: extractTitle(doc),
+      },
+    });
+
     Content.removeDocumentState({contentKey: fork.contentKey});
   },
   'Document.merge'(args) {
