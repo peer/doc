@@ -72,16 +72,14 @@ Meteor.methods({
     // Add forkContentKey to the existing contents.
     Content.documents.update(
       {
-        contentKeys:
-        {
+        contentKeys: {
           $elemMatch: {
             $in: [contentKey],
           },
         },
       },
       {
-        $addToSet:
-        {
+        $addToSet: {
           contentKeys: forkContentKey,
         },
       }, {
