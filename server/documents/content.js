@@ -236,15 +236,11 @@ Meteor.publish('Content.list', function contentList(args) {
 
     return Content.documents.find(
       {
-        $or: [
-          {
-            contentKeys: {
-              $elemMatch: {
-                $in: [args.contentKey],
-              },
-            },
+        contentKeys: {
+          $elemMatch: {
+            $in: [args.contentKey],
           },
-        ],
+        },
       },
       {
         fields: Content.PUBLISH_FIELDS(),
