@@ -32,11 +32,7 @@ Content.getCurrentState = (args) => {
   }
 
   Content.documents.find({
-    contentKeys: {
-      $elemMatch: {
-        $in: [args.contentKey],
-      },
-    },
+    contentKeys: args.contentKey,
     version: {
       $gt: version,
       $lte: args.currentVersion,
@@ -98,11 +94,7 @@ Meteor.methods({
     }
 
     const latestContent = Content.documents.findOne({
-      contentKeys: {
-        $elemMatch: {
-          $in: [args.contentKey],
-        },
-      },
+      contentKeys: args.contentKey,
     }, {
       sort: {
         version: -1,
@@ -153,11 +145,7 @@ Meteor.methods({
       // eslint-disable-next-line no-unused-vars
       const {numberAffected, insertedId} = Content.documents.upsert({
         version,
-        contentKeys: {
-          $elemMatch: {
-            $in: [args.contentKey],
-          },
-        },
+        contentKeys: args.contentKey,
       }, {
         $setOnInsert: {
           contentKeys: [args.contentKey],
@@ -236,11 +224,7 @@ Meteor.publish('Content.list', function contentList(args) {
 
     return Content.documents.find(
       {
-        contentKeys: {
-          $elemMatch: {
-            $in: [args.contentKey],
-          },
-        },
+        contentKeys: args.contentKey,
       },
       {
         fields: Content.PUBLISH_FIELDS(),

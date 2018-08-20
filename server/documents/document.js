@@ -72,11 +72,7 @@ Meteor.methods({
     // Add forkContentKey to the existing contents.
     Content.documents.update(
       {
-        contentKeys: {
-          $elemMatch: {
-            $in: [contentKey],
-          },
-        },
+        contentKeys: contentKey,
       },
       {
         $addToSet: {
@@ -127,22 +123,13 @@ Meteor.methods({
       version: {
         $gt: fork.forkedAtVersion,
       },
-      contentKeys:
-      {
-        $elemMatch: {
-          $in: [fork.contentKey],
-        },
-      },
+      contentKeys: fork.contentKey,
     });
 
     let doc = schema.topNodeType.createAndFill();
 
     Content.documents.find({
-      contentKeys: {
-        $elemMatch: {
-          $in: [fork.contentKey],
-        },
-      },
+      contentKeys: fork.contentKey,
       version: {
         $gt: 0,
       },
@@ -215,12 +202,7 @@ Meteor.methods({
         version: {
           $gt: fork.forkedAtVersion,
         },
-        contentKeys:
-        {
-          $elemMatch: {
-            $in: [fork.contentKey],
-          },
-        },
+        contentKeys: fork.contentKey,
       },
       {
         sort: {
@@ -244,11 +226,7 @@ Meteor.methods({
 
     // Apply all the original document steps to doc.
     Content.documents.find({
-      contentKeys: {
-        $elemMatch: {
-          $in: [original.contentKey],
-        },
-      },
+      contentKeys: original.contentKey,
       version: {
         $gt: version,
       },
@@ -285,12 +263,7 @@ Meteor.methods({
         version: {
           $gt: fork.forkedAtVersion,
         },
-        contentKeys:
-        {
-          $elemMatch: {
-            $in: [original.contentKey],
-          },
-        },
+        contentKeys: original.contentKey,
       },
       {
         sort: {
@@ -360,11 +333,7 @@ Meteor.methods({
         version += 1;
         Content.documents.upsert({
           version,
-          contentKeys: {
-            $elemMatch: {
-              $in: [original.contentKey],
-            },
-          },
+          contentKeys: original.contentKey,
         }, {
           $setOnInsert: {
             contentKeys: [original.contentKey],
