@@ -115,6 +115,7 @@
         </v-btn-toggle>
 
         <v-spacer />
+
         <div
           v-translate
           v-if="canUserUpdateDocument && unconfirmedCount"
