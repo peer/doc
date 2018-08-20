@@ -80,7 +80,7 @@ Meteor.methods({
         },
       },
       {
-        $push:
+        $addToSet:
         {
           contentKeys: forkContentKey,
         },
