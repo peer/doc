@@ -266,9 +266,9 @@
         if (comment.dummy) {
           const key = Random.id();
           this.$commentsToAdd.push({
+            documentId: this.documentId,
             highlightKey: key,
             body: newCommentBody,
-            documentId: this.documentId,
             contentKey: this.contentKey,
           });
           this.$emit('add-highlight', key);
@@ -276,9 +276,9 @@
         }
         else {
           Comment.create({
+            documentId: this.documentId,
             highlightKey: comment.highlightKey,
             body: newCommentBody,
-            documentId: this.documentId,
             replyTo: comment._id,
             contentKey: this.contentKey,
           });
