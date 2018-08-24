@@ -250,10 +250,15 @@
       },
 
       createComment(highlightKey) {
-        for (let i = this.$commentsToAdd.length - 1; i >= 0; i -= 1) {
+        let i = this.$commentsToAdd.length;
+        // The $commentsToAdd array is being re-indexed when .splice() is used.
+        // To fix it, we iterate in reverse. This way the re-indexing
+        // doesn't affect the next item in the iteration, since the indexing
+        // affects only the items from the current point to the end of the Array,
+        // and the next item in the iteration is lower than the current point.
+        while (i--) { // eslint-disable-line no-plusplus
           if (this.$commentsToAdd[i].highlightKey === highlightKey) {
-            Comment.create(this.$commentsToAdd[i]);
-            this.$commentsToAdd.splice(i, 1);
+            Comment.create(this.$commentsToAdd.splice(i, 1)[0]);
           }
         }
       },
