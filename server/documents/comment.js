@@ -1,14 +1,17 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
+import {_} from 'meteor/underscore';
 
+import assert from 'assert';
 import {Node} from 'prosemirror-model';
 
 import {Comment} from '/lib/documents/comment';
 import {Content} from '/lib/documents/content';
 import {schema} from '/lib/simple-schema.js';
-import {User} from './user';
-import {Document} from './document';
+
 import {Activity} from './activity';
+import {Document} from './document';
+import {User} from './user';
 
 Meteor.publish('Comment.list', function commentList(args) {
   check(args, {
@@ -18,28 +21,30 @@ Meteor.publish('Comment.list', function commentList(args) {
   this.enableScope();
 
   this.autorun((computation) => {
+    const user = Meteor.user(User.CHECK_PERMISSIONS_FIELDS());
+
+    // We first check that the user has permissions on comment's document.
+    if (!Document.existsAndCanUser({_id: args.documentId}, Document.PERMISSIONS.COMMENT_VIEW, user)) {
+      return [];
+    }
+
+    // And then we publish only those comments for which the user has permission.
     return Comment.documents.find(Comment.restrictQuery({
       'document._id': args.documentId,
-    }, Comment.PERMISSIONS.VIEW), {
+    }, Comment.PERMISSIONS.VIEW, user), {
       fields: Comment.PUBLISH_FIELDS(),
     });
   });
 });
 
-Comment.filterOrphan = (args) => {
-  const user = Meteor.user({_id: 1});
-
-  // TODO: This check is temporary, we should not need this method at all.
-  if (!user || !user.hasPermission(Comment.PERMISSIONS.CREATE)) {
-    throw new Meteor.Error('unauthorized', "Unauthorized.");
-  }
-
-  // Set versionTo to all CREATED comments with highlights present in the current editor state, in case of
-  // re-applying a previous step, e.g., with Ctrl+Z.
+// Here we assume this is called from a trusted place and we do not check permissions again.
+Comment.filterOrphan = (documentId, highlightKeys, version) => {
+  // Set "versionTo" to "null" for all "CREATED" comments with highlights present in the
+  // current editor state, in case of re-applying a previous step, e.g., with Ctrl+Z.
   Comment.documents.update({
-    'document._id': args.documentId,
+    'document._id': documentId,
     highlightKey: {
-      $in: args.highlightKeys,
+      $in: highlightKeys,
     },
     status: Comment.STATUS.CREATED,
   }, {
@@ -51,15 +56,15 @@ Comment.filterOrphan = (args) => {
   });
 
   Comment.documents.update({
-    'document._id': args.documentId,
+    'document._id': documentId,
     highlightKey: {
-      $nin: args.highlightKeys,
+      $nin: highlightKeys,
     },
     status: Comment.STATUS.CREATED,
     versionTo: null,
   }, {
     $set: {
-      versionTo: args.version,
+      versionTo: version,
     },
   }, {
     multi: true,
@@ -67,6 +72,7 @@ Comment.filterOrphan = (args) => {
 };
 
 // Server-side only methods, so we are not using ValidatedMethod.
+// TODO: Should we add/modify/delete an Activity?
 Meteor.methods({
   'Comment.delete'(args) {
     check(args, {
@@ -75,55 +81,52 @@ Meteor.methods({
       version: Match.Integer,
     });
 
-    const user = Meteor.user({_id: 1});
     const deletedAt = new Date();
 
-    if (!user || !user.hasPermission(Comment.PERMISSIONS.DELETE)) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
-    }
-
-    Comment.documents.update(
+    // We do not do additional permission check on the document in this case.
+    return Comment.documents.update(Comment.restrictQuery({
+      $or: [{
+        _id: args._id,
+      },
       {
-        $or: [{
+        replyTo: {
           _id: args._id,
         },
-        {
-          replyTo: {
-            _id: args._id,
-          },
-        }],
+      }],
+    }, Comment.PERMISSIONS.DELETE), {
+      $set: {
+        versionTo: args.version,
+        status: Comment.STATUS.DELETED,
+        deletedAt,
       },
-      {
-        $set: {
-          versionTo: args.version,
-          status: Comment.STATUS.DELETED,
-          deletedAt,
-        },
-      }, {
-        multi: true,
-      },
-    );
+    }, {
+      multi: true,
+    });
   },
+
   'Comment.create'(args) {
     check(args, {
       documentId: Match.DocumentId,
       highlightKey: Match.DocumentId,
       body: Object,
       replyTo: Match.Maybe(Match.DocumentId),
-      versionFrom: Match.Maybe(Match.Integer),
       contentKey: Match.DocumentId,
     });
 
     // Validate body.
     Node.fromJSON(schema, args.body).check();
 
-    const user = Meteor.user(User.REFERENCE_FIELDS());
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    // We need user reference.
-    if (!user || !user.hasPermission(Comment.PERMISSIONS.CREATE)) {
+    // We first check that the user has a class-level permission to create comments.
+    if (!User.hasClassPermission(Comment.PERMISSIONS.CREATE, user)) {
       throw new Meteor.Error('unauthorized', "Unauthorized.");
     }
 
+    // We need a user reference.
+    assert(user);
+
+    // Then we check that the user has permissions on comment's document.
     const document = Document.documents.findOne(Document.restrictQuery({
       _id: args.documentId,
     }, Document.PERMISSIONS.COMMENT_CREATE, user), {fields: Document.REFERENCE_FIELDS()});
@@ -131,12 +134,7 @@ Meteor.methods({
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
 
-    let version = args.versionFrom;
-
-    if (!version) {
-      const current = Content.getCurrentState({contentKey: args.contentKey});
-      version = current.version;
-    }
+    const currentContent = Content.getCurrentState({contentKey: args.contentKey});
 
     let replyTo = null;
     if (args.replyTo) {
@@ -155,7 +153,7 @@ Meteor.methods({
       author: user.getReference(),
       document: document.getReference(),
       body: args.body,
-      versionFrom: version,
+      versionFrom: currentContent.version,
       versionTo: null,
       // TODO: Validate highlight key.
       highlightKey: args.highlightKey,
@@ -174,24 +172,22 @@ Meteor.methods({
       },
     });
 
-    if (Meteor.isServer) {
-      Activity.documents.insert({
-        timestamp: createdAt,
-        connection: this.connection.id,
-        byUser: user.getReference(),
-        // We inform all followers of this document.
-        // TODO: Implement once we have followers.
-        forUsers: [],
-        type: 'commentCreated',
-        level: Activity.LEVEL.GENERAL,
-        data: {
-          document: document.getReference(),
-          comment: {
-            _id: commentId,
-          },
+    Activity.documents.insert({
+      timestamp: createdAt,
+      connection: this.connection.id,
+      byUser: user.getReference(),
+      // We inform all followers of this document.
+      // TODO: Implement once we have followers.
+      forUsers: [],
+      type: 'commentCreated',
+      level: Activity.LEVEL.GENERAL,
+      data: {
+        document: document.getReference(),
+        comment: {
+          _id: commentId,
         },
-      });
-    }
+      },
+    });
 
     return {
       _id: commentId,
