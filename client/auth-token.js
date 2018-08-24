@@ -10,7 +10,8 @@ function signinWithUserToken(userToken) {
     // this should all happen in the background.
     userCallback(error, userId) {
       if (error) {
-        console.error("Error calling 'User.createUserAndSignInWithUserToken' method.", error); // eslint-disable-line no-console
+        // eslint-disable-next-line no-console
+        console.error("Error calling 'User.createUserAndSignInWithUserToken' method.", error);
       }
     },
   });
