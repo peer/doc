@@ -101,7 +101,7 @@ Meteor.methods({
     });
 
     if (latestContent.version !== args.currentVersion) {
-      return {stepsAdded: 0, totalSteps: args.steps.length};
+      return 0;
     }
 
     let stepsToProcess = steps;
@@ -113,7 +113,7 @@ Meteor.methods({
         return step.mark && step.mark.type.name === 'highlight';
       });
       if (!stepsToProcess.length) {
-        return {stepsAdded: 0, totalSteps: args.steps.length};
+        return 0;
       }
     }
 
@@ -128,6 +128,7 @@ Meteor.methods({
 
       if (!result.doc) {
         // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
         throw new Meteor.Error('invalid-request', "Invalid step.");
       }
 
@@ -195,10 +196,8 @@ Meteor.methods({
       highlightKeys: keys,
       version,
     });
-    return {
-      stepsAdded: version - args.currentVersion,
-      totalSteps: args.steps.length,
-    };
+
+    return version - args.currentVersion;
   },
 });
 
