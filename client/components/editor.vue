@@ -226,7 +226,6 @@
         cursors: [],
         currentHighlightKey: null,
         currentHighlightKeyChanged: false,
-        lastSentVersion: null,
         unconfirmedCount: 0,
         pendingSetVersionDocuments: [],
         undoHint: this._addShortcut(this.$gettext("toolbar-undo"), 'z'),
@@ -284,6 +283,7 @@
     },
     mounted() {
       this.$highlightIdsToCommentIds = new Map();
+
       const menuItems = [
         // "node" is used to attach a click event handler and set "isActive" if a button is active.
         // "isActive" is used to check if button is active. "name" is used to know which value in
@@ -361,8 +361,8 @@
             const containsHighlightStep = sendable.steps.find((x) => {
               return (x.jsonID === 'addMark' || x.jsonID === 'removeMark') && x.mark && x.mark.type.name === 'highlight';
             });
-            if (this.canUserUpdateDocument || (this.canUserCreateComments && (containsHighlightStep))) {
-              this.lastSentVersion = sendable.version;
+
+            if (this.canUserUpdateDocument || (this.canUserCreateComments && containsHighlightStep)) {
               this.addingStepsInProgress = true;
               Content.addSteps({
                 contentKey: this.contentKey,
@@ -439,12 +439,11 @@
             sort: {
               version: 1,
             },
-          }).fetch()
-            .map((x) => {
-              return Object.assign({}, x, {
-                step: Step.fromJSON(schema, x.step),
-              });
+          }).map((x) => {
+            return Object.assign({}, x, {
+              step: Step.fromJSON(schema, x.step),
             });
+          });
 
           if (newContents.length) {
             // Notify to other components that there is new content.
@@ -467,7 +466,8 @@
               });
             }
             this.$editorView.dispatch(collab.receiveTransaction(
-              this.$editorView.state, _.pluck(newContents, 'step'),
+              this.$editorView.state,
+              _.pluck(newContents, 'step'),
               _.pluck(newContents, 'clientId'),
             ));
           }
