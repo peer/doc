@@ -447,10 +447,20 @@
           });
 
           if (newContents.length) {
-            // Notify to other components that there is new content.
-            this.$emit('content-changed');
-            // Observe new confirmed steps.
-            if (collab.getVersion(this.$editorView.state) > 0) {
+            // Check if collab was initialized with the first steps.
+            const isCollabInitialized = collab.getVersion(this.$editorView.state) > 0;
+
+            // Update collab and current editor's content.
+            this.$editorView.dispatch(collab.receiveTransaction(
+              this.$editorView.state,
+              _.pluck(newContents, 'step'),
+              _.pluck(newContents, 'clientId'),
+            ));
+
+            // Observe our new confirmed steps only if collab is initialized.
+            // During editor loading newContents array contains all document steps.
+            // We only want to react to our newest steps.
+            if (isCollabInitialized) {
               newContents.filter((x) => {
                 return x.clientId === this.clientId;
               }).forEach((x) => {
@@ -466,11 +476,9 @@
                 }
               });
             }
-            this.$editorView.dispatch(collab.receiveTransaction(
-              this.$editorView.state,
-              _.pluck(newContents, 'step'),
-              _.pluck(newContents, 'clientId'),
-            ));
+
+            // Notify to other components that there is new content.
+            this.$emit('content-changed');
           }
         });
       });
