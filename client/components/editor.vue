@@ -187,9 +187,8 @@
   import {cursorsPlugin} from './utils/cursors-plugin';
   import {commentPlugin} from './utils/comment-plugin';
   import {titleSizePlugin} from './utils/title-size-plugin.js';
-  import addCommentPlugin, {addHighlight, removeHighlight, updateChunks} from './utils/add-comment-plugin';
+  import addCommentPlugin, {addHighlight, removeHighlight} from './utils/add-comment-plugin';
   import {toggleLink, clearLink} from './utils/link.js';
-  import {Snackbar} from '../snackbar';
 
   const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
 
@@ -229,7 +228,6 @@
         cursors: [],
         currentHighlightKey: null,
         currentHighlightKeyChanged: false,
-        lastSentVersion: null,
         unconfirmedCount: 0,
         pendingSetVersionDocuments: [],
         undoHint: this._addShortcut(this.$gettext("toolbar-undo"), 'z'),
@@ -285,6 +283,8 @@
     },
 
     mounted() {
+      this.$highlightIdsToCommentIds = new Map();
+
       const menuItems = [
         // "node" is used to attach a click event handler and set "isActive" if a button is active.
         // "isActive" is used to check if button is active. "name" is used to know which value in
@@ -358,52 +358,26 @@
           this.unconfirmedCount = this.$editorView.state.collab$.unconfirmed.length;
 
           const sendable = collab.sendableSteps(newState);
-          let addingComment = false;
-          let deletingComment = false;
-
           if (sendable) {
-            if (this.commentHighlightKey) {
-              const commentMarks = _.filter(transaction.steps, (s) => {
-                return s.mark && s.mark.type.name === 'highlight' && s.mark.attrs['highlight-keys'] === this.commentHighlightKey;
-              });
-              if (commentMarks.length > 0) {
-                addingComment = commentMarks[0].jsonID === 'addHighlight';
-                deletingComment = commentMarks[0].jsonID === 'removeHighlight';
-              }
-            }
+            const containsHighlightStep = sendable.steps.find((x) => {
+              return (x.jsonID === 'addMark' || x.jsonID === 'removeMark') && x.mark && x.mark.type.name === 'highlight';
+            });
 
-            if (this.canUserUpdateDocument || (this.canUserCreateComments && (addingComment || deletingComment))) {
-              // Steps are added to the content and the "content-changed" event is emitted
-              // only if the content version really changed. This prevents layoutComments
-              // from running unnecessarily on the sidebar component.
-              if (this.lastSentVersion !== sendable.version) {
-                this.lastSentVersion = sendable.version;
-                this.addingStepsInProgress = true;
-                Content.addSteps({
-                  contentKey: this.contentKey,
-                  currentVersion: sendable.version,
-                  steps: sendable.steps.map((step) => {
-                    return step.toJSON();
-                  }),
-                  clientId: this.clientId,
-                }, (error, stepsAdded) => {
-                  this.addingStepsInProgress = false;
-                  if (error) {
-                    // TODO: Error handling.
-                    Snackbar.enqueue(this.$gettext("document-update-error"), 'error');
-                  }
-                  else if (addingComment) {
-                    this.$emit('highlight-added', this.commentHighlightKey);
-                    this.commentHighlightKey = null;
-                  }
-                  else if (deletingComment) {
-                    this.$emit('highlight-deleted', {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
-                    this.commentHighlightKey = null;
-                    this.commentToDelete = null;
-                  }
-                });
-                this.$emit('content-changed');
-              }
+            if (this.canUserUpdateDocument || (this.canUserCreateComments && containsHighlightStep)) {
+              this.addingStepsInProgress = true;
+              Content.addSteps({
+                contentKey: this.contentKey,
+                currentVersion: sendable.version,
+                steps: sendable.steps.map((step) => {
+                  return step.toJSON();
+                }),
+                clientId: this.clientId,
+              }, (error, response) => {
+                if (error) {
+                  // TODO: Error handling.
+                }
+                this.addingStepsInProgress = false;
+              });
             }
           }
 
@@ -413,14 +387,18 @@
             const cursorPos = newState.doc.resolve(newState.selection.$cursor.pos);
             const afterPosMarks = cursorPos.nodeAfter ? cursorPos.nodeAfter.marks : [];
             if (afterPosMarks) {
-              const highlightkeys = afterPosMarks.find((x) => {
-                return x.attrs['highlight-keys'];
+              const highlightkeys = afterPosMarks.filter((x) => {
+                return x.attrs['highlight-key'];
+              }).map((x) => {
+                return {key: x.attrs['highlight-key'], pos: this.getHighlightPos(x.attrs['highlight-key'])};
               });
-              const current = highlightkeys ? highlightkeys.attrs['highlight-keys'].split(',')[0] : null;
-              if (this.currentHighlightKey !== current) {
-                this.currentHighlightKey = current;
+              const current = highlightkeys ? _.max(highlightkeys, (x) => {
+                return x.pos;
+              }) : null;
+              if (this.currentHighlightKey !== current.key) {
+                this.currentHighlightKey = current.key;
                 this.currentHighlightKeyChanged = true;
-                this.$emit('highlight-selected', current);
+                this.$emit('highlight-selected', current.key);
               }
             }
           }
@@ -462,12 +440,37 @@
             sort: {
               version: 1,
             },
-          }).fetch();
+          }).map((x) => {
+            return Object.assign({}, x, {
+              step: Step.fromJSON(schema, x.step),
+            });
+          });
 
           if (newContents.length) {
-            this.$editorView.dispatch(collab.receiveTransaction(this.$editorView.state, _.pluck(newContents, 'step').map((step) => {
-              return Step.fromJSON(schema, step);
-            }), _.pluck(newContents, 'clientId')));
+            // Notify to other components that there is new content.
+            this.$emit('content-changed');
+            // Observe new confirmed steps.
+            if (collab.getVersion(this.$editorView.state) > 0) {
+              newContents.filter((x) => {
+                return x.clientId === this.clientId;
+              }).forEach((x) => {
+                // Emit corresponding events when highlights are added.
+                if (x.step.mark && x.step.mark.type.name === 'highlight') {
+                  if (x.step.jsonID === 'removeMark') {
+                    this.$emit('highlight-deleted', {id: this.$highlightIdsToCommentIds.get(x.step.mark.attrs['highlight-key']), version: x.version});
+                  }
+                  else if (x.step.jsonID === 'addMark') {
+                    this.$emit('highlight-added', x.step.mark.attrs['highlight-key']);
+                    this.updateCursor();
+                  }
+                }
+              });
+            }
+            this.$editorView.dispatch(collab.receiveTransaction(
+              this.$editorView.state,
+              _.pluck(newContents, 'step'),
+              _.pluck(newContents, 'clientId'),
+            ));
           }
         });
       });
@@ -525,14 +528,23 @@
         const {tr} = this.$editorView.state;
         this.currentHighlightKey = highlightKey;
         this.currentHighlightKeyChanged = true;
-        let highlightPos = tr.selection.from;
+        const highlightPos = this.getHighlightPos(highlightKey) || tr.selection.from;
+        // Cursor position update.
+        tr.setSelection(TextSelection.create(tr.doc, highlightPos));
+        tr.scrollIntoView();
+        this.$editorView.focus();
+        this.$editorView.dispatch(tr);
+      },
+
+      // Highlighted selection position search.
+      getHighlightPos(highlightKey) {
+        let highlightPos;
         let keepSearching = true;
-        // Highlighted selection position search.
         if (highlightKey) {
           this.$editorView.state.doc.descendants((node, pos) => {
             if (keepSearching) {
               node.marks.forEach((x) => {
-                if (x.attrs['highlight-keys'] && x.attrs['highlight-keys'].split(',').indexOf(highlightKey) >= 0) {
+                if (x.attrs['highlight-key'] === highlightKey) {
                   highlightPos = pos;
                   keepSearching = false;
                 }
@@ -541,11 +553,7 @@
             return keepSearching;
           });
         }
-        // Cursor position update.
-        tr.setSelection(TextSelection.create(tr.doc, highlightPos));
-        tr.scrollIntoView();
-        this.$editorView.focus();
-        this.$editorView.dispatch(tr);
+        return highlightPos;
       },
 
       onButtonChange(reference) {
@@ -580,119 +588,40 @@
       },
 
       addCommentHighlight(highlightKey) {
-        this.commentHighlightKey = highlightKey;
-
         const {selection} = this.$editorView.state;
-        let newChunks = [{
-          from: selection.from,
-          to: selection.to,
-          empty: true,
-        }];
-        const {doc, tr} = this.$editorView.state;
-        if (this.selectedExistingHighlights) {
-          // Change existing highlight marks to add the new highlight-key after their current highlight-keys.
-          this.selectedExistingHighlights.forEach((highlightMark) => {
-            const {size, marks} = highlightMark;
-            let {start} = highlightMark;
-            let end = start + size;
-            // Chunk to split if the new highlight includes highlights from other comments.
-            let chunkToSplit = newChunks.find((chunk) => {
-              return chunk.from <= start && chunk.to >= end;
-            });
-            if (!chunkToSplit) {
-              // Chunk to split if the new highlight includes parts of highlights from other comments.
-              chunkToSplit = newChunks.find((chunk) => {
-                return chunk.from <= start || chunk.to >= end;
-              });
-              start = Math.max(start, chunkToSplit.from);
-              end = Math.min(end, chunkToSplit.to);
-            }
-            // Update collection to reflect new segments of the selection with previous highlight marks.
-            newChunks = updateChunks(newChunks, chunkToSplit, {from: start, to: end});
-            const currentKeys = marks[0].attrs['highlight-keys'];
-            removeHighlight(schema, tr, doc, start, end);
-            let keys;
-            // If the new highlight contains the initial part of another highlight.
-            if (selection.from < start) {
-              keys = `${currentKeys},${this.commentHighlightKey}`;
-            }
-            else {
-              keys = `${this.commentHighlightKey},${currentKeys}`;
-            }
-            addHighlight(keys, schema, tr, start, end);
-          });
-        }
-        newChunks.filter((chunk) => {
-           // Only add a new highlight mark to segments with no previous highlight marks.
-          return chunk.empty;
-        }).forEach((chunk) => {
-          addHighlight(this.commentHighlightKey, schema, tr, chunk.from, chunk.to);
-        });
+        const {tr} = this.$editorView.state;
+        addHighlight(highlightKey, schema, tr, selection.from, selection.to);
         this.$editorView.dispatch(tr);
-        this.updateCursor();
-      },
-
-      // Adds nearby highlight nodes (after or before the cursor position) to highlightNodes.
-      getNearbyHighlights(highlightNodes, cursorPos, mode, commentHighlightKey) {
-        let pos = cursorPos;
-        let posNode = mode === 'after' ? cursorPos.nodeAfter : cursorPos.nodeBefore;
-        let highlightMark = posNode ? posNode.marks.find((x) => {
-          return x.type.name === 'highlight';
-        }) : null;
-        while (highlightMark) {
-          const highlightKeys = highlightMark.attrs['highlight-keys'].split(',');
-          let otherKeys = highlightKeys.filter((y) => {
-            return y !== commentHighlightKey;
-          });
-          otherKeys = otherKeys || [];
-          if (otherKeys.length < highlightKeys.length) {
-            if (mode === 'after') {
-              highlightNodes.push({pos, otherKeys});
-              pos = this.$editorView.state.doc.resolve(pos.pos + posNode.nodeSize);
-            }
-            else {
-              highlightNodes.unshift({pos, otherKeys});
-              pos = this.$editorView.state.doc.resolve(pos.pos - pos.textOffset - 1);
-            }
-            posNode = pos.nodeAfter;
-            highlightMark = posNode ? posNode.marks.find((x) => {
-              return x.type.name === 'highlight';
-            }) : null;
-          }
-          else {
-            highlightMark = null;
-          }
-        }
       },
 
       deleteCommentHighlight(comment, deleteHighlight) {
-        this.commentHighlightKey = comment.highlightKey;
-        this.commentToDelete = comment;
         if (deleteHighlight) {
           const {doc, tr} = this.$editorView.state;
-          const cursorPos = this.$editorView.state.doc.resolve(this.$editorView.state.selection.$cursor.pos);
-          const highlightNodes = [];
-          this.getNearbyHighlights(highlightNodes, cursorPos, 'after', comment.highlightKey);
-          this.getNearbyHighlights(highlightNodes, cursorPos, 'before', comment.highlightKey);
-          // Update nearby highlights.
-          removeHighlight(
-            schema, tr, doc, highlightNodes[0].pos.pos - highlightNodes[0].pos.textOffset,
-            highlightNodes[highlightNodes.length - 1].pos.pos + highlightNodes[highlightNodes.length - 1].pos.nodeAfter.nodeSize,
-          );
-          highlightNodes.forEach((d, i) => {
-            if (d.otherKeys.length > 0) {
-              addHighlight(
-                d.otherKeys.join(','), schema, tr, d.pos.pos - d.pos.textOffset,
-                d.pos.pos + d.pos.nodeAfter.nodeSize,
-              );
-            }
+          const markPositions = [];
+          this.$editorView.state.doc.descendants((node, pos) => {
+            node.marks.forEach((x) => {
+              if (x.attrs['highlight-key'] === comment.highlightKey) {
+                markPositions.push(pos);
+                markPositions.push(pos + node.nodeSize);
+              }
+            });
           });
+
+          if (markPositions.length) {
+            removeHighlight(
+              schema,
+              tr,
+              doc,
+              _.min(markPositions),
+              _.max(markPositions),
+              comment.highlightKey,
+            );
+          }
+          this.$highlightIdsToCommentIds.set(comment.highlightKey, comment._id);
           this.$editorView.dispatch(tr);
         }
         else {
-          this.$emit('highlight-deleted', {id: this.commentToDelete._id, version: collab.getVersion(this.$editorView.state)});
-          this.commentHighlightKey = null;
-          this.commentToDelete = null;
+          this.$emit('highlight-deleted', {id: comment._id, version: collab.getVersion(this.$editorView.state)});
         }
       },
 

@@ -112,10 +112,8 @@
   function getElementByHighlightKey(elements, key) {
     for (let i = 0; i < elements.length; i += 1) {
       const commentMarkEl = elements[i];
-      const keys = commentMarkEl.attributes['data-highlight-keys'].value.split(',');
-      if (keys.find((commentId) => {
-        return commentId === key;
-      })) {
+      const highlightKey = commentMarkEl.attributes['data-highlight-key'].value;
+      if (highlightKey === key) {
         return commentMarkEl;
       }
     }
@@ -181,6 +179,7 @@
     },
 
     mounted() {
+      this.$commentsToAdd = [];
       this.$autorun((computation) => {
         const comments = Comment.documents.find(this.commentsHandle.scopeQuery()).fetch();
         if (comments.length) {
@@ -250,21 +249,23 @@
       },
 
       createComment(highlightKey) {
-        if (highlightKey === this.commentToAdd.highlightKey) {
-          Comment.create(this.commentToAdd);
-          this.commentToAdd = null;
+        for (let i = this.$commentsToAdd.length - 1; i >= 0; i -= 1) {
+          if (this.$commentsToAdd[i].highlightKey === highlightKey) {
+            Comment.create(this.$commentsToAdd[i]);
+            this.$commentsToAdd.splice(i, 1);
+          }
         }
       },
 
       onCommentSubmitted(comment, newCommentBody) {
         if (comment.dummy) {
           const key = Random.id();
-          this.commentToAdd = {
+          this.$commentsToAdd.push({
             highlightKey: key,
             body: newCommentBody,
             documentId: this.documentId,
             contentKey: this.contentKey,
-          };
+          });
           this.$emit('add-highlight', key);
           return;
         }
@@ -332,7 +333,7 @@
           });
         });
 
-        const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
+        const commentMarksEls = document.querySelectorAll(`span[data-highlight-key]`);
         const {currentHighlightKey} = this;
         this.documentComments = currentComments.map((c, i) => {
           if (c.dummy) {
@@ -476,7 +477,7 @@
         if (!this.$refs.comments || (dummy.length === 0 && !this.currentHighlightKey && !force)) {
           return;
         }
-        const commentMarksEls = document.querySelectorAll(`span[data-highlight-keys]`);
+        const commentMarksEls = document.querySelectorAll(`span[data-highlight-key]`);
         const highlightTops = this.documentComments.map((c, i) => {
           if (c.dummy) {
             return c.highlightTop;
@@ -586,14 +587,11 @@
       },
 
       deleteComment(comment) {
-        if (comment.id === this.commentToDelete._id) {
-          Comment.delete({
-            _id: comment.id,
-            documentId: this.documentId,
-            version: comment.version,
-          });
-          this.commentToDelete = null;
-        }
+        Comment.delete({
+          _id: comment.id,
+          documentId: this.documentId,
+          version: comment.version,
+        });
       },
     },
   };

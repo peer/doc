@@ -1,7 +1,6 @@
 import {Plugin} from 'prosemirror-state';
 import {MarkType} from 'prosemirror-model';
-
-import {AddHighlightStep, RemoveHighlightStep} from '/lib/transform/highlight_step';
+import {RemoveMarkStep} from "prosemirror-transform";
 
 class AddComment {
   constructor(view, vueInstance) {
@@ -74,55 +73,11 @@ class AddComment {
   }
 }
 
-// Add the given mark to the inline content between `from` and `to`.
-function addHighlightMark(tr, from, to, mark) {
-  const removed = [];
-  const added = [];
-  let removing = null;
-  let adding = null;
-
-  tr.doc.nodesBetween(from, to, (node, pos, parent) => {
-    if (!node.isInline) return;
-    const marks = node.marks;
-    if (!mark.isInSet(marks) && parent.type.allowsMarkType(mark.type)) {
-      const start = Math.max(pos, from);
-      const end = Math.min(pos + node.nodeSize, to);
-      const newSet = mark.addToSet(marks);
-
-      for (let i = 0; i < marks.length; i += 1) {
-        if (!marks[i].isInSet(newSet)) {
-          if (removing && removing.to === start && removing.mark.eq(marks[i])) {
-            removing.to = end;
-          }
-          else {
-            removed.push(removing = new RemoveHighlightStep(start, end, marks[i]));
-          }
-        }
-      }
-
-      if (adding && adding.to === start) {
-        adding.to = end;
-      }
-      else {
-        added.push(adding = new AddHighlightStep(start, end, mark));
-      }
-    }
-  });
-
-  removed.forEach((s) => {
-    tr.step(s);
-  });
-  added.forEach((s) => {
-    tr.step(s);
-  });
-  return tr;
-}
-
 // Remove marks from inline nodes between `from` and `to`. When `mark`
 // is a single mark, remove precisely that mark. When it is a mark type,
 // remove all marks of that type. When it is null, remove all marks of
 // any type.
-function removeHighlightMark(tr, from, to, mark = null) {
+function removeHighlightMark(tr, from, to, mark = null, highlightKey) {
   const matched = [];
   let step = 0;
   tr.doc.nodesBetween(from, to, (node, pos) => {
@@ -130,7 +85,10 @@ function removeHighlightMark(tr, from, to, mark = null) {
     step += 1;
     let toRemove = null;
     if (mark instanceof MarkType) {
-      const found = mark.isInSet(node.marks);
+      const found = node.marks.find((x) => {
+        return x.attrs['highlight-key'] === highlightKey;
+      });
+
       if (found) toRemove = [found];
     }
     else if (mark) {
@@ -159,7 +117,7 @@ function removeHighlightMark(tr, from, to, mark = null) {
     }
   });
   matched.forEach((m) => {
-    tr.step(new RemoveHighlightStep(m.from, m.to, m.style));
+    tr.step(new RemoveMarkStep(m.from, m.to, m.style));
   });
   return tr;
 }
@@ -172,54 +130,15 @@ export default function addCommentPlugin(vueInstance) {
   });
 }
 
-export function addHighlight(keys, schema, tr, from, to) {
-  const attrs = {'highlight-keys': keys};
+export function addHighlight(key, schema, tr, from, to) {
+  const attrs = {'highlight-key': key};
   tr.setMeta('addToHistory', false);
-  addHighlightMark(tr, from, to, schema.marks.highlight.create(attrs));
+  return tr.addMark(from, to, schema.marks.highlight.create(attrs));
 }
 
-export function removeHighlight(schema, tr, doc, from, to) {
+export function removeHighlight(schema, tr, doc, from, to, highlightKey) {
   if (doc.rangeHasMark(from, to, schema.marks.highlight)) {
     tr.setMeta('addToHistory', false);
-    removeHighlightMark(tr, from, to, schema.marks.highlight);
+    removeHighlightMark(tr, from, to, schema.marks.highlight, highlightKey);
   }
-}
-
-export function updateChunks(previousChunks, splitChunk, {from, to}) {
-  let chunk1 = null;
-  let chunk3 = null;
-  if (splitChunk.from < from) {
-    chunk1 = {
-      from: splitChunk.from,
-      to: from,
-      empty: true,
-    };
-  }
-  const chunk2 = {
-    from,
-    to,
-    empty: false,
-  };
-  if (splitChunk.to > to) {
-    chunk3 = {
-      from: to,
-      to: splitChunk.to,
-      empty: true,
-    };
-  }
-
-  const index = previousChunks.indexOf(splitChunk);
-  const newChunks = previousChunks;
-  newChunks.splice(index, 1);
-  if (chunk1) {
-    newChunks.splice(index, 0, chunk1);
-  }
-
-  newChunks.splice(index + 1, 0, chunk2);
-
-  if (chunk3) {
-    newChunks.splice(index + 2, 0, chunk3);
-  }
-
-  return newChunks;
 }
