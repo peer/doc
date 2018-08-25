@@ -7,16 +7,13 @@
     "defaultPermissions": [
       "DOCUMENT_VIEW",
       "DOCUMENT_CREATE",
-      "DOCUMENT_CREATE_API",
-      "DOCUMENT_ADMIN",
-      "DOCUMENT_ADMIN_API",
       "DOCUMENT_UPDATE",
+      "DOCUMENT_ADMIN",
       "DOCUMENT_COMMENT_VIEW",
       "DOCUMENT_COMMENT_CREATE",
       "COMMENT_VIEW",
       "COMMENT_CREATE",
-      "COMMENT_DELETE",
-      "COMMENT_DELETE_OWN"
+      "COMMENT_DELETE"
     ]
   }
 }
