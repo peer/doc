@@ -150,9 +150,23 @@ Meteor.methods({
       // TODO: Validate highlight key.
       highlightKey: args.highlightKey,
       replyTo: replyTo && replyTo.getReference(),
-      status: Comment.STATUS.CREATED,
       deletedAt: null,
       deletedBy: null,
+      status: Comment.STATUS.CREATED,
+      userPermissions: [
+        {
+          user: user.getReference(),
+          addedAt: createdAt,
+          addedBy: user.getReference(),
+          permission: Comment.PERMISSIONS.VIEW,
+        },
+        {
+          user: user.getReference(),
+          addedAt: createdAt,
+          addedBy: user.getReference(),
+          permission: Comment.PERMISSIONS.DELETE,
+        },
+      ],
     });
 
     Document.documents.update({
