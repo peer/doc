@@ -151,6 +151,8 @@ Meteor.methods({
       highlightKey: args.highlightKey,
       replyTo: replyTo && replyTo.getReference(),
       status: Comment.STATUS.CREATED,
+      deletedAt: null,
+      deletedBy: null,
     });
 
     Document.documents.update({
