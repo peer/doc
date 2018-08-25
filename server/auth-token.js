@@ -75,14 +75,14 @@ export function createUserFromToken(userToken) {
     user = User.documents.findOne({
       _id: insertedId,
     }, {
-      fields: User.REFERENCE_FIELDS(),
+      fields: _.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()),
     });
   }
   else {
     user = User.documents.findOne({
       'services.usertoken.id': decryptedToken.id,
     }, {
-      fields: User.REFERENCE_FIELDS(),
+      fields: _.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()),
     });
   }
 

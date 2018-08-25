@@ -1,8 +1,11 @@
 import {Meteor} from 'meteor/meteor';
 import {WebApp} from 'meteor/webapp';
 
+import assert from 'assert';
+
 import {Document} from '/lib/documents/document';
 import {createUserFromToken} from '/server/auth-token';
+import {User} from "../lib/documents/user";
 
 // TODO: Use path information from router instead of hard-coding the path here.
 WebApp.connectHandlers.use('/document', (req, res, next) => {
@@ -14,10 +17,13 @@ WebApp.connectHandlers.use('/document', (req, res, next) => {
 
       const user = createUserFromToken(req.query.user);
 
-      // We need user reference.
-      if (!user || !user.hasPermission(Document.PERMISSIONS.CREATE_API)) {
+      // We check that the user has a class-level permission to create documents.
+      if (!User.hasClassPermission(Document.PERMISSIONS.CREATE, user)) {
         throw new Meteor.Error('unauthorized', "Unauthorized.");
       }
+
+      // We need a user reference.
+      assert(user);
 
       const document = Document._create(user, null);
 
