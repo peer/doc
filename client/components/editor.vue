@@ -372,6 +372,10 @@
                 }),
                 clientId: this.clientId,
               }, (error, response) => {
+                // TODO: Schedule to try again if "response" is 0 and there are unconfirmed steps locally.
+                //       Currently we try again only if we receive new steps from the server, but there might
+                //       be other reasons why server could not add steps so we should have some mechanism to
+                //       schedule for client to just try again.
                 if (error) {
                   // TODO: Error handling.
                 }

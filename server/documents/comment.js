@@ -13,32 +13,19 @@ import {Activity} from './activity';
 import {Document} from './document';
 import {User} from './user';
 
-Meteor.publish('Comment.list', function commentList(args) {
-  check(args, {
-    documentId: Match.DocumentId,
-  });
-
-  this.enableScope();
-
-  this.autorun((computation) => {
-    const user = Meteor.user(User.CHECK_PERMISSIONS_FIELDS());
-
-    // We first check that the user has permissions on comment's document.
-    if (!Document.existsAndCanUser({_id: args.documentId}, Document.PERMISSIONS.COMMENT_VIEW, user)) {
-      return [];
-    }
-
-    // And then we publish only those comments for which the user has permission.
-    return Comment.documents.find(Comment.restrictQuery({
-      'document._id': args.documentId,
-    }, Comment.PERMISSIONS.VIEW, user), {
-      fields: Comment.PUBLISH_FIELDS(),
-    });
-  });
-});
-
 // Here we assume this is called from a trusted place and we do not check permissions again.
-Comment.filterOrphan = (documentId, highlightKeys, version) => {
+Comment.filterOrphan = (documentId, doc, version) => {
+  const highlightKeys = [];
+
+  doc.descendants((node, pos) => {
+    const mark = _.find(node.marks, (m) => {
+      return m.type.name === 'highlight';
+    });
+    if (mark) {
+      highlightKeys.push(mark.attrs['highlight-key']);
+    }
+  });
+
   // Set "versionTo" to "null" for all "CREATED" comments with highlights present in the
   // current editor state, in case of re-applying a previous step, e.g., with Ctrl+Z.
   Comment.documents.update({
@@ -134,7 +121,7 @@ Meteor.methods({
       throw new Meteor.Error('not-found', `Document cannot be found.`);
     }
 
-    const currentContent = Content.getCurrentState({contentKey: args.contentKey});
+    const {version} = Content.getCurrentState(args.contentKey);
 
     let replyTo = null;
     if (args.replyTo) {
@@ -153,7 +140,7 @@ Meteor.methods({
       author: user.getReference(),
       document: document.getReference(),
       body: args.body,
-      versionFrom: currentContent.version,
+      versionFrom: version,
       versionTo: null,
       // TODO: Validate highlight key.
       highlightKey: args.highlightKey,
@@ -194,6 +181,30 @@ Meteor.methods({
     };
   },
 
+});
+
+Meteor.publish('Comment.list', function commentList(args) {
+  check(args, {
+    documentId: Match.DocumentId,
+  });
+
+  this.enableScope();
+
+  this.autorun((computation) => {
+    const user = Meteor.user(User.CHECK_PERMISSIONS_FIELDS());
+
+    // We first check that the user has permissions on comment's document.
+    if (!Document.existsAndCanUser({_id: args.documentId}, Document.PERMISSIONS.COMMENT_VIEW, user)) {
+      return [];
+    }
+
+    // And then we publish only those comments for which the user has permission.
+    return Comment.documents.find(Comment.restrictQuery({
+      'document._id': args.documentId,
+    }, Comment.PERMISSIONS.VIEW, user), {
+      fields: Comment.PUBLISH_FIELDS(),
+    });
+  });
 });
 
 // For testing.
