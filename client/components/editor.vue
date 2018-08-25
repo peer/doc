@@ -254,7 +254,7 @@
       },
 
       canUserUpdateCursor() {
-        return !!(this.document && this.document.canUser([Document.PERMISSIONS.VIEW, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE]));
+        return !!(this.$currentUserId && this.document && this.document.canUser([Document.PERMISSIONS.VIEW, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE]));
       },
 
       canUserUpdateDocument() {

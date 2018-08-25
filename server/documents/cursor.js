@@ -2,7 +2,6 @@ import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import {_} from 'meteor/underscore';
 
-import assert from 'assert';
 import randomColor from 'randomcolor';
 
 import {Cursor} from '/lib/documents/cursor';
@@ -40,12 +39,9 @@ Meteor.methods({
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
     // We check that the user has permissions on cursor's document.
-    if (!Document.existsAndCanUser({contentKey: args.contentKey}, [Document.PERMISSIONS.VIEW, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE], user)) {
+    if (!user || !Document.existsAndCanUser({contentKey: args.contentKey}, [Document.PERMISSIONS.VIEW, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE], user)) {
       throw new Meteor.Error('not-found', "Document cannot be found.");
     }
-
-    // We need a user reference.
-    assert(user);
 
     const timestamp = new Date();
 
