@@ -68,23 +68,28 @@ Meteor.methods({
       version: Match.Integer,
     });
 
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
+
     const deletedAt = new Date();
 
     // We do not do additional permission check on the document in this case.
     return Comment.documents.update(Comment.restrictQuery({
-      $or: [{
-        _id: args._id,
-      },
-      {
-        replyTo: {
+      $or: [
+        {
           _id: args._id,
         },
-      }],
-    }, Comment.PERMISSIONS.DELETE), {
+        {
+          replyTo: {
+            _id: args._id,
+          },
+        },
+      ],
+    }, Comment.PERMISSIONS.DELETE, user), {
       $set: {
+        deletedAt,
+        deletedBy: user.getReference(),
         versionTo: args.version,
         status: Comment.STATUS.DELETED,
-        deletedAt,
       },
     }, {
       multi: true,
@@ -202,6 +207,7 @@ Meteor.publish('Comment.list', function commentList(args) {
     // And then we publish only those comments for which the user has permission.
     return Comment.documents.find(Comment.restrictQuery({
       'document._id': args.documentId,
+      status: Comment.STATUS.CREATED,
     }, Comment.PERMISSIONS.VIEW, user), {
       fields: Comment.PUBLISH_FIELDS(),
     });

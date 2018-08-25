@@ -306,7 +306,7 @@
 
         let currentComments = comments
         .filter((comment) => {
-          return !comment.versionTo && comment.status === Comment.STATUS.CREATED;
+          return !comment.versionTo;
         });
 
         currentComments = currentComments.concat(dummyComments);
@@ -586,7 +586,7 @@
 
       onDeleteClicked() {
         const comments = this.documentComments.filter((x) => {
-          return x.highlightKey === this.commentToDelete.highlightKey && x.status === Comment.STATUS.CREATED;
+          return x.highlightKey === this.commentToDelete.highlightKey;
         });
         this.$emit('delete-highlight', this.commentToDelete, comments.length === 1 && !this.commentToDelete.replyTo);
       },
