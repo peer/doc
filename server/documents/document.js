@@ -3,11 +3,13 @@ import {Meteor} from 'meteor/meteor';
 import {Random} from 'meteor/random';
 import {_} from 'meteor/underscore';
 
+import assert from 'assert';
+
 import {Activity} from '/lib/documents/activity';
 import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
-import {schema} from "/lib/full-schema";
+import {schema} from '/lib/full-schema';
 
 Document._create = (user, connectionId) => {
   const createdAt = new Date();
@@ -365,90 +367,62 @@ Meteor.methods({
 
   'Document.create'(args) {
     check(args, {});
-    const user = Meteor.user(User.REFERENCE_FIELDS());
 
-    // We need user reference.
-    if (!user || !user.hasPermission(Document.PERMISSIONS.CREATE)) {
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
+
+    // We check that the user has a class-level permission to create documents.
+    if (!User.hasClassPermission(Document.PERMISSIONS.CREATE, user)) {
       throw new Meteor.Error('unauthorized', "Unauthorized.");
     }
+
+    // We need a user reference.
+    assert(user);
 
     return Document._create(user, (this.connection && this.connection.id) || null);
   },
 });
 
+// TODO: Add middleware and restrict what is published for "userPermissions".
 Meteor.publish('Document.list', function documentList(args) {
   check(args, {});
 
   this.enableScope();
 
   this.autorun((computation) => {
-    // TODO: Show unpublished documents to users with UPDATE permission.
-    // TODO: Show public drafts to users.
+    return Document.documents.find(Document.restrictQuery({}, Document.PERMISSIONS.VIEW), {
+      fields: Document.PUBLISH_FIELDS(),
+    });
+  });
+});
+
+// TODO: Add middleware and restrict what is published for "userPermissions".
+Meteor.publish('Document.one', function documentOne(args) {
+  check(args, {
+    documentId: Match.DocumentId,
+  });
+
+  this.autorun((computation) => {
     return Document.documents.find(Document.restrictQuery({
-      $or: [{publishedAt: {$ne: null}}, {visibility: Document.VISIBILITY_LEVELS.LISTED}],
+      _id: args.documentId,
     }, Document.PERMISSIONS.VIEW), {
       fields: Document.PUBLISH_FIELDS(),
     });
   });
 });
 
-Meteor.publish('Document.one', function documentOne(args) {
+// This publish endpoint does not restrict "userPermissions" on purpose.
+Meteor.publish('Document.admin', function documentAdmin(args) {
   check(args, {
     documentId: Match.DocumentId,
   });
-
-  const self = this;
-  const user = Meteor.user(User.REFERENCE_FIELDS());
-
-  this.autorun((computation) => {
-    if (user) {
-      const fields = Document.PUBLISH_FIELDS();
-      fields.userPermissions = 1;
-      const handle = Document.documents.find(Document.restrictQuery({
-        _id: args.documentId,
-      }, [], user, {$and: [{$or: [{visibility: {$ne: Document.VISIBILITY_LEVELS.PRIVATE}}, {userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.VIEW}}}]}]}), {
-        fields,
-      }).observeChanges({
-        added(id, documentFields) {
-          const userPermissions = documentFields.userPermissions.filter((x) => {
-            return x.user._id === user._id;
-          });
-          self.added('Documents', id, Object.assign({}, documentFields, {
-            userPermissions,
-          }));
-        },
-      });
-      self.onStop(() => {
-        handle.stop();
-      });
-      return self.ready();
-    }
-    else {
-      return Document.documents.find({
-        _id: args.documentId,
-        visibility: {$ne: Document.VISIBILITY_LEVELS.PRIVATE},
-      }, {
-        fields: Document.PUBLISH_FIELDS(),
-      });
-    }
-  });
-});
-
-Meteor.publish('Document.admin', function documentadmin(args) {
-  check(args, {
-    documentId: Match.DocumentId,
-  });
-
-  const user = Meteor.user(User.REFERENCE_FIELDS());
-  const adminFields = Document.PUBLISH_FIELDS();
-  adminFields.userPermissions = 1;
-  adminFields.defaultPermissions = 1;
 
   this.autorun((computation) => {
     return Document.documents.find(Document.restrictQuery({
       _id: args.documentId,
-    }, [], user, {$and: [{userPermissions: {$elemMatch: {'user._id': user._id, permission: Document.PERMISSIONS.ADMIN}}}]}), {
-      fields: adminFields,
+    }, Document.PERMISSIONS.ADMIN), {
+      // "PUBLISH_FIELDS" already contains all fields we are interested in,
+      // we just do not restrict "userPermissions".
+      fields: Document.PUBLISH_FIELDS(),
     });
   });
 });
