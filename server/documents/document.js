@@ -45,28 +45,26 @@ Document._create = (user, connectionId) => {
     defaultPermissions: Document.getRolePermissions(Document.ROLES.VIEW),
   });
 
-  if (Meteor.isServer) {
-    // TODO: Improve once we really have groups.
-    const groupUsers = User.documents.find({}, {
-      fields: User.REFERENCE_FIELDS(),
-      transform: null,
-    }).fetch();
+  // TODO: Improve once we really have groups.
+  const groupUsers = User.documents.find({}, {
+    fields: User.REFERENCE_FIELDS(),
+    transform: null,
+  }).fetch();
 
-    Activity.documents.insert({
-      timestamp: createdAt,
-      connection: connectionId,
-      byUser: user.getReference(),
-      // We inform all users in this group.
-      forUsers: groupUsers,
-      type: 'documentCreated',
-      level: Activity.LEVEL.GENERAL,
-      data: {
-        document: {
-          _id: documentId,
-        },
+  Activity.documents.insert({
+    timestamp: createdAt,
+    connection: connectionId,
+    byUser: user.getReference(),
+    // We inform all users in this group.
+    forUsers: groupUsers,
+    type: 'documentCreated',
+    level: Activity.LEVEL.GENERAL,
+    data: {
+      document: {
+        _id: documentId,
       },
-    });
-  }
+    },
+  });
 
   return {
     _id: documentId,
