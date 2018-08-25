@@ -8,7 +8,7 @@ import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
 import {schema} from "/lib/full-schema";
 
-function create(user, connectionId) {
+Document._create = (user, connectionId) => {
   const createdAt = new Date();
   const contentKey = Content.Meta.collection._makeNewID();
 
@@ -70,7 +70,7 @@ function create(user, connectionId) {
   return {
     _id: documentId,
   };
-}
+};
 
 function filterPermissionObjects(userPermissions, userId) {
   return (userPermissions || []).filter((userPermission) => {
@@ -373,7 +373,7 @@ Meteor.methods({
       throw new Meteor.Error('unauthorized', "Unauthorized.");
     }
 
-    return create(user, (this.connection && this.connection.id) || null);
+    return Document._create(user, (this.connection && this.connection.id) || null);
   },
 });
 

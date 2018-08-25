@@ -19,7 +19,7 @@ WebApp.connectHandlers.use('/document', (req, res, next) => {
         throw new Meteor.Error('unauthorized', "Unauthorized.");
       }
 
-      const document = Document.create(user, null);
+      const document = Document._create(user, null);
 
       const result = JSON.stringify({
         documentId: document._id,
