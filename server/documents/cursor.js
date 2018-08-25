@@ -1,6 +1,8 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
+import {_} from 'meteor/underscore';
 
+import assert from 'assert';
 import randomColor from 'randomcolor';
 
 import {Cursor} from '/lib/documents/cursor';
@@ -15,11 +17,9 @@ Meteor.methods({
       clientId: Match.DocumentId,
     });
 
-    const documentExists = Document.documents.exists(Document.restrictQuery({
-      contentKey: args.contentKey,
-    }, Document.PERMISSIONS.VIEW));
-    if (!documentExists) {
-      throw new Meteor.Error('not-found', `Document cannot be found.`);
+    // We check that the user has permissions on cursor's document.
+    if (!Document.existsAndCanUser({contentKey: args.contentKey}, [Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE])) {
+      throw new Meteor.Error('not-found', "Document cannot be found.");
     }
 
     Cursor.documents.remove({
@@ -33,23 +33,19 @@ Meteor.methods({
     check(args, {
       contentKey: Match.DocumentId,
       clientId: Match.DocumentId,
-      head: Match.Integer,
-      ranges: [{beginning: Match.Integer, end: Match.Integer}],
+      head: Match.NonNegativeInteger,
+      ranges: [{beginning: Match.NonNegativeInteger, end: Match.NonNegativeInteger}],
     });
 
-    const user = Meteor.user(User.REFERENCE_FIELDS());
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    // We need user reference.
-    if (!user) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    // We check that the user has permissions on cursor's document.
+    if (!Document.existsAndCanUser({contentKey: args.contentKey}, [Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE], user)) {
+      throw new Meteor.Error('not-found', "Document cannot be found.");
     }
 
-    const documentExists = Document.documents.exists(Document.restrictQuery({
-      contentKey: args.contentKey,
-    }, Document.PERMISSIONS.VIEW, user));
-    if (!documentExists) {
-      throw new Meteor.Error('not-found', `Document cannot be found.`);
-    }
+    // We need a user reference.
+    assert(user);
 
     const timestamp = new Date();
 
@@ -83,10 +79,8 @@ Meteor.publish('Cursor.list', function cursorList(args) {
   this.enableScope();
 
   this.autorun((computation) => {
-    const documentExists = Document.documents.exists(Document.restrictQuery({
-      contentKey: args.contentKey,
-    }, Document.PERMISSIONS.VIEW));
-    if (!documentExists) {
+    // We check that the user has permissions on cursor's document.
+    if (!Document.existsAndCanUser({contentKey: args.contentKey}, Document.PERMISSIONS.VIEW)) {
       return [];
     }
 
