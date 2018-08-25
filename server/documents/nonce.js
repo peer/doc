@@ -9,7 +9,7 @@ export class Nonce extends BaseDocument {
   // nonce: unique nonce to be stored
 }
 
-Nonce.addNonce = function upsert(args) {
+Nonce.addNonce = function addNonce(args) {
   check(args, {
     nonce: Match.NonEmptyString,
   });
