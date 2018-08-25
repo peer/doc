@@ -6,6 +6,7 @@ import {Meteor} from 'meteor/meteor';
 import {BaseDocument} from '/lib/base';
 
 export class Nonce extends BaseDocument {
+  // _id: ID of the document
   // nonce: unique nonce to be stored
 }
 
