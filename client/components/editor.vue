@@ -594,13 +594,13 @@
         this.$editorView.dispatch(tr);
       },
 
-      deleteCommentHighlight(comment, deleteHighlight) {
+      deleteCommentHighlight(commentDescriptor, deleteHighlight) {
         if (deleteHighlight) {
           const {doc, tr} = this.$editorView.state;
           const markPositions = [];
           this.$editorView.state.doc.descendants((node, pos) => {
             node.marks.forEach((x) => {
-              if (x.attrs['highlight-key'] === comment.highlightKey) {
+              if (x.attrs['highlight-key'] === commentDescriptor.comment.highlightKey) {
                 markPositions.push(pos);
                 markPositions.push(pos + node.nodeSize);
               }
@@ -614,14 +614,14 @@
               doc,
               _.min(markPositions),
               _.max(markPositions),
-              comment.highlightKey,
+              commentDescriptor.comment.highlightKey,
             );
           }
-          this.$highlightIdsToCommentIds.set(comment.highlightKey, comment._id);
+          this.$highlightIdsToCommentIds.set(commentDescriptor.comment.highlightKey, commentDescriptor.comment._id);
           this.$editorView.dispatch(tr);
         }
         else {
-          this.$emit('highlight-deleted', {id: comment._id, version: collab.getVersion(this.$editorView.state)});
+          this.$emit('highlight-deleted', {id: commentDescriptor.comment._id, version: collab.getVersion(this.$editorView.state)});
         }
       },
 

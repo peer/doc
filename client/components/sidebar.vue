@@ -39,7 +39,7 @@
         </v-flex>
       </v-layout>
       <v-layout
-        v-if="documentComments.length"
+        v-if="commentDescriptors.length"
         ref="commentsList"
         class="sidebar__comments"
         row
@@ -48,15 +48,15 @@
         align-content-start
       >
         <v-flex
-          v-for="comment of documentComments"
-          :key="comment._id ? comment._id : 'dummy'"
-          :style="{marginTop: `${comment.marginTop}px`}"
+          v-for="commentDescriptor of commentDescriptors"
+          :key="commentDescriptor.comment._id ? commentDescriptor.comment._id : 'dummy'"
+          :style="{marginTop: `${commentDescriptor.marginTop}px`}"
           xs12
-          @click.stop="onViewAllReplies(comment)"
+          @click.stop="onViewAllReplies(commentDescriptor)"
         >
           <thread
             ref="comments"
-            :comment="comment"
+            :comment-descriptor="commentDescriptor"
             :can-user-create-comments="canUserCreateComments"
             @view-all-replies="onViewAllReplies"
             @comment-submitted="onCommentSubmitted"
@@ -146,12 +146,12 @@
       return {
         dialogType: 'comment',
         commentsHandle: null,
-        documentComments: [],
+        commentDescriptors: [],
         commentCardPaddingTop: 10,
         commentCardPaddingBottom: 10,
         minCommentMargin: 5,
         currentHighlightKey: null,
-        commentToDelete: null,
+        commentDescriptorToDelete: null,
       };
     },
 
@@ -170,6 +170,7 @@
         return !!(this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
       },
     },
+
     created() {
       this.$autorun((computation) => {
         this.commentsHandle = this.$subscribe('Comment.list', {documentId: this.documentId});
@@ -196,30 +197,32 @@
 
     methods: {
       showNewCommentForm(show, start, selection) {
-        this.documentComments = this.documentComments.filter((x) => {
+        this.commentDescriptors = this.commentDescriptors.filter((x) => {
           return !x.dummy;
         });
         if (show) {
-          const dummyComment = {
+          const dummyCommentDescriptor = {
             dummy: true,
             selection,
             highlightTop: start.top + window.scrollY,
             focus: true,
-            createdAt: new Date(),
-            replyTo: null,
+            comment: {
+              createdAt: new Date(),
+              replyTo: null,
+            },
             showDetails: false,
             showAllReplies: false,
             hasManyReplies: false,
             isMain: false,
             replies: [],
           };
-          this.documentComments.push(dummyComment);
-          this.documentComments.sort((a, b) => {
+          this.commentDescriptors.push(dummyCommentDescriptor);
+          this.commentDescriptors.sort((a, b) => {
             if (a.highlightTop !== b.highlightTop) {
               return a.highlightTop - b.highlightTop;
             }
             else {
-              return a.createdAt - b.createdAt;
+              return a.comment.createdAt - b.comment.createdAt;
             }
           });
         }
@@ -230,18 +233,18 @@
         this.layoutComments(true);
       },
 
-      onViewAllReplies(comment) {
-        if (this.currentHighlightKey !== comment.highlightKey) {
-          this.documentComments = this.documentComments.map((c) => {
-            return Object.assign({}, c, {
-              focus: c._id === comment._id,
+      onViewAllReplies(commentDescriptor) {
+        if (this.currentHighlightKey !== commentDescriptor.comment.highlightKey) {
+          this.commentDescriptors = this.commentDescriptors.map((cd) => {
+            return Object.assign({}, cd, {
+              focus: cd.comment._id === commentDescriptor.comment._id,
             });
           });
-          this.currentHighlightKey = comment.highlightKey;
-          comment.focus = true; // eslint-disable-line no-param-reassign
+          this.currentHighlightKey = commentDescriptor.highlightKey;
+          commentDescriptor.focus = true; // eslint-disable-line no-param-reassign
           // Notify to parent component that a comment is focused and the
           // cursor position on the editor component should be updated.
-          this.$emit('comment-clicked', comment.highlightKey);
+          this.$emit('comment-clicked', commentDescriptor.highlightKey);
           this.layoutCommentsAfterRender();
         }
       },
@@ -255,8 +258,8 @@
         }
       },
 
-      onCommentSubmitted(comment, newCommentBody) {
-        if (comment.dummy) {
+      onCommentSubmitted(commentDescriptor, newCommentBody) {
+        if (commentDescriptor.dummy) {
           const key = Random.id();
           this.$commentsToAdd.push({
             documentId: this.documentId,
@@ -270,20 +273,20 @@
         else {
           Comment.create({
             documentId: this.documentId,
-            highlightKey: comment.highlightKey,
+            highlightKey: commentDescriptor.comment.highlightKey,
             body: newCommentBody,
-            replyTo: comment._id,
+            replyTo: commentDescriptor.comment._id,
             contentKey: this.contentKey,
           });
         }
-        comment.focus = true; // eslint-disable-line no-param-reassign
+        commentDescriptor.focus = true; // eslint-disable-line no-param-reassign
         // Notify to parent component that a comment is focused and the
         // cursor position on the editor component should be updated.
-        this.$emit('comment-clicked', comment.highlightKey);
-        this.currentHighlightKey = comment.highlightKey;
+        this.$emit('comment-clicked', commentDescriptor.comment.highlightKey);
+        this.currentHighlightKey = commentDescriptor.comment.highlightKey;
       },
 
-      handleWindowResize(e) {
+      handleWindowResize(event) {
         this.layoutComments();
       },
 
@@ -293,65 +296,69 @@
        * the comments text.
       */
       showComments(comments) {
-        const dummyComments = this.documentComments.filter((x) => {
-          return x.dummy;
+        const dummyCommentDescriptors = this.commentDescriptors.filter((commentDescriptor) => {
+          return commentDescriptor.dummy;
         });
 
-        let currentComments = comments
-        .filter((comment) => {
+        const currentComments = comments.filter((comment) => {
           return !comment.versionTo;
         });
 
-        currentComments = currentComments.concat(dummyComments);
+        let currentCommmentDescriptors = currentComments.map((comment) => {
+          return {
+            comment,
+          };
+        });
+        currentCommmentDescriptors = currentCommmentDescriptors.concat(dummyCommentDescriptors);
 
-        if (!currentComments.length) {
-          this.documentComments = currentComments;
+        if (!currentCommmentDescriptors.length) {
+          this.commentDescriptors = currentCommmentDescriptors;
           return;
         }
 
-        const replies = currentComments.filter((comment) => {
-          return comment.replyTo !== null;
+        const replyDescriptors = currentCommmentDescriptors.filter((commentDescriptor) => {
+          return commentDescriptor.comment.replyTo !== null;
         });
 
-        currentComments = currentComments.filter((comment) => {
-          return comment.replyTo === null;
-        }).map((comment) => {
-          const commentReplies = replies.filter((x) => {
-            return x.replyTo._id === comment._id;
+        currentCommmentDescriptors = currentCommmentDescriptors.filter((commentDescriptor) => {
+          return commentDescriptor.comment.replyTo === null;
+        }).map((commentDescriptor) => {
+          const commentReplyDescriptors = replyDescriptors.filter((x) => {
+            return x.comment.replyTo._id === commentDescriptor.comment._id;
           }).sort((a, b) => {
-            return a.createdAt - b.createdAt;
-          }).map((reply) => {
-            return Object.assign({}, reply, {
+            return a.comment.createdAt - b.comment.createdAt;
+          }).map((replyDescriptor) => {
+            return Object.assign({}, replyDescriptor, {
               showDetails: false,
             });
           });
 
-          return Object.assign({}, comment, {
-            replies: commentReplies,
+          return Object.assign({}, commentDescriptor, {
+            replies: commentReplyDescriptors,
           });
         });
 
-        const commentMarksEls = document.querySelectorAll(`span[data-highlight-key]`);
+        const commentMarksEls = document.querySelectorAll('span[data-highlight-key]');
         const {currentHighlightKey} = this;
-        this.documentComments = currentComments.map((c, i) => {
-          if (c.dummy) {
-            return c;
+        this.commentDescriptors = currentCommmentDescriptors.map((commentDescriptor) => {
+          if (commentDescriptor.dummy) {
+            return commentDescriptor;
           }
-          // `highlightTop` will indicate the Y position of each text segment inside
+          // "highlightTop" will indicate the Y position of each text segment inside
           // the editor that contains each comment.
-          const el = getElementByHighlightKey(commentMarksEls, c.highlightKey);
+          const el = getElementByHighlightKey(commentMarksEls, commentDescriptor.comment.highlightKey);
           if (!el) {
             return null;
           }
-          return Object.assign({}, c, {
+          return Object.assign({}, commentDescriptor, {
             highlightTop: getOffset(el).top,
             showDetails: false,
-            hasManyReplies: c.replies.length > 1,
-            isMain: c.replyTo === null,
-            focus: currentHighlightKey === c.highlightKey,
+            hasManyReplies: commentDescriptor.replies.length > 1,
+            isMain: commentDescriptor.comment.replyTo === null,
+            focus: currentHighlightKey === commentDescriptor.comment.highlightKey,
           });
-        }).filter((c) => {
-          return c;
+        }).filter((commentDescriptor) => {
+          return commentDescriptor;
         }).sort((a, b) => {
           // We sort these values in order to place the comments correctly.
           // For example, you could have a newer comment positioned on top
@@ -361,17 +368,17 @@
             return a.highlightTop - b.highlightTop;
           }
           else {
-            return a.createdAt - b.createdAt;
+            return a.comment.createdAt - b.comment.createdAt;
           }
-        }).map((c) => {
+        }).map((commentDescriptor) => {
           /*
-            We add a `marginTop` property to the comments that indicates how much
-            should the `marginTop` CSS value should be between two comments cards.
+            We add a "marginTop" property to the comment descriptors that indicates how
+            much should the "marginTop" CSS value should be between two comments cards.
             Before rendering we set 0 to all the cards in other for let Vue to
-            render them normally and after that (with Vue.$nextTick()) make the
-            position changes accordingly (in layoutComments()).
+            render them normally and after that (with "Vue.$nextTick") make the
+            position changes accordingly (in "layoutComments").
           */
-          return Object.assign({}, c, {marginTop: 0});
+          return Object.assign({}, commentDescriptor, {marginTop: 0});
         });
         this.layoutCommentsAfterRender(true);
       },
@@ -388,42 +395,42 @@
       // Moves the comments above the focused comment if necessary.
       moveUpwards(from, distance) {
         for (let i = from; i > 0; i -= 1) {
-          const c = this.documentComments[i];
+          const commentDescriptor = this.commentDescriptors[i];
           // If the current comment is aligned with the related highlighted text or if it's the second comment.
-          if (c.marginTop > this.minCommentMargin || i === 1) {
-            const last = this.documentComments[i - 1];
+          if (commentDescriptor.marginTop > this.minCommentMargin || i === 1) {
+            const lastCommentDescriptor = this.commentDescriptors[i - 1];
             // If after moving the comments, the current comment overlaps with other comments
             // and it isn't the second comment.
-            if (c.marginTop - distance < this.minCommentMargin && i !== 1) {
-              c.top -= c.marginTop - this.minCommentMargin;
-              const newDistance = distance - c.marginTop;
-              c.marginTop = this.minCommentMargin;
+            if (commentDescriptor.marginTop - distance < this.minCommentMargin && i !== 1) {
+              commentDescriptor.top -= commentDescriptor.marginTop - this.minCommentMargin;
+              const newDistance = distance - commentDescriptor.marginTop;
+              commentDescriptor.marginTop = this.minCommentMargin;
               // Move upwards the comments that are above the current one
               this.moveUpwards(i, newDistance);
               break;
             }
             // If the current comment isn't aligned with the related highlighted text and
             // its the second comment..
-            else if (i === 1 && c.marginTop <= this.minCommentMargin) {
-              last.top -= distance;
-              last.marginTop -= distance;
+            else if (i === 1 && commentDescriptor.marginTop <= this.minCommentMargin) {
+              lastCommentDescriptor.top -= distance;
+              lastCommentDescriptor.marginTop -= distance;
               this.updateDownwards(from);
               break;
             }
             else {
-              c.top -= distance;
-              c.marginTop -= distance;
-              if (i === 1 && c.top <= last.top + last.height) {
-                const newDistance = (last.top + last.height) - c.top;
-                last.top -= newDistance;
-                last.marginTop -= newDistance;
+              commentDescriptor.top -= distance;
+              commentDescriptor.marginTop -= distance;
+              if (i === 1 && commentDescriptor.top <= lastCommentDescriptor.top + lastCommentDescriptor.height) {
+                const newDistance = (lastCommentDescriptor.top + lastCommentDescriptor.height) - commentDescriptor.top;
+                lastCommentDescriptor.top -= newDistance;
+                lastCommentDescriptor.marginTop -= newDistance;
                 this.updateDownwards(from);
               }
               break;
             }
           }
           else {
-            c.top -= distance;
+            commentDescriptor.top -= distance;
           }
         }
       },
@@ -431,16 +438,16 @@
       // Update modified margins.
       updateDownwards(from) {
         for (let j = 1; j <= from; j += 1) {
-          const marginTop = this.documentComments[j - 1].marginTop + this.documentComments[j - 1].height + (this.commentCardPaddingBottom / 2);
+          const marginTop = this.commentDescriptors[j - 1].marginTop + this.commentDescriptors[j - 1].height + (this.commentCardPaddingBottom / 2);
           // The comment will be on visible area.
           if (marginTop > 0) {
-            this.documentComments[j].top -= this.documentComments[j].marginTop - this.minCommentMargin;
-            this.documentComments[j].marginTop = this.minCommentMargin;
+            this.commentDescriptors[j].top -= this.commentDescriptors[j].marginTop - this.minCommentMargin;
+            this.commentDescriptors[j].marginTop = this.minCommentMargin;
           }
           // The comment will be outside visible area.
           else {
-            this.documentComments[j].top -= this.documentComments[j].marginTop - marginTop;
-            this.documentComments[j].marginTop = marginTop;
+            this.commentDescriptors[j].top -= this.commentDescriptors[j].marginTop - marginTop;
+            this.commentDescriptors[j].marginTop = marginTop;
           }
         }
       },
@@ -448,19 +455,19 @@
       // Moves the comments below the focused comment if necessary.
       moveDownwards(from, distance) {
         let currentDistance = distance;
-        for (let i = from; i < this.documentComments.length; i += 1) {
-          const c = this.documentComments[i];
+        for (let i = from; i < this.commentDescriptors.length; i += 1) {
+          const commentDescriptor = this.commentDescriptors[i];
           // If the current comment is aligned with the related highlighted text.
-          if (c.marginTop > this.minCommentMargin) {
-            c.marginTop += (currentDistance);
+          if (commentDescriptor.marginTop > this.minCommentMargin) {
+            commentDescriptor.marginTop += currentDistance;
             break;
           }
           // Else if the current comment isn't aligned with the related highlighted text
           // and after moving the comments, the comment is above the related highlighted text.
-          else if (c.marginTop <= this.minCommentMargin && c.top - (currentDistance) < c.highlightTop && c.highlightTop !== this.documentComments[from].highlightTop) {
-            const newDistance = c.top - c.highlightTop;
-            c.marginTop = c.highlightTop - (c.top - (currentDistance));
-            c.top = c.highlightTop;
+          else if (commentDescriptor.marginTop <= this.minCommentMargin && commentDescriptor.top - currentDistance < commentDescriptor.highlightTop && commentDescriptor.highlightTop !== this.commentDescriptors[from].highlightTop) {
+            const newDistance = commentDescriptor.top - commentDescriptor.highlightTop;
+            commentDescriptor.marginTop = commentDescriptor.highlightTop - (commentDescriptor.top - currentDistance);
+            commentDescriptor.top = commentDescriptor.highlightTop;
             currentDistance = newDistance;
           }
           // Else, the marginTop is not modified.
@@ -468,21 +475,21 @@
       },
 
       layoutComments(force) {
-        const dummy = this.documentComments.filter((c) => {
-          return c.dummy;
+        const dummyCommentDescriptors = this.commentDescriptors.filter((commentDescriptor) => {
+          return commentDescriptor.dummy;
         });
         // Stop if there are no comments or if there are no dummy comments and force is not true.
-        if (!this.$refs.comments || (dummy.length === 0 && !this.currentHighlightKey && !force)) {
+        if (!this.$refs.comments || (dummyCommentDescriptors.length === 0 && !this.currentHighlightKey && !force)) {
           return;
         }
         const commentMarksEls = document.querySelectorAll(`span[data-highlight-key]`);
-        const highlightTops = this.documentComments.map((c, i) => {
-          if (c.dummy) {
-            return c.highlightTop;
+        const highlightTops = this.commentDescriptors.map((commentDescriptor) => {
+          if (commentDescriptor.dummy) {
+            return commentDescriptor.highlightTop;
           }
           // `highlightTop` will indicate the Y position of each text segment inside
           // the editor that contains each comment.
-          const el = getElementByHighlightKey(commentMarksEls, c.highlightKey);
+          const el = getElementByHighlightKey(commentMarksEls, commentDescriptor.comment.highlightKey);
           if (!el) {
             return null;
           }
@@ -495,15 +502,15 @@
         });
 
         let focusedCommentIndex = -1;
-        for (let i = 0; i < this.documentComments.length; i += 1) {
-          const c = this.documentComments[i];
-          if (c.highlightKey === this.currentHighlightKey || c.dummy) {
+        for (let i = 0; i < this.commentDescriptors.length; i += 1) {
+          const commentDescriptor = this.commentDescriptors[i];
+          if (commentDescriptor.comment.highlightKey === this.currentHighlightKey || commentDescriptor.dummy) {
             focusedCommentIndex = i;
           }
           const height = heights[i];
           let bottom = 0;
           let top = 0;
-          let {marginTop} = c;
+          let {marginTop} = commentDescriptor;
           if (i === 0) {
             const el2 = this.$refs.commentsList;
             const el2Y = getOffset(el2).top;
@@ -514,22 +521,22 @@
             top = el2Y + marginTop;
           }
           else {
-            const previousBottom = this.documentComments[i - 1].bottom;
+            const previousBottom = this.commentDescriptors[i - 1].bottom;
             marginTop = highlightTops[i] - previousBottom > 0 ? highlightTops[i] - previousBottom : this.minCommentMargin;
             bottom = previousBottom + marginTop + height;
             top = previousBottom + marginTop;
-            if (c.dummy) {
+            if (commentDescriptor.dummy) {
               bottom -= 10;
             }
           }
-          this.documentComments.splice(i, 1, Object.assign({}, c, {height, bottom, marginTop, top}));
+          this.commentDescriptors.splice(i, 1, Object.assign({}, commentDescriptor, {height, bottom, marginTop, top}));
         }
 
         // If there is a focused comment, move the focused comment next to the
         // related highlight. Also move the other comments if necessary.
         if (focusedCommentIndex > -1) {
-          const focused = this.documentComments[focusedCommentIndex];
-          const distance = Math.abs(focused.top - focused.highlightTop);
+          const focusedCommentDescriptor = this.commentDescriptors[focusedCommentIndex];
+          const distance = Math.abs(focusedCommentDescriptor.top - focusedCommentDescriptor.highlightTop);
           this.moveUpwards(focusedCommentIndex, distance);
           this.moveDownwards(focusedCommentIndex, distance);
         }
@@ -537,58 +544,58 @@
 
       focusComment(highlightKey) {
         let lastFocusedIndex = -1;
-        this.documentComments = this.documentComments.map((x, i) => {
-          if (x.highlightKey === this.currentHighlightKey) {
+        this.commentDescriptors = this.commentDescriptors.map((commentDescriptor, i) => {
+          if (commentDescriptor.comment.highlightKey === this.currentHighlightKey) {
             lastFocusedIndex = i;
           }
-          return Object.assign({}, x, {focus: x.highlightKey === highlightKey});
+          return Object.assign({}, commentDescriptor, {focus: commentDescriptor.comment.highlightKey === highlightKey});
         });
 
         // Defocus.
         if (!highlightKey) {
           // If there are comments below.
-          if (lastFocusedIndex >= 0 && lastFocusedIndex < this.documentComments.length - 1) {
+          if (lastFocusedIndex >= 0 && lastFocusedIndex < this.commentDescriptors.length - 1) {
             const thread = this.$refs.comments[lastFocusedIndex];
             // Adjust below comment margin.
-            this.documentComments[lastFocusedIndex + 1].marginTop += thread.$refs.inputContainer.offsetHeight;
+            this.commentDescriptors[lastFocusedIndex + 1].marginTop += thread.$refs.inputContainer.offsetHeight;
           }
           // Collapse comments.
-          this.documentComments = this.documentComments.map((c) => {
-            return Object.assign({}, c, {
-              replies: c.replies.map((x) => {
-                return Object.assign({}, x, {
+          this.commentDescriptors = this.commentDescriptors.map((commentDescriptor) => {
+            return Object.assign({}, commentDescriptor, {
+              replies: commentDescriptor.replies.map((replyDescriptor) => {
+                return Object.assign({}, replyDescriptor, {
                   showDetails: false,
                 });
               }),
               showDetails: false,
               focus: false,
             });
-          }).filter((x) => {
-            return !x.dummy;
+          }).filter((commentDescriptor) => {
+            return !commentDescriptor.dummy;
           });
         }
         this.currentHighlightKey = highlightKey;
         this.layoutCommentsAfterRender();
       },
 
-      onShowDeletionDialog(comment) {
-        this.commentToDelete = comment;
+      onShowDeletionDialog(commentDescriptor) {
+        this.commentDescriptorToDelete = commentDescriptor;
         this.$refs.commentDeletionDialog.show = true;
-        this.dialogType = comment.isMain ? 'thread' : 'comment';
+        this.dialogType = commentDescriptor.isMain ? 'thread' : 'comment';
       },
 
       onDeleteClicked() {
-        const comments = this.documentComments.filter((x) => {
-          return x.highlightKey === this.commentToDelete.highlightKey;
+        const commentDescriptors = this.commentDescriptors.filter((x) => {
+          return x.highlightKey === this.commentDescriptorToDelete.comment.highlightKey;
         });
-        this.$emit('delete-highlight', this.commentToDelete, comments.length === 1 && !this.commentToDelete.replyTo);
+        this.$emit('delete-highlight', this.commentDescriptorToDelete, commentDescriptors.length === 1 && !this.commentDescriptorToDelete.comment.replyTo);
       },
 
-      deleteComment(comment) {
+      deleteComment(commentIdAndVersion) {
         Comment.delete({
-          _id: comment.id,
+          _id: commentIdAndVersion.id,
           documentId: this.documentId,
-          version: comment.version,
+          version: commentIdAndVersion.version,
         });
       },
     },

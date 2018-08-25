@@ -378,7 +378,7 @@ Meteor.methods({
   },
 });
 
-// TODO: Add middleware and restrict what is published for "userPermissions".
+// TODO: Add middleware and restrict only for the current user what is published for "userPermissions".
 Meteor.publish('Document.list', function documentList(args) {
   check(args, {});
 
@@ -393,7 +393,7 @@ Meteor.publish('Document.list', function documentList(args) {
   });
 });
 
-// TODO: Add middleware and restrict what is published for "userPermissions".
+// TODO: Add middleware and restrict only for the current user what is published for "userPermissions".
 Meteor.publish('Document.one', function documentOne(args) {
   check(args, {
     documentId: Match.DocumentId,

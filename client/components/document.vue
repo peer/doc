@@ -96,16 +96,16 @@
         this.$refs.editor.addCommentHighlight(highlightKey);
       },
 
-      deleteCommentHighlight(comment, deleteHighlight) {
-        this.$refs.editor.deleteCommentHighlight(comment, deleteHighlight);
+      deleteCommentHighlight(commentDescriptor, deleteHighlight) {
+        this.$refs.editor.deleteCommentHighlight(commentDescriptor, deleteHighlight);
       },
 
       onHighlightAdded(highlightKey) {
         this.$refs.sidebar.createComment(highlightKey);
       },
 
-      onHighlightDeleted(comment) {
-        this.$refs.sidebar.deleteComment(comment);
+      onHighlightDeleted(commentIdAndVersion) {
+        this.$refs.sidebar.deleteComment(commentIdAndVersion);
       },
 
       onAfterCommentAdded(highlightKey) {
