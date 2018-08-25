@@ -174,20 +174,16 @@ Meteor.methods({
       ],
     });
 
-    const user = Meteor.user();
-    const document = Document.documents.findOne({
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
+
+    const document = Document.documents.findOne(Document.restrictQuery({
       _id: args.documentId,
-    }, {
-      fields: _.extend(Document.PERMISSIONS_FIELDS(), {
-        // Additional fields so that we can check what changed.
-        visibility: 1,
-        defaultPermissions: 1,
-        userPermissions: 1,
-      }),
+    }, Document.PERMISSIONS.ADMIN, user), {
+      fields: Document.PERMISSIONS_FIELDS(),
     });
 
-    if (!document || !document.canUser(Document.PERMISSIONS.ADMIN, user)) {
-      throw new Meteor.Error('not-found', "Not found.");
+    if (!document) {
+      throw new Meteor.Error('not-found', "Document cannot be found.");
     }
 
     const timestamp = new Date();
