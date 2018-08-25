@@ -40,7 +40,7 @@ Meteor.methods({
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
     // We check that the user has permissions on cursor's document.
-    if (!Document.existsAndCanUser({contentKey: args.contentKey}, [Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE], user)) {
+    if (!Document.existsAndCanUser({contentKey: args.contentKey}, [Document.PERMISSIONS.VIEW, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE], user)) {
       throw new Meteor.Error('not-found', "Document cannot be found.");
     }
 
