@@ -17,7 +17,7 @@
               card
             >
               <v-chip
-                v-if="documentPublished"
+                v-if="document.isPublished()"
                 label
                 disabled
                 color="green"
@@ -25,12 +25,12 @@
                 class="sidebar__status"
               ><translate>document-published</translate></v-chip>
               <v-btn
-                v-if="!documentPublished && canAdministerDocuments"
+                v-if="!document.isPublished() && canUserAdministerDocument"
                 :to="{name: 'document-publish', params: {documentId}}"
                 color="success"
               ><translate>document-publish</translate></v-btn>
               <v-btn
-                v-if="!documentPublished && canAdministerDocuments"
+                v-if="canUserAdministerDocument"
                 :to="{name: 'document-share', params: {documentId}}"
                 color="primary"
               ><translate>share</translate></v-btn>
@@ -103,6 +103,7 @@
 
   import {Comment} from '/lib/documents/comment';
   import {Document} from '/lib/documents/document';
+  import {User} from '/lib/documents/user';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
@@ -130,10 +131,6 @@
       documentId: {
         type: String,
         required: true,
-      },
-      documentPublished: {
-        type: Boolean,
-        default: false,
       },
       contentKey: {
         type: String,
@@ -166,15 +163,11 @@
       },
 
       canUserCreateComments() {
-        // We require user reference.
-        return !!(this.$currentUserId && this.document &&
-        (this.document.visibilityLevel !== Document.VISIBILITY_LEVELS.PRIVATE ||
-        (this.document.visibilityLevel === Document.VISIBILITY_LEVELS.PRIVATE && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE))));
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE) && User.hasClassPermission(Comment.PERMISSIONS.CREATE));
       },
 
-      canAdministerDocuments() {
-        // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
+      canUserAdministerDocument() {
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
       },
     },
     created() {

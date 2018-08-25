@@ -175,10 +175,13 @@
   import {Step} from 'prosemirror-transform';
   import {toggleMark, baseKeymap} from 'prosemirror-commands';
 
-  import {schema} from '/lib/full-schema.js';
   import {Content} from '/lib/documents/content';
+  import {Comment} from '/lib/documents/comment';
   import {Cursor} from '/lib/documents/cursor';
   import {Document} from '/lib/documents/document';
+  import {User} from '/lib/documents/user';
+  import {schema} from '/lib/full-schema';
+  import {stepsAreOnlyHighlights} from '/lib/utils';
 
   import {menuPlugin, isMarkActive, hasMark, toggleHeading, isHeadingActive, toggleBlockquote, isBlockquoteActive, toggleList, isListActive} from './utils/menu.js';
   import {placeholderPlugin} from './utils/placeholder.js';
@@ -251,20 +254,15 @@
       },
 
       canUserUpdateCursor() {
-        // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.VIEW));
+        return !!(this.document && this.document.canUser([Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE]));
       },
 
       canUserUpdateDocument() {
-        // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.UPDATE));
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.UPDATE));
       },
 
       canUserCreateComments() {
-        // We require user reference.
-        return !!(this.$currentUserId && this.document &&
-        (this.document.visibilityLevel !== Document.VISIBILITY_LEVELS.PRIVATE ||
-        (this.document.visibilityLevel === Document.VISIBILITY_LEVELS.PRIVATE && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE))));
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE) && User.hasClassPermission(Comment.PERMISSIONS.CREATE));
       },
     },
 
@@ -358,11 +356,10 @@
 
           const sendable = collab.sendableSteps(newState);
           if (sendable) {
-            const containsHighlightStep = sendable.steps.find((x) => {
-              return (x.jsonID === 'addMark' || x.jsonID === 'removeMark') && x.mark && x.mark.type.name === 'highlight';
-            });
+            const onlyHighlights = stepsAreOnlyHighlights(sendable.steps);
 
-            if (this.canUserUpdateDocument || (this.canUserCreateComments && containsHighlightStep)) {
+            // TODO: What to do if there are unconfirmed non-highlight steps but document was just published?
+            if (this.canUserUpdateDocument || (this.canUserCreateComments && onlyHighlights)) {
               this.addingStepsInProgress = true;
               Content.addSteps({
                 contentKey: this.contentKey,

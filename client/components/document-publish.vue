@@ -1,6 +1,6 @@
 <template>
   <v-layout
-    v-if="canAdministerDocuments"
+    v-if="canUserAdministerDocument"
     row
   >
     <v-container fill-height>
@@ -64,9 +64,8 @@
         });
       },
 
-      canAdministerDocuments() {
-        // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
+      canUserAdministerDocument() {
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
       },
     },
 

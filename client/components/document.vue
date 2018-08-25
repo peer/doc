@@ -24,7 +24,6 @@
         ref="sidebar"
         :document-id="document._id"
         :content-key="document.contentKey"
-        :document-published="document.isPublished()"
         :client-id="clientId"
         @comment-clicked="onCommentClicked"
         @add-highlight="addCommentHighlight"

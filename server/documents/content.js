@@ -10,7 +10,7 @@ import {Content} from '/lib/documents/content';
 import {Comment} from '/lib/documents/comment';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
-import {extractTitle} from '/lib/utils';
+import {extractTitle, stepsAreOnlyHighlights} from '/lib/utils';
 
 // TODO: Make documents expire after a while.
 const documents = new Map();
@@ -87,13 +87,6 @@ Content.getCurrentState = (contentKey) => {
 
   return {doc, version};
 };
-
-function stepsAreOnlyHighlights(steps) {
-  const highlightSteps = steps.filter((step) => {
-    return step.mark && step.mark.type.name === 'highlight';
-  });
-  return highlightSteps.length === steps.length;
-}
 
 // Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({

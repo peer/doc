@@ -5,7 +5,7 @@
         <v-toolbar card>
           <v-spacer />
           <v-btn
-            v-if="canCreateDocument"
+            v-if="hasCreateDocumentsPermission"
             :disabled="documentCreationInProgress"
             outline
             @click.native="onDocumentCreate"
@@ -100,9 +100,8 @@
     },
 
     computed: {
-      canCreateDocument() {
-        // We require user reference.
-        return !!(this.$currentUserId && User.hasPermission(Document.PERMISSIONS.CREATE));
+      hasCreateDocumentsPermission() {
+        return User.hasClassPermission(Document.PERMISSIONS.CREATE);
       },
 
       documents() {
