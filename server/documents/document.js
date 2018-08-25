@@ -1,5 +1,6 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
+import {Random} from 'meteor/random';
 import {_} from 'meteor/underscore';
 
 import {Activity} from '/lib/documents/activity';
@@ -10,7 +11,7 @@ import {schema} from "/lib/full-schema";
 
 Document._create = (user, connectionId) => {
   const createdAt = new Date();
-  const contentKey = Content.Meta.collection._makeNewID();
+  const contentKey = Random.id();
 
   Content.documents.insert({
     createdAt,
