@@ -385,9 +385,7 @@ Meteor.publish('Document.list', function documentList(args) {
   this.enableScope();
 
   this.autorun((computation) => {
-    return Document.documents.find(Document.restrictQuery({
-      visibility: Document.VISIBILITY_LEVELS.LISTED,
-    }, Document.PERMISSIONS.VIEW), {
+    return Document.documents.find(Document.restrictQuery({}, Document.PERMISSIONS.VIEW), {
       fields: Document.PUBLISH_FIELDS(),
     });
   });
