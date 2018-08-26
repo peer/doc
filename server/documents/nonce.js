@@ -6,10 +6,11 @@ import {Meteor} from 'meteor/meteor';
 import {BaseDocument} from '/lib/base';
 
 export class Nonce extends BaseDocument {
+  // _id: ID of the document
   // nonce: unique nonce to be stored
 }
 
-Nonce.addNonce = function upsert(args) {
+Nonce.addNonce = function addNonce(args) {
   check(args, {
     nonce: Match.NonEmptyString,
   });

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-16 13:43-0400\n"
+"POT-Creation-Date: 2018-07-20 00:27-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -46,9 +46,8 @@ msgid "calendar-same-day"
 msgstr "[hoje às] LT"
 
 #: client/components/comment-deletion-dialog.vue:21
-#: client/components/link-dialog.vue:31
-#: client/components/publish-confirmation.vue:21
-#: client/components/thread.vue:78
+#: client/components/document-publish.vue:21
+#: client/components/link-dialog.vue:31 client/components/thread.vue:78
 msgid "cancel"
 msgstr "Cancelar"
 
@@ -56,7 +55,7 @@ msgstr "Cancelar"
 msgid "choose-title"
 msgstr "Escreva Aqui o Título do Seu Documento"
 
-#: client/components/app-layout.vue:71
+#: client/components/app-layout.vue:70
 msgid "close"
 msgstr "Fechar"
 
@@ -102,6 +101,14 @@ msgstr "Erro na criação do documento: %{error}"
 msgid "document-created-success"
 msgstr "O novo documento foi criado."
 
+#: client/components/document-share.vue:65
+msgid "document-default-permissions"
+msgstr ""
+
+#: client/components/document-share.vue:66
+msgid "document-default-permissions-hint"
+msgstr ""
+
 #: client/components/documents.vue:54
 msgid "document-draft"
 msgstr "Rascunho"
@@ -118,9 +125,74 @@ msgstr "publicado"
 msgid "document-published-at"
 msgstr "Publicado %{at}"
 
-#: client/components/editor.vue:393
+#: client/components/document-share.vue:204
+msgid "document-share-cancel"
+msgstr "Cancelar"
+
+#: client/components/document-share.vue:208
+msgid "document-share-done"
+msgstr "Pronto"
+
+#: client/components/document-share.vue:491
+msgid "document-shared-error"
+msgstr "Erro ao compartilhar o documento."
+
+#: client/components/document-share.vue:498
+#, fuzzy
+msgid "document-shared-no-change"
+msgstr "Cancelar"
+
+#: client/components/document-share.vue:495
+msgid "document-shared-success"
+msgstr "O documento foi compartilhado."
+
+#: client/components/document-share.vue:16
+msgid "document-sharing"
+msgstr ""
+
+#: client/components/editor.vue:392
 msgid "document-update-error"
 msgstr "Erro ao atualizar o documento."
+
+#: client/components/document-share.vue:96
+msgid "document-user-permissions"
+msgstr "Adicionar usuários."
+
+#: client/components/document-share.vue:97
+msgid "document-user-permissions-hint"
+msgstr ""
+
+#: client/components/document-share.vue:29
+msgid "document-visibility"
+msgstr "Visibilidade do documento."
+
+#: client/components/document-share.vue:30
+msgid "document-visibility-hint"
+msgstr "Seleccionar nível de visibilidade"
+
+#: client/components/document-share.vue:250
+msgid "document-visibility-listed"
+msgstr "Listagem"
+
+#: client/components/document-share.vue:251
+msgid "document-visibility-listed-hint"
+msgstr ""
+
+#: client/components/document-share.vue:240
+msgid "document-visibility-private"
+msgstr "Privado"
+
+#: client/components/document-share.vue:241
+msgid "document-visibility-private-hint"
+msgstr ""
+
+#: client/components/document-share.vue:245
+msgid "document-visibility-public"
+msgstr "Público"
+
+#: client/components/document-share.vue:246
+msgid "document-visibility-public-hint"
+msgstr ""
 
 #: client/components/app-layout.vue:20
 msgid "documents"
@@ -178,7 +250,7 @@ msgid_plural "minutes"
 msgstr[0] "%{value} minuto"
 msgstr[1] "%{value} minutos"
 
-#: client/components/sidebar.vue:72
+#: client/components/sidebar.vue:77
 msgid "no-comments"
 msgstr "Sem comentários."
 
@@ -190,29 +262,119 @@ msgstr "Nenhum documento."
 msgid "not-found"
 msgstr "Não encontrado."
 
-#: client/components/publish-confirmation.vue:28
+#: client/components/document-share.vue:188
+msgid "permissions-list-add-users"
+msgstr "Adicionar"
+
+#: client/components/document-share.vue:140
+msgid "permissions-list-add-users-hint"
+msgstr ""
+
+#: client/components/document-share.vue:304
+#, fuzzy
+msgid "permissions-list-no-users-found"
+msgstr "Adicionar"
+
+#: client/components/document-share.vue:132
+msgid "permissions-list-remove-user"
+msgstr ""
+
+#: client/components/document-share.vue:303
+#, fuzzy
+msgid "permissions-list-select-users"
+msgstr "Adicionar"
+
+#: client/components/document-publish.vue:28
 msgid "publish"
 msgstr "Publicar"
 
-#: client/components/publish-confirmation.vue:12
+#: client/components/document-publish.vue:12
 msgid "publish-document-confirmation-body"
 msgstr "Uma vez publicado, o documento não será mais editável. O documento se tornará visível a outrxs usuárixs e todxs poderão comentar."
 
-#: client/components/publish-confirmation.vue:11
+#: client/components/document-publish.vue:11
 msgid "publish-document-confirmation-title"
 msgstr "Você gostaria de publicar o documento agora?"
 
-#: client/components/publish-confirmation.vue:95
+#: client/components/document-publish.vue:95
 msgid "publish-error"
 msgstr "Um erro ocorreu na publicação do documento."
 
-#: client/components/publish-confirmation.vue:100
+#: client/components/document-publish.vue:100
 msgid "publish-success"
 msgstr "O documento foi publicado com sucesso."
 
 #: client/components/link-dialog.vue:37
 msgid "remove"
 msgstr "Remover"
+
+#: client/components/document-share.vue:291
+msgid "role-admin-label"
+msgstr ""
+
+#: client/components/document-share.vue:292
+msgid "role-admin-user-hint"
+msgstr ""
+
+#: client/components/document-share.vue:263
+#: client/components/document-share.vue:281
+msgid "role-comment-label"
+msgstr ""
+
+#: client/components/document-share.vue:282
+msgid "role-comment-user-hint"
+msgstr ""
+
+#: client/components/document-share.vue:264
+msgid "role-comment-users-hint"
+msgstr ""
+
+#: client/components/document-share.vue:388
+#: client/components/document-share.vue:405
+#: client/components/document-share.vue:466
+msgid "role-custom-label"
+msgstr ""
+
+#: client/components/document-share.vue:389
+#: client/components/document-share.vue:467
+msgid "role-custom-user-hint"
+msgstr ""
+
+#: client/components/document-share.vue:406
+msgid "role-custom-users-hint"
+msgstr ""
+
+#: client/components/document-share.vue:268
+#: client/components/document-share.vue:286
+msgid "role-edit-label"
+msgstr ""
+
+#: client/components/document-share.vue:287
+msgid "role-edit-user-hint"
+msgstr ""
+
+#: client/components/document-share.vue:269
+msgid "role-edit-users-hint"
+msgstr ""
+
+#: client/components/document-share.vue:258
+#: client/components/document-share.vue:276
+#: client/components/document-share.vue:297
+msgid "role-view-label"
+msgstr ""
+
+#: client/components/document-share.vue:277
+#: client/components/document-share.vue:298
+msgid "role-view-user-hint"
+msgstr ""
+
+#: client/components/document-share.vue:259
+msgid "role-view-users-hint"
+msgstr ""
+
+#: client/components/sidebar.vue:35
+msgid "share"
+msgstr "Partilhar"
 
 #: client/components/app-layout.vue:50 client/components/user-signin.vue:46
 msgid "sign-in"
@@ -226,15 +388,15 @@ msgstr "Sair"
 msgid "signed-in-success"
 msgstr "Você entrou com sucesso."
 
-#: client/components/app-layout.vue:115
+#: client/components/app-layout.vue:114
 msgid "signed-out-error"
 msgstr "Erro durante a saída: %{error}"
 
-#: client/components/app-layout.vue:119
+#: client/components/app-layout.vue:118
 msgid "signed-out-success"
 msgstr "Você saiu com sucesso."
 
-#: client/components/sidebar.vue:76
+#: client/components/sidebar.vue:81
 msgid "start-a-new-comment"
 msgstr "Iniciar um comentário selecionando o conteúdo à esquerda."
 
@@ -242,55 +404,55 @@ msgstr "Iniciar um comentário selecionando o conteúdo à esquerda."
 msgid "thread-deletion-confirmation"
 msgstr "Tem certeza de que deseja eliminar esta linha de discussão?"
 
-#: client/components/editor.vue:325
+#: client/components/editor.vue:324
 msgid "title-length"
 msgstr "Seu título deve ser breve (max 100 caracteres) e o texto do seu documento adicionado abaixo dele."
 
-#: client/components/editor.vue:237
+#: client/components/editor.vue:235
 msgid "toolbar-bold"
 msgstr "Negrito (%{shortcut})"
 
-#: client/components/editor.vue:245
+#: client/components/editor.vue:243
 msgid "toolbar-bulleted-list"
 msgstr "Lista com marcadores"
 
-#: client/components/editor.vue:241
+#: client/components/editor.vue:239
 msgid "toolbar-h1"
 msgstr "Título 1"
 
-#: client/components/editor.vue:242
+#: client/components/editor.vue:240
 msgid "toolbar-h2"
 msgstr "Título 2"
 
-#: client/components/editor.vue:243
+#: client/components/editor.vue:241
 msgid "toolbar-h3"
 msgstr "Título 3"
 
-#: client/components/editor.vue:238
+#: client/components/editor.vue:236
 msgid "toolbar-italic"
 msgstr "Itálico (%{shortcut})"
 
-#: client/components/editor.vue:240
+#: client/components/editor.vue:238
 msgid "toolbar-link"
 msgstr "Link (%{shortcut})"
 
-#: client/components/editor.vue:246
+#: client/components/editor.vue:244
 msgid "toolbar-numbered-list"
 msgstr "Lista numerada"
 
-#: client/components/editor.vue:244
+#: client/components/editor.vue:242
 msgid "toolbar-quote"
 msgstr "Recuar texto"
 
-#: client/components/editor.vue:236
+#: client/components/editor.vue:234
 msgid "toolbar-redo"
 msgstr "Refazer (%{shortcut})"
 
-#: client/components/editor.vue:239
+#: client/components/editor.vue:237
 msgid "toolbar-strikethrough"
 msgstr "Tachar (%{shortcut})"
 
-#: client/components/editor.vue:235
+#: client/components/editor.vue:233
 msgid "toolbar-undo"
 msgstr "Desfazer (%{shortcut})"
 

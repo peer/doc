@@ -1,5 +1,6 @@
 import {check, Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
+import {_} from 'meteor/underscore';
 
 import randomColor from 'randomcolor';
 
@@ -9,18 +10,17 @@ import {Document} from '/lib/documents/document';
 
 // Server-side only methods, so we are not using ValidatedMethod.
 Meteor.methods({
-  'Cursor.remove'(args) {
+  'Cursor.delete'(args) {
     check(args, {
       contentKey: Match.DocumentId,
       clientId: Match.DocumentId,
     });
 
-    const documentExists = Document.documents.exists(Document.restrictQuery({
-      contentKey: args.contentKey,
-    }, Document.PERMISSIONS.SEE));
-    if (!documentExists) {
-      throw new Meteor.Error('not-found', `Document cannot be found.`);
-    }
+    // We do not check permissions because we assume that if user had permission to insert the
+    // cursor in the first place (because document exist), they have permissions also to remove it.
+    // We do this because permission check would otherwise fail when user has just logged out,
+    // but called "Cursor.remove" to cleanup the cursor. We assure nobody else can remove the
+    // cursor document because we limit the query based on connection ID.
 
     Cursor.documents.remove({
       contentKey: args.contentKey,
@@ -33,22 +33,15 @@ Meteor.methods({
     check(args, {
       contentKey: Match.DocumentId,
       clientId: Match.DocumentId,
-      head: Match.Integer,
-      ranges: [{beginning: Match.Integer, end: Match.Integer}],
+      head: Match.NonNegativeInteger,
+      ranges: [{beginning: Match.NonNegativeInteger, end: Match.NonNegativeInteger}],
     });
 
-    const user = Meteor.user(User.REFERENCE_FIELDS());
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    // We need user reference.
-    if (!user) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
-    }
-
-    const documentExists = Document.documents.exists(Document.restrictQuery({
-      contentKey: args.contentKey,
-    }, Document.PERMISSIONS.SEE, user));
-    if (!documentExists) {
-      throw new Meteor.Error('not-found', `Document cannot be found.`);
+    // We check that the user has permissions on cursor's document.
+    if (!user || !Document.existsAndCanUser({contentKey: args.contentKey}, [Document.PERMISSIONS.VIEW, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE], user)) {
+      throw new Meteor.Error('not-found', "Document cannot be found.");
     }
 
     const timestamp = new Date();
@@ -83,10 +76,8 @@ Meteor.publish('Cursor.list', function cursorList(args) {
   this.enableScope();
 
   this.autorun((computation) => {
-    const documentExists = Document.documents.exists(Document.restrictQuery({
-      contentKey: args.contentKey,
-    }, Document.PERMISSIONS.SEE));
-    if (!documentExists) {
+    // We check that the user has permissions on cursor's document.
+    if (!Document.existsAndCanUser({contentKey: args.contentKey}, Document.PERMISSIONS.VIEW)) {
       return [];
     }
 

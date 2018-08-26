@@ -175,12 +175,13 @@
   import {Step} from 'prosemirror-transform';
   import {toggleMark, baseKeymap} from 'prosemirror-commands';
 
-  import {schema} from '/lib/full-schema.js';
-  import {Comment} from '/lib/documents/comment';
   import {Content} from '/lib/documents/content';
+  import {Comment} from '/lib/documents/comment';
   import {Cursor} from '/lib/documents/cursor';
   import {Document} from '/lib/documents/document';
   import {User} from '/lib/documents/user';
+  import {schema} from '/lib/full-schema';
+  import {stepsAreOnlyHighlights} from '/lib/utils';
 
   import {menuPlugin, isMarkActive, hasMark, toggleHeading, isHeadingActive, toggleBlockquote, isBlockquoteActive, toggleList, isListActive} from './utils/menu.js';
   import {placeholderPlugin} from './utils/placeholder.js';
@@ -253,18 +254,15 @@
       },
 
       canUserUpdateCursor() {
-        // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.SEE));
+        return !!(this.$currentUserId && this.document && this.document.canUser([Document.PERMISSIONS.VIEW, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE]));
       },
 
       canUserUpdateDocument() {
-        // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.UPDATE));
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.UPDATE));
       },
 
       canUserCreateComments() {
-        // We require user reference.
-        return !!(this.$currentUserId && User.hasPermission(Comment.PERMISSIONS.CREATE) && this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE));
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE) && User.hasClassPermission(Comment.PERMISSIONS.CREATE));
       },
     },
 
@@ -281,7 +279,6 @@
         this.cursorsHandle = this.$subscribe('Cursor.list', {contentKey: this.contentKey});
       });
     },
-
     mounted() {
       this.$highlightIdsToCommentIds = new Map();
 
@@ -359,11 +356,10 @@
 
           const sendable = collab.sendableSteps(newState);
           if (sendable) {
-            const containsHighlightStep = sendable.steps.find((x) => {
-              return (x.jsonID === 'addMark' || x.jsonID === 'removeMark') && x.mark && x.mark.type.name === 'highlight';
-            });
+            const onlyHighlights = stepsAreOnlyHighlights(sendable.steps);
 
-            if (this.canUserUpdateDocument || (this.canUserCreateComments && containsHighlightStep)) {
+            // TODO: What to do if there are unconfirmed non-highlight steps but document was just published?
+            if (this.canUserUpdateDocument || (this.canUserCreateComments && onlyHighlights)) {
               this.addingStepsInProgress = true;
               Content.addSteps({
                 contentKey: this.contentKey,
@@ -373,6 +369,10 @@
                 }),
                 clientId: this.clientId,
               }, (error, response) => {
+                // TODO: Schedule to try again if "response" is 0 and there are unconfirmed steps locally.
+                //       Currently we try again only if we receive new steps from the server, but there might
+                //       be other reasons why server could not add steps so we should have some mechanism to
+                //       schedule for client to just try again.
                 if (error) {
                   // TODO: Error handling.
                 }
@@ -594,13 +594,13 @@
         this.$editorView.dispatch(tr);
       },
 
-      deleteCommentHighlight(comment, deleteHighlight) {
+      deleteCommentHighlight(commentDescriptor, deleteHighlight) {
         if (deleteHighlight) {
           const {doc, tr} = this.$editorView.state;
           const markPositions = [];
           this.$editorView.state.doc.descendants((node, pos) => {
             node.marks.forEach((x) => {
-              if (x.attrs['highlight-key'] === comment.highlightKey) {
+              if (x.attrs['highlight-key'] === commentDescriptor.comment.highlightKey) {
                 markPositions.push(pos);
                 markPositions.push(pos + node.nodeSize);
               }
@@ -614,14 +614,14 @@
               doc,
               _.min(markPositions),
               _.max(markPositions),
-              comment.highlightKey,
+              commentDescriptor.comment.highlightKey,
             );
           }
-          this.$highlightIdsToCommentIds.set(comment.highlightKey, comment._id);
+          this.$highlightIdsToCommentIds.set(commentDescriptor.comment.highlightKey, commentDescriptor.comment._id);
           this.$editorView.dispatch(tr);
         }
         else {
-          this.$emit('highlight-deleted', {id: comment._id, version: collab.getVersion(this.$editorView.state)});
+          this.$emit('highlight-deleted', {id: commentDescriptor.comment._id, version: collab.getVersion(this.$editorView.state)});
         }
       },
 
@@ -667,32 +667,23 @@
     top: 0;
     z-index: 10;
 
-    .btn-toggle {
+    .v-btn-toggle {
       margin: 0 4px;
     }
 
-    .toolbar__content {
+    .v-toolbar__content {
       overflow: hidden;
       transition: none;
+      padding: 0;
     }
 
-    .toolbar__content > *:not(.btn):not(.menu):first-child:not(:only-child) {
+    .v-toolbar__content > *:not(.v-btn):not(.v-menu):first-child:not(:only-child) {
       margin-left: 8px;
     }
 
-    .toolbar__content > *:not(.btn):not(.menu):last-child:not(:only-child) {
+    .v-toolbar__content > *:not(.v-btn):not(.v-menu):last-child:not(:only-child) {
       margin-right: 8px;
     }
-  }
-
-  .toolbar-gap {
-    margin: 6px 12px;
-  }
-
-  .btn-comment {
-    left: 100%;
-    z-index: 25;
-    margin-top: 33px;
   }
 
   .fade {
@@ -736,7 +727,7 @@
     border-color: rgb(255, 0, 122);
     opacity: 1;
     height: 17.6px;
-    width: 0px;
+    width: 0;
     border-left: 2px solid;
     border-left-color: rgb(255, 0, 122);
     font-size: 0;
@@ -784,7 +775,7 @@
     }
 
     .empty-node:hover::before {
-      // Same as "opacity" for ".btn-toggle .btn".
+      // Same as "opacity" for ".v-btn-toggle .v-btn".
       opacity: 0.4;
     }
 
@@ -805,7 +796,7 @@
     display: flex;
     margin-left: 4px;
 
-    button {
+    button.v-btn--icon {
       margin: 2px;
       border-radius: 50%;
       height: 42px;
@@ -815,7 +806,7 @@
       padding: 1px;
       flex: 0 0 auto;
 
-      .btn__content {
+      .v-btn__content {
         height: 100%;
       }
     }

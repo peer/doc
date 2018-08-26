@@ -5,7 +5,7 @@
         <v-toolbar card>
           <v-spacer />
           <v-btn
-            v-if="canCreateDocument"
+            v-if="hasCreateDocumentsPermission"
             :disabled="documentCreationInProgress"
             outline
             @click.native="onDocumentCreate"
@@ -21,7 +21,7 @@
           <template v-for="(document, index) in documents">
             <v-list-tile
               :to="{name: 'document', params: {documentId: document._id}}"
-              :key="document._id"
+              :key="'document-' + document._id"
               ripple
             >
               <v-list-tile-content>
@@ -50,6 +50,7 @@
                 <v-chip
                   v-if="!document.isPublished()"
                   label
+                  disabled
                   color="yellow lighten-2"
                   class="documents__label"
                 ><translate>document-draft</translate></v-chip>
@@ -57,7 +58,7 @@
             </v-list-tile>
             <v-divider
               v-if="index + 1 < documents.count()"
-              :key="document._id"
+              :key="'divider-' + document._id"
             />
           </template>
         </v-list>
@@ -100,9 +101,8 @@
     },
 
     computed: {
-      canCreateDocument() {
-        // We require user reference.
-        return !!(this.$currentUserId && User.hasPermission(Document.PERMISSIONS.CREATE));
+      hasCreateDocumentsPermission() {
+        return User.hasClassPermission(Document.PERMISSIONS.CREATE);
       },
 
       documents() {

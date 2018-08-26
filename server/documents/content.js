@@ -10,17 +10,27 @@ import {Content} from '/lib/documents/content';
 import {Comment} from '/lib/documents/comment';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
-import {extractTitle} from '/lib/utils';
+import {extractTitle, stepsAreOnlyHighlights} from '/lib/utils';
 
 // TODO: Make documents expire after a while.
 const documents = new Map();
 
-Content.getCurrentState = (args) => {
+function updateCurrentState(contentKey, doc, version) {
+  if (documents.has(contentKey)) {
+    if (version > documents.get(contentKey).version) {
+      documents.set(contentKey, {doc, version});
+    }
+  }
+  else {
+    documents.set(contentKey, {doc, version});
+  }
+}
+
+Content.getCurrentState = (contentKey) => {
   let doc;
   let version;
-  if (args.currentVersion && documents.has(args.contentKey)) {
-    ({doc, version} = documents.get(args.contentKey));
-    assert(version <= args.currentVersion);
+  if (documents.has(contentKey)) {
+    ({doc, version} = documents.get(contentKey));
   }
   else {
     doc = schema.topNodeType.createAndFill();
@@ -28,10 +38,9 @@ Content.getCurrentState = (args) => {
   }
 
   Content.documents.find({
-    contentKey: args.contentKey,
+    contentKey,
     version: {
       $gt: version,
-      $lte: args.currentVersion,
     },
   }, {
     sort: {
@@ -52,7 +61,29 @@ Content.getCurrentState = (args) => {
 
     doc = result.doc;
     version = content.version;
+
+    // We update current state only when we do have steps stored in the database and
+    // we do not store the initial empty document and version 0 to make it slightly
+    // harder to make a DoS attack my requesting state for many content keys.
+    updateCurrentState(contentKey, doc, version);
   });
+
+  if (documents.has(contentKey)) {
+    const {version: currentVersion, doc: currentDoc} = documents.get(contentKey);
+    // If there is a newer version available, we return that one. We do not retry updating our "doc"
+    // again with potential further steps available because this could turn into a fight between two
+    // concurrent calls to "getCurrentState" each trying to handle an intense stream of added steps
+    // and making each other retry again and again. Instead, we prefer to return a potentially older
+    // version (which means that further steps are available in the database) and leave it to the
+    // caller to not be able to insert more steps, returning to the client to retry sending its steps.
+    // In this way we leave to clients to handle an intense stream of steps first.
+    if (currentVersion > version) {
+      return {version: currentVersion, doc: currentDoc};
+    }
+    // If it is not newer, it should match the version we just retrieved (before "forEach") or
+    // just updated (in "forEach").
+    assert(currentVersion === version);
+  }
 
   return {doc, version};
 };
@@ -62,68 +93,64 @@ Meteor.methods({
   'Content.addSteps'(args) {
     check(args, {
       contentKey: Match.DocumentId,
-      currentVersion: Match.Integer,
+      currentVersion: Match.NonNegativeInteger,
       steps: [Object],
       clientId: Match.DocumentId,
     });
+
+    // There should be steps.
+    check(args.steps, Match.Where((x) => {
+      return x.length > 0;
+    }));
 
     const steps = args.steps.map((step) => {
       return Step.fromJSON(schema, step);
     });
 
-    const user = Meteor.user(User.REFERENCE_FIELDS());
+    const onlyHighlights = stepsAreOnlyHighlights(steps);
 
-    // We need user reference.
-    if (!user) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
+
+    // We do not use "CREATE" permission because from the point of the steps we
+    // are always updating the (potentially) empty already created document.
+    const allowedPermissions = [Document.PERMISSIONS.UPDATE];
+    if (onlyHighlights) {
+      allowedPermissions.push(Document.PERMISSIONS.COMMENT_CREATE);
     }
 
     const document = Document.documents.findOne(Document.restrictQuery({
       contentKey: args.contentKey,
-    }, Document.PERMISSIONS.UPDATE, user), {
+    }, allowedPermissions, user), {
       fields: {
+        _id: 1,
         publishedAt: 1,
       },
     });
+
     if (!document) {
-      throw new Meteor.Error('not-found', `Document cannot be found.`);
+      throw new Meteor.Error('not-found', "Document cannot be found.");
     }
 
-    const latestContent = Content.documents.findOne({
-      contentKey: args.contentKey,
-    }, {
-      sort: {
-        version: -1,
-      },
-      fields: {
-        version: 1,
-      },
-    });
+    // We need a user reference.
+    assert(user);
 
-    if (latestContent.version !== args.currentVersion) {
+    // "Document.restrictQuery" makes sure that we are not updating
+    // (with non-highlights steps) a published document.
+    assert(!document.isPublished() || onlyHighlights);
+
+    let {doc, version} = Content.getCurrentState(args.contentKey);
+
+    if (args.currentVersion !== version) {
+      // If "currentVersion" is newer than "version" there might be a bug on the client,
+      // or we got an older state with not all steps from the database applied. In both cases
+      // the client should try again with probably correct version. If it is older, then client
+      // should try again as well, after updating its state with new steps.
       return 0;
     }
 
-    let stepsToProcess = steps;
-
-    if (document.isPublished()) {
-      // If the document is published we immediately discard this new step
-      // unless it contains highlight marks, in which case we just process those.
-      stepsToProcess = steps.filter((step) => {
-        return step.mark && step.mark.type.name === 'highlight';
-      });
-      if (!stepsToProcess.length) {
-        return 0;
-      }
-    }
-
-    let {doc, version} = Content.getCurrentState(args);
-
-    assert(version === args.currentVersion);
-
     const timestamp = new Date();
 
-    for (const step of stepsToProcess) {
+    for (const step of steps) {
       const result = step.apply(doc);
 
       if (!result.doc) {
@@ -152,22 +179,19 @@ Meteor.methods({
       });
 
       if (!insertedId) {
+        // Document was just updated, not inserted, so this means that there was already
+        // a step with "version". This means we have to return to the client and the
+        // client should try again.
         break;
       }
 
-      if (documents.has(args.contentKey)) {
-        if (version > documents.get(args.contentKey).version) {
-          documents.set(args.contentKey, {doc, version});
-        }
-      }
-      else {
-        documents.set(args.contentKey, {doc, version});
-      }
+      updateCurrentState(args.contentKey, doc, version);
     }
 
     Document.documents.update({
       contentKey: args.contentKey,
       version: {
+        // We update only if we have a newer version then already in the database.
         $lt: version,
       },
     }, {
@@ -180,22 +204,8 @@ Meteor.methods({
       },
     });
 
-    const keys = [];
-
-    doc.descendants((node, pos) => {
-      const mark = _.find(node.marks, (m) => {
-        return m.type.name === 'highlight';
-      });
-      if (mark) {
-        keys.push(mark.attrs['highlight-key']);
-      }
-    });
-
-    Comment.filterOrphan({
-      documentId: document._id,
-      highlightKeys: keys,
-      version,
-    });
+    // TODO: This could be done in the background?
+    Comment.filterOrphan(document._id, doc, version);
 
     return version - args.currentVersion;
   },
@@ -209,11 +219,8 @@ Meteor.publish('Content.list', function contentList(args) {
   this.enableScope();
 
   this.autorun((computation) => {
-    const documentExists = Document.documents.exists(Document.restrictQuery({
-      contentKey: args.contentKey,
-    }, Document.PERMISSIONS.SEE));
-
-    if (!documentExists) {
+    // We check that the user has permissions on content's document.
+    if (!Document.existsAndCanUser({contentKey: args.contentKey}, Document.PERMISSIONS.VIEW)) {
       return [];
     }
 

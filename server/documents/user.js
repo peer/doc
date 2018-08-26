@@ -1,5 +1,6 @@
 import {Accounts} from 'meteor/accounts-base';
 import {Meteor} from 'meteor/meteor';
+import {check, Match} from 'meteor/check';
 
 import {User} from '/lib/documents/user';
 
@@ -11,6 +12,28 @@ Accounts.onCreateUser(function onCreateUser(options, user) {
   }
 
   return user;
+});
+
+Meteor.methods({
+  // TODO: Make into a publish endpoint, so that we update the list reactively.
+  // TODO: Restrict who can query (maybe just logged in users) and how many results.
+  'User.findByUsername'(args) {
+    check(args, {
+      username: Match.NonEmptyString,
+    });
+
+    const users = User.documents.find(
+      {
+        // TODO: Check that given "username" is just string and not regex.
+        username: {$regex: args.username},
+      },
+      {
+        fields: User.REFERENCE_FIELDS(),
+      },
+    ).fetch();
+
+    return users;
+  },
 });
 
 // Some User fields are published automatically for the current user,

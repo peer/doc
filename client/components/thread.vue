@@ -5,19 +5,19 @@
     @enter="enter"
   >
     <v-card
-      :class="['thread__card', {'elevation-10': comment.focus}]"
+      :class="['thread__card', {'elevation-10': commentDescriptor.focus}]"
       @mousedown.stop
     >
       <v-container
-        v-if="!comment.dummy"
+        v-if="!commentDescriptor.dummy"
         class="thread__container"
       >
         <comment
-          :comment="comment"
-          @delete-clicked="onDeleteClicked(comment)"
+          :comment-descriptor="commentDescriptor"
+          @delete-clicked="onDeleteClicked(commentDescriptor)"
         />
         <v-container
-          v-if="!comment.focus && comment.hasManyReplies"
+          v-if="!commentDescriptor.focus && commentDescriptor.hasManyReplies"
           class="thread__show_replies"
         >
           <v-divider />
@@ -27,21 +27,21 @@
                 flat
                 small
                 @click="onViewAllReplies"
-              ><translate :translate-params="{count: comment.replies.length}">view-all-replies</translate></v-btn>
+              ><translate :translate-params="{count: commentDescriptor.replies.length}">view-all-replies</translate></v-btn>
             </v-flex>
           </v-layout>
           <v-divider />
         </v-container>
         <v-layout
-          v-for="(reply, index) of comment.replies"
-          :key="reply._id"
+          v-for="(replyDescriptor, index) of commentDescriptor.replies"
+          :key="replyDescriptor._id"
           row
         >
           <comment
-            v-if="comment.focus || (!comment.focus && index == comment.replies.length - 1)"
-            :comment="reply"
+            v-if="commentDescriptor.focus || (!commentDescriptor.focus && index == commentDescriptor.replies.length - 1)"
+            :comment-descriptor="replyDescriptor"
             class="thread__reply"
-            @delete-clicked="onDeleteClicked(reply)"
+            @delete-clicked="onDeleteClicked(replyDescriptor)"
           />
         </v-layout>
       </v-container>
@@ -56,14 +56,14 @@
             offset-xs1
           >
             <div
-              v-show="comment.focus"
+              v-show="commentDescriptor.focus"
               @click.stop
             >
               <comment-editor
                 ref="threadInput"
                 v-model="newCommentBody"
                 :read-only="false"
-                :is-reply="!comment.dummy"
+                :is-reply="!commentDescriptor.dummy"
                 class="thread__input"
                 @body-empty="showActions = !$event"
               />
@@ -99,7 +99,7 @@
   // @vue/component
   const component = {
     props: {
-      comment: {
+      commentDescriptor: {
         type: Object,
         required: true,
       },
@@ -118,7 +118,7 @@
 
     methods: {
       onViewAllReplies() {
-        this.$emit('view-all-replies', this.comment);
+        this.$emit('view-all-replies', this.commentDescriptor);
       },
 
       onCancel() {
@@ -126,7 +126,7 @@
       },
 
       onSubmit() {
-        this.$emit('comment-submitted', this.comment, this.newCommentBody);
+        this.$emit('comment-submitted', this.commentDescriptor, this.newCommentBody);
         this.newCommentBody = null;
       },
 
@@ -144,8 +144,8 @@
         }, 300);
       },
 
-      onDeleteClicked(comment) {
-        this.$emit('show-deletion-dialog', comment);
+      onDeleteClicked(commentDescriptor) {
+        this.$emit('show-deletion-dialog', commentDescriptor);
       },
     },
   };
