@@ -252,8 +252,7 @@
       createComment(highlightKey) {
         for (let i = this.$commentsToAdd.length - 1; i >= 0; i -= 1) {
           if (this.$commentsToAdd[i].highlightKey === highlightKey) {
-            Comment.create(this.$commentsToAdd[i]);
-            this.$commentsToAdd.splice(i, 1);
+            Comment.create(this.$commentsToAdd.splice(i, 1)[0]);
           }
         }
       },
