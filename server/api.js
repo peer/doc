@@ -3,9 +3,9 @@ import {WebApp} from 'meteor/webapp';
 
 import assert from 'assert';
 
-import {Document} from '/lib/documents/document';
+import {Document} from '/server/documents/document';
 import {createUserFromToken} from '/server/auth-token';
-import {User} from "../lib/documents/user";
+import {User} from "/server/documents/user";
 
 // TODO: Use path information from router instead of hard-coding the path here.
 WebApp.connectHandlers.use('/document', (req, res, next) => {
