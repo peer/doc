@@ -447,9 +447,6 @@
           });
 
           if (newContents.length) {
-            // Check if collab was initialized with the first steps.
-            const isCollabInitialized = collab.getVersion(this.$editorView.state) > 0;
-
             // Update collab and current editor's content.
             this.$editorView.dispatch(collab.receiveTransaction(
               this.$editorView.state,
@@ -457,25 +454,20 @@
               _.pluck(newContents, 'clientId'),
             ));
 
-            // Observe our new confirmed steps only if collab is initialized.
-            // During editor loading newContents array contains all document steps.
-            // We only want to react to our newest steps.
-            if (isCollabInitialized) {
-              newContents.filter((x) => {
-                return x.clientId === this.clientId;
-              }).forEach((x) => {
-                // Emit corresponding events when highlights are added.
-                if (x.step.mark && x.step.mark.type.name === 'highlight') {
-                  if (x.step.jsonID === 'removeMark') {
-                    this.$emit('highlight-deleted', {id: this.$highlightIdsToCommentIds.get(x.step.mark.attrs['highlight-key']), version: x.version});
-                  }
-                  else if (x.step.jsonID === 'addMark') {
-                    this.$emit('highlight-added', x.step.mark.attrs['highlight-key']);
-                    this.updateCursor();
-                  }
+            newContents.filter((x) => {
+              return x.clientId === this.clientId;
+            }).forEach((x) => {
+              // Emit corresponding events when highlights are added.
+              if (x.step.mark && x.step.mark.type.name === 'highlight') {
+                if (x.step.jsonID === 'removeMark') {
+                  this.$emit('highlight-deleted', {id: this.$highlightIdsToCommentIds.get(x.step.mark.attrs['highlight-key']), version: x.version});
                 }
-              });
-            }
+                else if (x.step.jsonID === 'addMark') {
+                  this.$emit('highlight-added', x.step.mark.attrs['highlight-key']);
+                  this.updateCursor();
+                }
+              }
+            });
 
             // Notify to other components that there is new content.
             this.$emit('content-changed');
