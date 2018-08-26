@@ -10,7 +10,7 @@ import {Document} from '/lib/documents/document';
 
 // Server-side only methods, so we are not using ValidatedMethod.
 Meteor.methods({
-  'Cursor.remove'(args) {
+  'Cursor.delete'(args) {
     check(args, {
       contentKey: Match.DocumentId,
       clientId: Match.DocumentId,
