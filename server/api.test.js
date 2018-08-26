@@ -11,6 +11,7 @@ import crypto from 'crypto';
 // Enable API.
 import {} from './api';
 import {User} from './documents/user';
+import {Document} from './documents/document';
 
 const baseFromMap = {
   '+': '-',
@@ -127,6 +128,7 @@ describe('document api', function () {
     assert.isString(response.data.documentId);
     // TODO: Use router to construct the path.
     assert.equal(response.data.path, `/document/${response.data.documentId}`);
+    assert(Document.documents.exists({_id: response.data.documentId}));
 
     const user = User.documents.findOne({'services.usertoken.id': userId});
 
@@ -180,6 +182,7 @@ describe('document api', function () {
     assert.isString(response.data.documentId);
     // TODO: Use router to construct the path.
     assert.equal(response.data.path, `/document/${response.data.documentId}`);
+    assert(Document.documents.exists({_id: response.data.documentId}));
 
     const user = User.documents.findOne({'services.usertoken.id': userId});
 
