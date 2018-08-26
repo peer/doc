@@ -134,9 +134,9 @@ Meteor.methods({
     // We need a user reference.
     assert(user);
 
-    if (document.isPublished() && !onlyHighlights) {
-      throw new Meteor.Error('invalid-request', "Cannot add more steps to a published document.");
-    }
+    // "Document.restrictQuery" makes sure that we are not updating
+    // (with non-highlights steps) a published document.
+    assert(!document.isPublished() || onlyHighlights);
 
     let {doc, version} = Content.getCurrentState(args.contentKey);
 
