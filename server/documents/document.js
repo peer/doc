@@ -159,48 +159,25 @@ function permissionsDifference(userPermissions1, userPermissions2) {
   });
 }
 
-Meteor.methods({
-  'Document.publish'(args) {
-    check(args, {
-      documentId: Match.DocumentId,
-    });
+Document._share = (documentId, user, connectionId, visibility, defaultRole, contributors) => {
+  const document = Document.documents.findOne(Document.restrictQuery({
+    _id: documentId,
+  }, Document.PERMISSIONS.ADMIN, user), {
+    fields: Document.PERMISSIONS_FIELDS(),
+  });
 
-    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
+  if (!document) {
+    throw new Meteor.Error('not-found', "Document cannot be found.");
+  }
 
-    return Document._publish(args.documentId, user, (this.connection && this.connection.id) || null);
-  },
+  const timestamp = new Date();
 
-  'Document.share'(args) {
-    check(args, {
-      documentId: Match.DocumentId,
-      visibility: Match.Enumeration(Match.NonEmptyString, Document.VISIBILITY_LEVELS),
-      defaultRole: Match.OptionalOrNull(Match.Enumeration(Match.NonEmptyString, _.omit(Document.ROLES, 'ADMIN'))),
-      contributors: [
-        {
-          userId: Match.DocumentId,
-          role: Match.OptionalOrNull(Match.Enumeration(Match.NonEmptyString, Document.ROLES)),
-        },
-      ],
-    });
-
-    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
-
-    const document = Document.documents.findOne(Document.restrictQuery({
-      _id: args.documentId,
-    }, Document.PERMISSIONS.ADMIN, user), {
-      fields: Document.PERMISSIONS_FIELDS(),
-    });
-
-    if (!document) {
-      throw new Meteor.Error('not-found', "Document cannot be found.");
-    }
-
-    const timestamp = new Date();
-
+  let userPermissions = null;
+  if (contributors !== null) {
     // We start with current user's permissions.
-    let userPermissions = filterPermissionObjects(document.userPermissions, user._id);
+    userPermissions = filterPermissionObjects(document.userPermissions, user._id);
 
-    args.contributors.forEach((contributor) => {
+    contributors.forEach((contributor) => {
       let permissionObjects;
 
       // We allow each contributor to be listed only once.
@@ -229,145 +206,177 @@ Meteor.methods({
 
       userPermissions = userPermissions.concat(permissionObjects);
     });
+  }
 
-    let visibilityChanged = false;
-    let defaultPermissionsChanged = false;
-    let userPermissionsChanged = false;
+  let visibilityChanged = false;
+  let defaultPermissionsChanged = false;
+  let userPermissionsChanged = false;
 
-    const updates = {
-      updatedAt: timestamp,
-      lastActivity: timestamp,
-    };
+  const updates = {
+    updatedAt: timestamp,
+    lastActivity: timestamp,
+  };
 
-    if (document.visibility !== args.visibility) {
-      updates.visibility = args.visibility;
-      visibilityChanged = true;
+  if (visibility !== null && document.visibility !== visibility) {
+    updates.visibility = visibility;
+    visibilityChanged = true;
+  }
+
+  // If default permissions are custom, then to keep them unchanged, "null" is passed.
+  let defaultPermissions = null;
+  if (defaultRole !== null) {
+    defaultPermissions = Document.getRolePermissions(defaultRole);
+    if (!_.isEqual(_.sortBy(document.defaultPermissions || []), _.sortBy(defaultPermissions))) {
+      updates.defaultPermissions = defaultPermissions;
+      defaultPermissionsChanged = true;
     }
+  }
 
-    // If default permissions are custom, then to keep them unchanged, "null" is passed.
-    let defaultPermissions = null;
-    if (args.defaultRole !== null) {
-      defaultPermissions = Document.getRolePermissions(args.defaultRole);
-      if (!_.isEqual(_.sortBy(document.defaultPermissions || []), _.sortBy(defaultPermissions))) {
-        updates.defaultPermissions = defaultPermissions;
-        defaultPermissionsChanged = true;
-      }
-    }
-
+  if (userPermissions !== null) {
     if (!permissionsEqual(document.userPermissions, userPermissions)) {
       updates.userPermissions = userPermissions;
       userPermissionsChanged = true;
     }
+  }
 
-    let changed = 0;
-    if (visibilityChanged || defaultPermissionsChanged || userPermissionsChanged) {
-      changed = Document.documents.update({
-        _id: args.documentId,
-      }, {
-        $set: updates,
+  let changed = 0;
+  if (visibilityChanged || defaultPermissionsChanged || userPermissionsChanged) {
+    changed = Document.documents.update({
+      _id: documentId,
+    }, {
+      $set: updates,
+    });
+  }
+
+  if (changed) {
+    if (visibilityChanged) {
+      Activity.documents.insert({
+        timestamp,
+        connection: connectionId,
+        byUser: user.getReference(),
+        // We inform all followers of this document.
+        // TODO: Implement once we have followers.
+        forUsers: [],
+        type: 'documentVisibilityChanged',
+        level: Activity.LEVEL.ADMIN,
+        data: {
+          visibility,
+          document: {
+            _id: documentId,
+          },
+        },
       });
     }
 
-    if (changed) {
-      if (visibilityChanged) {
-        Activity.documents.insert({
-          timestamp,
-          connection: this.connection.id,
-          byUser: user.getReference(),
-          // We inform all followers of this document.
-          // TODO: Implement once we have followers.
-          forUsers: [],
-          type: 'documentVisibilityChanged',
-          level: Activity.LEVEL.ADMIN,
-          data: {
-            document: {
-              _id: args.documentId,
-            },
-            visibility: args.visibility,
+    if (defaultPermissionsChanged) {
+      Activity.documents.insert({
+        timestamp,
+        connection: connectionId,
+        byUser: user.getReference(),
+        // We inform all followers of this document.
+        // TODO: Implement once we have followers.
+        forUsers: [],
+        type: 'documentDefaultPermissionsChanged',
+        level: Activity.LEVEL.ADMIN,
+        data: {
+          defaultPermissions,
+          document: {
+            _id: documentId,
           },
-        });
-      }
-
-      if (defaultPermissionsChanged) {
-        Activity.documents.insert({
-          timestamp,
-          connection: this.connection.id,
-          byUser: user.getReference(),
-          // We inform all followers of this document.
-          // TODO: Implement once we have followers.
-          forUsers: [],
-          type: 'documentDefaultPermissionsChanged',
-          level: Activity.LEVEL.ADMIN,
-          data: {
-            defaultPermissions,
-            document: {
-              _id: args.documentId,
-            },
-          },
-        });
-      }
-
-      if (userPermissionsChanged) {
-        const newPermissionsByUsers = _.groupBy(userPermissions, (userPermission) => {
-          return userPermission.user._id;
-        });
-        const oldPermissionsByUsers = _.groupBy(document.userPermissions || [], (userPermission) => {
-          return userPermission.user._id;
-        });
-
-        _.each(newPermissionsByUsers, (permissionsByUser, userId) => {
-          const newPermissions = permissionsDifference(permissionsByUser, oldPermissionsByUsers[userId]);
-
-          _.each(newPermissions, (permission) => {
-            Activity.documents.insert({
-              timestamp,
-              connection: this.connection.id,
-              byUser: user.getReference(),
-              forUsers: [
-                {
-                  _id: permission.user._id,
-                },
-              ],
-              type: 'documentPermissionAdded',
-              level: Activity.LEVEL.ADMIN,
-              data: {
-                document: {
-                  _id: args.documentId,
-                },
-                permission: permission.permission,
-              },
-            });
-          });
-        });
-
-        _.each(oldPermissionsByUsers, (permissionsByUser, userId) => {
-          const oldPermissions = permissionsDifference(permissionsByUser, newPermissionsByUsers[userId]);
-
-          _.each(oldPermissions, (permission) => {
-            Activity.documents.insert({
-              timestamp,
-              connection: this.connection.id,
-              byUser: user.getReference(),
-              forUsers: [
-                {
-                  _id: permission.user._id,
-                },
-              ],
-              type: 'documentPermissionRemoved',
-              level: Activity.LEVEL.ADMIN,
-              data: {
-                document: {
-                  _id: args.documentId,
-                },
-                permission: permission.permission,
-              },
-            });
-          });
-        });
-      }
+        },
+      });
     }
 
-    return changed;
+    if (userPermissionsChanged) {
+      const newPermissionsByUsers = _.groupBy(userPermissions, (userPermission) => {
+        return userPermission.user._id;
+      });
+      const oldPermissionsByUsers = _.groupBy(document.userPermissions || [], (userPermission) => {
+        return userPermission.user._id;
+      });
+
+      _.each(newPermissionsByUsers, (permissionsByUser, userId) => {
+        const newPermissions = permissionsDifference(permissionsByUser, oldPermissionsByUsers[userId]);
+
+        _.each(newPermissions, (permission) => {
+          Activity.documents.insert({
+            timestamp,
+            connection: connectionId,
+            byUser: user.getReference(),
+            forUsers: [
+              {
+                _id: permission.user._id,
+              },
+            ],
+            type: 'documentPermissionAdded',
+            level: Activity.LEVEL.ADMIN,
+            data: {
+              document: {
+                _id: documentId,
+              },
+              permission: permission.permission,
+            },
+          });
+        });
+      });
+
+      _.each(oldPermissionsByUsers, (permissionsByUser, userId) => {
+        const oldPermissions = permissionsDifference(permissionsByUser, newPermissionsByUsers[userId]);
+
+        _.each(oldPermissions, (permission) => {
+          Activity.documents.insert({
+            timestamp,
+            connection: connectionId,
+            byUser: user.getReference(),
+            forUsers: [
+              {
+                _id: permission.user._id,
+              },
+            ],
+            type: 'documentPermissionRemoved',
+            level: Activity.LEVEL.ADMIN,
+            data: {
+              document: {
+                _id: documentId,
+              },
+              permission: permission.permission,
+            },
+          });
+        });
+      });
+    }
+  }
+
+  return changed;
+};
+
+Meteor.methods({
+  'Document.publish'(args) {
+    check(args, {
+      documentId: Match.DocumentId,
+    });
+
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
+
+    return Document._publish(args.documentId, user, (this.connection && this.connection.id) || null);
+  },
+
+  'Document.share'(args) {
+    check(args, {
+      documentId: Match.DocumentId,
+      visibility: Match.Enumeration(Match.NonEmptyString, Document.VISIBILITY_LEVELS),
+      defaultRole: Match.OptionalOrNull(Match.Enumeration(Match.NonEmptyString, _.omit(Document.ROLES, 'ADMIN'))),
+      contributors: [
+        {
+          userId: Match.DocumentId,
+          role: Match.OptionalOrNull(Match.Enumeration(Match.NonEmptyString, Document.ROLES)),
+        },
+      ],
+    });
+
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
+
+    return Document._share(args.documentId, user, (this.connection && this.connection.id) || null, args.visibility, args.defaultRole, args.contributors);
   },
 
   'Document.create'(args) {
