@@ -191,4 +191,43 @@ describe('document api', function () {
     assert.equal(user.avatar, userPayload.avatar);
     assert.equal(user.emails[0].address, userPayload.email);
   });
+
+  it('should allow publishing with valid user token', function () {
+    const userPayload = {
+      username,
+      avatar: 'https://randomuser.me/api/portraits/women/70.jpg',
+      id: userId,
+      email: `${username}@example.com`,
+    };
+
+    userToken = encrypt(userPayload, keyHex);
+
+    let response;
+    response = HTTP.post(apiEndpoint, {
+      params: {
+        user: userToken,
+      },
+      data: {},
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.data.status, 'success');
+
+    const documentId = response.data.documentId;
+
+    assert(!Document.documents.findOne({_id: documentId}).isPublished());
+
+    userToken = encrypt(userPayload, keyHex);
+
+    response = HTTP.post(`${apiEndpoint}/publish/${documentId}`, {
+      params: {
+        user: userToken,
+      },
+      data: {},
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.data.status, 'success');
+    assert(Document.documents.findOne({_id: documentId}).isPublished());
+  });
 });

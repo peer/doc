@@ -27,6 +27,7 @@
     "material-design-icons": "git://github.com/mitar/material-design-icons.git",
     "meteor-node-stubs": "^0.3.2",
     "moment": "^2.22.1",
+    "parseurl": "^1.3.2",
     "postcss": "^6.0.22",
     "postcss-easy-import": "^3.0.0",
     "postcss-load-config": "^1.2.0",

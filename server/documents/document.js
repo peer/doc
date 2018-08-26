@@ -73,6 +73,44 @@ Document._create = (user, connectionId) => {
   };
 };
 
+Document._publish = (documentId, user, connectionId) => {
+  const publishedAt = new Date();
+
+  const changed = Document.documents.update(Document.restrictQuery({
+    _id: documentId,
+    publishedAt: null,
+  }, Document.PERMISSIONS.ADMIN, user), {
+    $set: {
+      publishedAt,
+      publishedBy: user.getReference(),
+      updatedAt: publishedAt,
+      lastActivity: publishedAt,
+      defaultPermissions: Document.getRolePermissions(Document.ROLES.COMMENT),
+      visibility: Document.VISIBILITY_LEVELS.LISTED,
+    },
+  });
+
+  if (changed) {
+    Activity.documents.insert({
+      timestamp: publishedAt,
+      connection: connectionId,
+      byUser: user.getReference(),
+      // We inform all followers of this document.
+      // TODO: Implement once we have followers.
+      forUsers: [],
+      type: 'documentPublished',
+      level: Activity.LEVEL.GENERAL,
+      data: {
+        document: {
+          _id: documentId,
+        },
+      },
+    });
+  }
+
+  return changed;
+};
+
 function filterPermissionObjects(userPermissions, userId) {
   return (userPermissions || []).filter((userPermission) => {
     return userPermission.user._id === userId;
@@ -129,39 +167,7 @@ Meteor.methods({
 
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    const publishedAt = new Date();
-
-    const changed = Document.documents.update(Document.restrictQuery({
-      _id: args.documentId,
-      publishedAt: null,
-    }, Document.PERMISSIONS.ADMIN, user), {
-      $set: {
-        publishedAt,
-        publishedBy: user.getReference(),
-        updatedAt: publishedAt,
-        lastActivity: publishedAt,
-        defaultPermissions: Document.getRolePermissions(Document.ROLES.COMMENT),
-        visibility: Document.VISIBILITY_LEVELS.LISTED,
-      },
-    });
-
-    if (changed) {
-      Activity.documents.insert({
-        timestamp: publishedAt,
-        connection: this.connection.id,
-        byUser: user.getReference(),
-        // We inform all followers of this document.
-        // TODO: Implement once we have followers.
-        forUsers: [],
-        type: 'documentPublished',
-        level: Activity.LEVEL.GENERAL,
-        data: {
-          document: {
-            _id: args.documentId,
-          },
-        },
-      });
-    }
+    return Document._publish(args.documentId, user, (this.connection && this.connection.id) || null);
   },
 
   'Document.share'(args) {
