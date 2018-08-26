@@ -9,6 +9,7 @@
     "extract-strings": "make makemessages",
     "translations": "make translations",
     "test": "TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha --port 3100",
+    "test-ci": "SERVER_TEST_REPORTER=xunit XUNIT_FILE=test-reports/test-results.xml TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha --port 3100",
     "test-watch": "TEST_WATCH=1 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100",
     "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000",
     "chimp-watch": "chimp --ddp=http://localhost:3000 --watch --mocha --path=tests/acceptance",

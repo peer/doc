@@ -13,5 +13,6 @@ jobs:
             ! git log --oneline "-G^(<<<<<<<|=======|>>>>>>>)" | grep '^'
       - run: meteor npm install
       - run: meteor npm run lint-ci
+      - run: meteor npm run test-ci
       - store_test_results:
           path: test-reports/
