@@ -73,17 +73,8 @@ Meteor.methods({
     const deletedAt = new Date();
 
     // We do not do additional permission check on the document in this case.
-    return Comment.documents.update(Comment.restrictQuery({
-      $or: [
-        {
-          _id: args._id,
-        },
-        {
-          replyTo: {
-            _id: args._id,
-          },
-        },
-      ],
+    let deleted = Comment.documents.update(Comment.restrictQuery({
+      _id: args._id,
     }, Comment.PERMISSIONS.DELETE, user), {
       $set: {
         deletedAt,
@@ -91,9 +82,29 @@ Meteor.methods({
         versionTo: args.version,
         status: Comment.STATUS.DELETED,
       },
-    }, {
-      multi: true,
     });
+
+    if (deleted) {
+      // If thread was deleted, then we have to delete also all replies to it.
+      // We do not check for permissions here because user deleting the whole
+      // thread does not necessary have delete permission for all replies directly.
+      // TODO: Should we give permissions to those who can delete a whole thread also for deletion of all comments in a thread?
+      //       This then means that those users could also delete individual comments in a thread.
+      deleted += Comment.documents.update({
+        'replyTo._id': args._id,
+      }, {
+        $set: {
+          deletedAt,
+          deletedBy: user.getReference(),
+          versionTo: args.version,
+          status: Comment.STATUS.DELETED,
+        },
+      }, {
+        multi: true,
+      });
+    }
+
+    return deleted;
   },
 
   'Comment.create'(args) {
