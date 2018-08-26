@@ -289,4 +289,61 @@ describe('document api', function () {
     assert.equal(Document.documents.findOne({_id: documentId}).visibility, Document.VISIBILITY_LEVELS.PRIVATE);
     assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getRolePermissions(Document.ROLES.COMMENT));
   });
+
+  it('should allow changing editors', function () {
+    const userPayload = {
+      username,
+      avatar: 'https://randomuser.me/api/portraits/women/70.jpg',
+      id: userId,
+      email: `${username}@example.com`,
+    };
+
+    userToken = encrypt(userPayload, keyHex);
+
+    let response;
+    response = HTTP.post(apiEndpoint, {
+      params: {
+        user: userToken,
+      },
+      data: {},
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.data.status, 'success');
+
+    const documentId = response.data.documentId;
+    const user = User.documents.findOne({'services.usertoken.id': userId});
+
+    assert.isOk(Document.documents.findOne({_id: documentId}).canUser(Document.PERMISSIONS.ADMIN, user));
+
+    userToken = encrypt(userPayload, keyHex);
+
+    const anotherUsername = `anotherUser${Random.id()}`;
+    const anotherUserId = Random.id();
+    const anotherUserPayload = {
+      username: anotherUsername,
+      avatar: 'https://randomuser.me/api/portraits/men/70.jpg',
+      id: anotherUserId,
+      email: `${anotherUsername}@example.com`,
+    };
+
+    response = HTTP.post(`${apiEndpoint}/share/${documentId}`, {
+      params: {
+        user: userToken,
+      },
+      data: {
+        token_users: {
+          edit: [userPayload, anotherUserPayload],
+        },
+      },
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.data.status, 'success');
+
+    const anotherUser = User.documents.findOne({'services.usertoken.id': anotherUserId});
+
+    assert.isOk(Document.documents.findOne({_id: documentId}).canUser(Document.PERMISSIONS.ADMIN, user));
+    assert.isOk(Document.documents.findOne({_id: documentId}).canUser(Document.PERMISSIONS.UPDATE, anotherUser));
+  });
 });

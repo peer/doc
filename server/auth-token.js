@@ -30,21 +30,8 @@ function decrypt(tokenBase, keyHex) {
   return _.omit(data, 'nonce');
 }
 
-// TODO: Instead of manually creating a user document, we should define a Meteor external service and use its API.
-// TODO: If user with same verified e-mail already exist, we should maybe try to merge documents?
-// TODO: What if user with same username already exists from some other service?
-export function createUserFromToken(userToken) {
-  if (Accounts._options.forbidClientAccountCreation) {
-    throw new Meteor.Error('forbidden', "Sign ups forbidden.");
-  }
-
-  // Obtaining shared secret from "settings.json". We read it here
-  // and not outside of the function so that we can set it during testing.
-  const {tokenSharedSecret} = Meteor.settings;
-
-  let decryptedToken = decrypt(userToken, tokenSharedSecret);
-
-  check(decryptedToken, Match.ObjectIncluding({
+export function createOrGetUser(userDescriptor) {
+  check(userDescriptor, Match.ObjectIncluding({
     // TODO: Check that it is an URL.
     avatar: Match.NonEmptyString,
     username: Match.NonEmptyString,
@@ -52,19 +39,20 @@ export function createUserFromToken(userToken) {
     email: Match.EMail,
   }));
 
-  decryptedToken = _.pick(decryptedToken, 'avatar', 'username', 'id', 'email');
+  // eslint-disable-next-line no-param-reassign
+  userDescriptor = _.pick(userDescriptor, 'avatar', 'username', 'id', 'email');
 
   // eslint-disable-next-line no-unused-vars
   const {numberAffected, insertedId} = User.documents.upsert({
-    'services.usertoken.id': decryptedToken.id,
+    'services.usertoken.id': userDescriptor.id,
   }, {
     $set: {
-      username: decryptedToken.username,
-      avatar: decryptedToken.avatar,
-      'services.usertoken': decryptedToken,
+      username: userDescriptor.username,
+      avatar: userDescriptor.avatar,
+      'services.usertoken': userDescriptor,
       // TODO: This might override an e-mail from some other service.
       emails: [{
-        address: decryptedToken.email,
+        address: userDescriptor.email,
         verified: true,
       }],
     },
@@ -80,7 +68,7 @@ export function createUserFromToken(userToken) {
   }
   else {
     user = User.documents.findOne({
-      'services.usertoken.id': decryptedToken.id,
+      'services.usertoken.id': userDescriptor.id,
     }, {
       fields: _.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()),
     });
@@ -92,6 +80,23 @@ export function createUserFromToken(userToken) {
   }
 
   return user;
+}
+
+// TODO: Instead of manually creating a user document, we should define a Meteor external service and use its API.
+// TODO: If user with same verified e-mail already exist, we should maybe try to merge documents?
+// TODO: What if user with same username already exists from some other service?
+export function createUserFromToken(userToken) {
+  if (Accounts._options.forbidClientAccountCreation) {
+    throw new Meteor.Error('forbidden', "Sign ups forbidden.");
+  }
+
+  // Obtaining shared secret from "settings.json". We read it here
+  // and not outside of the function so that we can set it during testing.
+  const {tokenSharedSecret} = Meteor.settings;
+
+  const decryptedToken = decrypt(userToken, tokenSharedSecret);
+
+  return createOrGetUser(decryptedToken);
 }
 
 // A special case which is not using ValidatedMethod because client side

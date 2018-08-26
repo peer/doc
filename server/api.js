@@ -7,7 +7,7 @@ import bodyParser from 'body-parser';
 import parseurl from 'parseurl';
 
 import {Document} from '/server/documents/document';
-import {createUserFromToken} from '/server/auth-token';
+import {createOrGetUser, createUserFromToken} from '/server/auth-token';
 import {User} from "/server/documents/user";
 
 // TODO: Use path information from router instead of hard-coding the path here.
@@ -147,7 +147,20 @@ WebApp.connectHandlers.use('/document/share', (req, res, next) => {
         }
       }
 
-      const changed = Document._share(documentId, user, null, visibility, Document.ROLES.COMMENT, null);
+      let contributors = null;
+      if (req.body.token_users && req.body.token_users.edit) {
+        contributors = [];
+        for (const userDescriptor of req.body.token_users.edit) {
+          contributors.push({
+            userId: createOrGetUser(userDescriptor)._id,
+            // TODO: How to prevent that admins loose their permissions?
+            role: Document.ROLES.EDIT,
+          });
+        }
+      }
+
+      // TODO: Should we only the first time set default permissions to "COMMENT", but later leave it?
+      const changed = Document._share(documentId, user, null, visibility, Document.ROLES.COMMENT, contributors);
 
       if (changed) {
         res.writeHead(200, {'Content-Type': 'application/json'});
