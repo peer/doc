@@ -136,7 +136,8 @@
         "error",
         {
           "code": 240,
-          "comments": 120
+          "comments": 140,
+          "ignorePattern": "// TODO: "
         }
       ],
       "arrow-body-style": [
