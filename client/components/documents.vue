@@ -21,7 +21,7 @@
           <template v-for="(document, index) in documents">
             <v-list-tile
               :to="{name: 'document', params: {documentId: document._id}}"
-              :key="document._id"
+              :key="'document-' + document._id"
               ripple
             >
               <v-list-tile-content>
@@ -58,7 +58,7 @@
             </v-list-tile>
             <v-divider
               v-if="index + 1 < documents.count()"
-              :key="document._id"
+              :key="'divider-' + document._id"
             />
           </template>
         </v-list>
