@@ -16,10 +16,11 @@ Meteor.methods({
       clientId: Match.DocumentId,
     });
 
-    // We check that the user has permissions on cursor's document.
-    if (!Document.existsAndCanUser({contentKey: args.contentKey}, [Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE])) {
-      throw new Meteor.Error('not-found', "Document cannot be found.");
-    }
+    // We do not check permissions because we assume that if user had permission to insert the
+    // cursor in the first place (because document exist), they have permissions also to remove it.
+    // We do this because permission check would otherwise fail when user has just logged out,
+    // but called "Cursor.remove" to cleanup the cursor. We assure nobody else can remove the
+    // cursor document because we limit the query based on connection ID.
 
     Cursor.documents.remove({
       contentKey: args.contentKey,
