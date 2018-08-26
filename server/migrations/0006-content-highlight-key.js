@@ -1,19 +1,20 @@
 import {Content} from '/lib/documents/content';
 
+// We modified ProseMirror schema so we have to update data for it.
+
 class Migration extends Document.MajorMigration {
-  name = "Changing highlight-keys field to content-key";
+  name = "Changing highlight-keys ProseMirror attribute to highlight-key";
 
   forward(documentClass, collection, currentSchema, newSchema) {
     let count = 0;
 
-    collection.findEach({_schema: currentSchema, 'step.mark.type': 'highlight'}, {step: 1}, (document) => {
+    collection.findEach({_schema: currentSchema, 'step.mark.type': 'highlight'}, {_id: 1}, (document) => {
       const updateQuery = {
         $set: {
           _schema: newSchema,
-          'step.mark.attrs.highlight-key': document.step.mark.attrs['highlight-keys'],
         },
-        $unset: {
-          'step.mark.attrs.highlight-keys': '',
+        $rename: {
+          'step.mark.attrs.highlight-keys': 'step.mark.attrs.highlight-key',
         },
       };
 
@@ -29,14 +30,13 @@ class Migration extends Document.MajorMigration {
   backward(documentClass, collection, currentSchema, oldSchema) {
     let count = 0;
 
-    collection.findEach({_schema: currentSchema, 'step.mark.type': 'highlight'}, {step: 1}, (document) => {
+    collection.findEach({_schema: currentSchema, 'step.mark.type': 'highlight'}, {_id: 1}, (document) => {
       const updateQuery = {
         $set: {
           _schema: oldSchema,
-          'step.mark.attrs.highlight-keys': document.step.mark.attrs['highlight-key'],
         },
-        $unset: {
-          'step.mark.attrs.highlight-key': '',
+        $rename: {
+          'step.mark.attrs.highlight-keys': 'step.mark.attrs.highlight-key',
         },
       };
 
