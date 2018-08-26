@@ -3,6 +3,8 @@ jobs:
   build:
     docker:
       - image: tozd/meteor-testing:ubuntu-xenial
+    environment:
+      METEOR_ALLOW_SUPERUSER: true
     steps:
       - checkout
       - run: git submodule update --init --recursive
