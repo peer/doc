@@ -50,6 +50,7 @@
                 <v-chip
                   v-if="!document.isPublished()"
                   label
+                  disabled
                   color="yellow lighten-2"
                   class="documents__label"
                 ><translate>document-draft</translate></v-chip>
