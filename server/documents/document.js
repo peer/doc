@@ -127,18 +127,21 @@ Meteor.methods({
       documentId: Match.DocumentId,
     });
 
-    const user = Meteor.user(User.REFERENCE_FIELDS());
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
     const publishedAt = new Date();
 
     const changed = Document.documents.update(Document.restrictQuery({
       _id: args.documentId,
+      publishedAt: null,
     }, Document.PERMISSIONS.ADMIN, user), {
       $set: {
         publishedAt,
+        publishedBy: user.getReference(),
         updatedAt: publishedAt,
         lastActivity: publishedAt,
-        publishedBy: user.getReference(),
+        defaultPermissions: Document.getRolePermissions(Document.ROLES.COMMENT),
+        visibility: Document.VISIBILITY_LEVELS.LISTED,
       },
     });
 
