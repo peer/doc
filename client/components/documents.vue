@@ -5,7 +5,7 @@
         <v-toolbar card>
           <v-spacer />
           <v-btn
-            v-if="hasCreateDocumentsPermission"
+            v-if="!apiControlled && hasCreateDocumentsPermission"
             :disabled="documentCreationInProgress"
             outline
             @click.native="onDocumentCreate"
@@ -75,6 +75,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {Document} from '/lib/documents/document';
@@ -86,6 +87,7 @@
   const component = {
     data() {
       return {
+        apiControlled: Meteor.settings.public.apiControlled,
         subscriptionHandle: null,
         documentCreationInProgress: false,
         width: isEmbedded() ? {} : {

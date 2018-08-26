@@ -1,6 +1,6 @@
 <template>
   <v-layout
-    v-if="document"
+    v-if="!apiControlled && document"
     row
   >
     <v-flex
@@ -215,6 +215,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
   import {_} from 'meteor/underscore';
 
@@ -234,6 +235,7 @@
 
     data() {
       return {
+        apiControlled: Meteor.settings.public.apiControlled,
         visibilityLevels: [
           {
             value: Document.VISIBILITY_LEVELS.PRIVATE,

@@ -17,7 +17,7 @@
               card
             >
               <v-chip
-                v-if="document.isPublished()"
+                v-if="!apiControlled && document.isPublished()"
                 label
                 disabled
                 color="green"
@@ -25,12 +25,12 @@
                 class="sidebar__status"
               ><translate>document-published</translate></v-chip>
               <v-btn
-                v-if="!document.isPublished() && canUserAdministerDocument"
+                v-if="!apiControlled && !document.isPublished() && canUserAdministerDocument"
                 :to="{name: 'document-publish', params: {documentId}}"
                 color="success"
               ><translate>document-publish</translate></v-btn>
               <v-btn
-                v-if="canUserAdministerDocument"
+                v-if="!apiControlled && canUserAdministerDocument"
                 :to="{name: 'document-share', params: {documentId}}"
                 color="primary"
               ><translate>share</translate></v-btn>
@@ -98,6 +98,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {Random} from 'meteor/random';
   import {Tracker} from 'meteor/tracker';
 
@@ -144,6 +145,7 @@
 
     data() {
       return {
+        apiControlled: Meteor.settings.public.apiControlled,
         dialogType: 'comment',
         commentsHandle: null,
         commentDescriptors: [],

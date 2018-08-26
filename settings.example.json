@@ -2,6 +2,7 @@
   "tokenSharedSecret": "adfb0f4077454862ee2062d3970c9c33",
   "appCivistIntegration": null,
   "public": {
+    "apiControlled": false,
     "passwordlessAuthDisabled": false,
     "defaultLanguage": "en_US",
     "defaultPermissions": [

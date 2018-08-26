@@ -356,6 +356,10 @@ Meteor.methods({
       documentId: Match.DocumentId,
     });
 
+    if (Meteor.settings.public.apiControlled) {
+      throw new Meteor.Error('forbidden', "Method disabled.");
+    }
+
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
     return Document._publish(args.documentId, user, (this.connection && this.connection.id) || null);
@@ -374,6 +378,10 @@ Meteor.methods({
       ],
     });
 
+    if (Meteor.settings.public.apiControlled) {
+      throw new Meteor.Error('forbidden', "Method disabled.");
+    }
+
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
     return Document._share(args.documentId, user, (this.connection && this.connection.id) || null, args.visibility, args.defaultRole, args.contributors);
@@ -381,6 +389,10 @@ Meteor.methods({
 
   'Document.create'(args) {
     check(args, {});
+
+    if (Meteor.settings.public.apiControlled) {
+      throw new Meteor.Error('forbidden', "Method disabled.");
+    }
 
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 

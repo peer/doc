@@ -1,6 +1,6 @@
 <template>
   <v-layout
-    v-if="canUserAdministerDocument"
+    v-if="!apiControlled && canUserAdministerDocument"
     row
   >
     <v-container fill-height>
@@ -44,6 +44,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {Document} from '/lib/documents/document';
@@ -60,6 +61,7 @@
 
     data() {
       return {
+        apiControlled: Meteor.settings.public.apiControlled,
         documentPublishInProgress: false,
       };
     },
