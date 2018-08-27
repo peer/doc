@@ -77,7 +77,7 @@ peerlibrary:directcollection@0.7.0
 peerlibrary:extend-publish@0.5.0
 peerlibrary:fiber-utils@0.9.1
 peerlibrary:peerdb@0.26.0
-peerlibrary:peerdb-migrations@0.5.0
+peerlibrary:peerdb-migrations@1.0.0
 peerlibrary:publish-context@0.6.0
 peerlibrary:reactive-mongo@0.2.2
 peerlibrary:reactive-publish@0.6.0
