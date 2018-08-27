@@ -1,4 +1,4 @@
-import {Document} from '/lib/documents/document';
+import {Document} from '/server/documents/document';
 
 // This migration is a data migration and not schema migration.
 // We are updating documents, not really changing a schema.

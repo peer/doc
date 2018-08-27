@@ -1,4 +1,4 @@
-import {Comment} from '/lib/documents/comment';
+import {Comment} from '/server/documents/comment';
 
 // This migration is a data migration and not schema migration.
 // We are updating documents, not really changing a schema.
