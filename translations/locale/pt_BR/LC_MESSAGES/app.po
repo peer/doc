@@ -138,9 +138,8 @@ msgid "document-shared-error"
 msgstr "Erro ao compartilhar o documento."
 
 #: client/components/document-share.vue:502
-#, fuzzy
 msgid "document-shared-no-change"
-msgstr "Cancelar"
+msgstr ""
 
 #: client/components/document-share.vue:499
 msgid "document-shared-success"
@@ -267,18 +266,16 @@ msgid "permissions-list-add-users-hint"
 msgstr ""
 
 #: client/components/document-share.vue:306
-#, fuzzy
 msgid "permissions-list-no-users-found"
-msgstr "Adicionar"
+msgstr ""
 
 #: client/components/document-share.vue:132
 msgid "permissions-list-remove-user"
 msgstr ""
 
 #: client/components/document-share.vue:305
-#, fuzzy
 msgid "permissions-list-select-users"
-msgstr "Adicionar"
+msgstr ""
 
 #: client/components/document-publish.vue:33
 msgid "publish"
