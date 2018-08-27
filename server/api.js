@@ -153,8 +153,9 @@ WebApp.connectHandlers.use('/document/share', (req, res, next) => {
         for (const userDescriptor of req.body.token_users.edit) {
           contributors.push({
             userId: createOrGetUser(userDescriptor)._id,
-            // TODO: How to prevent that admins loose their permissions?
-            role: Document.ROLES.EDIT,
+            // All users added to the proposal in AppCivist are admins in PeerDoc.
+            // TODO: If we ever change this, how to prevent that admins loose their permissions?
+            role: Document.ROLES.ADMIN,
           });
         }
       }
