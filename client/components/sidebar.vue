@@ -587,7 +587,7 @@
 
       onDeleteClicked() {
         const commentDescriptors = this.commentDescriptors.filter((x) => {
-          return x.highlightKey === this.commentDescriptorToDelete.comment.highlightKey;
+          return x.comment.highlightKey === this.commentDescriptorToDelete.comment.highlightKey;
         });
         this.$emit('delete-highlight', this.commentDescriptorToDelete, commentDescriptors.length === 1 && !this.commentDescriptorToDelete.comment.replyTo);
       },
