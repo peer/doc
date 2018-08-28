@@ -30,6 +30,58 @@ function decrypt(tokenBase, keyHex) {
   return _.omit(data, 'nonce');
 }
 
+export function createOrGetUser(userDescriptor) {
+  check(userDescriptor, Match.ObjectIncluding({
+    // TODO: Check that it is an URL.
+    avatar: Match.NonEmptyString,
+    username: Match.NonEmptyString,
+    id: Match.Any,
+    email: Match.EMail,
+  }));
+
+  // eslint-disable-next-line no-param-reassign
+  userDescriptor = _.pick(userDescriptor, 'avatar', 'username', 'id', 'email');
+
+  // eslint-disable-next-line no-unused-vars
+  const {numberAffected, insertedId} = User.documents.upsert({
+    'services.usertoken.id': userDescriptor.id,
+  }, {
+    $set: {
+      username: userDescriptor.username,
+      avatar: userDescriptor.avatar,
+      'services.usertoken': userDescriptor,
+      // TODO: This might override an e-mail from some other service.
+      emails: [{
+        address: userDescriptor.email,
+        verified: true,
+      }],
+    },
+  });
+
+  let user;
+  if (insertedId) {
+    user = User.documents.findOne({
+      _id: insertedId,
+    }, {
+      fields: _.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()),
+    });
+  }
+  else {
+    user = User.documents.findOne({
+      'services.usertoken.id': userDescriptor.id,
+    }, {
+      fields: _.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()),
+    });
+  }
+
+  // Sanity check.
+  if (!user) {
+    throw new Error("Failed to create a new account.");
+  }
+
+  return user;
+}
+
 // TODO: Instead of manually creating a user document, we should define a Meteor external service and use its API.
 // TODO: If user with same verified e-mail already exist, we should maybe try to merge documents?
 // TODO: What if user with same username already exists from some other service?
@@ -42,56 +94,9 @@ export function createUserFromToken(userToken) {
   // and not outside of the function so that we can set it during testing.
   const {tokenSharedSecret} = Meteor.settings;
 
-  let decryptedToken = decrypt(userToken, tokenSharedSecret);
+  const decryptedToken = decrypt(userToken, tokenSharedSecret);
 
-  check(decryptedToken, Match.ObjectIncluding({
-    // TODO: Check that it is an URL.
-    avatar: Match.NonEmptyString,
-    username: Match.NonEmptyString,
-    id: Match.Any,
-    email: Match.EMail,
-  }));
-
-  decryptedToken = _.pick(decryptedToken, 'avatar', 'username', 'id', 'email');
-
-  // eslint-disable-next-line no-unused-vars
-  const {numberAffected, insertedId} = User.documents.upsert({
-    'services.usertoken.id': decryptedToken.id,
-  }, {
-    $set: {
-      username: decryptedToken.username,
-      avatar: decryptedToken.avatar,
-      'services.usertoken': decryptedToken,
-      // TODO: This might override an e-mail from some other service.
-      emails: [{
-        address: decryptedToken.email,
-        verified: true,
-      }],
-    },
-  });
-
-  let user;
-  if (insertedId) {
-    user = User.documents.findOne({
-      _id: insertedId,
-    }, {
-      fields: User.REFERENCE_FIELDS(),
-    });
-  }
-  else {
-    user = User.documents.findOne({
-      'services.usertoken.id': decryptedToken.id,
-    }, {
-      fields: User.REFERENCE_FIELDS(),
-    });
-  }
-
-  // Sanity check.
-  if (!user) {
-    throw new Error("Failed to create a new account.");
-  }
-
-  return user;
+  return createOrGetUser(decryptedToken);
 }
 
 // A special case which is not using ValidatedMethod because client side

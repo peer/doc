@@ -7,9 +7,9 @@
       class="text-xs-center"
     >
       <v-avatar size="36px"><img
-        :src="comment.author.avatarUrl()"
-        :alt="comment.author.username"
-        :title="comment.author.username"
+        :src="commentDescriptor.comment.author.avatarUrl()"
+        :alt="commentDescriptor.comment.author.username"
+        :title="commentDescriptor.comment.author.username"
       ></v-avatar>
     </v-flex>
     <v-flex
@@ -19,12 +19,12 @@
     >
       <div>
         <comment-editor
-          :body="comment.body"
+          :body="commentDescriptor.comment.body"
           :read-only="true"
           class="comment__body"
         />
         <transition name="comment__details">
-          <div v-show="comment.showDetails">
+          <div v-show="commentDescriptor.showDetails">
             <v-divider />
             <v-layout row>
               <v-flex
@@ -32,7 +32,7 @@
                 md5
                 x12
               >
-                <v-chip>{{comment.author.username}}</v-chip>
+                <v-chip>{{commentDescriptor.comment.author.username}}</v-chip>
               </v-flex>
               <v-flex
                 lg6
@@ -41,14 +41,15 @@
                 class="comment__timestamp-container"
               >
                 <span
-                  v-translate="{at: $fromNow(comment.createdAt)}"
-                  :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
+                  v-translate="{at: $fromNow(commentDescriptor.comment.createdAt)}"
+                  :title="commentDescriptor.comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
                   class="timestamp"
                 >
                   comment-created-at
                 </span>
               </v-flex>
               <v-flex
+                v-if="canUserDeleteComment"
                 lg2
                 md2
                 xs12
@@ -72,8 +73,8 @@
                 hidden-md-and-up
               >
                 <span
-                  v-translate="{at: $fromNow(comment.createdAt)}"
-                  :title="comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
+                  v-translate="{at: $fromNow(commentDescriptor.comment.createdAt)}"
+                  :title="commentDescriptor.comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
                   class="timestamp"
                 >
                   comment-created-at
@@ -110,7 +111,7 @@
         flat
         icon
         small
-        @click="comment.showDetails = !comment.showDetails"
+        @click="commentDescriptor.showDetails = !commentDescriptor.showDetails"
       >
         <v-icon>more_horiz</v-icon>
       </v-btn>
@@ -119,14 +120,23 @@
 </template>
 
 <script>
+  import {Comment} from '/lib/documents/comment';
+
   // @vue/component
   const component = {
     props: {
-      comment: {
+      commentDescriptor: {
         type: Object,
         required: true,
       },
     },
+
+    computed: {
+      canUserDeleteComment() {
+        return !!(this.commentDescriptor && this.commentDescriptor.comment && this.commentDescriptor.comment.canUser(Comment.PERMISSIONS.DELETE));
+      },
+    },
+
     methods: {
       onDeleteClicked() {
         this.$emit('delete-clicked');

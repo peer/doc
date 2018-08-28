@@ -9,21 +9,8 @@
   bottom: 0;
   font-size: 15px;
 
-  .progress-circular {
+  .v-progress-circular {
     // Same as primary--text from current theme.
     color: #1976d2;
   }
-}
-
-// Fix for: https://github.com/vuetifyjs/vuetify/pull/4003
-.container.fill-height .layout {
-  height: auto;
-}
-
-.container.fill-height > .layout {
-  height: 100%;
-}
-
-.container.fill-height .layout.fill-height {
-  height: 100%;
 }

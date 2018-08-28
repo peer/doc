@@ -8,9 +8,10 @@
     "lint-ci": "eslint . --ext .js --ext .vue --format junit --output-file test-reports/js-lint-results.xml",
     "extract-strings": "make makemessages",
     "translations": "make translations",
-    "test": "TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha --port 3100",
-    "test-watch": "TEST_WATCH=1 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100",
-    "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000",
+    "test": "TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
+    "test-ci": "SERVER_TEST_REPORTER=xunit XUNIT_FILE=test-reports/test-results.xml TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
+    "test-watch": "TEST_WATCH=1 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
+    "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json",
     "chimp-watch": "chimp --ddp=http://localhost:3000 --watch --mocha --path=tests/acceptance",
     "chimp-test": "chimp --ddp=http://localhost:3000 --mocha --path=tests/acceptance"
   },
@@ -21,11 +22,13 @@
     "autoprefixer": "^8.4.1",
     "babel-runtime": "^6.26.0",
     "bcrypt": "^2.0.1",
+    "body-parser": "^1.18.3",
     "core-js": "^2.5.5",
     "css-loader": "^0.28.11",
     "material-design-icons": "git://github.com/mitar/material-design-icons.git",
     "meteor-node-stubs": "^0.3.2",
     "moment": "^2.22.1",
+    "parseurl": "^1.3.2",
     "postcss": "^6.0.22",
     "postcss-easy-import": "^3.0.0",
     "postcss-load-config": "^1.2.0",
@@ -46,8 +49,8 @@
     "vue": "git://github.com/meteor-vue/vue.git#meteor",
     "vue-gettext": "^2.0.31",
     "vue-router": "^3.0.1",
-    "vue-template-compiler": "2.5.2",
-    "vuetify": "^1.0.17"
+    "vue-template-compiler": "^2.5.16",
+    "vuetify": "^1.1.6"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.3",
@@ -136,7 +139,8 @@
         "error",
         {
           "code": 240,
-          "comments": 120
+          "comments": 140,
+          "ignorePattern": "// TODO: "
         }
       ],
       "arrow-body-style": [

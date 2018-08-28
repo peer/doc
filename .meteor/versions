@@ -70,14 +70,14 @@ npm-mongo@2.2.34
 ordered-dict@1.1.0
 peerlibrary:assert@0.2.5
 peerlibrary:blocking@0.5.2
-peerlibrary:check-extension@0.4.0
+peerlibrary:check-extension@0.5.0
 peerlibrary:computed-field@0.9.0
 peerlibrary:data-lookup@0.2.1
 peerlibrary:directcollection@0.7.0
 peerlibrary:extend-publish@0.5.0
 peerlibrary:fiber-utils@0.9.1
 peerlibrary:peerdb@0.26.0
-peerlibrary:peerdb-migrations@0.5.0
+peerlibrary:peerdb-migrations@1.0.1
 peerlibrary:publish-context@0.6.0
 peerlibrary:reactive-mongo@0.2.2
 peerlibrary:reactive-publish@0.6.0

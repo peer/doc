@@ -2,21 +2,13 @@
   "tokenSharedSecret": "adfb0f4077454862ee2062d3970c9c33",
   "appCivistIntegration": null,
   "public": {
+    "apiControlled": false,
     "passwordlessAuthDisabled": false,
     "defaultLanguage": "en_US",
     "defaultPermissions": [
-      "DOCUMENT_SEE",
       "DOCUMENT_CREATE",
-      "DOCUMENT_CREATE_API",
-      "DOCUMENT_ADMIN",
-      "DOCUMENT_ADMIN_API",
-      "DOCUMENT_UPDATE",
-      "DOCUMENT_COMMENT_SEE",
-      "DOCUMENT_COMMENT_CREATE",
-      "COMMENT_SEE",
-      "COMMENT_CREATE",
-      "COMMENT_DELETE",
-      "COMMENT_DELETE_OWN"
+      "COMMENT_VIEW",
+      "COMMENT_CREATE"
     ]
   }
 }

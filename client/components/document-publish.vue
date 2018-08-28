@@ -1,34 +1,41 @@
 <template>
   <v-layout
-    v-if="canAdministerDocuments"
+    v-if="!apiControlled && canUserAdministerDocument"
     row
   >
     <v-container fill-height>
       <v-layout fill-height>
         <v-flex>
-          <v-card>
-            <v-card-title primary-title>
-              <div>
-                <h3><translate>publish-document-confirmation-title</translate></h3>
-                <div><translate>publish-document-confirmation-body</translate></div>
-              </div>
-            </v-card-title>
-            <v-card-actions>
-              <v-btn
-                flat
-                color="primary"
-                class="mx-0"
-                @click="onCancelClick"
-              ><translate>cancel</translate></v-btn>
-              <v-btn
-                :disabled="documentPublishInProgress"
-                flat
-                color="primary"
-                class="mx-0"
-                @click="onPublishClick"
-              ><translate>publish</translate></v-btn>
-            </v-card-actions>
-          </v-card>
+          <v-form
+            @submit.prevent="onSubmit"
+          >
+            <v-card>
+              <v-card-title primary-title>
+                <div>
+                  <h3><translate>publish-document-confirmation-title</translate></h3>
+                  <div><translate>publish-document-confirmation-body</translate></div>
+                </div>
+              </v-card-title>
+              <v-card-actions>
+                <v-btn
+                  :disabled="documentPublishInProgress"
+                  flat
+                  color="primary"
+                  @click="onCancelClick"
+                >
+                  <translate>cancel</translate>
+                </v-btn>
+                <p-button
+                  :progress="documentPublishInProgress"
+                  :disabled="documentPublishInProgress"
+                  type="submit"
+                  color="primary"
+                >
+                  <translate>publish</translate>
+                </p-button>
+              </v-card-actions>
+            </v-card>
+          </v-form>
         </v-flex>
       </v-layout>
     </v-container>
@@ -37,6 +44,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {Document} from '/lib/documents/document';
@@ -53,6 +61,7 @@
 
     data() {
       return {
+        apiControlled: Meteor.settings.public.apiControlled,
         documentPublishInProgress: false,
       };
     },
@@ -64,9 +73,8 @@
         });
       },
 
-      canAdministerDocuments() {
-        // We require user reference.
-        return !!(this.$currentUserId && this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
+      canUserAdministerDocument() {
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
       },
     },
 
@@ -81,7 +89,7 @@
         this.$router.push({name: 'document', params: {documentId: this.documentId}});
       },
 
-      onPublishClick() {
+      onSubmit() {
         this.documentPublishInProgress = true;
         if (!this.$currentUserId) {
           // only publish article if current user is set
@@ -108,7 +116,7 @@
       {
         component,
         path: '/document/publish/:documentId',
-        name: 'publishDocument',
+        name: 'document-publish',
         props: true,
       },
     ]);

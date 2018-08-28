@@ -43,10 +43,10 @@ function update(id, fields) {
 
   const params = {};
 
-  if (Object.prototype.hasOwnProperty.call(fields, 'title')) {
+  if (_.has(fields, 'title')) {
     params.title = fields.title;
   }
-  if (Object.prototype.hasOwnProperty.call(fields, 'lastActivity')) {
+  if (_.has(fields, 'lastActivity')) {
     params.lastActivity = moment(fields.lastActivity).toISOString();
   }
 
