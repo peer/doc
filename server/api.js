@@ -148,15 +148,20 @@ WebApp.connectHandlers.use('/document/share', (req, res, next) => {
       }
 
       let contributors = null;
-      if (req.body.token_users && req.body.token_users.edit) {
-        contributors = [];
-        for (const userDescriptor of req.body.token_users.edit) {
-          contributors.push({
-            userId: createOrGetUser(userDescriptor)._id,
-            // All users added to the proposal in AppCivist are admins in PeerDoc.
-            // TODO: If we ever change this, how to prevent that admins loose their permissions?
-            role: Document.ROLES.ADMIN,
-          });
+      for (const role of ['ADMIN', 'EDIT']) {
+        if (req.body.token_users && req.body.token_users[role.toLowerCase()]) {
+          if (contributors === null) {
+            contributors = [];
+          }
+          for (const userDescriptor of req.body.token_users[role.toLowerCase()]) {
+            contributors.push({
+              userId: createOrGetUser(userDescriptor)._id,
+              // TODO: Use "Document.ROLES[role]" here.
+              //       For compatibility we set everyone to admin for now.
+              //       All users added to a proposal in AppCivist are admins in PeerDoc.
+              role: Document.ROLES.ADMIN,
+            });
+          }
         }
       }
 
