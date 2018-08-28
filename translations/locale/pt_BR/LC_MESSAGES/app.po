@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-26 08:59-0700\n"
+"POT-Creation-Date: 2018-08-28 00:52-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -103,11 +103,11 @@ msgstr "O novo documento foi criado."
 
 #: client/components/document-share.vue:65
 msgid "document-default-permissions"
-msgstr ""
+msgstr "Permissões padrão"
 
 #: client/components/document-share.vue:66
 msgid "document-default-permissions-hint"
-msgstr ""
+msgstr "Permissões padrão para usuários que podem acessar o documento."
 
 #: client/components/documents.vue:55
 msgid "document-draft"
@@ -139,7 +139,7 @@ msgstr "Erro ao compartilhar o documento."
 
 #: client/components/document-share.vue:502
 msgid "document-shared-no-change"
-msgstr ""
+msgstr "Nenhuma alteração ao compartilhamento do documento."
 
 #: client/components/document-share.vue:499
 msgid "document-shared-success"
@@ -147,7 +147,7 @@ msgstr "O documento foi compartilhado."
 
 #: client/components/document-share.vue:16
 msgid "document-sharing"
-msgstr ""
+msgstr "Compartilhamento do documento"
 
 #: client/components/document-share.vue:96
 msgid "document-user-permissions"
@@ -155,7 +155,7 @@ msgstr "Adicionar usuários."
 
 #: client/components/document-share.vue:97
 msgid "document-user-permissions-hint"
-msgstr ""
+msgstr "Permissões para usuários específicos"
 
 #: client/components/document-share.vue:29
 msgid "document-visibility"
@@ -171,7 +171,7 @@ msgstr "Listagem"
 
 #: client/components/document-share.vue:253
 msgid "document-visibility-listed-hint"
-msgstr ""
+msgstr "O documento está listado para todos os usuários. Qualquer usuário pode encontrá-lo e acessá-lo."
 
 #: client/components/document-share.vue:242
 msgid "document-visibility-private"
@@ -179,7 +179,7 @@ msgstr "Privado"
 
 #: client/components/document-share.vue:243
 msgid "document-visibility-private-hint"
-msgstr ""
+msgstr "Apenas usuários específicos podem acessar o documento."
 
 #: client/components/document-share.vue:247
 msgid "document-visibility-public"
@@ -187,7 +187,7 @@ msgstr "Público"
 
 #: client/components/document-share.vue:248
 msgid "document-visibility-public-hint"
-msgstr ""
+msgstr "Qualquer usuário com o link do documento pode acessar o documento."
 
 #: client/components/app-layout.vue:20
 msgid "documents"
@@ -263,19 +263,19 @@ msgstr "Adicionar"
 
 #: client/components/document-share.vue:140
 msgid "permissions-list-add-users-hint"
-msgstr ""
+msgstr "Configurar permissões dos usuários"
 
 #: client/components/document-share.vue:306
 msgid "permissions-list-no-users-found"
-msgstr ""
+msgstr "Nenhum usuário encontrado."
 
 #: client/components/document-share.vue:132
 msgid "permissions-list-remove-user"
-msgstr ""
+msgstr "Remover"
 
 #: client/components/document-share.vue:305
 msgid "permissions-list-select-users"
-msgstr ""
+msgstr "Selecionar usuários"
 
 #: client/components/document-publish.vue:33
 msgid "publish"
@@ -303,67 +303,67 @@ msgstr "Remover"
 
 #: client/components/document-share.vue:293
 msgid "role-admin-label"
-msgstr ""
+msgstr "Pode administrar"
 
 #: client/components/document-share.vue:294
 msgid "role-admin-user-hint"
-msgstr ""
+msgstr "Além de ter todas as outras permissões, o usuário pode administrar o compartilhamento do documento e publicá-lo."
 
 #: client/components/document-share.vue:265
 #: client/components/document-share.vue:283
 msgid "role-comment-label"
-msgstr ""
+msgstr "Pode comentar"
 
 #: client/components/document-share.vue:284
 msgid "role-comment-user-hint"
-msgstr ""
+msgstr "O usuário pode ver o documento e postar comentários públicos."
 
 #: client/components/document-share.vue:266
 msgid "role-comment-users-hint"
-msgstr ""
+msgstr "Usuários que podem acessar o documento podem vê-lo e postar comentários públicos."
 
 #: client/components/document-share.vue:391
 #: client/components/document-share.vue:408
 #: client/components/document-share.vue:469
 msgid "role-custom-label"
-msgstr ""
+msgstr "Permissões personalizadas"
 
 #: client/components/document-share.vue:392
 #: client/components/document-share.vue:470
 msgid "role-custom-user-hint"
-msgstr ""
+msgstr "O usuário tem permissões personalizadas."
 
 #: client/components/document-share.vue:409
 msgid "role-custom-users-hint"
-msgstr ""
+msgstr "Usuários que podem acessar o documento tem permissões personalizadas."
 
 #: client/components/document-share.vue:270
 #: client/components/document-share.vue:288
 msgid "role-edit-label"
-msgstr ""
+msgstr "Pode editar"
 
 #: client/components/document-share.vue:289
 msgid "role-edit-user-hint"
-msgstr ""
+msgstr "O usuário pode ver o documento, editá-lo e postar comentários privados e públicos."
 
 #: client/components/document-share.vue:271
 msgid "role-edit-users-hint"
-msgstr ""
+msgstr "Usuários que podem acessar o documento podem vê-lo, editá-lo e postar comentários privados e públicos."
 
 #: client/components/document-share.vue:260
 #: client/components/document-share.vue:278
 #: client/components/document-share.vue:299
 msgid "role-view-label"
-msgstr ""
+msgstr "Pode ver"
 
 #: client/components/document-share.vue:279
 #: client/components/document-share.vue:300
 msgid "role-view-user-hint"
-msgstr ""
+msgstr "O usuário pode ver o documento."
 
 #: client/components/document-share.vue:261
 msgid "role-view-users-hint"
-msgstr ""
+msgstr "Usuários que podem acessar o documento podem vê-lo."
 
 #: client/components/sidebar.vue:35
 msgid "share"
