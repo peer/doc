@@ -17,19 +17,7 @@ import {extractTitle} from '/lib/utils';
 
 import {schema} from '../../lib/full-schema';
 
-Document._create = (user, connectionId) => {
-  const createdAt = new Date();
-  const contentKeys = [Random.id()];
-
-  Content.documents.insert({
-    createdAt,
-    contentKeys,
-    author: user.getReference(),
-    clientId: null,
-    version: 0,
-    step: null,
-  });
-
+function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
   const userPermissions = Document.getPermissionObjects(
     Document.getRolePermissions(Document.ROLES.ADMIN),
     user.getReference(),
@@ -37,8 +25,8 @@ Document._create = (user, connectionId) => {
     user.getReference(),
   );
 
-  const documentId = Document.documents.insert({
-    contentKey: contentKeys[0],
+  const toCreate = {
+    contentKey,
     createdAt,
     updatedAt: createdAt,
     lastActivity: createdAt,
@@ -51,7 +39,11 @@ Document._create = (user, connectionId) => {
     userPermissions,
     visibility: Document.VISIBILITY_LEVELS.PRIVATE,
     defaultPermissions: Document.getRolePermissions(Document.ROLES.VIEW),
-  });
+  };
+
+  const documentBody = doc ? Object.assign({}, toCreate, doc) : toCreate;
+
+  const documentId = Document.documents.insert(documentBody);
 
   // TODO: Improve once we really have groups.
   const groupUsers = User.documents.find({}, {
@@ -73,7 +65,23 @@ Document._create = (user, connectionId) => {
       },
     },
   });
+  return documentId;
+}
 
+Document._create = (user, connectionId) => {
+  const createdAt = new Date();
+  const contentKeys = [Random.id()];
+
+  Content.documents.insert({
+    createdAt,
+    contentKeys,
+    author: user.getReference(),
+    clientId: null,
+    version: 0,
+    step: null,
+  });
+
+  const documentId = insertNewDocument(user, connectionId, createdAt, contentKeys[0]);
   return {
     _id: documentId,
   };
@@ -444,8 +452,7 @@ Meteor.methods({
       },
     );
 
-    // Create a new document for the forked document.
-    const documentId = Document.documents.insert({
+    const toCreate = {
       contentKey: forkContentKey,
       createdAt,
       updatedAt: createdAt,
@@ -460,7 +467,10 @@ Meteor.methods({
       forkedAtVersion: doc.version,
       lastSync: doc.version,
       isMerged: false,
-    });
+    };
+
+    const documentId = insertNewDocument(user, (this.connection && this.connection.id), createdAt, forkContentKey, toCreate);
+
     return {documentId};
   },
   'Document.undoChanges'(args) {
