@@ -199,8 +199,8 @@
 
     methods: {
       showNewCommentForm(show, start, selection) {
-        this.commentDescriptors = this.commentDescriptors.filter((x) => {
-          return !x.dummy;
+        this.commentDescriptors = this.commentDescriptors.filter((commentDescriptor) => {
+          return !commentDescriptor.dummy;
         });
         if (show) {
           const dummyCommentDescriptor = {
@@ -324,8 +324,8 @@
         currentCommmentDescriptors = currentCommmentDescriptors.filter((commentDescriptor) => {
           return commentDescriptor.comment.replyTo === null;
         }).map((commentDescriptor) => {
-          const commentReplyDescriptors = replyDescriptors.filter((x) => {
-            return x.comment.replyTo._id === commentDescriptor.comment._id;
+          const commentReplyDescriptors = replyDescriptors.filter((replyDescriptor) => {
+            return replyDescriptor.comment.replyTo._id === commentDescriptor.comment._id;
           }).sort((a, b) => {
             return a.comment.createdAt - b.comment.createdAt;
           }).map((replyDescriptor) => {
@@ -586,8 +586,8 @@
       },
 
       onDeleteClicked() {
-        const commentDescriptors = this.commentDescriptors.filter((x) => {
-          return x.highlightKey === this.commentDescriptorToDelete.comment.highlightKey;
+        const commentDescriptors = this.commentDescriptors.filter((commentDescriptor) => {
+          return commentDescriptor.comment.highlightKey === this.commentDescriptorToDelete.comment.highlightKey;
         });
         this.$emit('delete-highlight', this.commentDescriptorToDelete, commentDescriptors.length === 1 && !this.commentDescriptorToDelete.comment.replyTo);
       },
