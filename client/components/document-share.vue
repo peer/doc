@@ -421,9 +421,9 @@
         // It should not be really possible that "newContributors" contain users
         // from "oldContributors" because the user should not be able to select them.
         // But we still make sure this is the case and make things consistent.
-        const oldContributors = this.contributors.filter((x) => {
-          const found = newContributors.find((y) => {
-            return x.user._id === y.user._id;
+        const oldContributors = this.contributors.filter((contributor) => {
+          const found = newContributors.find((newContributor) => {
+            return contributor.user._id === newContributor.user._id;
           });
           return !found;
         });
@@ -481,10 +481,10 @@
           documentId: this.documentId,
           visibility: this.visibilityLevel,
           defaultRole: this.defaultRole,
-          contributors: this.contributors.map((x) => {
+          contributors: this.contributors.map((contributor) => {
             return {
-              userId: x.user._id,
-              role: x.role.value,
+              userId: contributor.user._id,
+              role: contributor.role.value,
             };
           }),
         }, (error, changed) => {
