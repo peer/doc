@@ -202,11 +202,9 @@ Meteor.methods({
       version,
     });
 
-    // Meteor.setTimeout((x) => {
-    //   console.log("Call function");
-    //   Document.rebaseStep({documentId: document._id});
-    // }, 5000);
-    Document.rebaseStep({documentId: document._id});
+    Meteor.setTimeout((x) => {
+      Document.rebaseStep({documentId: document._id});
+    }, 100);
 
     return args.currentVersion - version;
   },

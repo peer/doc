@@ -176,7 +176,7 @@ Meteor.methods({
       documentId: String,
     });
 
-    const user = Meteor.user(User.REFERENCE_FIELDS());
+    const {documentId} = args;
 
     // // TODO: Check Merge permissions.
     // if (!user || !user.hasPermission(Document.PERMISSIONS.CREATE)) {
@@ -186,7 +186,7 @@ Meteor.methods({
     // Get forked document.
     const fork = Document.documents.findOne(
       {
-        'forkedFrom._id': args.documentId,
+        'forkedFrom._id': documentId,
         isMerged: {$ne: true},
       },
       {
@@ -219,7 +219,9 @@ Meteor.methods({
       },
     ).fetch()
     .map((x) => {
-      return Step.fromJSON(schema, x.step);
+      return Object.assign({}, x, {
+        step: Step.fromJSON(schema, x.step),
+      });
     });
 
     // Get original document.
@@ -319,7 +321,7 @@ Meteor.methods({
     if (shouldRebase) {
       // Remap forked document steps and apply.
       for (let i = 0, mapFrom = forkSteps.length * 2; i < forkSteps.length; i += 1) {
-        const mapped = forkSteps[i].map(transform.mapping.slice(mapFrom));
+        const mapped = forkSteps[i].step.map(transform.mapping.slice(mapFrom));
         mapFrom -= 1;
         if (mapped && !transform.maybeStep(mapped).failed) {
           const result = mapped.apply(doc);
@@ -346,7 +348,7 @@ Meteor.methods({
     });
 
     // Add original steps to forked.
-    Content.documents.update({
+    const updated = Content.documents.update({
       contentKeys: original.contentKey,
       version: {
         $gt: fork.lastSync,
@@ -359,11 +361,12 @@ Meteor.methods({
       multi: true,
     });
 
-    version = fork.lastSync;
+    version = fork.lastSync + updated;
+    let index = 0;
 
     // Save merge steps.
     transform.steps.forEach((x, i) => {
-      if (i >= ((forkSteps.length * 2) + (originalSteps.length - 1))) {
+      if (i >= ((forkSteps.length * 2) + (originalSteps.length))) {
         version += 1;
         Content.documents.upsert({
           version,
@@ -371,12 +374,13 @@ Meteor.methods({
         }, {
           $setOnInsert: {
             contentKeys: [fork.contentKey],
-            createdAt: timestamp,
-            author: user.getReference(),
-            clientId: args.clientId,
+            createdAt: forkSteps[index].createdAt,
+            author: forkSteps[index].author,
+            clientId: forkSteps[index].clientId,
             step: x.toJSON(),
           },
         });
+        index += 1;
       }
     });
 
