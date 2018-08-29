@@ -156,10 +156,7 @@ WebApp.connectHandlers.use('/document/share', (req, res, next) => {
           for (const userDescriptor of req.body.token_users[role.toLowerCase()]) {
             contributors.push({
               userId: createOrGetUser(userDescriptor)._id,
-              // TODO: Use "Document.ROLES[role]" here.
-              //       For compatibility we set everyone to admin for now.
-              //       All users added to a proposal in AppCivist are admins in PeerDoc.
-              role: Document.ROLES.ADMIN,
+              role: Document.ROLES[role],
             });
           }
         }
