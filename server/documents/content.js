@@ -15,6 +15,8 @@ import {extractTitle, stepsAreOnlyHighlights} from '/lib/utils';
 // TODO: Make documents expire after a while.
 const documents = new Map();
 
+const rebaseMap = new Map();
+
 Content.removeDocumentState = (args) => {
   documents.delete(args.contentKey);
 };
@@ -212,9 +214,16 @@ Meteor.methods({
     // TODO: This could be done in the background?
     Comment.filterOrphan(document._id, doc, version);
 
-    Meteor.setTimeout((x) => {
-      Document.rebaseStep({documentId: document._id});
-    }, 100);
+    if (!rebaseMap.has(document._id)) {
+      rebaseMap.set(document._id, {doc, version});
+      Meteor.setTimeout((x) => {
+        if (rebaseMap.has(document._id)) {
+          rebaseMap.delete(document._id);
+          Document.rebaseStep({documentId: document._id});
+        }
+      }, 2000);
+    }
+
     return version - args.currentVersion;
   },
 });
