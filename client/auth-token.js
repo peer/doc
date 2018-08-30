@@ -1,4 +1,6 @@
 import {Accounts} from 'meteor/accounts-base';
+import {Meteor} from 'meteor/meteor';
+import {_} from 'meteor/underscore';
 
 import queryString from 'query-string';
 
@@ -19,6 +21,11 @@ function signinWithUserToken(userToken) {
 
 const parsedQueryString = queryString.parse(window.location.search);
 
-if (parsedQueryString.user) {
-  signinWithUserToken(parsedQueryString.user);
+if (_.has(parsedQueryString, 'user')) {
+  if (parsedQueryString.user) {
+    signinWithUserToken(parsedQueryString.user);
+  }
+  else {
+    Meteor.logout();
+  }
 }
