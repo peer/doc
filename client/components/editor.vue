@@ -146,7 +146,6 @@
       </v-toolbar>
       <v-divider />
     </div>
-
     <v-card-text
       ref="editor"
       class="editor"
@@ -243,6 +242,7 @@
         quoteHint: this.$gettext("toolbar-quote"),
         bulletedListHint: this.$gettext("toolbar-bulleted-list"),
         numberedListHint: this.$gettext("toolbar-numbered-list"),
+        lastSync: null,
       };
     },
 
@@ -263,6 +263,18 @@
 
       canUserCreateComments() {
         return !!(this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE) && User.hasClassPermission(Comment.PERMISSIONS.CREATE));
+      },
+    },
+
+    watch: {
+      document(newValue, oldValue) {
+        if (this.document.lastSync !== this.lastSync) {
+          if (this.lastSync !== null) {
+            const newState = EditorState.create({schema: this.$editorView.state.schema, doc: schema.topNodeType.createAndFill(), plugins: this.$editorView.state.plugins});
+            this.$editorView.updateState(newState);
+          }
+          this.lastSync = this.document.lastSync;
+        }
       },
     },
 
