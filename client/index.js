@@ -14,20 +14,18 @@ import Vuetify from 'vuetify';
 import translations from '/translations/translations.json';
 
 import {Activity} from '/lib/documents/activity';
+import {availableLanguages, getLanguage} from '/lib/languages';
 import VueExtensions from './vue-extensions';
 
 Vue.use(Vuetify);
 Vue.use(GetTextPlugin, {
-  availableLanguages: {
-    en_US: "American English",
-    pt_BR: "Português do Brasil",
-  },
-  defaultLanguage: Meteor.settings.public.defaultLanguage || 'en_US',
+  availableLanguages,
+  defaultLanguage: getLanguage(),
   translations,
 });
 Vue.use(VueExtensions);
 
-moment.locale(Meteor.settings.public.defaultLanguage || 'en_US');
+moment.locale(Vue.config.language);
 
 Meteor.startup(() => {
   const router = new RouterFactory({
@@ -45,6 +43,12 @@ Meteor.startup(() => {
   });
 
   init(Activity, vm);
+
+  Tracker.autorun((computation) => {
+    const user = Meteor.user({preferredLanguage: 1});
+    Vue.config.language = getLanguage(user && user.preferredLanguage);
+    moment.locale(Vue.config.language);
+  });
 });
 
 if (!Tracker._vue) {

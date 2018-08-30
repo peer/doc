@@ -38,10 +38,11 @@ export function createOrGetUser(userDescriptor) {
     username: Match.NonEmptyString,
     id: Match.Any,
     email: Match.EMail,
+    language: Match.OptionalOrNull(Match.NonEmptyString),
   }));
 
   // eslint-disable-next-line no-param-reassign
-  userDescriptor = _.pick(userDescriptor, 'avatar', 'username', 'id', 'email');
+  userDescriptor = _.pick(userDescriptor, 'avatar', 'username', 'id', 'email', 'language');
 
   // eslint-disable-next-line no-unused-vars
   const {numberAffected, insertedId} = User.documents.upsert({
@@ -56,6 +57,7 @@ export function createOrGetUser(userDescriptor) {
         address: userDescriptor.email,
         verified: true,
       }],
+      preferredLanguage: userDescriptor.language,
     },
   });
 
