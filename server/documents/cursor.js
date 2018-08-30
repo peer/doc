@@ -1,4 +1,4 @@
-import {check, Match} from 'meteor/check';
+import {Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import {_} from 'meteor/underscore';
 
@@ -7,6 +7,7 @@ import randomColor from 'randomcolor';
 import {Cursor} from '/lib/documents/cursor';
 import {User} from '/lib/documents/user';
 import {Document} from '/lib/documents/document';
+import {check} from '/server/check';
 
 // Server-side only methods, so we are not using ValidatedMethod.
 Meteor.methods({

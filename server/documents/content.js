@@ -1,4 +1,4 @@
-import {check, Match} from 'meteor/check';
+import {Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import {_} from 'meteor/underscore';
 
@@ -11,6 +11,7 @@ import {Comment} from '/lib/documents/comment';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
 import {extractTitle, stepsAreOnlyHighlights} from '/lib/utils';
+import {check} from '/server/check';
 
 // TODO: Make documents expire after a while.
 const documents = new Map();

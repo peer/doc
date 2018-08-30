@@ -1,5 +1,5 @@
 import {Accounts} from 'meteor/accounts-base';
-import {check, Match} from 'meteor/check';
+import {Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import {_} from 'meteor/underscore';
 
@@ -7,6 +7,7 @@ import crypto from 'crypto';
 
 import {User} from '/lib/documents/user';
 import {Nonce} from '/server/documents/nonce';
+import {check} from '/server/check';
 
 const baseToMap = {
   _: '/',

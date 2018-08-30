@@ -38,3 +38,4 @@ peerlibrary:peerdb-migrations
 runisland:static-assets
 juliancwirko:postcss
 tozd:activity-instrument
+logging

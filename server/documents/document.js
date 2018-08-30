@@ -1,4 +1,4 @@
-import {check, Match} from 'meteor/check';
+import {Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import {Random} from 'meteor/random';
 import {_} from 'meteor/underscore';
@@ -10,6 +10,7 @@ import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
+import {check} from '/server/check';
 
 Document._create = (user, connectionId) => {
   const createdAt = new Date();

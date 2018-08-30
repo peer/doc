@@ -1,4 +1,4 @@
-import {check, Match} from 'meteor/check';
+import {Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import {_} from 'meteor/underscore';
 
@@ -8,6 +8,7 @@ import {Node} from 'prosemirror-model';
 import {Comment} from '/lib/documents/comment';
 import {Content} from '/lib/documents/content';
 import {schema} from '/lib/simple-schema.js';
+import {check} from '/server/check';
 
 import {Activity} from './activity';
 import {Document} from './document';
