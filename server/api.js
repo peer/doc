@@ -148,6 +148,9 @@ WebApp.connectHandlers.use('/document/share', (req, res, next) => {
       }
 
       let contributors = null;
+      // The order of roles is important because if the user is listed multiple
+      // times, we want the higher order to take effect. In "Document._share"
+      // only the first entry in the list of contributors is used.
       for (const role of ['ADMIN', 'EDIT']) {
         if (req.body.token_users && req.body.token_users[role.toLowerCase()]) {
           if (contributors === null) {
