@@ -216,7 +216,6 @@ Meteor.methods({
 
 });
 
-// TODO: Add middleware and restrict only for the current user what is published for "userPermissions".
 Meteor.publish('Comment.list', function commentList(args) {
   check(args, {
     documentId: Match.DocumentId,
