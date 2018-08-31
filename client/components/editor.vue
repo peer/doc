@@ -242,7 +242,6 @@
         quoteHint: this.$gettext("toolbar-quote"),
         bulletedListHint: this.$gettext("toolbar-bulleted-list"),
         numberedListHint: this.$gettext("toolbar-numbered-list"),
-        lastSync: null,
       };
     },
 
@@ -268,12 +267,8 @@
 
     watch: {
       document(newValue, oldValue) {
-        if (this.document.lastSync !== this.lastSync) {
-          if (this.lastSync !== null) {
-            const newState = EditorState.create({schema: this.$editorView.state.schema, doc: schema.topNodeType.createAndFill(), plugins: this.$editorView.state.plugins});
-            this.$editorView.updateState(newState);
-          }
-          this.lastSync = this.document.lastSync;
+        if (newValue.lastSync !== oldValue.lastSync) {
+          this.$throttledResetEditor();
         }
       },
     },
@@ -357,6 +352,8 @@
       };
 
       const throttledUpdateUserPosition = _.throttle(updateUserPosition, 500);
+
+      this.$throttledResetEditor = _.throttle(this.resetEditor, 2000);
 
       this.$editorView = new EditorView({mount: this.$refs.editor}, {
         state,
@@ -523,6 +520,11 @@
     },
 
     methods: {
+      resetEditor() {
+        const newState = EditorState.create({schema: this.$editorView.state.schema, doc: schema.topNodeType.createAndFill(), plugins: this.$editorView.state.plugins});
+        this.$editorView.updateState(newState);
+      },
+
       _addShortcut(translated, key) {
         const shortcut = mac ? `Cmd-${key.toUpperCase()}` : `Ctrl-${key.toUpperCase()}`;
         return this.$gettextInterpolate(translated, {shortcut});
