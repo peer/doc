@@ -10,7 +10,8 @@
     "translations": "make translations",
     "test": "TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-ci": "SERVER_TEST_REPORTER=xunit XUNIT_FILE=/tmp/test-reports/server-test-results.xml TEST_BROWSER_DRIVER=chrome TEST_CHROME_ARGS='--no-sandbox --disable-dev-shm-usage' meteor test --once --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
-    "test-watch": "TEST_WATCH=1 meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
+    "test-watch": "TEST_WATCH=1 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
+    "test-watch-browser": "TEST_WATCH=1 meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json",
     "chimp-watch": "chimp --ddp=http://localhost:3000 --watch --mocha --path=tests/acceptance",
     "chimp-test": "chimp --ddp=http://localhost:3000 --mocha --path=tests/acceptance"
