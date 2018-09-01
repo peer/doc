@@ -20,7 +20,13 @@ function decrypt(tokenBase, keyHex) {
     return baseToMap[c];
   }), 'base64');
   const iv = token.slice(0, 12);
+  if (iv.length !== 12) {
+    throw Error("Invalid IV.");
+  }
   const authTag = token.slice(12, 28);
+  if (authTag.length !== 16) {
+    throw Error("Invalid authentication tag.");
+  }
   const ciphertext = token.slice(28);
   const decipher = crypto.createDecipheriv('aes-128-gcm', Buffer.from(keyHex, 'hex'), iv);
   decipher.setAuthTag(authTag);
