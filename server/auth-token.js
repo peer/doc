@@ -63,7 +63,7 @@ export function createOrGetUser(userDescriptor) {
         address: userDescriptor.email,
         verified: true,
       }],
-      preferredLanguage: userDescriptor.language,
+      preferredLanguage: userDescriptor.language || null,
     },
   });
 
