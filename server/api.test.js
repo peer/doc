@@ -7,6 +7,7 @@ import {Random} from 'meteor/random';
 
 import {assert} from 'chai';
 import crypto from 'crypto';
+import Future from 'fibers/future';
 
 // Enable API.
 import {} from './api';
@@ -18,6 +19,48 @@ const baseFromMap = {
   '/': '_',
   '=': '.',
 };
+
+const WAIT_FOR_DATABASE_TIMEOUT = 1500; // ms
+
+function waitForDatabase() {
+  const future = new Future();
+
+  let timeout = null;
+  const newTimeout = function () {
+    if (timeout) {
+      Meteor.clearTimeout(timeout);
+    }
+    timeout = Meteor.setTimeout(function () {
+      timeout = null;
+      if (!future.isResolved()) {
+        future.return();
+      }
+    }, WAIT_FOR_DATABASE_TIMEOUT);
+  };
+
+  newTimeout();
+
+  const handles = [];
+  for (const document of Document.list) {
+    handles.push(document.documents.find({}).observeChanges({
+      added(id, fields) {
+        newTimeout();
+      },
+      changed(id, fields) {
+        newTimeout();
+      },
+      removed(id) {
+        newTimeout();
+      },
+    }));
+  }
+
+  future.wait();
+
+  for (const handle of handles) {
+    handle.stop();
+  }
+}
 
 function encrypt(inputData, keyHex) {
   const data = Object.assign({}, inputData);
@@ -34,6 +77,8 @@ function encrypt(inputData, keyHex) {
 }
 
 describe('document api', function () {
+  this.timeout(10000);
+
   // TODO: Use path information from router instead of hard-coding the path here.
   const apiEndpoint = Meteor.absoluteUrl('document');
   const keyHex = crypto.randomBytes(16).toString('hex');
@@ -49,6 +94,9 @@ describe('document api', function () {
 
   after(function () {
     Meteor.settings.tokenSharedSecret = oldTokenSharedSecret;
+
+    // Wait for all PeerDB activity to have time to run.
+    waitForDatabase();
 
     User.documents.remove({'services.usertoken.id': userId});
   });
