@@ -50,11 +50,17 @@ export function createOrGetUser(userDescriptor) {
   // eslint-disable-next-line no-param-reassign
   userDescriptor = _.pick(userDescriptor, 'avatar', 'username', 'id', 'email', 'language');
 
+  let preferredLanguage = userDescriptor.language || null;
+  if (preferredLanguage) {
+    preferredLanguage = preferredLanguage.replace(/-/g, '_');
+  }
+
   // eslint-disable-next-line no-unused-vars
   const {numberAffected, insertedId} = User.documents.upsert({
     'services.usertoken.id': userDescriptor.id,
   }, {
     $set: {
+      preferredLanguage,
       username: userDescriptor.username,
       avatar: userDescriptor.avatar,
       'services.usertoken': userDescriptor,
@@ -63,7 +69,6 @@ export function createOrGetUser(userDescriptor) {
         address: userDescriptor.email,
         verified: true,
       }],
-      preferredLanguage: userDescriptor.language || null,
     },
   });
 
