@@ -137,7 +137,7 @@ WebApp.connectHandlers.use('/document/share', (req, res, next) => {
       let visibility = null;
       if (_.has(req.body, 'visibility')) {
         if (req.body.visibility === true) {
-          visibility = Document.VISIBILITY_LEVELS.LISTED;
+          visibility = Document.VISIBILITY_LEVELS.PUBLIC;
         }
         else if (req.body.visibility === false) {
           visibility = Document.VISIBILITY_LEVELS.PRIVATE;
