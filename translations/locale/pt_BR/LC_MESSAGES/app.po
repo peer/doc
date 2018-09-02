@@ -467,7 +467,7 @@ msgstr "O nome de usuário é inválido. Deve conter apenas caracteres básicos.
 
 #: client/components/user-signin.vue:65
 msgid "username-is-required"
-msgstr "O nome de usuário é obrigatório"
+msgstr "O nome de usuário é obrigatório."
 
 #: client/components/user-signin.vue:68
 msgid "username-too-short"
