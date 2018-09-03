@@ -5,7 +5,7 @@ jobs:
       - image: tozd/meteor-testing:ubuntu-xenial
     environment:
       METEOR_ALLOW_SUPERUSER: true
-      CIRCLE_TEST_REPORTS: /tmp/test-results
+      CIRCLE_TEST_REPORTS: /tmp/test-reports
     steps:
       - checkout
       - run: git submodule update --init --recursive
@@ -18,4 +18,4 @@ jobs:
       - run: meteor npm run lint-ci
       - run: meteor npm run test-ci
       - store_test_results:
-          path: /tmp/test-results
+          path: /tmp/test-reports
