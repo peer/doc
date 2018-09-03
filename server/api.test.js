@@ -318,7 +318,7 @@ describe('document api', function () {
 
     assert.equal(response.statusCode, 200);
     assert.equal(response.data.status, 'success');
-    assert.equal(Document.documents.findOne({_id: documentId}).visibility, Document.VISIBILITY_LEVELS.LISTED);
+    assert.equal(Document.documents.findOne({_id: documentId}).visibility, Document.VISIBILITY_LEVELS.PUBLIC);
     assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getRolePermissions(Document.ROLES.COMMENT));
 
     userToken = encrypt(userPayload, keyHex);
