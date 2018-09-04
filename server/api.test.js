@@ -303,7 +303,7 @@ describe('document api', function () {
     const documentId = response.data.documentId;
 
     assert.equal(Document.documents.findOne({_id: documentId}).visibility, Document.VISIBILITY_LEVELS.PRIVATE);
-    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getRolePermissions(Document.ROLES.VIEW));
+    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getPermissionsFromRole(Document.ROLES.VIEW));
 
     userToken = encrypt(userPayload, keyHex);
 
@@ -319,7 +319,7 @@ describe('document api', function () {
     assert.equal(response.statusCode, 200);
     assert.equal(response.data.status, 'success');
     assert.equal(Document.documents.findOne({_id: documentId}).visibility, Document.VISIBILITY_LEVELS.PUBLIC);
-    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getRolePermissions(Document.ROLES.COMMENT));
+    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getPermissionsFromRole(Document.ROLES.COMMENT));
 
     userToken = encrypt(userPayload, keyHex);
 
@@ -335,7 +335,7 @@ describe('document api', function () {
     assert.equal(response.statusCode, 200);
     assert.equal(response.data.status, 'success');
     assert.equal(Document.documents.findOne({_id: documentId}).visibility, Document.VISIBILITY_LEVELS.PRIVATE);
-    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getRolePermissions(Document.ROLES.COMMENT));
+    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getPermissionsFromRole(Document.ROLES.COMMENT));
   });
 
   it('should allow changing editors', function () {

@@ -10,6 +10,7 @@ import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
+import {getPermissionObjects} from '/lib/utils';
 import {check} from '/server/check';
 
 Document._create = (user, connectionId) => {
@@ -25,8 +26,8 @@ Document._create = (user, connectionId) => {
     step: null,
   });
 
-  const userPermissions = Document.getPermissionObjects(
-    Document.getRolePermissions(Document.ROLES.ADMIN),
+  const userPermissions = getPermissionObjects(
+    Document.getPermissionsFromRole(Document.ROLES.ADMIN),
     user.getReference(),
     createdAt,
     user.getReference(),
@@ -45,7 +46,7 @@ Document._create = (user, connectionId) => {
     body: schema.topNodeType.createAndFill().toJSON(),
     userPermissions,
     visibility: Document.VISIBILITY_LEVELS.PRIVATE,
-    defaultPermissions: Document.getRolePermissions(Document.ROLES.VIEW),
+    defaultPermissions: Document.getPermissionsFromRole(Document.ROLES.VIEW),
   });
 
   // TODO: Improve once we really have groups.
@@ -86,7 +87,7 @@ Document._publish = (documentId, user, connectionId) => {
       publishedBy: user.getReference(),
       updatedAt: publishedAt,
       lastActivity: publishedAt,
-      defaultPermissions: Document.getRolePermissions(Document.ROLES.COMMENT),
+      defaultPermissions: Document.getPermissionsFromRole(Document.ROLES.COMMENT),
       visibility: Document.VISIBILITY_LEVELS.LISTED,
     },
   });
@@ -195,8 +196,8 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
         permissionObjects = filterPermissionObjects(document.userPermissions, contributor.userId);
       }
       else {
-        permissionObjects = Document.getPermissionObjects(
-          Document.getRolePermissions(contributor.role),
+        permissionObjects = getPermissionObjects(
+          Document.getPermissionsFromRole(contributor.role),
           {
             _id: contributor.userId,
           },
@@ -226,7 +227,7 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
   // If default permissions are custom, then to keep them unchanged, "null" is passed.
   let defaultPermissions = null;
   if (defaultRole !== null) {
-    defaultPermissions = Document.getRolePermissions(defaultRole);
+    defaultPermissions = Document.getPermissionsFromRole(defaultRole);
     if (!_.isEqual(_.sortBy(document.defaultPermissions || []), _.sortBy(defaultPermissions))) {
       updates.defaultPermissions = defaultPermissions;
       defaultPermissionsChanged = true;

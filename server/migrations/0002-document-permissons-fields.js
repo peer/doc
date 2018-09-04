@@ -5,7 +5,7 @@ class Migration extends Document.AddRequiredFieldsMigration {
   fields = {
     userPermissions: [],
     visibility: Document.VISIBILITY_LEVELS.PRIVATE,
-    defaultPermissions: Document.getRolePermissions(Document.ROLES.VIEW),
+    defaultPermissions: Document.getPermissionsFromRole(Document.ROLES.VIEW),
   };
 }
 

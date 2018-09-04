@@ -1,5 +1,6 @@
 import {_} from 'meteor/underscore';
 
+import {getPermissionObjects} from '/lib/utils';
 import {Content} from '/server/documents/content';
 import {Document} from '/server/documents/document';
 
@@ -39,8 +40,8 @@ class Migration extends Document.PatchMigration {
       let changed = 0;
 
       contributors.forEach((contributor) => {
-        const userPermissions = Document.getPermissionObjects(
-          Document.getRolePermissions(Document.ROLES.EDIT),
+        const userPermissions = getPermissionObjects(
+          Document.getPermissionsFromRole(Document.ROLES.EDIT),
           contributor,
           document.createdAt,
           document.author,

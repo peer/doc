@@ -1,3 +1,4 @@
+import {getPermissionObjects} from '/lib/utils';
 import {Document} from '/server/documents/document';
 
 // This migration is a data migration and not schema migration.
@@ -15,8 +16,8 @@ class Migration extends Document.PatchMigration {
         return;
       }
 
-      const userPermissions = Document.getPermissionObjects(
-        Document.getRolePermissions(Document.ROLES.ADMIN),
+      const userPermissions = getPermissionObjects(
+        Document.getPermissionsFromRole(Document.ROLES.ADMIN),
         document.author,
         document.createdAt,
         document.author,
