@@ -36,6 +36,7 @@
 
 <script>
   import {Random} from 'meteor/random';
+
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {Document} from '/lib/documents/document';

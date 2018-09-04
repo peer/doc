@@ -10,11 +10,11 @@ import Vue from 'vue';
 import GetTextPlugin from 'vue-gettext';
 import Vuetify from 'vuetify';
 
+import {Activity} from '/lib/documents/activity';
+import {availableLanguages, getLanguage} from '/lib/languages';
 // TODO: Load translations only for user's language?
 import translations from '/translations/translations.json';
 
-import {Activity} from '/lib/documents/activity';
-import {availableLanguages, getLanguage} from '/lib/languages';
 import VueExtensions from './vue-extensions';
 
 Vue.use(Vuetify);

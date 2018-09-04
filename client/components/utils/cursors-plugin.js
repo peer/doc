@@ -1,4 +1,5 @@
 import {_} from 'meteor/underscore';
+
 import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 

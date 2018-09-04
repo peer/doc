@@ -55,9 +55,11 @@
 
 <script>
   import {Meteor} from 'meteor/meteor';
+
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {User} from '/lib/documents/user';
+
   import {Snackbar} from '../snackbar';
 
   function checkUsername(username) {

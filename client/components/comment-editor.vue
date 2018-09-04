@@ -22,6 +22,7 @@
   import {keymap} from 'prosemirror-keymap';
 
   import {schema} from '/lib/simple-schema.js';
+
   import {placeholderPlugin} from './utils/placeholder.js';
   import {toggleLink, clearLink} from './utils/link.js';
 
