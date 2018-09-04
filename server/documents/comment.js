@@ -59,7 +59,6 @@ Comment.filterOrphan = (documentId, doc, version) => {
   });
 };
 
-// Server-side only methods, so we are not using ValidatedMethod.
 // TODO: Should we add/modify/delete an Activity?
 Meteor.methods({
   'Comment.delete'(args) {

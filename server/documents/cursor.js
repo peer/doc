@@ -9,7 +9,6 @@ import {User} from '/lib/documents/user';
 import {Document} from '/lib/documents/document';
 import {check} from '/server/check';
 
-// Server-side only methods, so we are not using ValidatedMethod.
 Meteor.methods({
   'Cursor.delete'(args) {
     check(args, {

@@ -6,8 +6,6 @@ import {User} from '/lib/documents/user';
 import {check} from '/server/check';
 
 if (!Meteor.settings.public.passwordlessAuthDisabled) {
-  // A special case which is not using ValidatedMethod because client side
-  // differs a lot from the server side and there is no client stub.
   Meteor.methods({
     'User.passwordlessSignIn'(...allArgs) {
       const args = allArgs[0];

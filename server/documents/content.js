@@ -89,7 +89,6 @@ Content.getCurrentState = (contentKey) => {
   return {doc, version};
 };
 
-// Server-side only method, so we are not using ValidatedMethod.
 Meteor.methods({
   'Content.addSteps'(args) {
     check(args, {
