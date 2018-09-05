@@ -9,7 +9,7 @@ import {User} from '/lib/documents/user';
 import {Document} from '/lib/documents/document';
 import {check} from '/server/check';
 
-Cursor._delete = function delete_(args) {
+Cursor._delete = function delete_(args, connectionId) {
   check(args, {
     contentKey: Match.DocumentId,
     clientId: Match.DocumentId,
@@ -21,14 +21,14 @@ Cursor._delete = function delete_(args) {
   // but called "Cursor.remove" to cleanup the cursor. We assure nobody else can remove the
   // cursor document because we limit the query based on connection ID.
 
-  return Cursor.documents.remove({
+  return this.documents.remove({
+    connectionId,
     contentKey: args.contentKey,
     clientId: args.clientId,
-    connectionId: this.connection.id,
   });
 };
 
-Cursor._update = function update(args, user) {
+Cursor._update = function update(args, user, connectionId) {
   check(args, {
     contentKey: Match.DocumentId,
     clientId: Match.DocumentId,
@@ -43,10 +43,10 @@ Cursor._update = function update(args, user) {
 
   const timestamp = new Date();
 
-  return Cursor.documents.update({
+  return this.documents.update({
+    connectionId,
     contentKey: args.contentKey,
     clientId: args.clientId,
-    connectionId: this.connection.id,
   }, {
     $set: {
       head: args.head,
@@ -65,13 +65,13 @@ Cursor._update = function update(args, user) {
 
 Meteor.methods({
   'Cursor.delete'(args) {
-    return Cursor._delete(args);
+    return Cursor._delete(args, (this.connection && this.connection.id) || null);
   },
 
   'Cursor.update'(args) {
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    return Cursor._update(args, user);
+    return Cursor._update(args, user, (this.connection && this.connection.id) || null);
   },
 });
 
