@@ -136,13 +136,13 @@ Document._share = function share(args, user, connectionId) {
   check(args, {
     documentId: Match.DocumentId,
     visibility: Match.Enumeration(Match.NonEmptyString, Document.VISIBILITY_LEVELS),
-    defaultRole: Match.OptionalOrNull(Match.Enumeration(Match.NonEmptyString, _.omit(Document.ROLES, 'ADMIN'))),
-    contributors: [
+    defaultRole: Match.OrNull(Match.Enumeration(Match.NonEmptyString, _.omit(Document.ROLES, 'ADMIN'))),
+    contributors: Match.OrNull([
       {
         userId: Match.DocumentId,
-        role: Match.OptionalOrNull(Match.Enumeration(Match.NonEmptyString, Document.ROLES)),
+        role: Match.OrNull(Match.Enumeration(Match.NonEmptyString, Document.ROLES)),
       },
-    ],
+    ]),
   });
 
   const document = Document.documents.findOne(Document.restrictQuery({
