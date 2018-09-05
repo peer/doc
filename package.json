@@ -12,9 +12,7 @@
     "test-ci": "SERVER_TEST_REPORTER=xunit XUNIT_FILE=/tmp/test-reports/server-test-results.xml TEST_BROWSER_DRIVER=chrome TEST_CHROME_ARGS='--no-sandbox --disable-dev-shm-usage' meteor test --once --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-watch": "TEST_WATCH=1 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-watch-browser": "TEST_WATCH=1 meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
-    "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json",
-    "chimp-watch": "chimp --ddp=http://localhost:3000 --watch --mocha --path=tests/acceptance",
-    "chimp-test": "chimp --ddp=http://localhost:3000 --mocha --path=tests/acceptance"
+    "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json"
   },
   "dependencies": {
     "@babel/core": "~7.0.0-beta.38",
@@ -56,7 +54,6 @@
   "devDependencies": {
     "babel-eslint": "~8.2.3",
     "chai": "~3.5.0",
-    "chimp": "~0.51.1",
     "chromedriver": "~2.41.0",
     "easygettext": "~2.3.0",
     "eslint": "~4.19.1",
