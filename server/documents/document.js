@@ -135,7 +135,7 @@ Document._publish = function publish(args, user, connectionId) {
 Document._share = function share(args, user, connectionId) {
   check(args, {
     documentId: Match.DocumentId,
-    visibility: Match.Enumeration(Match.NonEmptyString, Document.VISIBILITY_LEVELS),
+    visibility: Match.OrNull(Match.Enumeration(Match.NonEmptyString, Document.VISIBILITY_LEVELS)),
     defaultRole: Match.OrNull(Match.Enumeration(Match.NonEmptyString, _.omit(Document.ROLES, 'ADMIN'))),
     contributors: Match.OrNull([
       {
