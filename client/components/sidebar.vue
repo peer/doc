@@ -594,8 +594,7 @@
 
       deleteComment(commentIdAndVersion) {
         Comment.delete({
-          _id: commentIdAndVersion.id,
-          documentId: this.documentId,
+          commentId: commentIdAndVersion.id,
           version: commentIdAndVersion.version,
         });
       },

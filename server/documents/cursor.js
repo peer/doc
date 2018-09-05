@@ -9,61 +9,69 @@ import {User} from '/lib/documents/user';
 import {Document} from '/lib/documents/document';
 import {check} from '/server/check';
 
+Cursor._delete = function delete_(args) {
+  check(args, {
+    contentKey: Match.DocumentId,
+    clientId: Match.DocumentId,
+  });
+
+  // We do not check permissions because we assume that if user had permission to insert the
+  // cursor in the first place (because document exist), they have permissions also to remove it.
+  // We do this because permission check would otherwise fail when user has just logged out,
+  // but called "Cursor.remove" to cleanup the cursor. We assure nobody else can remove the
+  // cursor document because we limit the query based on connection ID.
+
+  return Cursor.documents.remove({
+    contentKey: args.contentKey,
+    clientId: args.clientId,
+    connectionId: this.connection.id,
+  });
+};
+
+Cursor._update = function update(args, user) {
+  check(args, {
+    contentKey: Match.DocumentId,
+    clientId: Match.DocumentId,
+    head: Match.NonNegativeInteger,
+    ranges: [{beginning: Match.NonNegativeInteger, end: Match.NonNegativeInteger}],
+  });
+
+  // We check that the user has permissions on cursor's document.
+  if (!user || !Document.existsAndCanUser({contentKey: args.contentKey}, [Document.PERMISSIONS.VIEW, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE], user)) {
+    throw new Meteor.Error('not-found', "Document cannot be found.");
+  }
+
+  const timestamp = new Date();
+
+  return Cursor.documents.update({
+    contentKey: args.contentKey,
+    clientId: args.clientId,
+    connectionId: this.connection.id,
+  }, {
+    $set: {
+      head: args.head,
+      ranges: args.ranges,
+      updatedAt: timestamp,
+    },
+    $setOnInsert: {
+      createdAt: timestamp,
+      author: user.getReference(),
+      color: randomColor(),
+    },
+  }, {
+    upsert: true,
+  });
+};
+
 Meteor.methods({
   'Cursor.delete'(args) {
-    check(args, {
-      contentKey: Match.DocumentId,
-      clientId: Match.DocumentId,
-    });
-
-    // We do not check permissions because we assume that if user had permission to insert the
-    // cursor in the first place (because document exist), they have permissions also to remove it.
-    // We do this because permission check would otherwise fail when user has just logged out,
-    // but called "Cursor.remove" to cleanup the cursor. We assure nobody else can remove the
-    // cursor document because we limit the query based on connection ID.
-
-    Cursor.documents.remove({
-      contentKey: args.contentKey,
-      clientId: args.clientId,
-      connectionId: this.connection.id,
-    });
+    return Cursor._delete(args);
   },
 
   'Cursor.update'(args) {
-    check(args, {
-      contentKey: Match.DocumentId,
-      clientId: Match.DocumentId,
-      head: Match.NonNegativeInteger,
-      ranges: [{beginning: Match.NonNegativeInteger, end: Match.NonNegativeInteger}],
-    });
-
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    // We check that the user has permissions on cursor's document.
-    if (!user || !Document.existsAndCanUser({contentKey: args.contentKey}, [Document.PERMISSIONS.VIEW, Document.PERMISSIONS.UPDATE, Document.PERMISSIONS.COMMENT_CREATE], user)) {
-      throw new Meteor.Error('not-found', "Document cannot be found.");
-    }
-
-    const timestamp = new Date();
-
-    Cursor.documents.update({
-      contentKey: args.contentKey,
-      clientId: args.clientId,
-      connectionId: this.connection.id,
-    }, {
-      $set: {
-        head: args.head,
-        ranges: args.ranges,
-        updatedAt: timestamp,
-      },
-      $setOnInsert: {
-        createdAt: timestamp,
-        author: user.getReference(),
-        color: randomColor(),
-      },
-    }, {
-      upsert: true,
-    });
+    return Cursor._update(args, user);
   },
 });
 

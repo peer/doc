@@ -27,7 +27,7 @@ function updateCurrentState(contentKey, doc, version) {
   }
 }
 
-Content.getCurrentState = (contentKey) => {
+Content.getCurrentState = function getCurrentState(contentKey) {
   let doc;
   let version;
   if (documents.has(contentKey)) {
@@ -38,7 +38,7 @@ Content.getCurrentState = (contentKey) => {
     version = 0;
   }
 
-  Content.documents.find({
+  this.documents.find({
     contentKey,
     version: {
       $gt: version,
@@ -89,125 +89,129 @@ Content.getCurrentState = (contentKey) => {
   return {doc, version};
 };
 
+Content._addSteps = function addSteps(args, user) {
+  check(args, {
+    contentKey: Match.DocumentId,
+    currentVersion: Match.NonNegativeInteger,
+    steps: [Object],
+    clientId: Match.DocumentId,
+  });
+
+  // There should be steps.
+  check(args.steps, Match.Where((x) => {
+    return x.length > 0;
+  }));
+
+  const steps = args.steps.map((step) => {
+    return Step.fromJSON(schema, step);
+  });
+
+  const onlyHighlights = stepsAreOnlyHighlights(steps);
+
+  // We do not use "CREATE" permission because from the point of the steps we
+  // are always updating the (potentially) empty already created document.
+  const allowedPermissions = [Document.PERMISSIONS.UPDATE];
+  if (onlyHighlights) {
+    allowedPermissions.push(Document.PERMISSIONS.COMMENT_CREATE);
+  }
+
+  const document = Document.documents.findOne(Document.restrictQuery({
+    contentKey: args.contentKey,
+  }, allowedPermissions, user), {
+    fields: {
+      _id: 1,
+      publishedAt: 1,
+    },
+  });
+
+  if (!document) {
+    throw new Meteor.Error('not-found', "Document cannot be found.");
+  }
+
+  // We need a user reference.
+  assert(user);
+
+  // "Document.restrictQuery" makes sure that we are not updating
+  // (with non-highlights steps) a published document.
+  assert(!document.isPublished() || onlyHighlights);
+
+  let {doc, version} = this.getCurrentState(args.contentKey);
+
+  if (args.currentVersion !== version) {
+    // If "currentVersion" is newer than "version" there might be a bug on the client,
+    // or we got an older state with not all steps from the database applied. In both cases
+    // the client should try again with probably correct version. If it is older, then client
+    // should try again as well, after updating its state with new steps.
+    return 0;
+  }
+
+  const timestamp = new Date();
+
+  for (const step of steps) {
+    const result = step.apply(doc);
+
+    if (!result.doc) {
+      // eslint-disable-next-line no-console
+      console.error("Error applying a step.", result.failed);
+      throw new Meteor.Error('invalid-request', "Invalid step.");
+    }
+
+    doc = result.doc;
+    version += 1;
+
+    // Validate that the step produced a valid document.
+    doc.check();
+
+    // eslint-disable-next-line no-unused-vars
+    const {numberAffected, insertedId} = this.documents.upsert({
+      version,
+      contentKey: args.contentKey,
+    }, {
+      $setOnInsert: {
+        createdAt: timestamp,
+        author: user.getReference(),
+        clientId: args.clientId,
+        step: step.toJSON(),
+      },
+    });
+
+    if (!insertedId) {
+      // Document was just updated, not inserted, so this means that there was already
+      // a step with "version". This means we have to return to the client and the
+      // client should try again.
+      break;
+    }
+
+    updateCurrentState(args.contentKey, doc, version);
+  }
+
+  Document.documents.update({
+    contentKey: args.contentKey,
+    version: {
+      // We update only if we have a newer version then already in the database.
+      $lt: version,
+    },
+  }, {
+    $set: {
+      version,
+      body: doc.toJSON(),
+      updatedAt: timestamp,
+      lastActivity: timestamp,
+      title: extractTitle(doc),
+    },
+  });
+
+  // TODO: This could be done in the background?
+  Comment.filterOrphan(document._id, doc, version);
+
+  return version - args.currentVersion;
+};
+
 Meteor.methods({
   'Content.addSteps'(args) {
-    check(args, {
-      contentKey: Match.DocumentId,
-      currentVersion: Match.NonNegativeInteger,
-      steps: [Object],
-      clientId: Match.DocumentId,
-    });
-
-    // There should be steps.
-    check(args.steps, Match.Where((x) => {
-      return x.length > 0;
-    }));
-
-    const steps = args.steps.map((step) => {
-      return Step.fromJSON(schema, step);
-    });
-
-    const onlyHighlights = stepsAreOnlyHighlights(steps);
-
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    // We do not use "CREATE" permission because from the point of the steps we
-    // are always updating the (potentially) empty already created document.
-    const allowedPermissions = [Document.PERMISSIONS.UPDATE];
-    if (onlyHighlights) {
-      allowedPermissions.push(Document.PERMISSIONS.COMMENT_CREATE);
-    }
-
-    const document = Document.documents.findOne(Document.restrictQuery({
-      contentKey: args.contentKey,
-    }, allowedPermissions, user), {
-      fields: {
-        _id: 1,
-        publishedAt: 1,
-      },
-    });
-
-    if (!document) {
-      throw new Meteor.Error('not-found', "Document cannot be found.");
-    }
-
-    // We need a user reference.
-    assert(user);
-
-    // "Document.restrictQuery" makes sure that we are not updating
-    // (with non-highlights steps) a published document.
-    assert(!document.isPublished() || onlyHighlights);
-
-    let {doc, version} = Content.getCurrentState(args.contentKey);
-
-    if (args.currentVersion !== version) {
-      // If "currentVersion" is newer than "version" there might be a bug on the client,
-      // or we got an older state with not all steps from the database applied. In both cases
-      // the client should try again with probably correct version. If it is older, then client
-      // should try again as well, after updating its state with new steps.
-      return 0;
-    }
-
-    const timestamp = new Date();
-
-    for (const step of steps) {
-      const result = step.apply(doc);
-
-      if (!result.doc) {
-        // eslint-disable-next-line no-console
-        console.error("Error applying a step.", result.failed);
-        throw new Meteor.Error('invalid-request', "Invalid step.");
-      }
-
-      doc = result.doc;
-      version += 1;
-
-      // Validate that the step produced a valid document.
-      doc.check();
-
-      // eslint-disable-next-line no-unused-vars
-      const {numberAffected, insertedId} = Content.documents.upsert({
-        version,
-        contentKey: args.contentKey,
-      }, {
-        $setOnInsert: {
-          createdAt: timestamp,
-          author: user.getReference(),
-          clientId: args.clientId,
-          step: step.toJSON(),
-        },
-      });
-
-      if (!insertedId) {
-        // Document was just updated, not inserted, so this means that there was already
-        // a step with "version". This means we have to return to the client and the
-        // client should try again.
-        break;
-      }
-
-      updateCurrentState(args.contentKey, doc, version);
-    }
-
-    Document.documents.update({
-      contentKey: args.contentKey,
-      version: {
-        // We update only if we have a newer version then already in the database.
-        $lt: version,
-      },
-    }, {
-      $set: {
-        version,
-        body: doc.toJSON(),
-        updatedAt: timestamp,
-        lastActivity: timestamp,
-        title: extractTitle(doc),
-      },
-    });
-
-    // TODO: This could be done in the background?
-    Comment.filterOrphan(document._id, doc, version);
-
-    return version - args.currentVersion;
+    return Content._addSteps(args, user);
   },
 });
 

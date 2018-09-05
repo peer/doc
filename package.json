@@ -107,6 +107,7 @@
       "import/extensions": 0,
       "import/no-absolute-path": 0,
       "import/prefer-default-export": 0,
+      "meteor/audit-argument-checks": 0,
       "no-underscore-dangle": 0,
       "quotes": 0,
       "prefer-arrow-callback": 0,

@@ -1,14 +1,11 @@
-import {Meteor} from 'meteor/meteor';
 import {WebApp} from 'meteor/webapp';
 import {_} from 'meteor/underscore';
 
-import assert from 'assert';
 import bodyParser from 'body-parser';
 import parseurl from 'parseurl';
 
 import {Document} from '/server/documents/document';
 import {createOrGetUser, createUserFromToken} from '/server/auth-token';
-import {User} from "/server/documents/user";
 
 // TODO: Use path information from router instead of hard-coding the path here.
 WebApp.connectHandlers.use('/document', (req, res, next) => {
@@ -27,15 +24,7 @@ WebApp.connectHandlers.use('/document', (req, res, next) => {
 
       const user = createUserFromToken(req.query.user);
 
-      // We check that the user has a class-level permission to create documents.
-      if (!User.hasClassPermission(Document.PERMISSIONS.CREATE, user)) {
-        throw new Meteor.Error('unauthorized', "Unauthorized.");
-      }
-
-      // We need a user reference.
-      assert(user);
-
-      const document = Document._create(user, null);
+      const document = Document._create({}, user, null);
 
       const result = JSON.stringify({
         documentId: document._id,
@@ -80,7 +69,7 @@ WebApp.connectHandlers.use('/document/publish', (req, res, next) => {
 
       const user = createUserFromToken(req.query.user);
 
-      const changed = Document._publish(documentId, user, null);
+      const changed = Document._publish({documentId}, user, null);
 
       if (changed) {
         res.writeHead(200, {'Content-Type': 'application/json'});
@@ -166,7 +155,7 @@ WebApp.connectHandlers.use('/document/share', (req, res, next) => {
       }
 
       // TODO: Should we only the first time set default permissions to "COMMENT", but later leave it?
-      const changed = Document._share(documentId, user, null, visibility, Document.ROLES.COMMENT, contributors);
+      const changed = Document._share({documentId, visibility, contributors, defaultRole: Document.ROLES.COMMENT}, user, null);
 
       if (changed) {
         res.writeHead(200, {'Content-Type': 'application/json'});
