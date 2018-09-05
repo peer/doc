@@ -10,7 +10,7 @@ import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
-import {getPermissionObjects} from '/lib/utils';
+import {getPermissionObjects, filterPermissionObjects, permissionsEqual, permissionsDifference} from '/lib/utils';
 import {check} from '/server/check';
 
 Document._create = (user, connectionId) => {
@@ -112,54 +112,6 @@ Document._publish = (documentId, user, connectionId) => {
 
   return changed;
 };
-
-function filterPermissionObjects(userPermissions, userId) {
-  return (userPermissions || []).filter((userPermission) => {
-    return userPermission.user._id === userId;
-  });
-}
-
-function stringCmp(string1, string2) {
-  if (string1 === string2) {
-    return 0;
-  }
-  else if (string1 < string2) {
-    return -1;
-  }
-  else {
-    return 1;
-  }
-}
-
-function sortedLitePermissions(userPermissions) {
-  return (userPermissions || []).map((userPermission) => {
-    return {
-      userId: userPermission.user._id,
-      permission: userPermission.permission,
-    };
-  }).sort((userPermission1, userPermission2) => {
-    let cmp = stringCmp(userPermission1.userId, userPermission2.userId);
-
-    if (cmp === 0) {
-      cmp = stringCmp(userPermission1.permission, userPermission2.permission);
-    }
-
-    return cmp;
-  });
-}
-
-function permissionsEqual(userPermissions1, userPermissions2) {
-  return _.isEqual(sortedLitePermissions(userPermissions1), sortedLitePermissions(userPermissions2));
-}
-
-// User permissions in "userPermissions1" which are not in "userPermissions2".
-function permissionsDifference(userPermissions1, userPermissions2) {
-  return (userPermissions1 || []).filter((userPermission1) => {
-    return !(userPermissions2 || []).find((userPermission2) => {
-      return (userPermission1.permission === userPermission2.permission) && (userPermission1.user._id === userPermission2.user._id);
-    });
-  });
-}
 
 Document._share = (documentId, user, connectionId, visibility, defaultRole, contributors) => {
   const document = Document.documents.findOne(Document.restrictQuery({
