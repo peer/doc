@@ -5,8 +5,7 @@ describe('passwordless auth', function () {
   it('should sign in an user', function () {
     cy.visit('/');
 
-    cy.contains('Sign In')
-      .click();
+    cy.contains('Sign In').click();
 
     cy.location('pathname').should('eq', '/user/signin');
 
@@ -18,8 +17,16 @@ describe('passwordless auth', function () {
 
     cy.location('pathname').should('eq', '/');
 
-    cy.get('.v-snack__content').should('contain', 'You have been signed in.');
+    cy.get('.v-snack__content').should('contain', 'You have been signed in.').contains('Close').click();
 
     cy.get('nav.v-toolbar .v-menu__activator').should('contain', 'testuser');
+
+    cy.get('nav.v-toolbar .v-menu__activator').click();
+
+    cy.get('.v-list__tile--link').contains('Sign Out').click();
+
+    cy.contains('Sign In');
+
+    cy.get('.v-snack__content').should('contain', 'You have been signed out.').contains('Close').click();
   });
 });
