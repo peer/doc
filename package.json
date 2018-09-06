@@ -12,10 +12,10 @@
     "test-ci": "SERVER_TEST_REPORTER=xunit XUNIT_FILE=/tmp/test-reports/server-test-results.xml TEST_BROWSER_DRIVER=chrome TEST_CHROME_ARGS='--no-sandbox --disable-dev-shm-usage' meteor test --once --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-watch": "TEST_WATCH=1 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-watch-browser": "TEST_WATCH=1 meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
-    "test-app": "NO_HMR=1 meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json",
+    "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json",
     "cypress": "cypress open",
     "cypress-ci:runner": "cypress run --reporter junit --reporter-options mochaFile=/tmp/test-reports/cypress-results.xml",
-    "cypress-ci": "start-server-and-test test-app http://localhost:3000 cypress-ci:runner"
+    "cypress-ci": "NO_HMR=1 start-server-and-test test-app http://localhost:3000 cypress-ci:runner"
   },
   "dependencies": {
     "@babel/core": "~7.0.0-beta.38",
