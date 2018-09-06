@@ -3,7 +3,7 @@
 
 describe('passwordless auth', function () {
   it('should fail without query', function () {
-    cy.visit('http://localhost:3000/');
+    cy.visit('/');
 
     cy.contains('Sign In')
       .click();
