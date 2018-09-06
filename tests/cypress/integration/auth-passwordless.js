@@ -2,7 +2,7 @@
 /* eslint-disable func-names, prefer-arrow-callback */
 
 describe('passwordless auth', function () {
-  it('should fail without query', function () {
+  it('should sign in an user', function () {
     cy.visit('/');
 
     cy.contains('Sign In')
