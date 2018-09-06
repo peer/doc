@@ -7,6 +7,7 @@ import {Random} from 'meteor/random';
 
 import {assert} from 'chai';
 import crypto from 'crypto';
+// eslint-disable-next-line import/no-unresolved
 import Future from 'fibers/future';
 
 // Enable API.
