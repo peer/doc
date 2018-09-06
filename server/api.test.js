@@ -7,13 +7,16 @@ import {Random} from 'meteor/random';
 
 import {assert} from 'chai';
 import crypto from 'crypto';
-// eslint-disable-next-line import/no-unresolved
-import Future from 'fibers/future';
 
 // Enable API.
 import {} from './api';
 import {User} from './documents/user';
 import {Document} from './documents/document';
+
+// We use "Npm.require" because otherwise Meteor and eslint
+// complain that this module might not be found.
+// eslint-disable-next-line no-undef
+const Future = Npm.require('fibers/future');
 
 const baseFromMap = {
   '+': '-',
