@@ -89,14 +89,21 @@ This will run the full app in test mode on [http://localhost:3000/](http://local
 but you do not have to open it. Run in another terminal:
 
 ```
-$ meteor npm run chimp-watch
+$ meteor npm run cypress
 ```
 
-This will then connect to the app and run acceptance tests. It will watch for any changes and
-rerun tests, too. Test results are in the terminal.
+This will open [Cypress runner](http://cypress.io/) which we use for acceptance tests.
+You can select tests to run or run all of them and you will see how they are run in
+testing browser, and be able to inspect results. It will watch for any changes and
+rerun tests, too.
 
-If you want to run acceptance tests only once, run:
+If you want to run acceptance tests only once, and see results in the terminal, run:
 
 ```
-$ meteor npm run chimp-test
+$ meteor npm run cypress-run
 ```
+
+During CI testing acceptance tests are run as well. Results are recorded and available
+in [Cypress Dashboard](https://dashboard.cypress.io/#/projects/v5cnsk/runs).
+You can find a link to a particular recording for a CI run in
+[CircleCI's run output](https://circleci.com/gh/peer/doc).

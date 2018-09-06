@@ -14,6 +14,7 @@
     "test-watch-browser": "TEST_WATCH=1 meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json",
     "cypress": "cypress open",
+    "cypress-run": "cypress run",
     "cypress-ci:runner": "cypress run --record --reporter junit --reporter-options mochaFile=/tmp/test-reports/cypress-results.xml",
     "cypress-ci": "NO_HMR=1 start-server-and-test test-app http://localhost:3000 cypress-ci:runner"
   },
