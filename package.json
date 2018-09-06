@@ -12,7 +12,10 @@
     "test-ci": "SERVER_TEST_REPORTER=xunit XUNIT_FILE=/tmp/test-reports/server-test-results.xml TEST_BROWSER_DRIVER=chrome TEST_CHROME_ARGS='--no-sandbox --disable-dev-shm-usage' meteor test --once --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-watch": "TEST_WATCH=1 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-watch-browser": "TEST_WATCH=1 meteor test --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
-    "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json"
+    "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json",
+    "cypress": "cypress open",
+    "cypress-ci:runner": "cypress run --reporter junit --reporter-options mochaFile=/tmp/test-reports/cypress-results.xml",
+    "cypress-ci": "start-server-and-test test-app http://localhost:3000 cypress-ci:runner"
   },
   "dependencies": {
     "@babel/core": "~7.0.0-beta.38",
@@ -55,16 +58,19 @@
     "babel-eslint": "~8.2.3",
     "chai": "~3.5.0",
     "chromedriver": "~2.41.0",
+    "cypress": "^3.1.0",
     "easygettext": "~2.3.0",
     "eslint": "~4.19.1",
     "eslint-config-airbnb-base": "~12.1.0",
     "eslint-import-resolver-meteor": "~0.4.0",
+    "eslint-plugin-cypress": "^2.0.1",
     "eslint-plugin-import": "~2.11.0",
     "eslint-plugin-meteor": "~4.2.0",
     "eslint-plugin-vue": "~4.5.0",
     "husky": "~0.14.3",
     "lint-staged": "~7.0.5",
-    "selenium-webdriver": "~3.6.0"
+    "selenium-webdriver": "~3.6.0",
+    "start-server-and-test": "^1.7.1"
   },
   "meteor": {
     "vueVersion": 2
@@ -85,7 +91,8 @@
       "browser": true
     },
     "plugins": [
-      "meteor"
+      "meteor",
+      "cypress"
     ],
     "settings": {
       "import/resolver": "meteor"

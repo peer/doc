@@ -17,5 +17,10 @@ jobs:
       - run: meteor npm install
       - run: meteor npm run lint-ci
       - run: meteor npm run test-ci
+      - run: meteor npm run cypress-ci
       - store_test_results:
           path: /tmp/test-reports
+      - store_artifacts:
+          path: tests/cypress/videos
+      - store_artifacts:
+          path: tests/cypress/screenshots

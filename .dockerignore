@@ -9,3 +9,5 @@ node_modules
 **/.gitignore
 **/*.swp
 **/*.sublime-*
+tests/cypress/videos
+tests/cypress/screenshots
