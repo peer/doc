@@ -8,12 +8,12 @@ if (!Meteor.settings.public.passwordlessAuthDisabled) {
     Accounts.callLoginMethod({
       methodName: 'User.passwordlessSignIn',
       methodArguments: [{username}],
-      userCallback(error, userId) {
+      userCallback(error, loginDetails) {
         if (error) {
           callback(error);
         }
         else {
-          callback(null, {_id: userId});
+          callback(null);
         }
       },
     });

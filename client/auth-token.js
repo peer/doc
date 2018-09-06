@@ -10,7 +10,7 @@ function signinWithUserToken(userToken) {
     methodArguments: [{userToken}],
     // We do not notify user about being the process here,
     // this should all happen in the background.
-    userCallback(error, userId) {
+    userCallback(error, loginDetails) {
       if (error) {
         // eslint-disable-next-line no-console
         console.error("Error calling 'User.createUserAndSignInWithUserToken' method.", error);
