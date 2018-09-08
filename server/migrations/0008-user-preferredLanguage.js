@@ -1,4 +1,4 @@
-import {User} from '/server/documents/user';
+import {User} from '/lib/documents/user';
 
 class Migration extends Document.AddRequiredFieldsMigration {
   name = "Adding preferredLanguage field";

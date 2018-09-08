@@ -1,4 +1,4 @@
-import {Document} from '/server/documents/document';
+import {Document} from '/lib/documents/document';
 
 class Migration extends Document.AddRequiredFieldsMigration {
   name = "Adding userPermissions, visibility, and defaultPermissions fields";

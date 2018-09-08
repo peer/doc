@@ -1,4 +1,4 @@
-import {Content} from '/server/documents/content';
+import {Content} from '/lib/documents/content';
 
 // We modified ProseMirror schema so we have to update data for it.
 

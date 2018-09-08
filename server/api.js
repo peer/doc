@@ -4,7 +4,7 @@ import {_} from 'meteor/underscore';
 import bodyParser from 'body-parser';
 import parseurl from 'parseurl';
 
-import {Document} from '/server/documents/document';
+import {Document} from '/lib/documents/document';
 import {createOrGetUser, createUserFromToken} from '/server/auth-token';
 
 // TODO: Use path information from router instead of hard-coding the path here.

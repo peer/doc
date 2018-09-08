@@ -5,14 +5,13 @@ import {_} from 'meteor/underscore';
 import assert from 'assert';
 import {Node} from 'prosemirror-model';
 
+import {Activity} from '/lib/documents/activity';
 import {Comment} from '/lib/documents/comment';
 import {Content} from '/lib/documents/content';
+import {Document} from '/lib/documents/document';
+import {User} from '/lib/documents/user';
 import {schema} from '/lib/simple-schema.js';
 import {check} from '/server/check';
-
-import {Activity} from './activity';
-import {Document} from './document';
-import {User} from './user';
 
 Comment._create = function create(args, user, connectionId) {
   check(args, {
@@ -250,6 +249,3 @@ Meteor.publish('Comment.list', function commentList(args) {
     });
   });
 });
-
-// For testing.
-export {Comment};

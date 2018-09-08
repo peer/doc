@@ -410,6 +410,3 @@ Meteor.publish('Document.admin', function documentAdmin(args) {
     });
   });
 });
-
-// For testing.
-export {Document};

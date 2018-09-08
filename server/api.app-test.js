@@ -8,10 +8,8 @@ import {Random} from 'meteor/random';
 import {assert} from 'chai';
 import crypto from 'crypto';
 
-// Enable API.
-import {} from './api';
-import {User} from './documents/user';
-import {Document} from './documents/document';
+import {User} from '/lib/documents/user';
+import {Document} from '/lib/documents/document';
 
 // We use "Npm.require" because otherwise Meteor and eslint
 // complain that this module might not be found.
@@ -101,8 +99,6 @@ describe('document api', function () {
 
     // Wait for all PeerDB activity to have time to run.
     waitForDatabase();
-
-    User.documents.remove({'services.usertoken.id': userId});
   });
 
   it('should fail without query', function () {
