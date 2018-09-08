@@ -242,6 +242,7 @@
         quoteHint: this.$gettext("toolbar-quote"),
         bulletedListHint: this.$gettext("toolbar-bulleted-list"),
         numberedListHint: this.$gettext("toolbar-numbered-list"),
+        documentStatus: null,
       };
     },
 
@@ -267,8 +268,12 @@
 
     watch: {
       document(newValue, oldValue) {
-        if (newValue.lastSync !== oldValue.lastSync) {
+        if (newValue.status === Document.STATUS.REBASING) {
+          this.documentStatus = newValue.status;
+        }
+        else if (newValue.lastSync !== oldValue.lastSync) {
           this.$throttledResetEditor();
+          this.documentStatus = newValue.status;
         }
       },
     },
@@ -423,6 +428,10 @@
 
       this.$autorun((computation) => {
         if (this.addingStepsInProgress) {
+          return;
+        }
+
+        if (this.documentStatus === Document.STATUS.REBASING) {
           return;
         }
 

@@ -60,19 +60,25 @@ function rebaseSteps(args) {
     return;
   }
 
+  // Get original document.
+  const original = Document.documents.findOne({
+    _id: fork.forkedFrom._id,
+  });
+
+  if (fork.lastSync < original.version) {
   // Get forked document steps.
-  const forkSteps = Content.documents.find(
-    {
-      version: {
-        $gt: fork.lastSync,
+    const forkSteps = Content.documents.find(
+      {
+        version: {
+          $gt: fork.lastSync,
+        },
+        contentKeys: fork.contentKey,
       },
-      contentKeys: fork.contentKey,
-    },
-    {
-      sort: {
-        version: 1,
+      {
+        sort: {
+          version: 1,
+        },
       },
-    },
   ).fetch()
   .map((x) => {
     return Object.assign({}, x, {
@@ -80,167 +86,172 @@ function rebaseSteps(args) {
     });
   });
 
-  // Get original document.
-  const original = Document.documents.findOne({
-    _id: fork.forkedFrom._id,
-  });
-
   // Get original document steps that were applied after fork.
-  const originalSteps = Content.documents.find(
-    {
-      version: {
-        $gt: fork.lastSync,
+    const originalSteps = Content.documents.find(
+      {
+        version: {
+          $gt: fork.lastSync,
+        },
+        contentKeys: original.contentKey,
       },
-      contentKeys: original.contentKey,
-    },
-    {
-      sort: {
-        version: 1,
+      {
+        sort: {
+          version: 1,
+        },
       },
-    },
   ).fetch()
   .map((x) => {
     return Step.fromJSON(schema, x.step);
   });
 
   // Initialize doc and transform.
-  let doc = schema.topNodeType.createAndFill();
-  let transform;
-  let version = 0;
+    let doc = schema.topNodeType.createAndFill();
+    let transform;
+    let version = 0;
 
   // Apply all the forked document steps to doc.
-  Content.documents.find({
-    contentKeys: fork.contentKey,
-    version: {
-      $gt: version,
-    },
-  }, {
-    sort: {
-      version: 1,
-    },
-    fields: {
-      step: 1,
-      version: 1,
-    },
-  }).fetch().forEach((content) => {
-    if (content.version > fork.lastSync) {
-      if (!transform) {
-        transform = new Transform(doc);
+    Content.documents.find({
+      contentKeys: fork.contentKey,
+      version: {
+        $gt: version,
+      },
+    }, {
+      sort: {
+        version: 1,
+      },
+      fields: {
+        step: 1,
+        version: 1,
+      },
+    }).fetch().forEach((content) => {
+      if (content.version > fork.lastSync) {
+        if (!transform) {
+          transform = new Transform(doc);
+        }
+        transform.step(Step.fromJSON(schema, content.step));
       }
-      transform.step(Step.fromJSON(schema, content.step));
-    }
-    else {
-      version = content.version;
-    }
+      else {
+        version = content.version;
+      }
 
-    const result = Step.fromJSON(schema, content.step).apply(doc);
+      const result = Step.fromJSON(schema, content.step).apply(doc);
 
-    if (!result.doc) {
-      // eslint-disable-next-line no-console
-      console.error("Error applying a step.", result.failed);
-      throw new Meteor.Error('invalid-request', "Invalid step.");
-    }
-    doc = result.doc;
-  });
-
-  const shouldRebase = transform !== undefined && originalSteps.length > 0;
-
-  if (shouldRebase) {
-    // Revert steps that were applied on the forked document after fork.
-    for (let i = transform.steps.length - 1; i >= 0; i -= 1) {
-      const result = transform.steps[i].invert(transform.docs[i]).apply(doc);
-      transform.step(transform.steps[i].invert(transform.docs[i]));
       if (!result.doc) {
-        // eslint-disable-next-line no-console
+      // eslint-disable-next-line no-console
         console.error("Error applying a step.", result.failed);
         throw new Meteor.Error('invalid-request', "Invalid step.");
       }
       doc = result.doc;
-    }
-  }
-  else {
-    transform = new Transform(doc);
-  }
+    });
 
-  // Apply all the original document steps.
-  for (let i = 0; i < originalSteps.length; i += 1) {
-    const result = originalSteps[i].apply(doc);
-    transform.step(originalSteps[i]);
-    if (!result.doc) {
-      // eslint-disable-next-line no-console
-      console.error("Error applying a step.", result.failed);
-      throw new Meteor.Error('invalid-request', "Invalid step.");
-    }
-    doc = result.doc;
-  }
+    const shouldRebase = transform !== undefined && originalSteps.length > 0;
 
-  if (shouldRebase) {
-    // Remap forked document steps and apply.
-    for (let i = 0, mapFrom = forkSteps.length * 2; i < forkSteps.length; i += 1) {
-      const mapped = forkSteps[i].step.map(transform.mapping.slice(mapFrom));
-      mapFrom -= 1;
-      if (mapped && !transform.maybeStep(mapped).failed) {
-        const result = mapped.apply(doc);
-        transform.mapping.setMirror(mapFrom, transform.steps.length - 1);
-
+    if (shouldRebase) {
+    // Revert steps that were applied on the forked document after fork.
+      for (let i = transform.steps.length - 1; i >= 0; i -= 1) {
+        const result = transform.steps[i].invert(transform.docs[i]).apply(doc);
+        transform.step(transform.steps[i].invert(transform.docs[i]));
         if (!result.doc) {
-          // eslint-disable-next-line no-console
+        // eslint-disable-next-line no-console
           console.error("Error applying a step.", result.failed);
           throw new Meteor.Error('invalid-request', "Invalid step.");
         }
         doc = result.doc;
       }
     }
-  }
+    else {
+      transform = new Transform(doc);
+    }
 
-  const timestamp = new Date();
+  // Apply all the original document steps.
+    for (let i = 0; i < originalSteps.length; i += 1) {
+      const result = originalSteps[i].apply(doc);
+      transform.step(originalSteps[i]);
+      if (!result.doc) {
+      // eslint-disable-next-line no-console
+        console.error("Error applying a step.", result.failed);
+        throw new Meteor.Error('invalid-request', "Invalid step.");
+      }
+      doc = result.doc;
+    }
+
+    if (shouldRebase) {
+    // Remap forked document steps and apply.
+      for (let i = 0, mapFrom = forkSteps.length * 2; i < forkSteps.length; i += 1) {
+        const mapped = forkSteps[i].step.map(transform.mapping.slice(mapFrom));
+        mapFrom -= 1;
+        if (mapped && !transform.maybeStep(mapped).failed) {
+          const result = mapped.apply(doc);
+          transform.mapping.setMirror(mapFrom, transform.steps.length - 1);
+
+          if (!result.doc) {
+          // eslint-disable-next-line no-console
+            console.error("Error applying a step.", result.failed);
+            throw new Meteor.Error('invalid-request', "Invalid step.");
+          }
+          doc = result.doc;
+        }
+      }
+    }
+
+    const timestamp = new Date();
+
+    // Update document version
+    Document.documents.update({
+      _id: fork._id,
+    }, {
+      $set: {
+        status: Document.STATUS.REBASING,
+      },
+    });
+
+    updateCurrentState(fork.contentKey, doc, version);
 
   // Remove forked document steps.
-  Content.documents.remove({
-    contentKeys: fork.contentKey,
-    version: {
-      $gt: fork.lastSync,
-    },
-  });
+    Content.documents.remove({
+      contentKeys: fork.contentKey,
+      version: {
+        $gt: fork.lastSync,
+      },
+    });
 
   // Add original steps to forked.
-  const updated = Content.documents.update({
-    contentKeys: original.contentKey,
-    version: {
-      $gt: fork.lastSync,
-    },
-  }, {
-    $addToSet: {
-      contentKeys: fork.contentKey,
-    },
-  }, {
-    multi: true,
-  });
+    const updated = Content.documents.update({
+      contentKeys: original.contentKey,
+      version: {
+        $gt: fork.lastSync,
+      },
+    }, {
+      $addToSet: {
+        contentKeys: fork.contentKey,
+      },
+    }, {
+      multi: true,
+    });
 
-  version = fork.lastSync + updated;
-  let index = 0;
+    version = fork.lastSync + updated;
+    let index = 0;
 
   // Save merge steps.
-  transform.steps.forEach((x, i) => {
-    if (i >= ((forkSteps.length * 2) + (originalSteps.length))) {
-      version += 1;
-      Content.documents.upsert({
-        version,
-        contentKeys: fork.contentKey,
-      }, {
-        $setOnInsert: {
-          contentKeys: [fork.contentKey],
-          createdAt: forkSteps[index].createdAt,
-          author: forkSteps[index].author,
-          clientId: forkSteps[index].clientId,
-          step: x.toJSON(),
-        },
-      });
-      index += 1;
-    }
-  });
+    transform.steps.forEach((x, i) => {
+      if (i >= ((forkSteps.length * 2) + (originalSteps.length))) {
+        version += 1;
+        Content.documents.upsert({
+          version,
+          contentKeys: fork.contentKey,
+        }, {
+          $setOnInsert: {
+            contentKeys: [fork.contentKey],
+            createdAt: forkSteps[index].createdAt,
+            author: forkSteps[index].author,
+            clientId: forkSteps[index].clientId,
+            step: x.toJSON(),
+          },
+        });
+        index += 1;
+      }
+    });
 
-  if (fork.lastSync < original.version) {
     // Update document version
     Document.documents.update({
       _id: fork._id,
@@ -252,6 +263,7 @@ function rebaseSteps(args) {
         lastActivity: timestamp,
         title: extractTitle(doc),
         lastSync: original.version,
+        status: Document.STATUS.CREATED,
       },
     });
     updateCurrentState(fork.contentKey, doc, version);

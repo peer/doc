@@ -11,7 +11,7 @@
         :document-id="document._id"
         :content-key="document.contentKey"
         :client-id="clientId"
-        :read-only="document.isPublished()"
+        :read-only="readOnly"
         :key="key"
         @content-changed="onContentChanged"
         @highlight-selected="onHighlightSelected"
@@ -64,6 +64,9 @@
         return Document.documents.findOne({
           _id: this.documentId,
         });
+      },
+      readOnly() {
+        return this.document.isPublished() || this.document.status === Document.STATUS.REBASING;
       },
     },
 
