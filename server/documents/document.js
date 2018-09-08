@@ -406,8 +406,6 @@ Meteor.publish('Document.admin', function documentAdmin(args) {
     return Document.documents.find(Document.restrictQuery({
       _id: args.documentId,
     }, Document.PERMISSIONS.ADMIN), {
-      // "PUBLISH_FIELDS" already contains all fields we are interested in,
-      // we just do not restrict "userPermissions".
       fields: Document.PUBLISH_FIELDS(),
     });
   });
