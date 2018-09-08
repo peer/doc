@@ -9,11 +9,11 @@ describe('passwordless auth', function () {
 
     cy.location('pathname').should('eq', '/user/signin');
 
-    cy.get('button[type=submit]').should('be.disabled');
+    cy.get('button[type="submit"]').should('be.disabled');
 
-    cy.get('input[aria-label=Username]').type('testuser').should('have.value', 'testuser');
+    cy.get('input[aria-label="Username"]').type('testuser').should('have.value', 'testuser');
 
-    cy.get('button[type=submit]').should('not.be.disabled').click();
+    cy.get('button[type="submit"]').should('not.be.disabled').click();
 
     cy.location('pathname').should('eq', '/');
 
