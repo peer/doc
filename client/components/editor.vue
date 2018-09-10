@@ -272,7 +272,7 @@
           this.documentStatus = newValue.status;
         }
         else if (newValue.lastSync !== oldValue.lastSync) {
-          this.$throttledResetEditor();
+          this.resetEditor();
           this.documentStatus = newValue.status;
         }
       },
@@ -357,8 +357,6 @@
       };
 
       const throttledUpdateUserPosition = _.throttle(updateUserPosition, 500);
-
-      this.$throttledResetEditor = _.throttle(this.resetEditor, 2000);
 
       this.$editorView = new EditorView({mount: this.$refs.editor}, {
         state,
