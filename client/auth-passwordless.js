@@ -1,21 +1,10 @@
-import {Accounts} from 'meteor/accounts-base';
 import {Meteor} from 'meteor/meteor';
 
 import {User} from '/lib/documents/user';
+import {callLoginMethodAsync} from '/lib/utils';
 
 if (!Meteor.settings.public.passwordlessAuthDisabled) {
   User.passwordlessSignIn = function passwordlessSignIn({username}, callback) {
-    Accounts.callLoginMethod({
-      methodName: 'User.passwordlessSignIn',
-      methodArguments: [{username}],
-      userCallback(error, loginDetails) {
-        if (error) {
-          callback(error);
-        }
-        else {
-          callback(null);
-        }
-      },
-    });
+    return callLoginMethodAsync('User.passwordlessSignIn', [{username}], callback);
   };
 }
