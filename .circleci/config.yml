@@ -6,6 +6,7 @@ jobs:
     environment:
       METEOR_ALLOW_SUPERUSER: true
       CIRCLE_TEST_REPORTS: /tmp/test-reports
+      NODE_OPTIONS: '--max-old-space-size=4096'
     steps:
       - checkout
       - run: git submodule update --init --recursive
