@@ -47,6 +47,7 @@ function rebaseSteps(args) {
     },
     {
       fields: {
+        status: 1,
         contentKey: 1,
         forkedAtVersion: 1,
         lastSync: 1,
