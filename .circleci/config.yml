@@ -5,6 +5,7 @@ jobs:
       - image: tozd/meteor-testing:ubuntu-xenial
     environment:
       METEOR_ALLOW_SUPERUSER: true
+      CIRCLE_TEST_REPORTS: /tmp/test-reports
     steps:
       - checkout
       - run: git submodule update --init --recursive
@@ -13,8 +14,26 @@ jobs:
           command: |
             # No merge marks in commits.
             ! git log --oneline "-G^(<<<<<<<|=======|>>>>>>>)" | grep '^'
+      - restore_cache:
+          keys:
+            - v1-npm-{{ .Branch }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+            - v1-npm-{{ .Branch }}-{{ checksum "package.json" }}
+            - v1-npm-{{ .Branch }}
+            - v1-npm
+      # TODO: We should replace this with "meteor npm ci" when we will have npm 5.7.0 or newer.
       - run: meteor npm install
+      - save_cache:
+          key: v1-npm-{{ .Branch }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+            - ~/.cache
+      - run: meteor list
       - run: meteor npm run lint-ci
       - run: meteor npm run test-ci
+      - run: meteor npm run cypress-ci
       - store_test_results:
-          path: test-reports/
+          path: /tmp/test-reports
+      - store_artifacts:
+          path: tests/cypress/videos
+      - store_artifacts:
+          path: tests/cypress/screenshots

@@ -1,25 +1,23 @@
-import {check, Match} from 'meteor/check';
+import {Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
-
-import {Step} from 'prosemirror-transform';
-
 import {Random} from 'meteor/random';
 import {_} from 'meteor/underscore';
+
+import {Step} from 'prosemirror-transform';
 
 import assert from 'assert';
 
 import {Activity} from '/lib/documents/activity';
-import {Content} from '/lib/documents/content';
 import {Document} from '/lib/documents/document';
+import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
-
-import {extractTitle} from '/lib/utils';
-
-import {schema} from '../../lib/full-schema';
+import {schema} from '/lib/full-schema';
+import {extractTitle, getPermissionObjects, filterPermissionObjects, permissionsEqual, permissionsDifference} from '/lib/utils';
+import {check} from '/server/check';
 
 function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
-  const userPermissions = Document.getPermissionObjects(
-    Document.getRolePermissions(Document.ROLES.ADMIN),
+  const userPermissions = getPermissionObjects(
+    Document.getPermissionsFromRole(Document.ROLES.ADMIN),
     user.getReference(),
     createdAt,
     user.getReference(),
@@ -38,7 +36,7 @@ function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
     body: schema.topNodeType.createAndFill().toJSON(),
     userPermissions,
     visibility: Document.VISIBILITY_LEVELS.PRIVATE,
-    defaultPermissions: Document.getRolePermissions(Document.ROLES.VIEW),
+    defaultPermissions: Document.getPermissionsFromRole(Document.ROLES.VIEW),
     status: Document.STATUS.CREATED,
   };
 
@@ -69,7 +67,18 @@ function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
   return documentId;
 }
 
-Document._create = (user, connectionId) => {
+
+Document._create = function create(args, user, connectionId) {
+  check(args, {});
+
+  // We check that the user has a class-level permission to create documents.
+  if (!User.hasClassPermission(this.PERMISSIONS.CREATE, user)) {
+    throw new Meteor.Error('unauthorized', "Unauthorized.");
+  }
+
+  // We need a user reference.
+  assert(user);
+
   const createdAt = new Date();
   const contentKeys = [Random.id()];
 
@@ -88,20 +97,29 @@ Document._create = (user, connectionId) => {
   };
 };
 
-Document._publish = (documentId, user, connectionId) => {
+Document._publish = function publish(args, user, connectionId) {
+  check(args, {
+    documentId: Match.DocumentId,
+  });
+
+  // We need a user reference.
+  if (!user) {
+    throw new Meteor.Error('unauthorized', "Unauthorized.");
+  }
+
   const publishedAt = new Date();
 
-  const changed = Document.documents.update(Document.restrictQuery({
-    _id: documentId,
+  const changed = this.documents.update(this.restrictQuery({
+    _id: args.documentId,
     publishedAt: null,
-  }, Document.PERMISSIONS.ADMIN, user), {
+  }, this.PERMISSIONS.ADMIN, user), {
     $set: {
       publishedAt,
       publishedBy: user.getReference(),
       updatedAt: publishedAt,
       lastActivity: publishedAt,
-      defaultPermissions: Document.getRolePermissions(Document.ROLES.COMMENT),
-      visibility: Document.VISIBILITY_LEVELS.LISTED,
+      defaultPermissions: this.getPermissionsFromRole(this.ROLES.COMMENT),
+      visibility: this.VISIBILITY_LEVELS.LISTED,
     },
   });
 
@@ -117,7 +135,7 @@ Document._publish = (documentId, user, connectionId) => {
       level: Activity.LEVEL.GENERAL,
       data: {
         document: {
-          _id: documentId,
+          _id: args.documentId,
         },
       },
     });
@@ -126,57 +144,21 @@ Document._publish = (documentId, user, connectionId) => {
   return changed;
 };
 
-function filterPermissionObjects(userPermissions, userId) {
-  return (userPermissions || []).filter((userPermission) => {
-    return userPermission.user._id === userId;
+Document._share = function share(args, user, connectionId) {
+  check(args, {
+    documentId: Match.DocumentId,
+    visibility: Match.OrNull(Match.Enumeration(Match.NonEmptyString, Document.VISIBILITY_LEVELS)),
+    defaultRole: Match.OrNull(Match.Enumeration(Match.NonEmptyString, _.omit(Document.ROLES, 'ADMIN'))),
+    contributors: Match.OrNull([
+      {
+        userId: Match.DocumentId,
+        role: Match.OrNull(Match.Enumeration(Match.NonEmptyString, Document.ROLES)),
+      },
+    ]),
   });
-}
 
-function stringCmp(string1, string2) {
-  if (string1 === string2) {
-    return 0;
-  }
-  else if (string1 < string2) {
-    return -1;
-  }
-  else {
-    return 1;
-  }
-}
-
-function sortedLitePermissions(userPermissions) {
-  return (userPermissions || []).map((userPermission) => {
-    return {
-      userId: userPermission.user._id,
-      permission: userPermission.permission,
-    };
-  }).sort((userPermission1, userPermission2) => {
-    let cmp = stringCmp(userPermission1.userId, userPermission2.userId);
-
-    if (cmp === 0) {
-      cmp = stringCmp(userPermission1.permission, userPermission2.permission);
-    }
-
-    return cmp;
-  });
-}
-
-function permissionsEqual(userPermissions1, userPermissions2) {
-  return _.isEqual(sortedLitePermissions(userPermissions1), sortedLitePermissions(userPermissions2));
-}
-
-// User permissions in "userPermissions1" which are not in "userPermissions2".
-function permissionsDifference(userPermissions1, userPermissions2) {
-  return (userPermissions1 || []).filter((userPermission1) => {
-    return !(userPermissions2 || []).find((userPermission2) => {
-      return (userPermission1.permission === userPermission2.permission) && (userPermission1.user._id === userPermission2.user._id);
-    });
-  });
-}
-
-Document._share = (documentId, user, connectionId, visibility, defaultRole, contributors) => {
   const document = Document.documents.findOne(Document.restrictQuery({
-    _id: documentId,
+    _id: args.documentId,
   }, Document.PERMISSIONS.ADMIN, user), {
     fields: Document.PERMISSIONS_FIELDS(),
   });
@@ -185,14 +167,17 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
     throw new Meteor.Error('not-found', "Document cannot be found.");
   }
 
+  // We need a user reference.
+  assert(user);
+
   const timestamp = new Date();
 
   let userPermissions = null;
-  if (contributors !== null) {
+  if (args.contributors !== null) {
     // We start with current user's permissions.
     userPermissions = filterPermissionObjects(document.userPermissions, user._id);
 
-    contributors.forEach((contributor) => {
+    args.contributors.forEach((contributor) => {
       let permissionObjects;
 
       // We allow each contributor to be listed only once.
@@ -209,8 +194,8 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
         permissionObjects = filterPermissionObjects(document.userPermissions, contributor.userId);
       }
       else {
-        permissionObjects = Document.getPermissionObjects(
-          Document.getRolePermissions(contributor.role),
+        permissionObjects = getPermissionObjects(
+          Document.getPermissionsFromRole(contributor.role),
           {
             _id: contributor.userId,
           },
@@ -232,15 +217,15 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
     lastActivity: timestamp,
   };
 
-  if (visibility !== null && document.visibility !== visibility) {
-    updates.visibility = visibility;
+  if (args.visibility !== null && document.visibility !== args.visibility) {
+    updates.visibility = args.visibility;
     visibilityChanged = true;
   }
 
   // If default permissions are custom, then to keep them unchanged, "null" is passed.
   let defaultPermissions = null;
-  if (defaultRole !== null) {
-    defaultPermissions = Document.getRolePermissions(defaultRole);
+  if (args.defaultRole !== null) {
+    defaultPermissions = Document.getPermissionsFromRole(args.defaultRole);
     if (!_.isEqual(_.sortBy(document.defaultPermissions || []), _.sortBy(defaultPermissions))) {
       updates.defaultPermissions = defaultPermissions;
       defaultPermissionsChanged = true;
@@ -257,7 +242,7 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
   let changed = 0;
   if (visibilityChanged || defaultPermissionsChanged || userPermissionsChanged) {
     changed = Document.documents.update({
-      _id: documentId,
+      _id: args.documentId,
     }, {
       $set: updates,
     });
@@ -275,9 +260,9 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
         type: 'documentVisibilityChanged',
         level: Activity.LEVEL.ADMIN,
         data: {
-          visibility,
+          visibility: args.visibility,
           document: {
-            _id: documentId,
+            _id: args.documentId,
           },
         },
       });
@@ -296,7 +281,7 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
         data: {
           defaultPermissions,
           document: {
-            _id: documentId,
+            _id: args.documentId,
           },
         },
       });
@@ -327,7 +312,7 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
             level: Activity.LEVEL.ADMIN,
             data: {
               document: {
-                _id: documentId,
+                _id: args.documentId,
               },
               permission: permission.permission,
             },
@@ -352,7 +337,7 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
             level: Activity.LEVEL.ADMIN,
             data: {
               document: {
-                _id: documentId,
+                _id: args.documentId,
               },
               permission: permission.permission,
             },
@@ -366,60 +351,34 @@ Document._share = (documentId, user, connectionId, visibility, defaultRole, cont
 };
 
 Meteor.methods({
-  'Document.publish'(args) {
-    check(args, {
-      documentId: Match.DocumentId,
-    });
-
+  'Document.create'(args) {
     if (Meteor.settings.public.apiControlled) {
       throw new Meteor.Error('forbidden', "Method disabled.");
     }
 
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    return Document._publish(args.documentId, user, (this.connection && this.connection.id) || null);
+    return Document._create(args, user, (this.connection && this.connection.id) || null);
+  },
+
+  'Document.publish'(args) {
+    if (Meteor.settings.public.apiControlled) {
+      throw new Meteor.Error('forbidden', "Method disabled.");
+    }
+
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
+
+    return Document._publish(args, user, (this.connection && this.connection.id) || null);
   },
 
   'Document.share'(args) {
-    check(args, {
-      documentId: Match.DocumentId,
-      visibility: Match.Enumeration(Match.NonEmptyString, Document.VISIBILITY_LEVELS),
-      defaultRole: Match.OptionalOrNull(Match.Enumeration(Match.NonEmptyString, _.omit(Document.ROLES, 'ADMIN'))),
-      contributors: [
-        {
-          userId: Match.DocumentId,
-          role: Match.OptionalOrNull(Match.Enumeration(Match.NonEmptyString, Document.ROLES)),
-        },
-      ],
-    });
-
     if (Meteor.settings.public.apiControlled) {
       throw new Meteor.Error('forbidden', "Method disabled.");
     }
 
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    return Document._share(args.documentId, user, (this.connection && this.connection.id) || null, args.visibility, args.defaultRole, args.contributors);
-  },
-
-  'Document.create'(args) {
-    check(args, {});
-
-    if (Meteor.settings.public.apiControlled) {
-      throw new Meteor.Error('forbidden', "Method disabled.");
-    }
-
-    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
-
-    // We check that the user has a class-level permission to create documents.
-    if (!User.hasClassPermission(Document.PERMISSIONS.CREATE, user)) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
-    }
-
-    // We need a user reference.
-    assert(user);
-
-    return Document._create(user, (this.connection && this.connection.id) || null);
+    return Document._share(args, user, (this.connection && this.connection.id) || null);
   },
   'Document.fork'(args) {
     check(args, {
@@ -619,7 +578,6 @@ Meteor.methods({
   },
 });
 
-// TODO: Add middleware and restrict only for the current user what is published for "userPermissions".
 Meteor.publish('Document.list', function documentList(args) {
   check(args, {});
 
@@ -632,7 +590,6 @@ Meteor.publish('Document.list', function documentList(args) {
   });
 });
 
-// TODO: Add middleware and restrict only for the current user what is published for "userPermissions".
 Meteor.publish('Document.one', function documentOne(args) {
   check(args, {
     documentId: Match.DocumentId,
@@ -657,12 +614,7 @@ Meteor.publish('Document.admin', function documentAdmin(args) {
     return Document.documents.find(Document.restrictQuery({
       _id: args.documentId,
     }, Document.PERMISSIONS.ADMIN), {
-      // "PUBLISH_FIELDS" already contains all fields we are interested in,
-      // we just do not restrict "userPermissions".
       fields: Document.PUBLISH_FIELDS(),
     });
   });
 });
-
-// For testing.
-export {Document};

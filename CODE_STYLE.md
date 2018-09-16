@@ -41,8 +41,9 @@ available.
 Imports should be divided into multiples sections, in order from more global to more local, separated by an empty line:
  * Meteor core packages
  * Meteor Atmosphere packages
- * NPM packages
- * local files
+ * node modules and NPM packages
+ * absolute local files
+ * relative local files
 
 Inside each section, imports should be ordered alphabetically, based on module name.
 All imports from the same module should be grouped together, and ordered alphabetically on symbols imported.
@@ -53,9 +54,10 @@ Example:
 import {Meteor} from 'meteor/meteor';
 import {_} from 'meteor/underscore';
 
-import {ValidatedMethod} from 'meteor/mdg:validated-method';
+import {RouterFactory} from 'meteor/akryum:vue-router2';
 
 import {Document} from '/lib/document';
+
 import {fetch, initialize} from './data';
 ```
 

@@ -8,16 +8,61 @@ import {Random} from 'meteor/random';
 import {assert} from 'chai';
 import crypto from 'crypto';
 
-// Enable API.
-import {} from './api';
-import {User} from './documents/user';
-import {Document} from './documents/document';
+import {User} from '/lib/documents/user';
+import {Document} from '/lib/documents/document';
+
+// We use "Npm.require" because otherwise Meteor and eslint
+// complain that this module might not be found.
+// eslint-disable-next-line no-undef
+const Future = Npm.require('fibers/future');
 
 const baseFromMap = {
   '+': '-',
   '/': '_',
   '=': '.',
 };
+
+const WAIT_FOR_DATABASE_TIMEOUT = 1500; // ms
+
+function waitForDatabase() {
+  const future = new Future();
+
+  let timeout = null;
+  const newTimeout = function () {
+    if (timeout) {
+      Meteor.clearTimeout(timeout);
+    }
+    timeout = Meteor.setTimeout(function () {
+      timeout = null;
+      if (!future.isResolved()) {
+        future.return();
+      }
+    }, WAIT_FOR_DATABASE_TIMEOUT);
+  };
+
+  newTimeout();
+
+  const handles = [];
+  for (const document of Document.list) {
+    handles.push(document.documents.find({}).observeChanges({
+      added(id, fields) {
+        newTimeout();
+      },
+      changed(id, fields) {
+        newTimeout();
+      },
+      removed(id) {
+        newTimeout();
+      },
+    }));
+  }
+
+  future.wait();
+
+  for (const handle of handles) {
+    handle.stop();
+  }
+}
 
 function encrypt(inputData, keyHex) {
   const data = Object.assign({}, inputData);
@@ -34,6 +79,8 @@ function encrypt(inputData, keyHex) {
 }
 
 describe('document api', function () {
+  this.timeout(10000);
+
   // TODO: Use path information from router instead of hard-coding the path here.
   const apiEndpoint = Meteor.absoluteUrl('document');
   const keyHex = crypto.randomBytes(16).toString('hex');
@@ -50,7 +97,8 @@ describe('document api', function () {
   after(function () {
     Meteor.settings.tokenSharedSecret = oldTokenSharedSecret;
 
-    User.documents.remove({'services.usertoken.id': userId});
+    // Wait for all PeerDB activity to have time to run.
+    waitForDatabase();
   });
 
   it('should fail without query', function () {
@@ -255,7 +303,7 @@ describe('document api', function () {
     const documentId = response.data.documentId;
 
     assert.equal(Document.documents.findOne({_id: documentId}).visibility, Document.VISIBILITY_LEVELS.PRIVATE);
-    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getRolePermissions(Document.ROLES.VIEW));
+    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getPermissionsFromRole(Document.ROLES.VIEW));
 
     userToken = encrypt(userPayload, keyHex);
 
@@ -270,8 +318,8 @@ describe('document api', function () {
 
     assert.equal(response.statusCode, 200);
     assert.equal(response.data.status, 'success');
-    assert.equal(Document.documents.findOne({_id: documentId}).visibility, Document.VISIBILITY_LEVELS.LISTED);
-    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getRolePermissions(Document.ROLES.COMMENT));
+    assert.equal(Document.documents.findOne({_id: documentId}).visibility, Document.VISIBILITY_LEVELS.PUBLIC);
+    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getPermissionsFromRole(Document.ROLES.COMMENT));
 
     userToken = encrypt(userPayload, keyHex);
 
@@ -287,7 +335,7 @@ describe('document api', function () {
     assert.equal(response.statusCode, 200);
     assert.equal(response.data.status, 'success');
     assert.equal(Document.documents.findOne({_id: documentId}).visibility, Document.VISIBILITY_LEVELS.PRIVATE);
-    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getRolePermissions(Document.ROLES.COMMENT));
+    assert.deepEqual(Document.documents.findOne({_id: documentId}).defaultPermissions, Document.getPermissionsFromRole(Document.ROLES.COMMENT));
   });
 
   it('should allow changing editors', function () {

@@ -1,4 +1,4 @@
-import {check, Match} from 'meteor/check';
+import {Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import {_} from 'meteor/underscore';
 
@@ -12,6 +12,7 @@ import {Comment} from '/lib/documents/comment';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
 import {extractTitle, stepsAreOnlyHighlights} from '/lib/utils';
+import {check} from '/server/check';
 
 // TODO: Make documents expire after a while.
 const documents = new Map();
@@ -32,7 +33,6 @@ function updateCurrentState(contentKey, doc, version) {
     documents.set(contentKey, {doc, version});
   }
 }
-
 
 function rebaseSteps(args) {
   const {documentId} = args;
@@ -281,7 +281,7 @@ function rebaseSteps(args) {
 }
 
 
-Content.getCurrentState = (contentKey) => {
+Content.getCurrentState = function getCurrentState(contentKey) {
   let doc;
   let version;
   if (documents.has(contentKey)) {
@@ -292,7 +292,7 @@ Content.getCurrentState = (contentKey) => {
     version = 0;
   }
 
-  Content.documents.find({
+  this.documents.find({
     contentKeys: contentKey,
     version: {
       $gt: version,
@@ -343,137 +343,139 @@ Content.getCurrentState = (contentKey) => {
   return {doc, version};
 };
 
-// Server-side only method, so we are not using ValidatedMethod.
-Meteor.methods({
-  'Content.addSteps'(args) {
-    check(args, {
-      contentKey: Match.DocumentId,
-      currentVersion: Match.NonNegativeInteger,
-      steps: [Object],
-      clientId: Match.DocumentId,
-    });
+Content._addSteps = function addSteps(args, user) {
+  check(args, {
+    contentKey: Match.DocumentId,
+    currentVersion: Match.NonNegativeInteger,
+    steps: [Object],
+    clientId: Match.DocumentId,
+  });
 
-    // There should be steps.
-    check(args.steps, Match.Where((x) => {
-      return x.length > 0;
-    }));
+  // There should be steps.
+  check(args.steps, Match.Where((x) => {
+    return x.length > 0;
+  }));
 
-    const steps = args.steps.map((step) => {
-      return Step.fromJSON(schema, step);
-    });
+  const steps = args.steps.map((step) => {
+    return Step.fromJSON(schema, step);
+  });
 
-    const onlyHighlights = stepsAreOnlyHighlights(steps);
+  const onlyHighlights = stepsAreOnlyHighlights(steps);
 
-    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
+  // We do not use "CREATE" permission because from the point of the steps we
+  // are always updating the (potentially) empty already created document.
+  const allowedPermissions = [Document.PERMISSIONS.UPDATE];
+  if (onlyHighlights) {
+    allowedPermissions.push(Document.PERMISSIONS.COMMENT_CREATE);
+  }
 
-    // We do not use "CREATE" permission because from the point of the steps we
-    // are always updating the (potentially) empty already created document.
-    const allowedPermissions = [Document.PERMISSIONS.UPDATE];
-    if (onlyHighlights) {
-      allowedPermissions.push(Document.PERMISSIONS.COMMENT_CREATE);
+  const document = Document.documents.findOne(Document.restrictQuery({
+    contentKey: args.contentKey,
+  }, allowedPermissions, user), {
+    fields: {
+      _id: 1,
+      publishedAt: 1,
+    },
+  });
+
+  if (!document) {
+    throw new Meteor.Error('not-found', "Document cannot be found.");
+  }
+
+  // We need a user reference.
+  assert(user);
+
+  // "Document.restrictQuery" makes sure that we are not updating
+  // (with non-highlights steps) a published document.
+  assert(!document.isPublished() || onlyHighlights);
+
+  let {doc, version} = this.getCurrentState(args.contentKey);
+
+  if (args.currentVersion !== version) {
+    // If "currentVersion" is newer than "version" there might be a bug on the client,
+    // or we got an older state with not all steps from the database applied. In both cases
+    // the client should try again with probably correct version. If it is older, then client
+    // should try again as well, after updating its state with new steps.
+    return 0;
+  }
+
+  const timestamp = new Date();
+
+  for (const step of steps) {
+    const result = step.apply(doc);
+
+    if (!result.doc) {
+        // eslint-disable-next-line no-console
+      console.error("Error applying a step.", result.failed);
+      throw new Meteor.Error('invalid-request', "Invalid step.");
     }
 
-    const document = Document.documents.findOne(Document.restrictQuery({
-      contentKey: args.contentKey,
-    }, allowedPermissions, user), {
-      fields: {
-        _id: 1,
-        publishedAt: 1,
+    doc = result.doc;
+    version += 1;
+
+      // Validate that the step produced a valid document.
+    doc.check();
+
+      // eslint-disable-next-line no-unused-vars
+    const {numberAffected, insertedId} = Content.documents.upsert({
+      version,
+      contentKeys: args.contentKey,
+    }, {
+      $setOnInsert: {
+        contentKeys: [args.contentKey],
+        createdAt: timestamp,
+        author: user.getReference(),
+        clientId: args.clientId,
+        step: step.toJSON(),
       },
     });
 
-    if (!document) {
-      throw new Meteor.Error('not-found', "Document cannot be found.");
-    }
-
-    // We need a user reference.
-    assert(user);
-
-    // "Document.restrictQuery" makes sure that we are not updating
-    // (with non-highlights steps) a published document.
-    assert(!document.isPublished() || onlyHighlights);
-
-    let {doc, version} = Content.getCurrentState(args.contentKey);
-
-    if (args.currentVersion !== version) {
-      // If "currentVersion" is newer than "version" there might be a bug on the client,
-      // or we got an older state with not all steps from the database applied. In both cases
-      // the client should try again with probably correct version. If it is older, then client
-      // should try again as well, after updating its state with new steps.
-      return 0;
-    }
-
-    const timestamp = new Date();
-
-    for (const step of steps) {
-      const result = step.apply(doc);
-
-      if (!result.doc) {
-        // eslint-disable-next-line no-console
-        console.error("Error applying a step.", result.failed);
-        throw new Meteor.Error('invalid-request', "Invalid step.");
-      }
-
-      doc = result.doc;
-      version += 1;
-
-      // Validate that the step produced a valid document.
-      doc.check();
-
-      // eslint-disable-next-line no-unused-vars
-      const {numberAffected, insertedId} = Content.documents.upsert({
-        version,
-        contentKeys: args.contentKey,
-      }, {
-        $setOnInsert: {
-          contentKeys: [args.contentKey],
-          createdAt: timestamp,
-          author: user.getReference(),
-          clientId: args.clientId,
-          step: step.toJSON(),
-        },
-      });
-
-      if (!insertedId) {
+    if (!insertedId) {
         // Document was just updated, not inserted, so this means that there was already
         // a step with "version". This means we have to return to the client and the
         // client should try again.
-        break;
+      break;
+    }
+    updateCurrentState(args.contentKey, doc, version);
+  }
+
+  Document.documents.update({
+    contentKey: args.contentKey,
+    version: {
+      // We update only if we have a newer version then already in the database.
+      $lt: version,
+    },
+  }, {
+    $set: {
+      version,
+      body: doc.toJSON(),
+      updatedAt: timestamp,
+      lastActivity: timestamp,
+      title: extractTitle(doc),
+    },
+  });
+
+  // TODO: This could be done in the background?
+  Comment.filterOrphan(document._id, doc, version);
+
+  if (!rebaseMap.has(document._id)) {
+    rebaseMap.set(document._id, {doc, version});
+    Meteor.setTimeout((x) => {
+      if (rebaseMap.has(document._id)) {
+        rebaseMap.delete(document._id);
+        rebaseSteps({documentId: document._id});
       }
+    }, 2000);
+  }
 
-      updateCurrentState(args.contentKey, doc, version);
-    }
+  return version - args.currentVersion;
+};
 
-    Document.documents.update({
-      contentKey: args.contentKey,
-      version: {
-        // We update only if we have a newer version then already in the database.
-        $lt: version,
-      },
-    }, {
-      $set: {
-        version,
-        body: doc.toJSON(),
-        updatedAt: timestamp,
-        lastActivity: timestamp,
-        title: extractTitle(doc),
-      },
-    });
+Meteor.methods({
+  'Content.addSteps'(args) {
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    // TODO: This could be done in the background?
-    Comment.filterOrphan(document._id, doc, version);
-
-    if (!rebaseMap.has(document._id)) {
-      rebaseMap.set(document._id, {doc, version});
-      Meteor.setTimeout((x) => {
-        if (rebaseMap.has(document._id)) {
-          rebaseMap.delete(document._id);
-          rebaseSteps({documentId: document._id});
-        }
-      }, 2000);
-    }
-
-    return version - args.currentVersion;
+    return Content._addSteps(args, user);
   },
 });
 
@@ -500,6 +502,3 @@ Meteor.publish('Content.list', function contentList(args) {
     );
   });
 });
-
-// For testing.
-export {Content};

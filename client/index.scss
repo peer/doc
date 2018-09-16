@@ -14,3 +14,15 @@
     color: #1976d2;
   }
 }
+
+div#mocha {
+  background: white;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 1rem;
+  z-index: 1000;
+  position: absolute;
+}

@@ -1,5 +1,5 @@
 import {Accounts} from 'meteor/accounts-base';
-import {check, Match} from 'meteor/check';
+import {Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import {_} from 'meteor/underscore';
 
@@ -7,6 +7,7 @@ import crypto from 'crypto';
 
 import {User} from '/lib/documents/user';
 import {Nonce} from '/server/documents/nonce';
+import {check} from '/server/check';
 
 const baseToMap = {
   _: '/',
@@ -19,7 +20,13 @@ function decrypt(tokenBase, keyHex) {
     return baseToMap[c];
   }), 'base64');
   const iv = token.slice(0, 12);
+  if (iv.length !== 12) {
+    throw Error("Invalid IV.");
+  }
   const authTag = token.slice(12, 28);
+  if (authTag.length !== 16) {
+    throw Error("Invalid authentication tag.");
+  }
   const ciphertext = token.slice(28);
   const decipher = crypto.createDecipheriv('aes-128-gcm', Buffer.from(keyHex, 'hex'), iv);
   decipher.setAuthTag(authTag);
@@ -37,16 +44,23 @@ export function createOrGetUser(userDescriptor) {
     username: Match.NonEmptyString,
     id: Match.Any,
     email: Match.EMail,
+    language: Match.OptionalOrNull(Match.NonEmptyString),
   }));
 
   // eslint-disable-next-line no-param-reassign
-  userDescriptor = _.pick(userDescriptor, 'avatar', 'username', 'id', 'email');
+  userDescriptor = _.pick(userDescriptor, 'avatar', 'username', 'id', 'email', 'language');
+
+  let preferredLanguage = userDescriptor.language || null;
+  if (preferredLanguage) {
+    preferredLanguage = preferredLanguage.replace(/-/g, '_');
+  }
 
   // eslint-disable-next-line no-unused-vars
   const {numberAffected, insertedId} = User.documents.upsert({
     'services.usertoken.id': userDescriptor.id,
   }, {
     $set: {
+      preferredLanguage,
       username: userDescriptor.username,
       avatar: userDescriptor.avatar,
       'services.usertoken': userDescriptor,
@@ -99,8 +113,6 @@ export function createUserFromToken(userToken) {
   return createOrGetUser(decryptedToken);
 }
 
-// A special case which is not using ValidatedMethod because client side
-// differs a lot from the server side and there is no client stub.
 Meteor.methods({
   'User.createUserAndSignInWithUserToken'(...allArgs) {
     const args = allArgs[0];

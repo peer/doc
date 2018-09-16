@@ -6,3 +6,5 @@ node_modules
 settings.json
 *.po~
 translations/template.pot
+tests/cypress/videos
+tests/cypress/screenshots

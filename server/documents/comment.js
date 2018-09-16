@@ -1,20 +1,173 @@
-import {check, Match} from 'meteor/check';
+import {Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
 import {_} from 'meteor/underscore';
 
 import assert from 'assert';
 import {Node} from 'prosemirror-model';
 
+import {Activity} from '/lib/documents/activity';
 import {Comment} from '/lib/documents/comment';
 import {Content} from '/lib/documents/content';
+import {Document} from '/lib/documents/document';
+import {User} from '/lib/documents/user';
 import {schema} from '/lib/simple-schema.js';
+import {check} from '/server/check';
 
-import {Activity} from './activity';
-import {Document} from './document';
-import {User} from './user';
+Comment._create = function create(args, user, connectionId) {
+  check(args, {
+    documentId: Match.DocumentId,
+    highlightKey: Match.DocumentId,
+    body: Object,
+    replyTo: Match.Maybe(Match.DocumentId),
+    contentKey: Match.DocumentId,
+  });
+
+  // Validate body.
+  Node.fromJSON(schema, args.body).check();
+
+  // We first check that the user has a class-level permission to create comments.
+  if (!User.hasClassPermission(this.PERMISSIONS.CREATE, user)) {
+    throw new Meteor.Error('unauthorized', "Unauthorized.");
+  }
+
+  // We need a user reference.
+  assert(user);
+
+  // Then we check that the user has permissions on comment's document.
+  const document = Document.documents.findOne(Document.restrictQuery({
+    _id: args.documentId,
+  }, Document.PERMISSIONS.COMMENT_CREATE, user), {fields: Document.REFERENCE_FIELDS()});
+  if (!document) {
+    throw new Meteor.Error('not-found', `Document cannot be found.`);
+  }
+
+  const {version} = Content.getCurrentState(args.contentKey);
+
+  let replyTo = null;
+  if (args.replyTo) {
+    replyTo = this.documents.findOne(this.restrictQuery({
+      _id: args.replyTo,
+    }, this.PERMISSIONS.VIEW, user), {fields: Document.REFERENCE_FIELDS()});
+    if (!replyTo) {
+      throw new Meteor.Error('not-found', `Comment cannot be found.`);
+    }
+  }
+
+  const createdAt = new Date();
+
+  const commentId = this.documents.insert({
+    createdAt,
+    author: user.getReference(),
+    document: document.getReference(),
+    body: args.body,
+    versionFrom: version,
+    versionTo: null,
+    // TODO: Validate highlight key.
+    highlightKey: args.highlightKey,
+    replyTo: replyTo && replyTo.getReference(),
+    deletedAt: null,
+    deletedBy: null,
+    status: this.STATUS.CREATED,
+    userPermissions: [
+      {
+        user: user.getReference(),
+        addedAt: createdAt,
+        addedBy: user.getReference(),
+        permission: this.PERMISSIONS.VIEW,
+      },
+      {
+        user: user.getReference(),
+        addedAt: createdAt,
+        addedBy: user.getReference(),
+        permission: this.PERMISSIONS.DELETE,
+      },
+    ],
+  });
+
+  Document.documents.update({
+    _id: args.documentId,
+    lastActivity: {
+      $lt: createdAt,
+    },
+  }, {
+    $set: {
+      lastActivity: createdAt,
+    },
+  });
+
+  Activity.documents.insert({
+    timestamp: createdAt,
+    connection: connectionId,
+    byUser: user.getReference(),
+    // We inform all followers of this document.
+    // TODO: Implement once we have followers.
+    forUsers: [],
+    type: 'commentCreated',
+    level: Activity.LEVEL.GENERAL,
+    data: {
+      document: document.getReference(),
+      comment: {
+        _id: commentId,
+      },
+    },
+  });
+
+  return {
+    _id: commentId,
+  };
+};
+
+// TODO: Should we add/modify/delete an Activity?
+Comment._delete = function delete_(args, user) {
+  check(args, {
+    commentId: Match.DocumentId,
+    version: Match.Integer,
+  });
+
+  // We need a user reference.
+  if (!user) {
+    throw new Meteor.Error('unauthorized', "Unauthorized.");
+  }
+
+  const deletedAt = new Date();
+
+  // We do not do additional permission check on the document in this case.
+  let deleted = this.documents.update(this.restrictQuery({
+    _id: args.commentId,
+  }, this.PERMISSIONS.DELETE, user), {
+    $set: {
+      deletedAt,
+      deletedBy: user.getReference(),
+      versionTo: args.version,
+      status: this.STATUS.DELETED,
+    },
+  });
+
+  if (deleted) {
+    // If thread was deleted, then we have to delete also all replies to it.
+    // We do not check for permissions here because user deleting the whole
+    // thread does not necessary have delete permission for all replies directly.
+    // TODO: Should we give permissions to those who can delete a whole thread also for deletion of all comments in a thread?
+    //       This then means that those users could also delete individual comments in a thread.
+    deleted += this.documents.update({
+      'replyTo._id': args.commentId,
+    }, {
+      $set: {
+        deletedAt,
+        deletedBy: user.getReference(),
+        versionTo: args.version,
+        status: this.STATUS.DELETED,
+      },
+    }, {
+      multi: true,
+    });
+  }
+
+  return deleted;
+};
 
 // Here we assume this is called from a trusted place and we do not check permissions again.
-Comment.filterOrphan = (documentId, doc, version) => {
+Comment.filterOrphan = function filterOrphan(documentId, doc, version) {
   const highlightKeys = [];
 
   doc.descendants((node, pos) => {
@@ -28,12 +181,12 @@ Comment.filterOrphan = (documentId, doc, version) => {
 
   // Set "versionTo" to "null" for all "CREATED" comments with highlights present in the
   // current editor state, in case of re-applying a previous step, e.g., with Ctrl+Z.
-  Comment.documents.update({
+  this.documents.update({
     'document._id': documentId,
     highlightKey: {
       $in: highlightKeys,
     },
-    status: Comment.STATUS.CREATED,
+    status: this.STATUS.CREATED,
   }, {
     $set: {
       versionTo: null,
@@ -42,12 +195,12 @@ Comment.filterOrphan = (documentId, doc, version) => {
     multi: true,
   });
 
-  Comment.documents.update({
+  this.documents.update({
     'document._id': documentId,
     highlightKey: {
       $nin: highlightKeys,
     },
-    status: Comment.STATUS.CREATED,
+    status: this.STATUS.CREATED,
     versionTo: null,
   }, {
     $set: {
@@ -58,164 +211,20 @@ Comment.filterOrphan = (documentId, doc, version) => {
   });
 };
 
-// Server-side only methods, so we are not using ValidatedMethod.
-// TODO: Should we add/modify/delete an Activity?
 Meteor.methods({
-  'Comment.delete'(args) {
-    check(args, {
-      _id: Match.DocumentId,
-      documentId: Match.DocumentId,
-      version: Match.Integer,
-    });
-
-    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
-
-    const deletedAt = new Date();
-
-    // We do not do additional permission check on the document in this case.
-    let deleted = Comment.documents.update(Comment.restrictQuery({
-      _id: args._id,
-    }, Comment.PERMISSIONS.DELETE, user), {
-      $set: {
-        deletedAt,
-        deletedBy: user.getReference(),
-        versionTo: args.version,
-        status: Comment.STATUS.DELETED,
-      },
-    });
-
-    if (deleted) {
-      // If thread was deleted, then we have to delete also all replies to it.
-      // We do not check for permissions here because user deleting the whole
-      // thread does not necessary have delete permission for all replies directly.
-      // TODO: Should we give permissions to those who can delete a whole thread also for deletion of all comments in a thread?
-      //       This then means that those users could also delete individual comments in a thread.
-      deleted += Comment.documents.update({
-        'replyTo._id': args._id,
-      }, {
-        $set: {
-          deletedAt,
-          deletedBy: user.getReference(),
-          versionTo: args.version,
-          status: Comment.STATUS.DELETED,
-        },
-      }, {
-        multi: true,
-      });
-    }
-
-    return deleted;
-  },
-
   'Comment.create'(args) {
-    check(args, {
-      documentId: Match.DocumentId,
-      highlightKey: Match.DocumentId,
-      body: Object,
-      replyTo: Match.Maybe(Match.DocumentId),
-      contentKey: Match.DocumentId,
-    });
-
-    // Validate body.
-    Node.fromJSON(schema, args.body).check();
-
     const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    // We first check that the user has a class-level permission to create comments.
-    if (!User.hasClassPermission(Comment.PERMISSIONS.CREATE, user)) {
-      throw new Meteor.Error('unauthorized', "Unauthorized.");
-    }
-
-    // We need a user reference.
-    assert(user);
-
-    // Then we check that the user has permissions on comment's document.
-    const document = Document.documents.findOne(Document.restrictQuery({
-      _id: args.documentId,
-    }, Document.PERMISSIONS.COMMENT_CREATE, user), {fields: Document.REFERENCE_FIELDS()});
-    if (!document) {
-      throw new Meteor.Error('not-found', `Document cannot be found.`);
-    }
-
-    const {version} = Content.getCurrentState(args.contentKey);
-
-    let replyTo = null;
-    if (args.replyTo) {
-      replyTo = Comment.documents.findOne(Comment.restrictQuery({
-        _id: args.replyTo,
-      }, Comment.PERMISSIONS.VIEW, user), {fields: Document.REFERENCE_FIELDS()});
-      if (!replyTo) {
-        throw new Meteor.Error('not-found', `Comment cannot be found.`);
-      }
-    }
-
-    const createdAt = new Date();
-
-    const commentId = Comment.documents.insert({
-      createdAt,
-      author: user.getReference(),
-      document: document.getReference(),
-      body: args.body,
-      versionFrom: version,
-      versionTo: null,
-      // TODO: Validate highlight key.
-      highlightKey: args.highlightKey,
-      replyTo: replyTo && replyTo.getReference(),
-      deletedAt: null,
-      deletedBy: null,
-      status: Comment.STATUS.CREATED,
-      userPermissions: [
-        {
-          user: user.getReference(),
-          addedAt: createdAt,
-          addedBy: user.getReference(),
-          permission: Comment.PERMISSIONS.VIEW,
-        },
-        {
-          user: user.getReference(),
-          addedAt: createdAt,
-          addedBy: user.getReference(),
-          permission: Comment.PERMISSIONS.DELETE,
-        },
-      ],
-    });
-
-    Document.documents.update({
-      _id: args.documentId,
-      lastActivity: {
-        $lt: createdAt,
-      },
-    }, {
-      $set: {
-        lastActivity: createdAt,
-      },
-    });
-
-    Activity.documents.insert({
-      timestamp: createdAt,
-      connection: this.connection.id,
-      byUser: user.getReference(),
-      // We inform all followers of this document.
-      // TODO: Implement once we have followers.
-      forUsers: [],
-      type: 'commentCreated',
-      level: Activity.LEVEL.GENERAL,
-      data: {
-        document: document.getReference(),
-        comment: {
-          _id: commentId,
-        },
-      },
-    });
-
-    return {
-      _id: commentId,
-    };
+    return Comment._create(args, user, (this.connection && this.connection.id) || null);
   },
 
+  'Comment.delete'(args) {
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
+
+    return Comment._delete(args, user);
+  },
 });
 
-// TODO: Add middleware and restrict only for the current user what is published for "userPermissions".
 Meteor.publish('Comment.list', function commentList(args) {
   check(args, {
     documentId: Match.DocumentId,
@@ -240,6 +249,3 @@ Meteor.publish('Comment.list', function commentList(args) {
     });
   });
 });
-
-// For testing.
-export {Comment};

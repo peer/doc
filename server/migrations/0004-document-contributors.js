@@ -1,7 +1,8 @@
 import {_} from 'meteor/underscore';
 
-import {Content} from '/server/documents/content';
-import {Document} from '/server/documents/document';
+import {getPermissionObjects} from '/lib/utils';
+import {Content} from '/lib/documents/content';
+import {Document} from '/lib/documents/document';
 
 // This migration is a data migration and not schema migration.
 // We are updating documents, not really changing a schema.
@@ -39,8 +40,8 @@ class Migration extends Document.PatchMigration {
       let changed = 0;
 
       contributors.forEach((contributor) => {
-        const userPermissions = Document.getPermissionObjects(
-          Document.getRolePermissions(Document.ROLES.EDIT),
+        const userPermissions = getPermissionObjects(
+          Document.getPermissionsFromRole(Document.ROLES.EDIT),
           contributor,
           document.createdAt,
           document.author,

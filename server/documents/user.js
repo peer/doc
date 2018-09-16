@@ -1,8 +1,9 @@
 import {Accounts} from 'meteor/accounts-base';
 import {Meteor} from 'meteor/meteor';
-import {check, Match} from 'meteor/check';
+import {Match} from 'meteor/check';
 
 import {User} from '/lib/documents/user';
+import {check} from '/server/check';
 
 Accounts.onCreateUser(function onCreateUser(options, user) {
   // We ignore options.profile because we do not use profile.
@@ -45,6 +46,3 @@ Meteor.publish(null, function userPublish() {
     fields: User.EXTRA_PUBLISH_FIELDS(),
   });
 });
-
-// For testing.
-export {User};

@@ -21,7 +21,6 @@ audit-argument-checks@1.0.7
 accounts-password@1.5.0
 akryum:vue-component
 akryum:vue-router2
-mdg:validated-method
 peerlibrary:check-extension
 peerlibrary:subscription-scope
 peerlibrary:subscription-data
@@ -38,3 +37,4 @@ peerlibrary:peerdb-migrations
 runisland:static-assets
 juliancwirko:postcss
 tozd:activity-instrument
+logging
