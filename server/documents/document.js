@@ -81,6 +81,7 @@ Document._create = function create(args, user, connectionId) {
   });
 
   return {
+    contentKey,
     _id: documentId,
   };
 };
