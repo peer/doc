@@ -5,6 +5,10 @@ describe('documents', function () {
   it('can create a document', function () {
     cy.visit('/');
 
+    if (Cypress.env('PERCY_ENABLED')) {
+      cy.percySnapshot();
+    }
+
     // TODO: Make into a Cypress custom command.
     cy.window().then((window) => {
       window.require('/lib/documents/user').User.passwordlessSignIn({username: 'testuser'});
@@ -15,11 +19,19 @@ describe('documents', function () {
 
     cy.location('pathname').should('eq', '/document');
 
+    if (Cypress.env('PERCY_ENABLED')) {
+      cy.percySnapshot();
+    }
+
     // No idea why we need force, but it complains without.
     cy.get('.v-btn').contains('New document').click({force: true});
 
     cy.get('.v-snack__content').should('contain', 'New document has been created.').contains('Close').click();
 
     cy.get('h1[data-text="Write the title of your document here"]');
+
+    if (Cypress.env('PERCY_ENABLED')) {
+      cy.percySnapshot();
+    }
   });
 });

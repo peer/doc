@@ -5,9 +5,17 @@ describe('passwordless auth', function () {
   it('should sign in an user', function () {
     cy.visit('/');
 
+    if (Cypress.env('PERCY_ENABLED')) {
+      cy.percySnapshot();
+    }
+
     cy.contains('Sign In').click();
 
     cy.location('pathname').should('eq', '/user/signin');
+
+    if (Cypress.env('PERCY_ENABLED')) {
+      cy.percySnapshot();
+    }
 
     cy.get('button[type="submit"]').should('be.disabled');
 
@@ -16,6 +24,10 @@ describe('passwordless auth', function () {
     cy.get('button[type="submit"]').should('not.be.disabled').click();
 
     cy.location('pathname').should('eq', '/');
+
+    if (Cypress.env('PERCY_ENABLED')) {
+      cy.percySnapshot();
+    }
 
     cy.get('.v-snack__content').should('contain', 'You have been signed in.').contains('Close').click();
 
@@ -26,6 +38,10 @@ describe('passwordless auth', function () {
     cy.get('.v-list__tile--link').contains('Sign Out').click();
 
     cy.contains('Sign In');
+
+    if (Cypress.env('PERCY_ENABLED')) {
+      cy.percySnapshot();
+    }
 
     cy.get('.v-snack__content').should('contain', 'You have been signed out.').contains('Close').click();
   });
