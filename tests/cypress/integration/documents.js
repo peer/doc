@@ -19,6 +19,8 @@ describe('documents', function () {
 
     cy.location('pathname').should('eq', '/document');
 
+    cy.get('div.v-card__text').contains('No documents.');
+
     if (Cypress.env('PERCY_ENABLED')) {
       cy.percySnapshot('documents - can create a document - documents');
     }
