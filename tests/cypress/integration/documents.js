@@ -6,7 +6,7 @@ describe('documents', function () {
     cy.visit('/');
 
     if (Cypress.env('PERCY_ENABLED')) {
-      cy.percySnapshot();
+      cy.percySnapshot('documents - can create a document - initial');
     }
 
     // TODO: Make into a Cypress custom command.
@@ -20,7 +20,7 @@ describe('documents', function () {
     cy.location('pathname').should('eq', '/document');
 
     if (Cypress.env('PERCY_ENABLED')) {
-      cy.percySnapshot();
+      cy.percySnapshot('documents - can create a document - documents');
     }
 
     // No idea why we need force, but it complains without.
@@ -31,7 +31,7 @@ describe('documents', function () {
     cy.get('h1[data-text="Write the title of your document here"]');
 
     if (Cypress.env('PERCY_ENABLED')) {
-      cy.percySnapshot();
+      cy.percySnapshot('documents - can create a document - document made');
     }
   });
 });
