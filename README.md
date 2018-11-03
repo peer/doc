@@ -69,13 +69,22 @@ To generate translations:
 $ meteor npm run test-watch
 ```
 
-This will watch for any changes and rerun unit tests. Test results are in the terminal.
+This will watch for any code changes and rerun unit tests. Test results for both server-side
+and client-side are provided in the terminal.
 
 If you want to run unit tests only once, run:
 
 ```
 $ meteor npm run test
 ```
+
+If you prefer to see client-side test results in a browser, run:
+
+```
+$ meteor npm run test-watch-browser
+```
+
+And open [http://localhost:3100/](http://localhost:3100/) (note a different port).
 
 ### Acceptance tests
 
