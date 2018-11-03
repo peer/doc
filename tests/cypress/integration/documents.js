@@ -9,6 +9,8 @@ describe('documents', function () {
       cy.percySnapshot('documents - can create a document - initial');
     }
 
+    cy.resetDatbase();
+
     // TODO: Make into a Cypress custom command.
     cy.window().then((window) => {
       window.require('/lib/documents/user').User.passwordlessSignIn({username: 'testuser'});

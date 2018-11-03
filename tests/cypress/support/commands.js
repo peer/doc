@@ -19,7 +19,7 @@ Cypress.Commands.add('call', (methodName, ...args) => {
 
     const testConnection = Meteor.connect(Meteor.absoluteUrl());
 
-    testConnection.call(methodName, ...args, (error, result) => {
+    testConnection.apply(methodName, args, (error, result) => {
       log.set({
         consoleProps() {
           return {
@@ -44,3 +44,30 @@ Cypress.Commands.add('call', (methodName, ...args) => {
     });
   });
 });
+
+Cypress.Commands.add('resetDatbase', () => {
+  const log = Cypress.log({
+    name: 'resetDatbase',
+    message: 'resetDatbase',
+  });
+
+  return new Promise((resolve, reject) => {
+    const Meteor = cy.state('window').Meteor;
+
+    const testConnection = Meteor.connect(Meteor.absoluteUrl());
+
+    testConnection.apply('xolvio:cleaner/resetDatabase', [], (error) => {
+      if (error) {
+        reject(error);
+      }
+      else {
+        resolve();
+      }
+    });
+  }).catch((error) => {
+    Cypress.utils.throwErr(error, {
+      onFail: log,
+    });
+  });
+});
+
