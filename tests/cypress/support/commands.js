@@ -32,12 +32,15 @@ Cypress.Commands.add('call', (methodName, ...args) => {
       });
 
       if (error) {
-        log.error(error);
         reject(error);
       }
       else {
         resolve(result);
       }
+    });
+  }).catch((error) => {
+    Cypress.utils.throwErr(error, {
+      onFail: log,
     });
   });
 });
