@@ -105,5 +105,9 @@ $ meteor npm run cypress-run
 
 During CI testing acceptance tests are run as well. Results are recorded and available
 in [Cypress Dashboard](https://dashboard.cypress.io/#/projects/v5cnsk/runs).
-You can find a link to a particular recording for a CI run in
-[CircleCI's run output](https://circleci.com/gh/peer/doc).
+Moreover, results are also submitted for visual diffing and are available
+in [Percy](https://percy.io/peer/doc).
+
+You can find links to a particular Cypress recording and Percy build for a CI run in
+[CircleCI's run output](https://circleci.com/gh/peer/doc). Furthermore, Percy adds
+a link to the build also to GitHub PR's commit status.
