@@ -15,7 +15,7 @@
     "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json",
     "cypress": "cypress open",
     "cypress-run": "cypress run",
-    "cypress-ci:runner": "cypress run --record --reporter junit --reporter-options mochaFile=/tmp/test-reports/cypress-results.xml",
+    "cypress-ci:runner": "percy exec -- cypress run --record --reporter junit --reporter-options mochaFile=/tmp/test-reports/cypress-results.xml",
     "cypress-ci": "NO_HMR=1 start-server-and-test test-app http://localhost:3000 cypress-ci:runner"
   },
   "dependencies": {
@@ -56,10 +56,11 @@
     "vuetify": "~1.1.6"
   },
   "devDependencies": {
+    "@percy/cypress": "^0.1.0",
     "babel-eslint": "~8.2.3",
     "chai": "~3.5.0",
     "chromedriver": "~2.41.0",
-    "cypress": "^3.1.0",
+    "cypress": "^3.1.1",
     "easygettext": "~2.3.0",
     "eslint": "~4.19.1",
     "eslint-config-airbnb-base": "~12.1.0",

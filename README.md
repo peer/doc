@@ -69,13 +69,22 @@ To generate translations:
 $ meteor npm run test-watch
 ```
 
-This will watch for any changes and rerun unit tests. Test results are in the terminal.
+This will watch for any code changes and rerun unit tests. Test results for both server-side
+and client-side are provided in the terminal.
 
 If you want to run unit tests only once, run:
 
 ```
 $ meteor npm run test
 ```
+
+If you prefer to see client-side test results in a browser, run:
+
+```
+$ meteor npm run test-watch-browser
+```
+
+And open [http://localhost:3100/](http://localhost:3100/) (note a different port).
 
 ### Acceptance tests
 
@@ -89,14 +98,25 @@ This will run the full app in test mode on [http://localhost:3000/](http://local
 but you do not have to open it. Run in another terminal:
 
 ```
-$ meteor npm run chimp-watch
+$ meteor npm run cypress
 ```
 
-This will then connect to the app and run acceptance tests. It will watch for any changes and
-rerun tests, too. Test results are in the terminal.
+This will open [Cypress runner](http://cypress.io/) which we use for acceptance tests.
+You can select tests to run or run all of them and you will see how they are run in
+testing browser, and be able to inspect results. It will watch for any changes and
+rerun tests, too.
 
-If you want to run acceptance tests only once, run:
+If you want to run acceptance tests only once, and see results in the terminal, run:
 
 ```
-$ meteor npm run chimp-test
+$ meteor npm run cypress-run
 ```
+
+During CI testing acceptance tests are run as well. Results are recorded and available
+in [Cypress Dashboard](https://dashboard.cypress.io/#/projects/v5cnsk/runs).
+Moreover, results are also submitted for visual diffing and are available
+in [Percy](https://percy.io/peer/doc).
+
+You can find links to a particular Cypress recording and Percy build for a CI run in
+[CircleCI's run output](https://circleci.com/gh/peer/doc). Furthermore, Percy adds
+a link to the build also to GitHub PR's commit status.

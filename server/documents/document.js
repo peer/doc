@@ -93,6 +93,7 @@ Document._create = function create(args, user, connectionId) {
 
   const documentId = insertNewDocument(user, connectionId, createdAt, contentKeys[0]);
   return {
+    contentKeys,
     _id: documentId,
   };
 };

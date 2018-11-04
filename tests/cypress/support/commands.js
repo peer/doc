@@ -1,25 +1,73 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add("login", (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add("drag", { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add("dismiss", { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This is will overwrite an existing command --
-// Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+/* eslint-env cypress/globals */
+
+// Call a Meteor method.
+// TODO: This should be improved. See: https://github.com/cypress-io/cypress/issues/2443
+Cypress.Commands.add('call', (methodName, ...args) => {
+  const log = Cypress.log({
+    name: 'call',
+    message: `${methodName}(${Cypress.utils.stringify(args)})`,
+    consoleProps() {
+      return {
+        methodName,
+        arguments: args,
+      };
+    },
+  });
+
+  return new Promise((resolve, reject) => {
+    const Meteor = cy.state('window').Meteor;
+
+    const testConnection = Meteor.connect(Meteor.absoluteUrl());
+
+    testConnection.apply(methodName, args, (error, result) => {
+      log.set({
+        consoleProps() {
+          return {
+            methodName,
+            arguments: args,
+            error,
+            result,
+          };
+        },
+      });
+
+      if (error) {
+        reject(error);
+      }
+      else {
+        resolve(result);
+      }
+    });
+  }).catch((error) => {
+    Cypress.utils.throwErr(error, {
+      onFail: log,
+    });
+  });
+});
+
+Cypress.Commands.add('resetDatbase', () => {
+  const log = Cypress.log({
+    name: 'resetDatbase',
+    message: 'resetDatbase',
+  });
+
+  return new Promise((resolve, reject) => {
+    const Meteor = cy.state('window').Meteor;
+
+    const testConnection = Meteor.connect(Meteor.absoluteUrl());
+
+    testConnection.apply('xolvio:cleaner/resetDatabase', [], (error) => {
+      if (error) {
+        reject(error);
+      }
+      else {
+        resolve();
+      }
+    });
+  }).catch((error) => {
+    Cypress.utils.throwErr(error, {
+      onFail: log,
+    });
+  });
+});
+
