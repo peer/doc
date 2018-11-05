@@ -5,9 +5,7 @@ describe('documents', function () {
   it('can create a document', function () {
     cy.visit('/');
 
-    if (Cypress.env('PERCY_ENABLED')) {
-      cy.percySnapshot('documents - can create a document - initial');
-    }
+    cy.visualSnapshot(this.test, 'initial');
 
     cy.resetDatbase();
 
@@ -23,9 +21,7 @@ describe('documents', function () {
 
     cy.get('div.v-card__text').contains('No documents.');
 
-    if (Cypress.env('PERCY_ENABLED')) {
-      cy.percySnapshot('documents - can create a document - documents');
-    }
+    cy.visualSnapshot(this.test, 'documents');
 
     // No idea why we need force, but it complains without.
     cy.get('.v-btn').contains('New document').click({force: true});
@@ -34,9 +30,7 @@ describe('documents', function () {
 
     cy.get('h1[data-text="Write the title of your document here"]');
 
-    if (Cypress.env('PERCY_ENABLED')) {
-      cy.percySnapshot('documents - can create a document - document made');
-    }
+    cy.visualSnapshot(this.test, 'document made');
 
     cy.window().then((window) => {
       cy.get('p[data-text="Add the text of your document here"]').then(($el) => {
@@ -51,9 +45,7 @@ describe('documents', function () {
       });
     });
 
-    if (Cypress.env('PERCY_ENABLED')) {
-      cy.percySnapshot('documents - can create a document - focused');
-    }
+    cy.visualSnapshot(this.test, 'focused');
 
     cy.window().then((window) => {
       const selection = window.getSelection();
@@ -64,17 +56,13 @@ describe('documents', function () {
 
     cy.wait(500);
 
-    if (Cypress.env('PERCY_ENABLED')) {
-      cy.percySnapshot('documents - can create a document - added text');
-    }
+    cy.visualSnapshot(this.test, 'added text');
 
     cy.get('button[title="Bold (Ctrl-B)"]').click();
 
     cy.wait(500);
 
-    if (Cypress.env('PERCY_ENABLED')) {
-      cy.percySnapshot('documents - can create a document - bold');
-    }
+    cy.visualSnapshot(this.test, 'bold');
 
     cy.location('pathname').then((path) => {
       const match = path.match(/\/document\/(.*)/);
