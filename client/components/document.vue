@@ -11,7 +11,7 @@
         :document-id="document._id"
         :content-key="document.contentKey"
         :client-id="clientId"
-        :read-only="readOnly"
+        :read-only="isReadOnly"
         @content-changed="onContentChanged"
         @highlight-selected="onHighlightSelected"
         @highlight-added="onHighlightAdded"
@@ -63,8 +63,9 @@
           _id: this.documentId,
         });
       },
-      readOnly() {
-        return this.document.isPublished() || this.document.status === Document.STATUS.REBASING;
+
+      isReadOnly() {
+        return this.document.isPublished() || this.document.isRebasing();
       },
     },
 
