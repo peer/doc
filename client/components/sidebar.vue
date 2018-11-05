@@ -192,7 +192,7 @@
       },
 
       canUserMergeDocument() {
-        return !!(this.parentDocument && this.parentDocument.canUser(Document.PERMISSIONS.UPDATE));
+        return !!(this.parentDocument && this.parentDocument.canUser(Document.PERMISSIONS.MERGE));
       },
     },
 
