@@ -56,7 +56,14 @@
         fluid
         fill-height
       >
-        <router-view :key="$route.fullPath" />
+        <!--
+          We use route path as a key to force "router-view" component to be recreated
+          every time the path changes, instead of props just be updated (which would
+          happen otherwise for example if user navigated from "/document/1" to
+          "/document/2"). This means that components do not have to expect props
+          coming from the route path to ever reactively change.
+        -->
+        <router-view :key="$route.path" />
       </v-container>
     </v-content>
     <v-snackbar
