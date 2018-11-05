@@ -50,7 +50,7 @@ function rebaseSteps(args) {
         status: 1,
         contentKey: 1,
         forkedAtVersion: 1,
-        lastSync: 1,
+        rebasedAtVersion: 1,
         forkedFrom: 1,
         _id: 1,
       },
@@ -66,7 +66,7 @@ function rebaseSteps(args) {
     _id: fork.forkedFrom._id,
   });
 
-  if (fork.status !== Document.STATUS.REBASING && fork.lastSync < original.version) {
+  if (fork.status !== Document.STATUS.REBASING && fork.rebasedAtVersion < original.version) {
     Document.documents.update({
       _id: fork._id,
     }, {
@@ -80,7 +80,7 @@ function rebaseSteps(args) {
       const forkSteps = Content.documents.find(
         {
           version: {
-            $gt: fork.lastSync,
+            $gt: fork.rebasedAtVersion,
           },
           contentKeys: fork.contentKey,
         },
@@ -100,7 +100,7 @@ function rebaseSteps(args) {
       const originalSteps = Content.documents.find(
         {
           version: {
-            $gt: fork.lastSync,
+            $gt: fork.rebasedAtVersion,
           },
           contentKeys: original.contentKey,
         },
@@ -134,7 +134,7 @@ function rebaseSteps(args) {
           version: 1,
         },
       }).fetch().forEach((content) => {
-        if (content.version > fork.lastSync) {
+        if (content.version > fork.rebasedAtVersion) {
           if (!transform) {
             transform = new Transform(doc);
           }
@@ -210,7 +210,7 @@ function rebaseSteps(args) {
       Content.documents.remove({
         contentKeys: fork.contentKey,
         version: {
-          $gt: fork.lastSync,
+          $gt: fork.rebasedAtVersion,
         },
       });
 
@@ -218,7 +218,7 @@ function rebaseSteps(args) {
       const updated = Content.documents.update({
         contentKeys: original.contentKey,
         version: {
-          $gt: fork.lastSync,
+          $gt: fork.rebasedAtVersion,
           $lte: original.version,
         },
       }, {
@@ -229,7 +229,7 @@ function rebaseSteps(args) {
         multi: true,
       });
 
-      version = fork.lastSync + updated;
+      version = fork.rebasedAtVersion + updated;
       let index = 0;
 
       // Save merge steps.
@@ -262,7 +262,7 @@ function rebaseSteps(args) {
           updatedAt: timestamp,
           lastActivity: timestamp,
           title: extractTitle(doc),
-          lastSync: original.version,
+          rebasedAtVersion: original.version,
           status: Document.STATUS.CREATED,
         },
       });

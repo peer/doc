@@ -272,7 +272,7 @@
         if (newValue.status === Document.STATUS.REBASING) {
           this.documentStatus = newValue.status;
         }
-        else if (newValue.lastSync !== oldValue.lastSync) {
+        else if (newValue.rebasedAtVersion !== oldValue.rebasedAtVersion) {
           this.resetEditor();
           this.documentStatus = newValue.status;
         }

@@ -425,7 +425,7 @@ Meteor.methods({
       body: doc.body,
       forkedFrom: doc.getReference(),
       forkedAtVersion: doc.version,
-      lastSync: doc.version,
+      rebasedAtVersion: doc.version,
       isMerged: false,
     };
 
@@ -453,7 +453,7 @@ Meteor.methods({
           body: 1,
           version: 1,
           contentKey: 1,
-          lastSync: 1,
+          rebasedAtVersion: 1,
           forkedFrom: 1,
         },
       },
@@ -473,7 +473,7 @@ Meteor.methods({
     Content.documents.update({
       contentKeys: fork.contentKey,
       version: {
-        $gt: fork.lastSync,
+        $gt: fork.rebasedAtVersion,
       },
     }, {
       $addToSet: {
@@ -491,7 +491,7 @@ Meteor.methods({
     }, {
       $set: {
         isMerged: true,
-        lastSync: fork.version,
+        rebasedAtVersion: fork.version,
         updatedAt: timestamp,
         lastActivity: timestamp,
         title: fork.title,
