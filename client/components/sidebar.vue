@@ -17,32 +17,38 @@
               card
             >
               <v-chip
-                v-if="!apiControlled && document.isPublished()"
+                v-if="document.isPublished()"
                 label
                 disabled
-                color="green"
-                text-color="white"
+                color="green lighten-2"
                 class="sidebar__status"
               ><translate>document-published</translate></v-chip>
+              <v-chip
+                v-else
+                label
+                disabled
+                color="yellow lighten-2"
+                class="sidebar__status"
+              ><translate>document-draft</translate></v-chip>
               <v-btn
                 v-if="!apiControlled && !document.isPublished() && canUserAdministerDocument"
                 :to="{name: 'document-publish', params: {documentId}}"
-                color="success"
+                outline
               ><translate>document-publish</translate></v-btn>
               <v-btn
-                v-if="!document.forkedFrom"
-                color="default"
+                v-if="!apiControlled && document.isPublished() && canUserForkDocument"
+                outline
                 @click="forkDocument()"
               ><translate>document-fork</translate></v-btn>
               <v-btn
-                v-if="document.forkedFrom"
-                color="warning"
+                v-if="!apiControlled && !document.isPublished() && canUserMergeDocument"
+                outline
                 @click="mergeDocument()"
               ><translate>document-merge</translate></v-btn>
               <v-btn
                 v-if="!apiControlled && canUserAdministerDocument"
                 :to="{name: 'document-share', params: {documentId}}"
-                color="primary"
+                outline
               ><translate>share</translate></v-btn>
             </v-toolbar>
           </v-card>
@@ -175,6 +181,17 @@
         });
       },
 
+      parentDocument() {
+        if (this.document && this.document.forkedFrom) {
+          return Document.documents.findOne({
+            _id: this.document.forkedFrom._id,
+          });
+        }
+        else {
+          return null;
+        }
+      },
+
       canUserCreateComments() {
         return !!(this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE) && User.hasClassPermission(Comment.PERMISSIONS.CREATE));
       },
@@ -182,11 +199,25 @@
       canUserAdministerDocument() {
         return !!(this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
       },
+
+      canUserForkDocument() {
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.VIEW) && User.hasClassPermission(Document.PERMISSIONS.CREATE));
+      },
+
+      canUserMergeDocument() {
+        return !!(this.parentDocument && this.parentDocument.canUser(Document.PERMISSIONS.UPDATE));
+      },
     },
 
     created() {
       this.$autorun((computation) => {
         this.commentsHandle = this.$subscribe('Comment.list', {documentId: this.documentId});
+      });
+
+      this.$autorun((computation) => {
+        if (this.document && this.document.forkedFrom) {
+          this.$subscribe('Document.one', {documentId: this.document.forkedFrom._id});
+        }
       });
     },
 

@@ -154,7 +154,8 @@
 
 <style lang="scss">
   .documents__label {
-    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
   }
 
   .documents__untitled {
