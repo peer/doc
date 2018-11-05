@@ -280,7 +280,6 @@ function rebaseSteps(args) {
   }
 }
 
-
 Content.getCurrentState = function getCurrentState(contentKey) {
   let doc;
   let version;
@@ -405,7 +404,7 @@ Content._addSteps = function addSteps(args, user) {
     const result = step.apply(doc);
 
     if (!result.doc) {
-        // eslint-disable-next-line no-console
+      // eslint-disable-next-line no-console
       console.error("Error applying a step.", result.failed);
       throw new Meteor.Error('invalid-request', "Invalid step.");
     }
@@ -413,10 +412,10 @@ Content._addSteps = function addSteps(args, user) {
     doc = result.doc;
     version += 1;
 
-      // Validate that the step produced a valid document.
+    // Validate that the step produced a valid document.
     doc.check();
 
-      // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
     const {numberAffected, insertedId} = Content.documents.upsert({
       version,
       contentKeys: args.contentKey,
@@ -431,11 +430,12 @@ Content._addSteps = function addSteps(args, user) {
     });
 
     if (!insertedId) {
-        // Document was just updated, not inserted, so this means that there was already
-        // a step with "version". This means we have to return to the client and the
-        // client should try again.
+      // Document was just updated, not inserted, so this means that there was already
+      // a step with "version". This means we have to return to the client and the
+      // client should try again.
       break;
     }
+
     updateCurrentState(args.contentKey, doc, version);
   }
 
