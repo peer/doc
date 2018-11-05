@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-04 23:26-0800\n"
+"POT-Creation-Date: 2018-11-05 00:17-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -93,11 +93,11 @@ msgstr "New document"
 msgid "document-created-at"
 msgstr "Created %{at}"
 
-#: client/components/documents.vue:130
+#: client/components/documents.vue:124
 msgid "document-created-error"
 msgstr "Error creating a new document: %{error}"
 
-#: client/components/documents.vue:134
+#: client/components/documents.vue:128
 msgid "document-created-success"
 msgstr "New document has been created."
 
@@ -109,25 +109,29 @@ msgstr "Default permissions"
 msgid "document-default-permissions-hint"
 msgstr "Default permissions for users who can access the document."
 
-#: client/components/documents.vue:55 client/components/sidebar.vue:31
-msgid "document-draft"
-msgstr "draft"
-
-#: client/components/sidebar.vue:41
+#: client/components/sidebar.vue:28
 msgid "document-fork"
 msgstr "Fork"
 
-#: client/components/sidebar.vue:46
+#: client/components/document-status.vue:18
+msgid "document-is-draft"
+msgstr "draft"
+
+#: client/components/document-status.vue:24
+msgid "document-is-fork"
+msgstr "fork"
+
+#: client/components/document-status.vue:11
+msgid "document-is-published"
+msgstr "published"
+
+#: client/components/sidebar.vue:33
 msgid "document-merge"
 msgstr "Merge"
 
-#: client/components/sidebar.vue:36
+#: client/components/sidebar.vue:23
 msgid "document-publish"
 msgstr "Publish"
-
-#: client/components/sidebar.vue:24
-msgid "document-published"
-msgstr "published"
 
 #: client/components/documents.vue:34
 msgid "document-published-at"
@@ -209,11 +213,11 @@ msgstr "Saved"
 msgid "editor-saving"
 msgstr "Saving..."
 
-#: client/components/sidebar.vue:247
+#: client/components/sidebar.vue:234
 msgid "fork-error"
 msgstr "An error has occurred when trying to fork the document."
 
-#: client/components/sidebar.vue:251
+#: client/components/sidebar.vue:238
 msgid "fork-success"
 msgstr "The document has been successfully forked."
 
@@ -255,11 +259,11 @@ msgstr "less than a minute"
 msgid "link-hint"
 msgstr "Enter a link"
 
-#: client/components/sidebar.vue:259
+#: client/components/sidebar.vue:246
 msgid "merge-error"
 msgstr "An error has occurred when trying to merge the document."
 
-#: client/components/sidebar.vue:263
+#: client/components/sidebar.vue:250
 msgid "merge-success"
 msgstr "The document has been successfully merged into the parent document."
 
@@ -269,11 +273,11 @@ msgid_plural "minutes"
 msgstr[0] "%{value} minute"
 msgstr[1] "%{value} minutes"
 
-#: client/components/sidebar.vue:93
+#: client/components/sidebar.vue:80
 msgid "no-comments"
 msgstr "No comments."
 
-#: client/components/documents.vue:64
+#: client/components/documents.vue:58
 msgid "no-documents"
 msgstr "No documents."
 
@@ -389,7 +393,7 @@ msgstr "User can view the document."
 msgid "role-view-users-hint"
 msgstr "Users who can access the document can view it."
 
-#: client/components/sidebar.vue:51
+#: client/components/sidebar.vue:38
 msgid "share"
 msgstr "Share"
 
@@ -413,7 +417,7 @@ msgstr "Error signing out: %{error}"
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
-#: client/components/sidebar.vue:97
+#: client/components/sidebar.vue:84
 msgid "start-a-new-comment"
 msgstr "Start a new comment by selecting content on the left."
 

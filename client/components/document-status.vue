@@ -9,14 +9,21 @@
       disabled
       color="green lighten-2"
       class="document-status__status"
-    ><translate>document-published</translate></v-chip>
+    ><translate>document-is-published</translate></v-chip>
     <v-chip
       v-else
       label
       disabled
       color="yellow lighten-2"
       class="document-status__status"
-    ><translate>document-draft</translate></v-chip>
+    ><translate>document-is-draft</translate></v-chip>
+    <v-chip
+      v-if="document.forkedFrom"
+      label
+      disabled
+      color="blue lighten-2"
+      class="document-status__status"
+    ><translate>document-is-fork</translate></v-chip>
   </div>
 </template>
 
