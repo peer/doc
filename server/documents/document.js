@@ -35,7 +35,7 @@ function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
     userPermissions,
     visibility: Document.VISIBILITY_LEVELS.PRIVATE,
     defaultPermissions: Document.getPermissionsFromRole(Document.ROLES.VIEW),
-    status: Document.STATUS.CREATED,
+    isRebasing: false,
   };
 
   const documentBody = doc ? Object.assign({}, toCreate, doc) : toCreate;

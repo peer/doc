@@ -66,12 +66,12 @@ function rebaseSteps(args) {
     _id: fork.forkedFrom._id,
   });
 
-  if (fork.status !== Document.STATUS.REBASING && fork.rebasedAtVersion < original.version) {
+  if (!fork.isRebasing && fork.rebasedAtVersion < original.version) {
     Document.documents.update({
       _id: fork._id,
     }, {
       $set: {
-        status: Document.STATUS.REBASING,
+        isRebasing: true,
       },
     });
 
@@ -263,7 +263,7 @@ function rebaseSteps(args) {
           lastActivity: timestamp,
           title: extractTitle(doc),
           rebasedAtVersion: original.version,
-          status: Document.STATUS.CREATED,
+          isRebasing: false,
         },
       });
       updateCurrentState(fork.contentKey, doc, version);
@@ -273,7 +273,7 @@ function rebaseSteps(args) {
         _id: fork._id,
       }, {
         $set: {
-          status: Document.STATUS.CREATED,
+          isRebasing: false,
         },
       });
     }

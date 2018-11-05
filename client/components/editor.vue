@@ -269,7 +269,7 @@
 
     watch: {
       document(newValue, oldValue) {
-        if (newValue.status === Document.STATUS.REBASING) {
+        if (newValue.isRebasing) {
           this.rebasingInProgress = true;
         }
         else {

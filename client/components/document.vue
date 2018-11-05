@@ -65,7 +65,7 @@
       },
 
       isReadOnly() {
-        return this.document.isPublished() || this.document.isRebasing();
+        return this.document.isPublished() || this.document.isRebasing;
       },
     },
 
