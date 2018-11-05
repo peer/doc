@@ -241,6 +241,7 @@
 
     methods: {
       forkDocument() {
+        // TODO: Add "in progress" guard.
         Document.fork({documentId: this.documentId}, (error, response) => {
           if (!error) {
             Snackbar.enqueue(this.$gettext("document-forked-success"), 'success');
@@ -248,7 +249,9 @@
           }
         });
       },
+
       mergeDocument() {
+        // TODO: Add "in progress" guard.
         Document.merge({documentId: this.documentId}, (error, response) => {
           if (!error) {
             // eslint-disable-next-line no-console
