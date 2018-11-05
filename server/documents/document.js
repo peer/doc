@@ -80,20 +80,20 @@ Document._create = function create(args, user, connectionId) {
   assert(user);
 
   const createdAt = new Date();
-  const contentKeys = [Random.id()];
+  const contentKey = Random.id();
 
   Content.documents.insert({
     createdAt,
-    contentKeys,
     author: user.getReference(),
     clientId: null,
+    contentKeys: [contentKey],
     version: 0,
     step: null,
   });
 
-  const documentId = insertNewDocument(user, connectionId, createdAt, contentKeys[0]);
+  const documentId = insertNewDocument(user, connectionId, createdAt, contentKey);
   return {
-    contentKeys,
+    contentKey,
     _id: documentId,
   };
 };

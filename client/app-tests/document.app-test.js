@@ -19,9 +19,9 @@ describe('document', function () {
   before(async function () {
     await User.passwordlessSignIn({username});
 
-    const {contentKeys, _id: documentId} = await Document.create({});
+    const {contentKey, _id: documentId} = await Document.create({});
 
-    this.contentKeys = contentKeys;
+    this.contentKey = contentKey;
     this.documentId = documentId;
   });
 
@@ -30,7 +30,7 @@ describe('document', function () {
 
     const changes = await Content.addSteps({
       clientId,
-      contentKeys: this.contentKeys,
+      contentKey: this.contentKey,
       currentVersion: 0,
       steps: [{
         stepType: 'replace',
