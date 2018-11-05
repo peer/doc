@@ -146,6 +146,7 @@
       </v-toolbar>
       <v-divider />
     </div>
+
     <v-card-text
       ref="editor"
       class="editor"
