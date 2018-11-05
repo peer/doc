@@ -1,10 +1,12 @@
 import {Document} from '/lib/documents/document';
 
 class Migration extends Document.AddRequiredFieldsMigration {
-  name = "Adding forkedAtVersion and forkedFrom fields"
+  name = "Adding forkedFrom, forkedAtVersion, rebasedAtVersion, and isRebasing fields";
   fields = {
-    forkedAtVersion: null,
     forkedFrom: null,
+    forkedAtVersion: null,
+    rebasedAtVersion: null,
+    isRebasing: false,
   }
 }
 

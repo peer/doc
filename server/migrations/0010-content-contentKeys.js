@@ -1,9 +1,11 @@
-import {Content} from '/lib/documents/content'; // eslint-disable-line
+import {_} from 'meteor/underscore';
 
-class Migration extends Document.MajorMigration { // eslint-disable-line
-  name = "Changing contentKey field to contentKeys";
+import {Content} from '/lib/documents/content';
 
-  // Transforms contentKey field to an array and renames it to contentKeys
+class Migration extends Document.MajorMigration {
+  name = "Changing contentKey to contentKeys field";
+
+  // Transforms "contentKey" field to an array and renames it to "contentKeys".
   forward(documentClass, collection, currentSchema, newSchema) {
     let count = 0;
 
@@ -27,13 +29,13 @@ class Migration extends Document.MajorMigration { // eslint-disable-line
     return counts;
   }
 
-  // Transforms contentKeys array to a string field and renames it to contentKey.
-  // If there was more than one contentKey in the contentKeys array, a new content
-  // document is created for each aditional contentKey.
+  // Transforms "contentKeys" array to a string field and renames it to "contentKey".
+  // If there was more than one value in the "contentKeys" array, a new "Content"
+  // document is created for each additional value.
   backward(documentClass, collection, currentSchema, oldSchema) {
     let count = 0;
 
-    collection.findEach({_schema: currentSchema, contentKeys: {$exists: true}}, {contentKeys: 1}, (document) => {
+    collection.findEach({_schema: currentSchema, contentKeys: {$exists: true}}, {}, (document) => {
       const updateQuery = {
         $set: {
           _schema: oldSchema,
@@ -47,18 +49,17 @@ class Migration extends Document.MajorMigration { // eslint-disable-line
       count += collection.update({_schema: currentSchema, _id: document._id}, updateQuery);
 
       if (document.contentKeys.length > 1) {
-        document.contentKeys.forEach((x, i) => {
-          if (i > 0) {
-            collection.insert({
-              createdAt: document.createdAt,
-              contentKey: x,
-              author: document.author,
-              clientId: document.clientId,
-              version: document.version,
-              step: document.step,
-              _schema: oldSchema,
-            });
+        document.contentKeys.forEach((contentKey, i) => {
+          if (i === 0) {
+            return;
           }
+
+          const newDocument = _.extend(_.omit(document, '_id', 'contentKeys'), {
+            contentKey,
+            _schema: oldSchema,
+          });
+
+          collection.insert(newDocument);
         });
       }
     });
@@ -70,4 +71,4 @@ class Migration extends Document.MajorMigration { // eslint-disable-line
   }
 }
 
-// Content.addMigration(new Migration());
+Content.addMigration(new Migration());
