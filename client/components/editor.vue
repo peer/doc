@@ -219,6 +219,7 @@
         subscriptionHandle: null,
         commentsHandle: null,
         addingStepsInProgress: false,
+        rebasingInProgress: false,
         cursorsHandle: null,
         selectedExistingHighlights: [],
         disabledButtons: {},
@@ -243,7 +244,6 @@
         quoteHint: this.$gettext("toolbar-quote"),
         bulletedListHint: this.$gettext("toolbar-bulleted-list"),
         numberedListHint: this.$gettext("toolbar-numbered-list"),
-        documentStatus: null,
       };
     },
 
@@ -270,11 +270,13 @@
     watch: {
       document(newValue, oldValue) {
         if (newValue.status === Document.STATUS.REBASING) {
-          this.documentStatus = newValue.status;
+          this.rebasingInProgress = true;
         }
-        else if (newValue.rebasedAtVersion !== oldValue.rebasedAtVersion) {
-          this.resetEditor();
-          this.documentStatus = newValue.status;
+        else {
+          if (newValue.rebasedAtVersion !== oldValue.rebasedAtVersion) {
+            this.resetEditor();
+          }
+          this.rebasingInProgress = false;
         }
       },
     },
@@ -430,7 +432,7 @@
           return;
         }
 
-        if (this.documentStatus === Document.STATUS.REBASING) {
+        if (this.rebasingInProgress) {
           return;
         }
 
@@ -529,7 +531,17 @@
 
     methods: {
       resetEditor() {
-        const newState = EditorState.create({schema: this.$editorView.state.schema, doc: schema.topNodeType.createAndFill(), plugins: this.$editorView.state.plugins});
+        // TODO: Should we try to map some old state to new state?
+        //       Editor selection/cursor position is currently lost. How does this relate to existing
+        //       cursors of other editors being shown by the cursors plugin? Any unconfirmed steps in
+        //       collab plugin are currently lost. Undo/redo history is lost. Is there any other
+        //       state on the Vue instance which should be reset? Because it depends on the editor's
+        //       state? Ideally, state would flow only one way: from database to Vue instance to
+        //       editor state, so this would not be the case.
+        const newState = EditorState.create({
+          schema: this.$editorView.state.schema,
+          plugins: this.$editorView.state.plugins,
+        });
         this.$editorView.updateState(newState);
       },
 
