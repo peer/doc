@@ -243,22 +243,24 @@
       forkDocument() {
         // TODO: Add "in progress" guard.
         Document.fork({documentId: this.documentId}, (error, response) => {
-          if (!error) {
-            Snackbar.enqueue(this.$gettext("document-forked-success"), 'success');
-            this.$router.push({name: 'document', params: {documentId: response.documentId}});
+          if (error) {
+            Snackbar.enqueue(this.$gettext("fork-error"), 'error');
+            return;
           }
+          this.$router.push({name: 'document', params: {documentId: response.documentId}});
+          Snackbar.enqueue(this.$gettext("fork-success"), 'success');
         });
       },
 
       mergeDocument() {
         // TODO: Add "in progress" guard.
-        Document.merge({documentId: this.documentId}, (error, response) => {
-          if (!error) {
-            // eslint-disable-next-line no-console
-            console.log(error, response);
-            this.$router.push({name: 'document', params: {documentId: this.document.forkedFrom._id}});
-            Snackbar.enqueue(this.$gettext("document-merged-success"), 'success');
+        Document.merge({documentId: this.documentId}, (error) => {
+          if (error) {
+            Snackbar.enqueue(this.$gettext("merge-error"), 'error');
+            return;
           }
+          this.$router.push({name: 'document', params: {documentId: this.document.forkedFrom._id}});
+          Snackbar.enqueue(this.$gettext("merge-success"), 'success');
         });
       },
 

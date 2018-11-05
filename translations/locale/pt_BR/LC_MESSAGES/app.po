@@ -118,7 +118,7 @@ msgid "document-fork"
 msgstr "emendar"
 
 #: client/components/sidebar.vue:220
-msgid "document-forked-success"
+msgid "fork-success"
 msgstr "Uma emenda foi criada."
 
 #: client/components/sidebar.vue:40
@@ -126,7 +126,7 @@ msgid "document-merge"
 msgstr "mesclar"
 
 #: client/components/sidebar.vue:231
-msgid "document-merged-success"
+msgid "merge-success"
 msgstr "Alterações aplicadas ao documento original."
 
 #: client/components/sidebar.vue:30
@@ -143,7 +143,7 @@ msgstr "Publicado %{at}"
 
 #: client/components/sidebar.vue:45
 msgid "document-undo-changes"
-msgstr "desfazer alterações" 
+msgstr "desfazer alterações"
 
 #: client/components/sidebar.vue:241
 msgid "document-undo-success"

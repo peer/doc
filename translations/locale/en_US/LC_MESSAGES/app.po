@@ -118,7 +118,7 @@ msgid "document-fork"
 msgstr "fork"
 
 #: client/components/sidebar.vue:220
-msgid "document-forked-success"
+msgid "fork-success"
 msgstr "The document has been forked."
 
 #: client/components/sidebar.vue:40
@@ -126,7 +126,7 @@ msgid "document-merge"
 msgstr "merge"
 
 #: client/components/sidebar.vue:231
-msgid "document-merged-success"
+msgid "merge-success"
 msgstr "Changes applied to the original document."
 
 #: client/components/sidebar.vue:30
