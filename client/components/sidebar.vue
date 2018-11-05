@@ -16,20 +16,7 @@
               dense
               card
             >
-              <v-chip
-                v-if="document.isPublished()"
-                label
-                disabled
-                color="green lighten-2"
-                class="sidebar__status"
-              ><translate>document-published</translate></v-chip>
-              <v-chip
-                v-else
-                label
-                disabled
-                color="yellow lighten-2"
-                class="sidebar__status"
-              ><translate>document-draft</translate></v-chip>
+              <document-status :document-id="document._id" />
               <v-btn
                 v-if="!apiControlled && !document.isPublished() && canUserAdministerDocument"
                 :to="{name: 'document-publish', params: {documentId}}"
@@ -682,11 +669,6 @@
       .v-toolbar__content {
         padding: 0 8px;
       }
-    }
-
-    .sidebar__status {
-      text-transform: uppercase;
-      font-weight: bold;
     }
 
     .sidebar__comments {

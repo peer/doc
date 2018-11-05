@@ -47,13 +47,7 @@
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-chip
-                  v-if="!document.isPublished()"
-                  label
-                  disabled
-                  color="yellow lighten-2"
-                  class="documents__label"
-                ><translate>document-draft</translate></v-chip>
+                <document-status :document-id="document._id" />
               </v-list-tile-action>
             </v-list-tile>
             <v-divider
@@ -153,11 +147,6 @@
 </script>
 
 <style lang="scss">
-  .documents__label {
-    text-transform: uppercase;
-    font-weight: bold;
-  }
-
   .documents__untitled {
     font-style: italic;
   }
