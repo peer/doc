@@ -5,7 +5,7 @@ describe('documents', function () {
   it('can create a document', function () {
     cy.visit('/');
 
-    cy.visualSnapshot(this.test.titlePath(), 'initial');
+    cy.visualSnapshot(this.test, 'initial');
 
     cy.resetDatbase();
 
@@ -21,7 +21,7 @@ describe('documents', function () {
 
     cy.get('div.v-card__text').contains('No documents.');
 
-    cy.visualSnapshot(this.test.titlePath(), 'documents');
+    cy.visualSnapshot(this.test, 'documents');
 
     // No idea why we need force, but it complains without.
     cy.get('.v-btn').contains('New document').click({force: true});
@@ -30,7 +30,7 @@ describe('documents', function () {
 
     cy.get('h1[data-text="Write the title of your document here"]');
 
-    cy.visualSnapshot(this.test.titlePath(), 'document made');
+    cy.visualSnapshot(this.test, 'document made');
 
     cy.window().then((window) => {
       cy.get('p[data-text="Add the text of your document here"]').then(($el) => {
@@ -45,7 +45,7 @@ describe('documents', function () {
       });
     });
 
-    cy.visualSnapshot(this.test.titlePath(), 'focused');
+    cy.visualSnapshot(this.test, 'focused');
 
     cy.window().then((window) => {
       const selection = window.getSelection();
@@ -56,13 +56,13 @@ describe('documents', function () {
 
     cy.wait(500);
 
-    cy.visualSnapshot(this.test.titlePath(), 'added text');
+    cy.visualSnapshot(this.test, 'added text');
 
     cy.get('button[title="Bold (Ctrl-B)"]').click();
 
     cy.wait(500);
 
-    cy.visualSnapshot(this.test.titlePath(), 'bold');
+    cy.visualSnapshot(this.test, 'bold');
 
     cy.location('pathname').then((path) => {
       const match = path.match(/\/document\/(.*)/);

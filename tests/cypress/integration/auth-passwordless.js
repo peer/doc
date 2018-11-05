@@ -5,13 +5,13 @@ describe('passwordless auth', function () {
   it('should sign in an user', function () {
     cy.visit('/');
 
-    cy.visualSnapshot(this.test.titlePath(), 'initial');
+    cy.visualSnapshot(this.test, 'initial');
 
     cy.contains('Sign In').click();
 
     cy.location('pathname').should('eq', '/user/signin');
 
-    cy.visualSnapshot(this.test.titlePath(), 'sign in');
+    cy.visualSnapshot(this.test, 'sign in');
 
     cy.get('button[type="submit"]').should('be.disabled');
 
@@ -21,7 +21,7 @@ describe('passwordless auth', function () {
 
     cy.location('pathname').should('eq', '/');
 
-    cy.visualSnapshot(this.test.titlePath(), 'signed in');
+    cy.visualSnapshot(this.test, 'signed in');
 
     cy.get('.v-snack__content').should('contain', 'You have been signed in.').contains('Close').click();
 
@@ -33,7 +33,7 @@ describe('passwordless auth', function () {
 
     cy.contains('Sign In');
 
-    cy.visualSnapshot(this.test.titlePath(), 'signed out');
+    cy.visualSnapshot(this.test, 'signed out');
 
     cy.get('.v-snack__content').should('contain', 'You have been signed out.').contains('Close').click();
   });

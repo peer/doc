@@ -71,9 +71,15 @@ Cypress.Commands.add('resetDatbase', () => {
   });
 });
 
-Cypress.Commands.add('visualSnapshot', (titlePath, name) => {
+Cypress.Commands.add('visualSnapshot', (test, name) => {
   if (Cypress.env('PERCY_ENABLED')) {
-    const title = [].concat(titlePath, [name]);
-    cy.percySnapshot(title.join(' - '));
+    const titlePath = [];
+    let t = test;
+    while (t && !t.root) {
+      titlePath.unshift(t.title);
+      t = t.parent;
+    }
+    titlePath.push(name);
+    cy.percySnapshot(titlePath.join(' - '));
   }
 });
