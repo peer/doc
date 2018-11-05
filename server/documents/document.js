@@ -3,8 +3,6 @@ import {Meteor} from 'meteor/meteor';
 import {Random} from 'meteor/random';
 import {_} from 'meteor/underscore';
 
-import {Step} from 'prosemirror-transform';
-
 import assert from 'assert';
 
 import {Activity} from '/lib/documents/activity';
@@ -12,7 +10,7 @@ import {Document} from '/lib/documents/document';
 import {Content} from '/lib/documents/content';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
-import {extractTitle, getPermissionObjects, filterPermissionObjects, permissionsEqual, permissionsDifference} from '/lib/utils';
+import {getPermissionObjects, filterPermissionObjects, permissionsEqual, permissionsDifference} from '/lib/utils';
 import {check} from '/server/check';
 
 function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
@@ -381,6 +379,7 @@ Meteor.methods({
 
     return Document._share(args, user, (this.connection && this.connection.id) || null);
   },
+
   'Document.fork'(args) {
     check(args, {
       documentId: String,
@@ -434,75 +433,7 @@ Meteor.methods({
 
     return {documentId};
   },
-  'Document.undoChanges'(args) {
-    check(args, {
-      documentId: String,
-    });
 
-    const fork = Document.documents.findOne(
-      {
-        _id: args.documentId,
-      },
-      {
-        fields: {
-          contentKey: 1,
-          forkedAtVersion: 1,
-          forkedFrom: 1,
-          _id: 1,
-        },
-      },
-    );
-
-    Content.documents.remove({
-      version: {
-        $gt: fork.forkedAtVersion,
-      },
-      contentKeys: fork.contentKey,
-    });
-
-    let doc = schema.topNodeType.createAndFill();
-
-    Content.documents.find({
-      contentKeys: fork.contentKey,
-      version: {
-        $gt: 0,
-      },
-    }, {
-      sort: {
-        version: 1,
-      },
-      fields: {
-        step: 1,
-        version: 1,
-      },
-    }).fetch().forEach((content) => {
-      const result = Step.fromJSON(schema, content.step).apply(doc);
-
-      if (!result.doc) {
-        // eslint-disable-next-line no-console
-        console.error("Error applying a step.", result.failed);
-        throw new Meteor.Error('invalid-request', "Invalid step.");
-      }
-      doc = result.doc;
-    });
-
-    const timestamp = new Date();
-
-    // Update document version.
-    Document.documents.update({
-      _id: args.documentId,
-    }, {
-      $set: {
-        version: fork.forkedAtVersion,
-        body: doc.toJSON(),
-        updatedAt: timestamp,
-        lastActivity: timestamp,
-        title: extractTitle(doc),
-      },
-    });
-
-    Content.removeDocumentState({contentKey: fork.contentKey});
-  },
   'Document.merge'(args) {
     check(args, {
       documentId: String,

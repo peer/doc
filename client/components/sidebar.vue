@@ -40,11 +40,6 @@
                 @click="mergeDocument()"
               ><translate>document-merge</translate></v-btn>
               <v-btn
-                v-if="document.forkedFrom"
-                color="default"
-                @click="undoChanges()"
-              ><translate>document-undo-changes</translate></v-btn>
-              <v-btn
                 v-if="!apiControlled && canUserAdministerDocument"
                 :to="{name: 'document-share', params: {documentId}}"
                 color="primary"
@@ -229,17 +224,6 @@
             console.log(error, response);
             this.$router.push({name: 'document', params: {documentId: this.document.forkedFrom._id}});
             Snackbar.enqueue(this.$gettext("document-merged-success"), 'success');
-          }
-        });
-      },
-
-      undoChanges() {
-        Document.undoChanges({documentId: this.documentId}, (error, response) => {
-          if (!error) {
-            // eslint-disable-next-line no-console
-            console.log(error, response);
-            Snackbar.enqueue(this.$gettext("document-undo-success"), 'success');
-            this.$emit('undo-changes', `editor-${Date.now()}`);
           }
         });
       },
