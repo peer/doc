@@ -32,10 +32,15 @@ function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
     title: '',
     version: 0,
     body: schema.topNodeType.createAndFill().toJSON(),
+    forkedFrom: null,
+    forkedAtVersion: null,
+    rebasedAtVersion: null,
+    mergeAcceptedBy: null,
+    mergeAcceptedAt: null,
+    isRebasing: false,
     userPermissions,
     visibility: Document.VISIBILITY_LEVELS.PRIVATE,
     defaultPermissions: Document.getPermissionsFromRole(Document.ROLES.VIEW),
-    isRebasing: false,
   };
 
   const documentBody = doc ? Object.assign({}, toCreate, doc) : toCreate;
@@ -110,8 +115,7 @@ Document._publish = function publish(args, user, connectionId) {
 
   const changed = this.documents.update(this.restrictQuery({
     _id: args.documentId,
-    publishedAt: null,
-  }, this.PERMISSIONS.ADMIN, user), {
+  }, this.PERMISSIONS.PUBLISH, user), {
     $set: {
       publishedAt,
       publishedBy: user.getReference(),
@@ -413,20 +417,12 @@ Meteor.methods({
     );
 
     const toCreate = {
-      contentKey: forkContentKey,
-      createdAt,
-      updatedAt: createdAt,
-      lastActivity: createdAt,
-      author: user.getReference(),
-      publishedBy: null,
-      publishedAt: null,
       title: doc.title,
       version: doc.version,
       body: doc.body,
       forkedFrom: doc.getReference(),
       forkedAtVersion: doc.version,
       rebasedAtVersion: doc.version,
-      isMerged: false,
     };
 
     const documentId = insertNewDocument(user, (this.connection && this.connection.id), createdAt, forkContentKey, toCreate);
@@ -439,12 +435,14 @@ Meteor.methods({
       documentId: String,
     });
 
+    const user = Meteor.user(User.REFERENCE_FIELDS());
+
     // TODO: Check Merge permissions.
 
     const fork = Document.documents.findOne(
       {
         _id: args.documentId,
-        isMerged: {$ne: true},
+        mergeAcceptedAt: null,
       },
       {
         fields: {
@@ -490,7 +488,8 @@ Meteor.methods({
       _id: fork._id,
     }, {
       $set: {
-        isMerged: true,
+        mergeAcceptedAt: timestamp,
+        mergeAcceptedBy: user.getReference(),
         rebasedAtVersion: fork.version,
         updatedAt: timestamp,
         lastActivity: timestamp,

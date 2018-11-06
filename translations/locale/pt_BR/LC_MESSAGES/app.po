@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-05 00:17-0800\n"
+"POT-Creation-Date: 2018-11-05 23:57-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -113,12 +113,16 @@ msgstr "Permissões padrão para usuários que podem acessar o documento."
 msgid "document-fork"
 msgstr "Emendar"
 
-#: client/components/document-status.vue:18
+#: client/components/document-status.vue:25
 msgid "document-is-draft"
 msgstr "Rascunho"
 
-#: client/components/document-status.vue:24
+#: client/components/document-status.vue:32
 msgid "document-is-fork"
+msgstr ""
+
+#: client/components/document-status.vue:18
+msgid "document-is-merge-accepted"
 msgstr ""
 
 #: client/components/document-status.vue:11
@@ -213,11 +217,11 @@ msgstr "Salvo"
 msgid "editor-saving"
 msgstr "Salvando..."
 
-#: client/components/sidebar.vue:234
+#: client/components/sidebar.vue:239
 msgid "fork-error"
 msgstr ""
 
-#: client/components/sidebar.vue:238
+#: client/components/sidebar.vue:243
 msgid "fork-success"
 msgstr ""
 
@@ -259,11 +263,11 @@ msgstr "menos que um minuto"
 msgid "link-hint"
 msgstr "Insira um link"
 
-#: client/components/sidebar.vue:246
+#: client/components/sidebar.vue:251
 msgid "merge-error"
 msgstr ""
 
-#: client/components/sidebar.vue:250
+#: client/components/sidebar.vue:255
 msgid "merge-success"
 msgstr ""
 

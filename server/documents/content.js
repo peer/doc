@@ -43,7 +43,7 @@ function rebaseSteps(args) {
   const fork = Document.documents.findOne(
     {
       'forkedFrom._id': documentId,
-      isMerged: {$ne: true},
+      mergeAcceptedAt: null,
     },
     {
       fields: {

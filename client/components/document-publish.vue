@@ -1,6 +1,6 @@
 <template>
   <v-layout
-    v-if="!apiControlled && canUserAdministerDocument"
+    v-if="!apiControlled && canUserPublishDocument"
     row
   >
     <v-container fill-height>
@@ -73,8 +73,8 @@
         });
       },
 
-      canUserAdministerDocument() {
-        return !!(this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
+      canUserPublishDocument() {
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.PUBLISH));
       },
     },
 

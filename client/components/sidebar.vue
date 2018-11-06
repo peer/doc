@@ -18,17 +18,17 @@
             >
               <document-status :document-id="document._id" />
               <v-btn
-                v-if="!apiControlled && !document.isPublished() && canUserAdministerDocument"
+                v-if="!apiControlled && canUserPublishDocument"
                 :to="{name: 'document-publish', params: {documentId}}"
                 outline
               ><translate>document-publish</translate></v-btn>
               <v-btn
-                v-if="!apiControlled && document.isPublished() && canUserForkDocument"
+                v-if="!apiControlled && canUserForkDocument"
                 outline
                 @click="forkDocument()"
               ><translate>document-fork</translate></v-btn>
               <v-btn
-                v-if="!apiControlled && !document.isPublished() && canUserMergeDocument"
+                v-if="!apiControlled && canUserMergeDocument"
                 outline
                 @click="mergeDocument()"
               ><translate>document-merge</translate></v-btn>
@@ -187,12 +187,21 @@
         return !!(this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
       },
 
+      canUserPublishDocument() {
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.PUBLISH));
+      },
+
       canUserForkDocument() {
-        return !!(this.document && this.document.canUser(Document.PERMISSIONS.VIEW) && User.hasClassPermission(Document.PERMISSIONS.CREATE));
+        return !!(this.document && this.document.isPublished() && this.document.canUser(Document.PERMISSIONS.VIEW) && User.hasClassPermission(Document.PERMISSIONS.CREATE));
       },
 
       canUserMergeDocument() {
-        return !!(this.parentDocument && this.parentDocument.canUser(Document.PERMISSIONS.MERGE));
+        return !!(
+          // TODO: Use "SUGGEST_MERGE" instead of "VIEW" here.
+          this.document && this.document.canUser(Document.PERMISSIONS.VIEW)
+          && !this.document.isMergeAccepted() && !this.document.isPublished()
+          && this.parentDocument && this.parentDocument.canUser(Document.PERMISSIONS.ACCEPT_MERGE)
+        );
       },
     },
 
