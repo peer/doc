@@ -384,9 +384,9 @@ Content._addSteps = function addSteps(args, user) {
   // We need a user reference.
   assert(user);
 
-  // "Document.restrictQuery" makes sure that we are not updating
-  // (with non-highlights steps) a published document.
-  assert(!document.isPublished() || onlyHighlights);
+  // "Document.restrictQuery" makes sure that we are not updating (with non-highlights steps)
+  // a published document or a document which was merged into the parent document.
+  assert(!(document.isPublished() || document.isMergeAccepted()) || onlyHighlights);
 
   let {doc, version} = this.getCurrentState(args.contentKey);
 

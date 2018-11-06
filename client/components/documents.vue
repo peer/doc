@@ -39,6 +39,12 @@
                     class="timestamp"
                   >document-published-at</span>
                   <span
+                    v-translate="{at: $fromNow(document.mergeAcceptedAt)}"
+                    v-else-if="document.isMergeAccepted()"
+                    :title="document.mergeAcceptedAt | formatDate(DEFAULT_DATETIME_FORMAT)"
+                    class="timestamp"
+                  >document-merge-accepted-at</span>
+                  <span
                     v-translate="{at: $fromNow(document.createdAt)}"
                     v-else
                     :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
