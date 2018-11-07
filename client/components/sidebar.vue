@@ -243,7 +243,7 @@
             Snackbar.enqueue(this.$gettext("fork-error"), 'error');
             return;
           }
-          this.$router.push({name: 'document', params: {documentId: response.documentId}});
+          this.$router.push({name: 'document', params: {documentId: response._id}});
           Snackbar.enqueue(this.$gettext("fork-success"), 'success');
         });
       },

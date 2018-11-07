@@ -70,7 +70,6 @@ function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
   return documentId;
 }
 
-
 Document._create = function create(args, user, connectionId) {
   check(args, {});
 
@@ -353,6 +352,128 @@ Document._share = function share(args, user, connectionId) {
   return changed;
 };
 
+Document._fork = function create(args, user, connectionId) {
+  check(args, {
+    documentId: String,
+  });
+
+  // TODO: Check fork permissions.
+
+  const doc = Document.documents.findOne({
+    _id: args.documentId,
+  });
+
+  const {contentKey} = doc;
+
+  const createdAt = new Date();
+  const forkContentKey = Content.Meta.collection._makeNewID();
+
+  // Add forkContentKey to the existing contents.
+  Content.documents.update(
+    {
+      contentKeys: contentKey,
+    },
+    {
+      $addToSet: {
+        contentKeys: forkContentKey,
+      },
+    }, {
+      multi: true,
+    },
+  );
+
+  const toCreate = {
+    title: doc.title,
+    version: doc.version,
+    body: doc.body,
+    forkedFrom: doc.getReference(),
+    forkedAtVersion: doc.version,
+    rebasedAtVersion: doc.version,
+  };
+
+  const documentId = insertNewDocument(user, connectionId, createdAt, forkContentKey, toCreate);
+
+  return {
+    _id: documentId,
+  };
+};
+
+Document._merge = function create(args, user, connectionId) {
+  check(args, {
+    documentId: String,
+  });
+
+  // TODO: Check Merge permissions.
+
+  const fork = Document.documents.findOne(
+    {
+      _id: args.documentId,
+      mergeAcceptedAt: null,
+    },
+    {
+      fields: {
+        _id: 1,
+        title: 1,
+        body: 1,
+        version: 1,
+        contentKey: 1,
+        rebasedAtVersion: 1,
+        forkedFrom: 1,
+      },
+    },
+  );
+
+  // Get original document.
+  const original = Document.documents.findOne({
+    _id: fork.forkedFrom._id,
+  }, {
+    fields: {
+      _id: 1,
+      contentKey: 1,
+    },
+  });
+
+  // Add original steps to forked.
+  Content.documents.update({
+    contentKeys: fork.contentKey,
+    version: {
+      $gt: fork.rebasedAtVersion,
+    },
+  }, {
+    $addToSet: {
+      contentKeys: original.contentKey,
+    },
+  }, {
+    multi: true,
+  });
+
+  const timestamp = new Date();
+
+  // Update forked document
+  Document.documents.update({
+    _id: fork._id,
+  }, {
+    $set: {
+      mergeAcceptedAt: timestamp,
+      mergeAcceptedBy: user.getReference(),
+      rebasedAtVersion: fork.version,
+      updatedAt: timestamp,
+      lastActivity: timestamp,
+      title: fork.title,
+    },
+  });
+
+  // Update original document
+  Document.documents.update({
+    _id: original._id,
+  }, {
+    $set: {
+      version: fork.version,
+      body: fork.body,
+    },
+  });
+};
+
 Meteor.methods({
   'Document.create'(args) {
     if (Meteor.settings.public.apiControlled) {
@@ -385,127 +506,23 @@ Meteor.methods({
   },
 
   'Document.fork'(args) {
-    check(args, {
-      documentId: String,
-    });
+    if (Meteor.settings.public.apiControlled) {
+      throw new Meteor.Error('forbidden', "Method disabled.");
+    }
 
-    const user = Meteor.user(User.REFERENCE_FIELDS());
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    // TODO: Check fork permissions.
-
-    const doc = Document.documents.findOne({
-      _id: args.documentId,
-    });
-
-    const {contentKey} = doc;
-
-    const createdAt = new Date();
-    const forkContentKey = Content.Meta.collection._makeNewID();
-
-    // Add forkContentKey to the existing contents.
-    Content.documents.update(
-      {
-        contentKeys: contentKey,
-      },
-      {
-        $addToSet: {
-          contentKeys: forkContentKey,
-        },
-      }, {
-        multi: true,
-      },
-    );
-
-    const toCreate = {
-      title: doc.title,
-      version: doc.version,
-      body: doc.body,
-      forkedFrom: doc.getReference(),
-      forkedAtVersion: doc.version,
-      rebasedAtVersion: doc.version,
-    };
-
-    const documentId = insertNewDocument(user, (this.connection && this.connection.id), createdAt, forkContentKey, toCreate);
-
-    return {documentId};
+    return Document._fork(args, user, (this.connection && this.connection.id) || null);
   },
 
   'Document.merge'(args) {
-    check(args, {
-      documentId: String,
-    });
+    if (Meteor.settings.public.apiControlled) {
+      throw new Meteor.Error('forbidden', "Method disabled.");
+    }
 
-    const user = Meteor.user(User.REFERENCE_FIELDS());
+    const user = Meteor.user(_.extend(User.REFERENCE_FIELDS(), User.CHECK_PERMISSIONS_FIELDS()));
 
-    // TODO: Check Merge permissions.
-
-    const fork = Document.documents.findOne(
-      {
-        _id: args.documentId,
-        mergeAcceptedAt: null,
-      },
-      {
-        fields: {
-          _id: 1,
-          title: 1,
-          body: 1,
-          version: 1,
-          contentKey: 1,
-          rebasedAtVersion: 1,
-          forkedFrom: 1,
-        },
-      },
-    );
-
-    // Get original document.
-    const original = Document.documents.findOne({
-      _id: fork.forkedFrom._id,
-    }, {
-      fields: {
-        _id: 1,
-        contentKey: 1,
-      },
-    });
-
-    // Add original steps to forked.
-    Content.documents.update({
-      contentKeys: fork.contentKey,
-      version: {
-        $gt: fork.rebasedAtVersion,
-      },
-    }, {
-      $addToSet: {
-        contentKeys: original.contentKey,
-      },
-    }, {
-      multi: true,
-    });
-
-    const timestamp = new Date();
-
-    // Update forked document
-    Document.documents.update({
-      _id: fork._id,
-    }, {
-      $set: {
-        mergeAcceptedAt: timestamp,
-        mergeAcceptedBy: user.getReference(),
-        rebasedAtVersion: fork.version,
-        updatedAt: timestamp,
-        lastActivity: timestamp,
-        title: fork.title,
-      },
-    });
-
-    // Update original document
-    Document.documents.update({
-      _id: original._id,
-    }, {
-      $set: {
-        version: fork.version,
-        body: fork.body,
-      },
-    });
+    return Document._merge(args, user, (this.connection && this.connection.id) || null);
   },
 });
 
