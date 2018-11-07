@@ -13,7 +13,7 @@ import {schema} from '/lib/full-schema';
 import {getPermissionObjects, filterPermissionObjects, permissionsEqual, permissionsDifference} from '/lib/utils';
 import {check} from '/server/check';
 
-function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
+function insertNewDocument(user, connectionId, createdAt, contentKey, documentFields) {
   const userPermissions = getPermissionObjects(
     Document.getPermissionsFromRole(Document.ROLES.ADMIN),
     user.getReference(),
@@ -21,7 +21,7 @@ function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
     user.getReference(),
   );
 
-  const toCreate = {
+  const document = {
     contentKey,
     createdAt,
     updatedAt: createdAt,
@@ -43,31 +43,11 @@ function insertNewDocument(user, connectionId, createdAt, contentKey, doc) {
     defaultPermissions: Document.getPermissionsFromRole(Document.ROLES.VIEW),
   };
 
-  const documentBody = doc ? Object.assign({}, toCreate, doc) : toCreate;
+  if (documentFields) {
+    Object.assign(document, documentFields);
+  }
 
-  const documentId = Document.documents.insert(documentBody);
-
-  // TODO: Improve once we really have groups.
-  const groupUsers = User.documents.find({}, {
-    fields: User.REFERENCE_FIELDS(),
-    transform: null,
-  }).fetch();
-
-  Activity.documents.insert({
-    timestamp: createdAt,
-    connection: connectionId,
-    byUser: user.getReference(),
-    // We inform all users in this group.
-    forUsers: groupUsers,
-    type: 'documentCreated',
-    level: Activity.LEVEL.GENERAL,
-    data: {
-      document: {
-        _id: documentId,
-      },
-    },
-  });
-  return documentId;
+  return Document.documents.insert(document);
 }
 
 Document._create = function create(args, user, connectionId) {
@@ -94,6 +74,29 @@ Document._create = function create(args, user, connectionId) {
   });
 
   const documentId = insertNewDocument(user, connectionId, createdAt, contentKey);
+
+  // TODO: Improve once we really have groups.
+  const groupUsers = User.documents.find({}, {
+    fields: User.REFERENCE_FIELDS(),
+    transform: null,
+  }).fetch();
+
+  Activity.documents.insert({
+    timestamp: createdAt,
+    connection: connectionId,
+    byUser: user.getReference(),
+    // We inform all users in this group.
+    // TODO: Do we? Because document is initially private only to the person who created it?
+    forUsers: groupUsers,
+    type: 'documentCreated',
+    level: Activity.LEVEL.GENERAL,
+    data: {
+      document: {
+        _id: documentId,
+      },
+    },
+  });
+
   return {
     contentKey,
     _id: documentId,
@@ -112,6 +115,7 @@ Document._publish = function publish(args, user, connectionId) {
 
   const publishedAt = new Date();
 
+  // "restrictQuery" makes sure that the document is not already published or merged.
   const changed = this.documents.update(this.restrictQuery({
     _id: args.documentId,
   }, this.PERMISSIONS.PUBLISH, user), {
@@ -354,47 +358,83 @@ Document._share = function share(args, user, connectionId) {
 
 Document._fork = function create(args, user, connectionId) {
   check(args, {
-    documentId: String,
+    documentId: Match.DocumentId,
   });
 
-  // TODO: Check fork permissions.
+  // We check that the user has a class-level permission to create documents.
+  if (!User.hasClassPermission(this.PERMISSIONS.CREATE, user)) {
+    throw new Meteor.Error('unauthorized', "Unauthorized.");
+  }
 
-  const doc = Document.documents.findOne({
+  // We need a user reference.
+  assert(user);
+
+  const parentDocument = Document.documents.findOne(this.restrictQuery({
     _id: args.documentId,
-  });
+    publishedAt: {$ne: null},
+    publishedBy: {$ne: null},
+  }, this.PERMISSIONS.VIEW, user));
 
-  const {contentKey} = doc;
+  if (!parentDocument) {
+    throw new Meteor.Error('not-found', "Document cannot be found.");
+  }
 
   const createdAt = new Date();
-  const forkContentKey = Content.Meta.collection._makeNewID();
+  const forkContentKey = Random.id();
 
-  // Add forkContentKey to the existing contents.
-  Content.documents.update(
-    {
-      contentKeys: contentKey,
+  // Add "forkContentKey" to the existing content documents.
+  Content.documents.update({
+    contentKeys: parentDocument.contentKey,
+    // We want to use only content documents at the point we fetched the parent document.
+    // It could happen that in meantime new content documents would be added.
+    version: {$lte: parentDocument.version},
+  }, {
+    $addToSet: {
+      contentKeys: forkContentKey,
     },
-    {
-      $addToSet: {
-        contentKeys: forkContentKey,
-      },
-    }, {
-      multi: true,
-    },
-  );
+  }, {
+    multi: true,
+  });
 
-  const toCreate = {
-    title: doc.title,
-    version: doc.version,
-    body: doc.body,
-    forkedFrom: doc.getReference(),
-    forkedAtVersion: doc.version,
-    rebasedAtVersion: doc.version,
+  const documentFields = {
+    title: parentDocument.title,
+    version: parentDocument.version,
+    body: parentDocument.body,
+    forkedFrom: parentDocument.getReference(),
+    forkedAtVersion: parentDocument.version,
+    rebasedAtVersion: parentDocument.version,
   };
 
-  const documentId = insertNewDocument(user, connectionId, createdAt, forkContentKey, toCreate);
+  const documentId = insertNewDocument(user, connectionId, createdAt, forkContentKey, documentFields);
+
+  // TODO: Improve once we really have groups.
+  const groupUsers = User.documents.find({}, {
+    fields: User.REFERENCE_FIELDS(),
+    transform: null,
+  }).fetch();
+
+  Activity.documents.insert({
+    timestamp: createdAt,
+    connection: connectionId,
+    byUser: user.getReference(),
+    // We inform all users in this group.
+    // TODO: Do we? Because document is initially private only to the person who forked it?
+    forUsers: groupUsers,
+    type: 'documentForked',
+    level: Activity.LEVEL.GENERAL,
+    data: {
+      document: {
+        _id: documentId,
+      },
+      parentDocument: {
+        _id: parentDocument._id,
+      },
+    },
+  });
 
   return {
     _id: documentId,
+    contentKey: forkContentKey,
   };
 };
 
