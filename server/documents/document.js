@@ -535,7 +535,6 @@ Meteor.publish('Document.one', function documentOne(args) {
   });
 });
 
-// This publish endpoint does not restrict "userPermissions" on purpose.
 Meteor.publish('Document.admin', function documentAdmin(args) {
   check(args, {
     documentId: Match.DocumentId,
