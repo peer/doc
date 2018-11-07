@@ -88,6 +88,8 @@ class Migration extends Document.PatchMigration {
         },
         defaultPermissions: {$in: [Document.PERMISSIONS.PUBLISH, Document.PERMISSIONS.ACCEPT_MERGE]},
       },
+    }, {
+      multi: true,
     });
 
     const counts = super.backward(documentClass, collection, currentSchema, oldSchema);
