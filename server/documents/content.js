@@ -71,7 +71,7 @@ function rebaseSteps(args) {
       _id: fork._id,
     }, {
       $set: {
-        hasContentModifyLock: true,
+        hasContentModifyLock: new Date(),
       },
     });
 
@@ -263,7 +263,7 @@ function rebaseSteps(args) {
           lastActivity: timestamp,
           title: extractTitle(doc),
           rebasedAtVersion: original.version,
-          hasContentModifyLock: false,
+          hasContentModifyLock: null,
         },
       });
       updateCurrentState(fork.contentKey, doc, version);
@@ -273,7 +273,7 @@ function rebaseSteps(args) {
         _id: fork._id,
       }, {
         $set: {
-          hasContentModifyLock: false,
+          hasContentModifyLock: null,
         },
       });
     }
