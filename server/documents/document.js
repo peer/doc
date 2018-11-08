@@ -541,6 +541,7 @@ Document._acceptMerge = function create(args, user, connectionId) {
 
     try {
       // We refetch again to make sure we have the most recent (and now locked) state.
+      // We wanted to first check permissions so that locks are not made without permissions.
       parentDocument = this.documents.findOne(this.restrictQuery({
         _id: parentDocumentId,
       }, this.PERMISSIONS.ACCEPT_MERGE, user));
@@ -553,6 +554,7 @@ Document._acceptMerge = function create(args, user, connectionId) {
       assert(parentDocument.hasContentModifyLock);
 
       // We refetch again to make sure we have the most recent (and now locked) state.
+      // We wanted to first check permissions so that locks are not made without permissions.
       fork = this.documents.findOne(this.restrictQuery({
         _id: forkId,
         'forkedFrom._id': {$ne: null},
