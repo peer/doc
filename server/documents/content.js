@@ -492,13 +492,10 @@ Meteor.publish('Content.list', function contentList(args) {
       return [];
     }
 
-    return Content.documents.find(
-      {
-        contentKeys: args.contentKey,
-      },
-      {
-        fields: Content.PUBLISH_FIELDS(),
-      },
-    );
+    return Content.documents.find({
+      contentKeys: args.contentKey,
+    }, {
+      fields: Content.PUBLISH_FIELDS(),
+    });
   });
 });
