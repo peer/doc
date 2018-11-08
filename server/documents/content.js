@@ -456,12 +456,14 @@ Content._addSteps = function addSteps(args, user) {
     },
   });
 
-  // TODO: This could be done in the background?
-  Comment.filterOrphan(document._id, doc, version);
-
   // Content has been just changed, we have to rebase new content to
   // all children (forks) of this document.
   Content.scheduleRebase(document._id);
+
+  // TODO: Use a background job for this.
+  Meteor.setTimeout(() => {
+    Comment.filterOrphan(document._id, doc, version);
+  }, 100);
 
   return version - args.currentVersion;
 };
