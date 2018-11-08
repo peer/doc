@@ -19,10 +19,6 @@ const documents = new Map();
 
 const rebaseMap = new Map();
 
-Content.removeDocumentState = (args) => {
-  documents.delete(args.contentKey);
-};
-
 function updateCurrentState(contentKey, doc, version) {
   if (documents.has(contentKey)) {
     if (version > documents.get(contentKey).version) {
