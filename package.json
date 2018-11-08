@@ -13,8 +13,8 @@
     "test-watch": "TEST_WATCH=1 TEST_BROWSER_DRIVER=chrome meteor test --full-app --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-watch-browser": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha --port 3100 --settings settings.example.json",
     "test-app": "meteor test --full-app --driver-package tmeasday:acceptance-test-driver --port 3000 --settings settings.example.json",
-    "cypress": "cypress open",
-    "cypress-run": "cypress run",
+    "cypress": "percy exec -- cypress open",
+    "cypress-run": "percy exec -- cypress run",
     "cypress-ci:runner": "percy exec -- cypress run --record --reporter junit --reporter-options mochaFile=/tmp/test-reports/cypress-results.xml",
     "cypress-ci": "NO_HMR=1 start-server-and-test test-app http://localhost:3000 cypress-ci:runner"
   },
@@ -56,7 +56,7 @@
     "vuetify": "~1.1.6"
   },
   "devDependencies": {
-    "@percy/cypress": "^0.1.0",
+    "@percy/cypress": "^0.2.0",
     "babel-eslint": "~8.2.3",
     "chai": "~3.5.0",
     "chromedriver": "~2.41.0",

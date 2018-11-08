@@ -72,14 +72,12 @@ Cypress.Commands.add('resetDatbase', () => {
 });
 
 Cypress.Commands.add('visualSnapshot', (test, name) => {
-  if (Cypress.env('PERCY_ENABLED')) {
-    const titlePath = [];
-    let t = test;
-    while (t && !t.root) {
-      titlePath.unshift(t.title);
-      t = t.parent;
-    }
-    titlePath.push(name);
-    cy.percySnapshot(titlePath.join(' - '));
+  const titlePath = [];
+  let t = test;
+  while (t && !t.root) {
+    titlePath.unshift(t.title);
+    t = t.parent;
   }
+  titlePath.push(name);
+  cy.percySnapshot(titlePath.join(' - '));
 });
