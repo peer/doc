@@ -670,6 +670,8 @@ Document._acceptMerge = function create(args, user, connectionId) {
       },
     },
   });
+
+  // TODO: Trigger rebasing of all not-yet-merged child documents of the parent document here.
 };
 
 Meteor.methods({
