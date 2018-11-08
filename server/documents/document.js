@@ -412,6 +412,10 @@ Document._fork = function create(args, user, connectionId) {
 
   const documentId = insertNewDocument(user, connectionId, createdAt, forkContentKey, documentFields);
 
+  // There could be new content added after the point we fetched the parent document,
+  // so we trigger rebase from the parent document to be sure.
+  Content.scheduleRebase(parentDocument._id);
+
   // TODO: Improve once we really have groups.
   const groupUsers = User.documents.find({}, {
     fields: User.REFERENCE_FIELDS(),
@@ -436,9 +440,6 @@ Document._fork = function create(args, user, connectionId) {
       },
     },
   });
-
-  // TODO: Schedule a potential rebase from the parent document to new document.
-  //       There could be new content documents added after the point we fetched the parent document.
 
   return {
     _id: documentId,
@@ -647,6 +648,10 @@ Document._acceptMerge = function create(args, user, connectionId) {
 
   assert(mergeAcceptedAt);
 
+  // There is new content in the parent document, so we have to rebase it to all its
+  // children documents (forks) which might exist besides the document we just merged.
+  Content.scheduleRebase(parentDocumentId);
+
   // TODO: Improve once we really have groups.
   const groupUsers = User.documents.find({}, {
     fields: User.REFERENCE_FIELDS(),
@@ -671,8 +676,6 @@ Document._acceptMerge = function create(args, user, connectionId) {
       },
     },
   });
-
-  // TODO: Trigger rebasing of all not-yet-merged child documents of the parent document here.
 };
 
 Meteor.methods({

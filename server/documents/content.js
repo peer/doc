@@ -17,8 +17,6 @@ import {check} from '/server/check';
 // TODO: Make documents expire after a while.
 const documents = new Map();
 
-const rebaseMap = new Map();
-
 function updateCurrentState(contentKey, doc, version) {
   if (documents.has(contentKey)) {
     if (version > documents.get(contentKey).version) {
@@ -30,9 +28,7 @@ function updateCurrentState(contentKey, doc, version) {
   }
 }
 
-function rebaseSteps(args) {
-  const {documentId} = args;
-
+function rebaseSteps(documentId) {
   // TODO: Check Rebase permissions.
 
   // Get forked document.
@@ -276,6 +272,15 @@ function rebaseSteps(args) {
   }
 }
 
+// Schedules a rebase of all children (forks) of a document identified by
+// "documentId" for (potential) new content available on the document.
+// TODO: Use a background job for this.
+Content.scheduleRebase = function scheduleRebase(documentId) {
+  Meteor.setTimeout(() => {
+    rebaseSteps(documentId);
+  }, 100);
+};
+
 Content.getCurrentState = function getCurrentState(contentKey) {
   let doc;
   let version;
@@ -454,15 +459,9 @@ Content._addSteps = function addSteps(args, user) {
   // TODO: This could be done in the background?
   Comment.filterOrphan(document._id, doc, version);
 
-  if (!rebaseMap.has(document._id)) {
-    rebaseMap.set(document._id, {doc, version});
-    Meteor.setTimeout((x) => {
-      if (rebaseMap.has(document._id)) {
-        rebaseMap.delete(document._id);
-        rebaseSteps({documentId: document._id});
-      }
-    }, 2000);
-  }
+  // Content has been just changed, we have to rebase new content to
+  // all children (forks) of this document.
+  Content.scheduleRebase(document._id);
 
   return version - args.currentVersion;
 };
