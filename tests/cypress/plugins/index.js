@@ -1,10 +1,7 @@
-const process = require('process');
+// This function is called when a project is opened or re-opened (e.g. due to
+// the project's config changing).
 
 module.exports = (on, config) => {
-  if (process.env.PERCY_TOKEN) {
-    // eslint-disable-next-line no-param-reassign
-    config.env.PERCY_ENABLED = true;
-  }
-
-  return config;
+  // `on` is used to hook into various events Cypress emits.
+  // `config` is the resolved Cypress config.
 };
