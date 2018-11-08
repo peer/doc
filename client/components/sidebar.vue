@@ -30,8 +30,8 @@
               <v-btn
                 v-if="!apiControlled && canUserMergeDocument"
                 outline
-                @click="mergeDocument()"
-              ><translate>document-merge</translate></v-btn>
+                @click="acceptMergeDocument()"
+              ><translate>document-accept-merge</translate></v-btn>
               <v-btn
                 v-if="!apiControlled && canUserAdministerDocument"
                 :to="{name: 'document-share', params: {documentId}}"
@@ -248,15 +248,15 @@
         });
       },
 
-      mergeDocument() {
+      acceptMergeDocument() {
         // TODO: Add "in progress" guard.
-        Document.merge({documentId: this.documentId}, (error) => {
+        Document.acceptMerge({documentId: this.documentId}, (error) => {
           if (error) {
-            Snackbar.enqueue(this.$gettext("merge-error"), 'error');
+            Snackbar.enqueue(this.$gettext("accept-merge-error"), 'error');
             return;
           }
           this.$router.push({name: 'document', params: {documentId: this.document.forkedFrom._id}});
-          Snackbar.enqueue(this.$gettext("merge-success"), 'success');
+          Snackbar.enqueue(this.$gettext("accept-merge-success"), 'success');
         });
       },
 

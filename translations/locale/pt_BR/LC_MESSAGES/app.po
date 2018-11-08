@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-06 00:27-0800\n"
+"POT-Creation-Date: 2018-11-07 23:52-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,6 +16,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: client/components/sidebar.vue:255
+msgid "accept-merge-error"
+msgstr ""
+
+#: client/components/sidebar.vue:259
+msgid "accept-merge-success"
+msgstr ""
 
 #: client/components/access-denied.vue:3
 msgid "access-denied"
@@ -85,6 +93,10 @@ msgstr[1] "%{value} dias"
 msgid "delete"
 msgstr "Eliminar"
 
+#: client/components/sidebar.vue:33
+msgid "document-accept-merge"
+msgstr "Mesclar"
+
 #: client/components/documents.vue:12
 msgid "document-create"
 msgstr "Novo documento"
@@ -128,10 +140,6 @@ msgstr ""
 #: client/components/document-status.vue:11
 msgid "document-is-published"
 msgstr "publicado"
-
-#: client/components/sidebar.vue:33
-msgid "document-merge"
-msgstr "Mesclar"
 
 #: client/components/documents.vue:40
 msgid "document-merge-accepted-at"
@@ -266,14 +274,6 @@ msgstr "menos que um minuto"
 #: client/components/link-dialog.vue:60
 msgid "link-hint"
 msgstr "Insira um link"
-
-#: client/components/sidebar.vue:255
-msgid "merge-error"
-msgstr ""
-
-#: client/components/sidebar.vue:259
-msgid "merge-success"
-msgstr ""
 
 #: client/vue-extensions.js:170
 msgid "minute"

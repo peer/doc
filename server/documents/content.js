@@ -47,7 +47,7 @@ function rebaseSteps(args) {
     },
     {
       fields: {
-        isRebasing: 1,
+        hasContentModifyLock: 1,
         contentKey: 1,
         forkedAtVersion: 1,
         rebasedAtVersion: 1,
@@ -66,12 +66,12 @@ function rebaseSteps(args) {
     _id: fork.forkedFrom._id,
   });
 
-  if (!fork.isRebasing && fork.rebasedAtVersion < original.version) {
+  if (!fork.hasContentModifyLock && fork.rebasedAtVersion < original.version) {
     Document.documents.update({
       _id: fork._id,
     }, {
       $set: {
-        isRebasing: true,
+        hasContentModifyLock: true,
       },
     });
 
@@ -263,7 +263,7 @@ function rebaseSteps(args) {
           lastActivity: timestamp,
           title: extractTitle(doc),
           rebasedAtVersion: original.version,
-          isRebasing: false,
+          hasContentModifyLock: false,
         },
       });
       updateCurrentState(fork.contentKey, doc, version);
@@ -273,7 +273,7 @@ function rebaseSteps(args) {
         _id: fork._id,
       }, {
         $set: {
-          isRebasing: false,
+          hasContentModifyLock: false,
         },
       });
     }
@@ -449,9 +449,9 @@ Content._addSteps = function addSteps(args, user) {
     $set: {
       version,
       body: doc.toJSON(),
+      title: extractTitle(doc),
       updatedAt: timestamp,
       lastActivity: timestamp,
-      title: extractTitle(doc),
     },
   });
 

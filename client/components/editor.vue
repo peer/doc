@@ -219,7 +219,7 @@
         subscriptionHandle: null,
         commentsHandle: null,
         addingStepsInProgress: false,
-        rebasingInProgress: false,
+        contentModificationInProgress: false,
         cursorsHandle: null,
         selectedExistingHighlights: [],
         disabledButtons: {},
@@ -269,14 +269,14 @@
 
     watch: {
       document(newValue, oldValue) {
-        if (newValue.isRebasing) {
-          this.rebasingInProgress = true;
+        if (newValue.hasContentModifyLock) {
+          this.contentModificationInProgress = true;
         }
         else {
           if (newValue.rebasedAtVersion !== oldValue.rebasedAtVersion) {
             this.resetEditor();
           }
-          this.rebasingInProgress = false;
+          this.contentModificationInProgress = false;
         }
       },
     },
@@ -432,7 +432,7 @@
           return;
         }
 
-        if (this.rebasingInProgress) {
+        if (this.contentModificationInProgress) {
           return;
         }
 
