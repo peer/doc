@@ -362,6 +362,9 @@ Content._addSteps = function addSteps(args, user) {
     return x.length > 0;
   }));
 
+  // We need a user reference.
+  assert(user);
+
   const steps = args.steps.map((step) => {
     return Step.fromJSON(schema, step);
   });
@@ -375,58 +378,34 @@ Content._addSteps = function addSteps(args, user) {
     allowedPermissions.push(Document.PERMISSIONS.COMMENT_CREATE);
   }
 
-  let document = Document.documents.findOne(Document.restrictQuery({
-    contentKey: args.contentKey,
-  }, allowedPermissions, user), {
-    fields: {
-      _id: 1,
-      publishedAt: 1,
-      mergeAcceptedAt: 1,
-      hasContentAppendLock: 1,
-    },
-  });
-
-  if (!document) {
-    throw new Meteor.Error('not-found', "Document cannot be found.");
-  }
-
-  const documentId = document._id;
-
-  // We need a user reference.
-  assert(user);
-
   // "Document.restrictQuery" makes sure that we are not updating (with non-highlights steps)
   // a published document or a document which was merged into the parent document.
-  assert(!(document.isPublished() || document.isMergeAccepted()) || onlyHighlights);
+  const query = Document.restrictQuery({
+    contentKey: args.contentKey,
+  }, allowedPermissions, user);
 
-  const lockTimestamp = new Date();
+  let doc = null;
+  let version = null;
+  let documentId = null;
 
   // We acquire the append lock on the document. We do not really need this (currently) for
   // the logic below, but it makes sure that merging and rebasing cannot happen at the same.
   // We use two locks because this lock does not make editor read-only in clients.
-  const lockAcquired = Document.documents.update(Document.restrictQuery({
-    _id: documentId,
-    hasContentAppendLock: null,
-  }, allowedPermissions, user), {
-    $set: {
-      hasContentAppendLock: lockTimestamp,
-    },
-  });
-
-  if (!lockAcquired) {
+  const changes = Document.lock(query, true, false, (lockedDocumentId) => {
     // We do not have to fail, we just leave to the client to retry.
     return 0;
-  }
+  }, (lockedDocumentId) => {
+    documentId = lockedDocumentId;
 
-  let doc = null;
-  let version = null;
-
-  try {
-    // We refetch again to make sure we have the most recent (and now locked) state.
-    // We wanted to first check permissions so that locks are not made without permissions.
-    document = Document.documents.findOne(Document.restrictQuery({
-      contentKey: args.contentKey,
-    }, allowedPermissions, user), {
+    // We fetch the document here to make sure we have the most recent (and locked) state.
+    const document = Document.documents.findOne({
+      $and: [
+        {
+          _id: documentId,
+        },
+        query,
+      ],
+    }, {
       fields: {
         _id: 1,
         publishedAt: 1,
@@ -441,8 +420,6 @@ Content._addSteps = function addSteps(args, user) {
     }
 
     assert(document.hasContentAppendLock);
-
-    assert.strictEqual(document._id, documentId);
 
     assert(!(document.isPublished() || document.isMergeAccepted()) || onlyHighlights);
 
@@ -512,32 +489,26 @@ Content._addSteps = function addSteps(args, user) {
         lastActivity: timestamp,
       },
     });
+
+    return version - args.currentVersion;
+  });
+
+  if (changes) {
+    assert(doc);
+    assert(version !== null);
+    assert(documentId);
+
+    // Content has been just changed, we have to rebase new content to
+    // all children (forks) of this document.
+    Content.scheduleRebase(documentId);
+
+    // TODO: Use a background job for this.
+    Meteor.setTimeout(() => {
+      Comment.filterOrphan(documentId, doc, version);
+    }, 100);
   }
-  finally {
-    if (lockAcquired) {
-      Document.documents.update({
-        _id: documentId,
-      }, {
-        $set: {
-          hasContentAppendLock: null,
-        },
-      });
-    }
-  }
 
-  assert(doc);
-  assert(version !== null);
-
-  // Content has been just changed, we have to rebase new content to
-  // all children (forks) of this document.
-  Content.scheduleRebase(document._id);
-
-  // TODO: Use a background job for this.
-  Meteor.setTimeout(() => {
-    Comment.filterOrphan(document._id, doc, version);
-  }, 100);
-
-  return version - args.currentVersion;
+  return changes;
 };
 
 Meteor.methods({

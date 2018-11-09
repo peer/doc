@@ -13,6 +13,67 @@ import {schema} from '/lib/full-schema';
 import {getPermissionObjects, filterPermissionObjects, permissionsEqual, permissionsDifference} from '/lib/utils';
 import {check} from '/server/check';
 
+Document.lock = function lock(query, appendLock, modifyLock, onFailure, onSuccess) {
+  if (!appendLock && !modifyLock) {
+    throw new Error("At least one of \"appendLock\" and \"modifyLock\" has to be set.");
+  }
+
+  // We first make a query to check any permissions so that locks are not made
+  // without permissions.
+  const document = this.documents.findOne(query, {_id: 1});
+
+  if (!document) {
+    throw new Meteor.Error('not-found', "Document cannot be found.");
+  }
+
+  const lockTimestamp = new Date();
+
+  const lockQuery = {};
+  const lockUpdate = {};
+  const lockRelease = {};
+
+  if (appendLock) {
+    lockQuery.hasContentAppendLock = null;
+    lockUpdate.hasContentAppendLock = lockTimestamp;
+    lockRelease.hasContentAppendLock = null;
+  }
+  if (modifyLock) {
+    lockQuery.hasContentModifyLock = null;
+    lockUpdate.hasContentModifyLock = lockTimestamp;
+    lockRelease.hasContentModifyLock = null;
+  }
+
+  const lockAcquired = this.documents.update({
+    $and: [
+      {
+        _id: document._id,
+      },
+      query,
+      lockQuery,
+    ],
+  }, {
+    $set: lockUpdate,
+  });
+
+  // TODO: Retry again few times before aborting.
+  if (!lockAcquired) {
+    return onFailure(document._id);
+  }
+
+  try {
+    return onSuccess(document._id);
+  }
+  finally {
+    if (lockAcquired) {
+      this.documents.update({
+        _id: document._id,
+      }, {
+        $set: lockRelease,
+      });
+    }
+  }
+};
+
 function insertNewDocument(user, connectionId, createdAt, contentKey, documentFields) {
   const userPermissions = getPermissionObjects(
     Document.getPermissionsFromRole(Document.ROLES.ADMIN),
@@ -459,7 +520,7 @@ Document._acceptMerge = function create(args, user, connectionId) {
 
   const forkId = args.documentId;
 
-  let fork = this.documents.findOne(this.restrictQuery({
+  const forkQuery = this.restrictQuery({
     _id: forkId,
     'forkedFrom._id': {$ne: null},
     // Fork should not be published or merged.
@@ -468,7 +529,14 @@ Document._acceptMerge = function create(args, user, connectionId) {
     mergeAcceptedAt: null,
     mergeAcceptedBy: null,
   // TODO: Use "SUGGEST_MERGE" instead of "VIEW" here.
-  }, this.PERMISSIONS.VIEW, user));
+  }, this.PERMISSIONS.VIEW, user);
+
+  // This query serves two purposes. The first is to get "parentDocumentId"
+  // so that we can first lock the parent document and then the fork.
+  // The second is to check that the user has permissions on the fork
+  // so that locks are not made without permissions. (Check for permissions
+  // on the parent document is made inside the first "lock" call.)
+  let fork = this.findOne(forkQuery, {forkedFrom: 1});
 
   if (!fork) {
     throw new Meteor.Error('not-found', "Document cannot be found.");
@@ -477,15 +545,11 @@ Document._acceptMerge = function create(args, user, connectionId) {
   const parentDocumentId = fork.forkedFrom._id;
 
   // "restrictQuery" makes sure that the document is published.
-  let parentDocument = this.documents.findOne(this.restrictQuery({
+  const parentDocumentQuery = this.restrictQuery({
     _id: parentDocumentId,
-  }, this.PERMISSIONS.ACCEPT_MERGE, user));
+  }, this.PERMISSIONS.ACCEPT_MERGE, user);
 
-  if (!parentDocument) {
-    throw new Meteor.Error('not-found', "Document cannot be found.");
-  }
-
-  const parentLockTimestamp = new Date();
+  let mergeAcceptedAt = null;
 
   // We acquire both locks on the parent document. This means that while
   // the locks are acquired, nothing else can be merged into the parent,
@@ -494,57 +558,31 @@ Document._acceptMerge = function create(args, user, connectionId) {
   // new content steps can be added for comment annotations. But we need
   // to have a fixed version of the parent document to assure the fork
   // has been rebased to it and move content steps correctly to the parent.
-  const parentLocksAcquired = this.documents.update(this.restrictQuery({
-    _id: parentDocumentId,
-    hasContentAppendLock: null,
-    hasContentModifyLock: null,
-  }, this.PERMISSIONS.ACCEPT_MERGE, user), {
-    $set: {
-      hasContentAppendLock: parentLockTimestamp,
-      hasContentModifyLock: parentLockTimestamp,
-    },
-  });
-
-  if (!parentLocksAcquired) {
+  this.lock(parentDocumentQuery, true, true, (lockedParentDocumentId) => {
     throw new Meteor.Error('internal-error', "Lock could not be acquired.");
-  }
-
-  let mergeAcceptedAt = null;
-
-  try {
-    const forkLockTimestamp = new Date();
+  }, (lockedParentDocumentId) => {
+    assert.strictEqual(lockedParentDocumentId, parentDocumentId);
 
     // We acquire both locks because at this stage we do not want any content changes
     // anymore to the fork because it is getting frozen. But we have to lock it first,
     // so that we have time to update content documents.
-    const forkLocksAcquired = this.documents.update(this.restrictQuery({
-      _id: forkId,
-      'forkedFrom._id': {$ne: null},
-      hasContentAppendLock: null,
-      hasContentModifyLock: null,
-      // Fork should not be published or merged.
-      publishedAt: null,
-      publishedBy: null,
-      mergeAcceptedAt: null,
-      mergeAcceptedBy: null,
-    // TODO: Use "SUGGEST_MERGE" instead of "VIEW" here.
-    }, this.PERMISSIONS.VIEW, user), {
-      $set: {
-        hasContentAppendLock: forkLockTimestamp,
-        hasContentModifyLock: forkLockTimestamp,
-      },
-    });
-
-    if (!forkLocksAcquired) {
+    // It is important that we lock in this order (parent document first, then fork)
+    // because "rebaseSteps" is doing it in the same order as well. Otherwise it
+    // could happen that we end up in a deadlock.
+    this.lock(forkQuery, true, true, (lockedForkId) => {
       throw new Meteor.Error('internal-error', "Lock could not be acquired.");
-    }
+    }, (lockedForkId) => {
+      assert.strictEqual(lockedForkId, forkId);
 
-    try {
-      // We refetch again to make sure we have the most recent (and now locked) state.
-      // We wanted to first check permissions so that locks are not made without permissions.
-      parentDocument = this.documents.findOne(this.restrictQuery({
-        _id: parentDocumentId,
-      }, this.PERMISSIONS.ACCEPT_MERGE, user));
+      // We fetch the document here to make sure we have the most recent (and locked) state.
+      const parentDocument = this.documents.findOne({
+        $and: [
+          {
+            _id: parentDocumentId,
+          },
+          parentDocumentQuery,
+        ],
+      });
 
       if (!parentDocument) {
         throw new Meteor.Error('not-found', "Document cannot be found.");
@@ -553,18 +591,15 @@ Document._acceptMerge = function create(args, user, connectionId) {
       assert(parentDocument.hasContentAppendLock);
       assert(parentDocument.hasContentModifyLock);
 
-      // We refetch again to make sure we have the most recent (and now locked) state.
-      // We wanted to first check permissions so that locks are not made without permissions.
-      fork = this.documents.findOne(this.restrictQuery({
-        _id: forkId,
-        'forkedFrom._id': {$ne: null},
-        // Fork should not be published or merged.
-        publishedAt: null,
-        publishedBy: null,
-        mergeAcceptedAt: null,
-        mergeAcceptedBy: null,
-      // TODO: Use "SUGGEST_MERGE" instead of "VIEW" here.
-      }, this.PERMISSIONS.VIEW, user));
+      // We (re)fetch the document here to make sure we have the most recent (and locked) state.
+      fork = this.documents.findOne({
+        $and: [
+          {
+            _id: forkId,
+          },
+          forkQuery,
+        ],
+      });
 
       if (!fork) {
         throw new Meteor.Error('not-found', "Document cannot be found.");
@@ -621,32 +656,8 @@ Document._acceptMerge = function create(args, user, connectionId) {
       if (!changed) {
         throw new Meteor.Error('internal-error', "Merge failed.");
       }
-    }
-    finally {
-      if (forkLocksAcquired) {
-        this.documents.update({
-          _id: forkId,
-        }, {
-          $set: {
-            hasContentAppendLock: null,
-            hasContentModifyLock: null,
-          },
-        });
-      }
-    }
-  }
-  finally {
-    if (parentLocksAcquired) {
-      this.documents.update({
-        _id: parentDocumentId,
-      }, {
-        $set: {
-          hasContentAppendLock: null,
-          hasContentModifyLock: null,
-        },
-      });
-    }
-  }
+    });
+  });
 
   assert(mergeAcceptedAt);
 
