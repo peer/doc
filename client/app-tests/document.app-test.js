@@ -93,4 +93,83 @@ describe('document', function () {
       }],
     });
   });
+
+  it('cannot be forked if it\'s not published', async function () {
+    try {
+      await Document.fork({
+        documentId: this.documentId,
+      });
+      assert.fail();
+    }
+    catch (err) {
+      assert.equal(err.error, 'not-found');
+    }
+  });
+
+  it('can be published', async function () {
+    await Document.publish({
+      documentId: this.documentId,
+    });
+    const document = (await documentFind({_id: this.documentId}))[0];
+    assert.notEqual(document.publishedBy, null);
+    assert.notEqual(document.publishedAt, null);
+  });
+
+  it('can be forked if it\'s published', async function () {
+    await Document.fork({
+      documentId: this.documentId,
+    });
+    const document = (await documentFind({'forkedFrom._id': this.documentId}))[0];
+    assert.equal(document.forkedFrom._id, this.documentId);
+    assert.equal(document.forkedAtVersion, 4);
+  });
+
+  it('can be merged', async function () {
+    const clientId = Random.id();
+    let forkedDocument = (await documentFind({'forkedFrom._id': this.documentId}))[0];
+    const forkedDocumentId = forkedDocument._id;
+
+    assert.equal(forkedDocument.mergeAcceptedBy, null);
+    assert.equal(forkedDocument.mergeAcceptedAt, null);
+
+    await Content.addSteps({
+      clientId,
+      contentKey: forkedDocument.contentKey,
+      currentVersion: forkedDocument.version,
+      steps: [{
+        stepType: 'replace',
+        from: 7,
+        to: 7,
+        slice: {
+          content: [{
+            type: 'text',
+            text: '.',
+          }],
+        },
+      }],
+    });
+    await Document.acceptMerge({
+      documentId: forkedDocumentId,
+    });
+
+    const parentDocument = (await documentFind({_id: this.documentId}))[0];
+
+    assert.deepEqual(parentDocument.body, {
+      type: 'doc',
+      content: [{
+        type: 'title',
+      }, {
+        type: 'paragraph',
+        content: [{
+          type: 'text',
+          text: 'test.',
+        }],
+      }],
+    });
+
+    forkedDocument = (await documentFind({_id: forkedDocumentId}))[0];
+    assert.notEqual(forkedDocument.mergeAcceptedBy, null);
+    assert.notEqual(forkedDocument.mergeAcceptedAt, null);
+  });
 });
+
