@@ -471,6 +471,9 @@
               this.$editorView.state,
               _.pluck(newContents, 'step'),
               _.pluck(newContents, 'clientId'),
+              {
+                mapSelectionBackward: true,
+              },
             ));
 
             newContents.filter((x) => {
