@@ -459,6 +459,7 @@
             sort: {
               version: 1,
             },
+            transform: null,
           }).map((x) => {
             return Object.assign({}, x, {
               step: Step.fromJSON(schema, x.step),
