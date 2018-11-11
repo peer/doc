@@ -273,7 +273,7 @@
           this.contentModificationInProgress = true;
         }
         else {
-          if (newValue.rebasedCount !== oldValue.rebasedCount) {
+          if (newValue.rebasedAtVersion !== oldValue.rebasedAtVersion) {
             this.resetEditor();
           }
           this.contentModificationInProgress = false;

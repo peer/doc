@@ -16,8 +16,8 @@ import {check} from '/server/check';
 // TODO: Make documents expire after a while.
 const documents = new Map();
 
-function updateCurrentState(contentKey, rebasedCount, doc, version) {
-  const key = `${contentKey}/${rebasedCount}`;
+function updateCurrentState(contentKey, rebasedAtVersion, doc, version) {
+  const key = `${contentKey}/${rebasedAtVersion}`;
 
   if (documents.has(key)) {
     if (version > documents.get(key).version) {
@@ -284,9 +284,9 @@ Content.scheduleRebase = function scheduleRebase(documentId) {
 
 // This assumes to be called inside locked content documents so that
 // content documents do not get modified and all still belong to
-// content linked with provided "rebasedCount".
-Content.getCurrentState = function getCurrentState(contentKey, rebasedCount) {
-  const key = `${contentKey}/${rebasedCount}`;
+// content linked with provided "rebasedAtVersion".
+Content.getCurrentState = function getCurrentState(contentKey, rebasedAtVersion) {
+  const key = `${contentKey}/${rebasedAtVersion}`;
 
   let doc;
   let version;
@@ -326,7 +326,7 @@ Content.getCurrentState = function getCurrentState(contentKey, rebasedCount) {
     // We update current state only when we do have steps stored in the database and
     // we do not store the initial empty document and version 0 to make it slightly
     // harder to make a DoS attack my requesting state for many content keys.
-    updateCurrentState(contentKey, rebasedCount, doc, version);
+    updateCurrentState(contentKey, rebasedAtVersion, doc, version);
   });
 
   if (documents.has(key)) {
@@ -411,7 +411,7 @@ Content._addSteps = function addSteps(args, user) {
         publishedAt: 1,
         mergeAcceptedAt: 1,
         hasContentAppendLock: 1,
-        rebasedCount: 1,
+        rebasedAtVersion: 1,
       },
     });
 
@@ -423,7 +423,7 @@ Content._addSteps = function addSteps(args, user) {
 
     assert(!(document.isPublished() || document.isMergeAccepted()) || onlyHighlights);
 
-    ({doc, version} = this.getCurrentState(args.contentKey, document.rebasedCount));
+    ({doc, version} = this.getCurrentState(args.contentKey, document.rebasedAtVersion));
 
     if (args.currentVersion !== version) {
       // If "currentVersion" is newer than "version" there might be a bug on the client,
@@ -471,7 +471,7 @@ Content._addSteps = function addSteps(args, user) {
         break;
       }
 
-      updateCurrentState(args.contentKey, document.rebasedCount, doc, version);
+      updateCurrentState(args.contentKey, document.rebasedAtVersion, doc, version);
     }
 
     Document.documents.update({

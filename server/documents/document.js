@@ -97,7 +97,6 @@ function insertNewDocument(user, connectionId, createdAt, contentKey, documentFi
     forkedFrom: null,
     forkedAtVersion: null,
     rebasedAtVersion: null,
-    rebasedCount: 0,
     hasContentAppendLock: null,
     hasContentModifyLock: null,
     mergeAcceptedBy: null,
@@ -650,6 +649,7 @@ Document._acceptMerge = function create(args, user, connectionId) {
         $set: {
           mergeAcceptedAt,
           mergeAcceptedBy: user.getReference(),
+          rebasedAtVersion: fork.version,
           updatedAt: mergeAcceptedAt,
           lastActivity: mergeAcceptedAt,
         },
