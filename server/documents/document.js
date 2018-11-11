@@ -13,6 +13,7 @@ import {schema} from '/lib/full-schema';
 import {getPermissionObjects, filterPermissionObjects, permissionsEqual, permissionsDifference} from '/lib/utils';
 import {check} from '/server/check';
 
+// "query" must match only one document.
 Document.lock = function lock(query, appendLock, modifyLock, onFailure, onSuccess) {
   if (!appendLock && !modifyLock) {
     throw new Error("At least one of \"appendLock\" and \"modifyLock\" has to be set.");
