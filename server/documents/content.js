@@ -314,7 +314,7 @@ Content.getCurrentState = function getCurrentState(contentKey, rebasedCount) {
   }).forEach((content) => {
     const result = Step.fromJSON(schema, content.step).apply(doc);
 
-    if (!result.doc) {
+    if (result.failed) {
       // eslint-disable-next-line no-console
       console.error("Error applying a step.", result.failed);
       throw new Meteor.Error('invalid-request', "Invalid step.");
@@ -438,7 +438,7 @@ Content._addSteps = function addSteps(args, user) {
     for (const step of steps) {
       const result = step.apply(doc);
 
-      if (!result.doc) {
+      if (result.failed) {
         // eslint-disable-next-line no-console
         console.error("Error applying a step.", result.failed);
         throw new Meteor.Error('invalid-request', "Invalid step.");
