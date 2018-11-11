@@ -196,7 +196,7 @@ export function install(Vue, options) {
         }
       }
       else {
-        assert(seconds < 60, seconds);
+        assert(seconds < 60, `${seconds}`);
         expirationMs = ((60 - seconds) * 1000) + 500;
       }
 
@@ -204,7 +204,7 @@ export function install(Vue, options) {
     }
 
     const result = [];
-    for (let {key, value} of partials) { // eslint-disable-line prefer-const
+    for (const {key, value} of partials) { // eslint-disable-line prefer-const
       // Maybe there are some zero values in-between, skip them.
       if (value === 0) {
         continue;
