@@ -649,6 +649,7 @@ Document._acceptMerge = function create(args, user, connectionId) {
         $set: {
           mergeAcceptedAt,
           mergeAcceptedBy: user.getReference(),
+          rebasedAtVersion: fork.version,
           updatedAt: mergeAcceptedAt,
           lastActivity: mergeAcceptedAt,
         },
