@@ -241,7 +241,7 @@ function rebaseSteps(parentDocumentId) {
             if (i < rebasedInParentDocumentStepsCount) {
               // TODO: Check.
               // eslint-disable-next-line no-console
-              console.log("Should be equal", mapped, newAndRebasedParentDocumentSteps[newParentDocumentStepsCount + i]);
+              console.log("Should be equal", util.inspect(mapped.toJSON(), {depth: null}), util.inspect(newAndRebasedParentDocumentSteps[newParentDocumentStepsCount + i].toJSON(), {depth: null}));
             }
             else {
               rebasedNewForkSteps.push({step: mapped, failed: null});
@@ -250,12 +250,12 @@ function rebaseSteps(parentDocumentId) {
           else if (i < rebasedInParentDocumentStepsCount) {
             if (!mapped) {
               // eslint-disable-next-line no-console
-              console.error("Unexpected failed mapping.", step);
+              console.error("Unexpected failed mapping.", util.inspect(step.toJSON(), {depth: null}));
               throw new Meteor.Error('internal-error', "Unexpected failed mapping.");
             }
             else {
               // eslint-disable-next-line no-console
-              console.error("Unexpected error applying a step.", result.failed);
+              console.error("Unexpected error applying a step.", result.failed, util.inspect(step.toJSON(), {depth: null}));
               throw new Meteor.Error('internal-error', "Unexpected invalid step.");
             }
           }
