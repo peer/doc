@@ -307,7 +307,7 @@ function rebaseSteps(parentDocumentId) {
           },
         );
 
-        assert.strictEqual(changed, newAndRebasedParentDocumentSteps);
+        assert.strictEqual(changed, newAndRebasedParentDocumentSteps.length);
 
         let version = parentDocument.version;
 
