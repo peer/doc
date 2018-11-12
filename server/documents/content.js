@@ -3,6 +3,7 @@ import {Meteor} from 'meteor/meteor';
 import {_} from 'meteor/underscore';
 
 import assert from 'assert';
+import util from 'util';
 import {Step, Transform} from 'prosemirror-transform';
 
 import {Document} from '/lib/documents/document';
@@ -328,7 +329,7 @@ function rebaseSteps(parentDocumentId) {
           if (rebasedStep.failed) {
             // TODO: Do something about failed steps.
             // eslint-disable-next-line no-console
-            console.error("Failed step during rebasing.", rebasedStep.failed, rebasedStep.step);
+            console.error("Failed step during rebasing.", rebasedStep.failed, util.inspect(rebasedStep.step.toJSON(), {depth: null}));
           }
           else {
             version += 1;
