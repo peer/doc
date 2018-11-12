@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-07 23:52-0800\n"
+"POT-Creation-Date: 2018-11-12 05:37-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: client/components/sidebar.vue:255
+#: client/components/sidebar.vue:261
 msgid "accept-merge-error"
 msgstr "An error has occurred when trying to merge the document."
 
-#: client/components/sidebar.vue:259
+#: client/components/sidebar.vue:265
 msgid "accept-merge-success"
 msgstr "The document has been successfully merged into the parent document."
 
@@ -221,19 +221,23 @@ msgstr "Anyone with the link to the document can access the document."
 msgid "documents"
 msgstr "Documents"
 
-#: client/components/editor.vue:123
+#: client/components/editor.vue:118
+msgid "editor-locked"
+msgstr "Locked"
+
+#: client/components/editor.vue:128
 msgid "editor-saved"
 msgstr "Saved"
 
-#: client/components/editor.vue:118
+#: client/components/editor.vue:123
 msgid "editor-saving"
 msgstr "Saving..."
 
-#: client/components/sidebar.vue:243
+#: client/components/sidebar.vue:249
 msgid "fork-error"
 msgstr "An error has occurred when trying to fork the document."
 
-#: client/components/sidebar.vue:247
+#: client/components/sidebar.vue:253
 msgid "fork-success"
 msgstr "The document has been successfully forked."
 
@@ -329,7 +333,7 @@ msgstr "Do you wish to publish this document now?"
 msgid "publish-error"
 msgstr "An error has occurred when trying to publish the document."
 
-#: client/components/document-publish.vue:108
+#: client/components/document-publish.vue:107
 msgid "publish-success"
 msgstr "The document has been successfully published."
 
@@ -433,55 +437,55 @@ msgstr "Start a new comment by selecting content on the left."
 msgid "thread-deletion-confirmation"
 msgstr "Are you sure you want to delete this comment thread?"
 
-#: client/components/editor.vue:337
+#: client/components/editor.vue:342
 msgid "title-length"
 msgstr "Your title should be brief (max 100 characters) and the text of your document added below it."
 
-#: client/components/editor.vue:237
+#: client/components/editor.vue:242
 msgid "toolbar-bold"
 msgstr "Bold (%{shortcut})"
 
-#: client/components/editor.vue:245
+#: client/components/editor.vue:250
 msgid "toolbar-bulleted-list"
 msgstr "Bulleted list"
 
-#: client/components/editor.vue:241
+#: client/components/editor.vue:246
 msgid "toolbar-h1"
 msgstr "Heading 1"
 
-#: client/components/editor.vue:242
+#: client/components/editor.vue:247
 msgid "toolbar-h2"
 msgstr "Heading 2"
 
-#: client/components/editor.vue:243
+#: client/components/editor.vue:248
 msgid "toolbar-h3"
 msgstr "Heading 3"
 
-#: client/components/editor.vue:238
+#: client/components/editor.vue:243
 msgid "toolbar-italic"
 msgstr "Italic (%{shortcut})"
 
-#: client/components/editor.vue:240
+#: client/components/editor.vue:245
 msgid "toolbar-link"
 msgstr "Link (%{shortcut})"
 
-#: client/components/editor.vue:246
+#: client/components/editor.vue:251
 msgid "toolbar-numbered-list"
 msgstr "Numbered list"
 
-#: client/components/editor.vue:244
+#: client/components/editor.vue:249
 msgid "toolbar-quote"
 msgstr "Quote"
 
-#: client/components/editor.vue:236
+#: client/components/editor.vue:241
 msgid "toolbar-redo"
 msgstr "Redo (%{shortcut})"
 
-#: client/components/editor.vue:239
+#: client/components/editor.vue:244
 msgid "toolbar-strikethrough"
 msgstr "Strikethrough (%{shortcut})"
 
-#: client/components/editor.vue:235
+#: client/components/editor.vue:240
 msgid "toolbar-undo"
 msgstr "Undo (%{shortcut})"
 

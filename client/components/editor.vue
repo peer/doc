@@ -118,7 +118,12 @@
 
         <div
           v-translate
-          v-if="canUserUpdateDocument && unconfirmedCount"
+          v-if="canUserUpdateDocument && document.hasContentModifyLock"
+          class="editor__saving text--secondary"
+        >editor-locked</div>
+        <div
+          v-translate
+          v-else-if="canUserUpdateDocument && unconfirmedCount"
           class="editor__saving text--secondary"
         >editor-saving</div>
         <div
