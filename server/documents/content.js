@@ -233,7 +233,9 @@ function rebaseSteps(parentDocumentId) {
           const step = transform.steps[i];
           const mapped = step.map(transform.mapping.slice(mapFrom));
           mapFrom -= 1;
-          if (mapped && !transform.maybeStep(mapped).failed) {
+          let result = null;
+          // eslint-disable-next-line no-cond-assign
+          if (mapped && !(result = transform.maybeStep(mapped)).failed) {
             transform.mapping.setMirror(mapFrom, transform.steps.length - 1);
             if (i < rebasedInParentDocumentStepsCount) {
               // TODO: Check.
@@ -241,18 +243,26 @@ function rebaseSteps(parentDocumentId) {
               console.log("Should be equal", mapped, newAndRebasedParentDocumentSteps[newParentDocumentStepsCount + i]);
             }
             else {
-              rebasedNewForkSteps.push(mapped);
+              rebasedNewForkSteps.push({step: mapped, failed: null});
             }
           }
           else if (i < rebasedInParentDocumentStepsCount) {
-            // TODO: Failure should not occur.
-            // eslint-disable-next-line no-console
-            console.log("Unexpected failed step", step);
+            if (!mapped) {
+              // eslint-disable-next-line no-console
+              console.error("Unexpected failed mapping.", step);
+              throw new Meteor.Error('internal-error', "Unexpected failed mapping.");
+            }
+            else {
+              // eslint-disable-next-line no-console
+              console.error("Unexpected error applying a step.", result.failed);
+              throw new Meteor.Error('internal-error', "Unexpected invalid step.");
+            }
+          }
+          else if (!mapped) {
+            rebasedNewForkSteps.push({step, failed: "Failed mapping."});
           }
           else {
-            // TODO: Do something about failed steps.
-            // eslint-disable-next-line no-console
-            console.log("Failed step", step);
+            rebasedNewForkSteps.push({step, failed: result.failed});
           }
         }
 
@@ -313,20 +323,29 @@ function rebaseSteps(parentDocumentId) {
 
         // "newForkStepsCount" is equal to "rebasedNewForkSteps.length".
         for (let i = 0; i < newForkStepsCount; i += 1) {
-          version += 1;
+          const rebasedStep = rebasedNewForkSteps[i];
 
-          // We start without "_id" field.
-          const content = _.omit(contents[rebasedInParentDocumentStepsCount + i], '_id');
+          if (rebasedStep.failed) {
+            // TODO: Do something about failed steps.
+            // eslint-disable-next-line no-console
+            console.error("Failed step during rebasing.", rebasedStep.failed, rebasedStep.step);
+          }
+          else {
+            version += 1;
 
-          _.extend(content, {
-            version,
-            contentKeys: [fork.contentKey],
-            step: rebasedNewForkSteps[i].toJSON(),
-          });
+            // We start without "_id" field.
+            const content = _.omit(contents[rebasedInParentDocumentStepsCount + i], '_id');
 
-          // We just directly insert (and not do an upsert) because there should not
-          // be existing documents matching the "contentKey" and "version".
-          Content.documents.insert(content);
+            _.extend(content, {
+              version,
+              contentKeys: [fork.contentKey],
+              step: rebasedStep.step.toJSON(),
+            });
+
+            // We just directly insert (and not do an upsert) because there should not
+            // be existing documents matching the "contentKey" and "version".
+            Content.documents.insert(content);
+          }
         }
 
         const timestamp = new Date();
