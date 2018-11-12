@@ -111,7 +111,9 @@ function rebaseSteps(parentDocumentId) {
   // because "_acceptMerge" is doing it in the same order as well. Otherwise it
   // could happen that we end up in a deadlock.
   Document.lock(parentDocumentQuery, true, true, (lockedParentDocumentId) => {
-    // TODO: Schedule again, if document still exists.
+    if (lockedParentDocumentId) {
+      Content.scheduleRebase(parentDocumentId);
+    }
   }, (lockedParentDocumentId) => {
     assert.strictEqual(lockedParentDocumentId, parentDocumentId);
 
@@ -144,7 +146,9 @@ function rebaseSteps(parentDocumentId) {
       },
     }).forEach((forkIndex) => {
       Document.lock({_id: forkIndex._id}, true, true, (forkId) => {
-        // TODO: Schedule again, if document still exists.
+        if (forkId) {
+          Content.scheduleRebase(parentDocumentId);
+        }
       }, (forkId) => {
         assert.strictEqual(forkId, forkIndex._id);
 

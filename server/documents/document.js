@@ -24,7 +24,7 @@ Document.lock = function lock(query, appendLock, modifyLock, onFailure, onSucces
   const document = this.documents.findOne(query, {_id: 1});
 
   if (!document) {
-    throw new Meteor.Error('not-found', "Document cannot be found.");
+    onFailure();
   }
 
   const lockTimestamp = new Date();
@@ -560,7 +560,12 @@ Document._acceptMerge = function create(args, user, connectionId) {
   // to have a fixed version of the parent document to assure the fork
   // has been rebased to it and move content steps correctly to the parent.
   this.lock(parentDocumentQuery, true, true, (lockedParentDocumentId) => {
-    throw new Meteor.Error('internal-error', "Lock could not be acquired.");
+    if (lockedParentDocumentId) {
+      throw new Meteor.Error('internal-error', "Lock could not be acquired.");
+    }
+    else {
+      throw new Meteor.Error('not-found', "Document cannot be found.");
+    }
   }, (lockedParentDocumentId) => {
     assert.strictEqual(lockedParentDocumentId, parentDocumentId);
 
@@ -571,7 +576,12 @@ Document._acceptMerge = function create(args, user, connectionId) {
     // because "rebaseSteps" is doing it in the same order as well. Otherwise it
     // could happen that we end up in a deadlock.
     this.lock(forkQuery, true, true, (lockedForkId) => {
-      throw new Meteor.Error('internal-error', "Lock could not be acquired.");
+      if (lockedForkId) {
+        throw new Meteor.Error('internal-error', "Lock could not be acquired.");
+      }
+      else {
+        throw new Meteor.Error('not-found', "Document cannot be found.");
+      }
     }, (lockedForkId) => {
       assert.strictEqual(lockedForkId, forkId);
 
