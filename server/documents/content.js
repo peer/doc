@@ -499,6 +499,7 @@ Content._addSteps = function addSteps(args, user) {
   let doc = null;
   let version = null;
   let documentId = null;
+  let documentIsPublished = null;
 
   // We acquire the append lock on the document. We do not really need this (currently) for
   // the logic below, but it makes sure that merging and rebasing cannot happen at the same.
@@ -534,6 +535,8 @@ Content._addSteps = function addSteps(args, user) {
     assert(document.hasContentAppendLock);
 
     assert(!(document.isPublished() || document.isMergeAccepted()) || onlyHighlights);
+
+    documentIsPublished = document.isPublished();
 
     ({doc, version} = this.getCurrentState(args.contentKey, document.rebasedAtVersion));
 
@@ -610,9 +613,13 @@ Content._addSteps = function addSteps(args, user) {
     assert(version !== null);
     assert(documentId);
 
-    // Content has been just changed, we have to rebase new content to
-    // all children (forks) of this document.
-    Content.scheduleRebase(documentId);
+    // Content has been just changed, we have to rebase new content to all children (forks) of
+    // this document. Instead of running it always, we schedule only if a document is being
+    // published and we know only published documents can have forks. If all documents can have
+    // forks, then we have to schedule always.
+    if (Meteor.settings.public.mergingForkingOfAllDocuments || documentIsPublished) {
+      Content.scheduleRebase(documentId);
+    }
 
     // TODO: Use a background job for this.
     Meteor.setTimeout(() => {
