@@ -29,248 +29,325 @@ function updateCurrentState(contentKey, rebasedAtVersion, doc, version) {
   }
 }
 
-function rebaseSteps(documentId) {
-  // TODO: Check Rebase permissions.
+// Returns a transform with steps that come after existing shared steps.
+function getNewStepsTransform(contentKey, otherContentKey) {
+  // Transform after the rebase point.
+  let transform = null;
+  const contents = [];
 
-  // Get forked document.
-  const fork = Document.documents.findOne(
+  let doc = schema.topNodeType.createAndFill();
+
+  // Populate the transform with fork's content documents.
+  Content.documents.find(
     {
-      'forkedFrom._id': documentId,
-      mergeAcceptedAt: null,
+      contentKeys: contentKey,
     },
     {
-      fields: {
-        hasContentModifyLock: 1,
-        contentKey: 1,
-        forkedAtVersion: 1,
-        rebasedAtVersion: 1,
-        forkedFrom: 1,
-        _id: 1,
+      sort: {
+        version: 1,
       },
+      // We do not transform documents because we are using documents
+      // directly to re-insert rebased steps.
+      transform: null,
     },
-  );
+  ).forEach((content) => {
+    const step = Step.fromJSON(schema, content.step);
 
-  if (!fork) {
-    return;
-  }
+    let result = null;
+    if (!_.contains(content.contentKeys, otherContentKey) && transform === null) {
+      transform = new Transform(doc);
+    }
 
-  // Get original document.
-  const original = Document.documents.findOne({
-    _id: fork.forkedFrom._id,
+    if (transform === null) {
+      result = step.apply(doc);
+    }
+    else {
+      result = transform.maybeStep(step);
+      contents.push(content);
+    }
+
+    if (result.failed) {
+      // eslint-disable-next-line no-console
+      console.error("Error applying a step.", result.failed);
+      throw new Meteor.Error('internal-error', "Invalid step.");
+    }
+
+    // This is needed only while we are processing shared steps,
+    // but we simply do it always to simplify the code.
+    doc = result.doc;
   });
 
-  if (!fork.hasContentModifyLock && fork.rebasedAtVersion < original.version) {
-    Document.documents.update({
-      _id: fork._id,
-    }, {
-      $set: {
-        hasContentModifyLock: new Date(),
-      },
+  // Fork might not have any additional steps beyond the shared steps.
+  if (transform === null) {
+    transform = new Transform(doc);
+  }
+
+  assert.strictEqual(transform.steps.length, contents.length);
+
+  return {transform, contents};
+}
+
+// If the top document has steps A, and has a fork which we see here as a parent document,
+// then the parent document has steps [A, C], where C are new steps the parent document
+// has. A fork of that parent document then has [A, C, D] steps, where D are new steps
+// the fork has. At this time [A, C] are shared steps between the parent document and
+// the fork.
+// Now, if the top document gets additional steps merged in, it has then steps [A, B].
+// This means the parent document has to be rebased. After rebasing happens, the parent
+// document has steps [A, B, C'], where C' are rebased C steps on top of B.
+// Now also the fork has to be rebased. The parent document shares with the fork steps
+// A and has new steps B and rebased steps C'. To rebase the fork's steps [A, C, D]
+// we create a transform of [C, D] steps. We then undo D and C to get [A, C, D, -D, -C].
+// Then we add new steps from the parent document B to get [A, C, D, -D, -C, B].
+// We then rebase C into C' (it should be equal to parent document's C') and rebase
+// D into D' and add them to get [A, C, D, -D, -C, B, C', D']. We store D' as
+// rebased steps on top of parent document's [A, B, C'] to get fork's steps [A, B, C', D'].
+function rebaseSteps(parentDocumentId) {
+  const parentDocumentQuery = {
+    _id: parentDocumentId,
+  };
+
+  // It is important that we lock in this order (parent document first, then fork)
+  // because "_acceptMerge" is doing it in the same order as well. Otherwise it
+  // could happen that we end up in a deadlock.
+  Document.lock(parentDocumentQuery, true, true, (lockedParentDocumentId) => {
+    // TODO: Schedule again, if document still exists.
+  }, (lockedParentDocumentId) => {
+    assert.strictEqual(lockedParentDocumentId, parentDocumentId);
+
+    // We fetch the document here to make sure we have the most recent (and locked) state.
+    const parentDocument = Document.documents.findOne({
+      _id: parentDocumentId,
     });
 
-    try {
-      // Get forked document steps.
-      const forkSteps = Content.documents.find(
-        {
-          version: {
-            $gt: fork.rebasedAtVersion,
-          },
-          contentKeys: fork.contentKey,
-        },
-        {
-          sort: {
-            version: 1,
-          },
-        },
-      ).fetch()
-      .map((x) => {
-        return Object.assign({}, x, {
-          step: Step.fromJSON(schema, x.step),
+    // Document does not exist anymore?
+    if (!parentDocument) {
+      return;
+    }
+
+    const forkQuery = {
+      'forkedFrom._id': parentDocumentId,
+      // Document should not be published or merged.
+      publishedAt: null,
+      publishedBy: null,
+      mergeAcceptedAt: null,
+      mergeAcceptedBy: null,
+      // Only if there are new steps available.
+      rebasedAtVersion: {
+        $lt: parentDocument.version,
+      },
+    };
+
+    Document.documents.find(forkQuery, {
+      fields: {
+        _id: 1,
+      },
+    }).forEach((forkIndex) => {
+      Document.lock({_id: forkIndex._id}, true, true, (forkId) => {
+        // TODO: Schedule again, if document still exists.
+      }, (forkId) => {
+        assert.strictEqual(forkId, forkIndex._id);
+
+        // We fetch the document here to make sure we have the most recent (and locked) state.
+        const fork = Document.documents.findOne({
+          $and: [
+            {
+              _id: forkId,
+            },
+            forkQuery,
+          ],
         });
-      });
 
-      // Get original document steps that were applied after fork.
-      const originalSteps = Content.documents.find(
-        {
-          version: {
-            $gt: fork.rebasedAtVersion,
+        // Document does not have to be rebased anymore, or it does not exist anymore.
+        if (!fork) {
+          return;
+        }
+
+        // Get parent document's steps that are not shared with the fork.
+        // They include new steps but also rebased steps which might be previously
+        // part of the fork's steps (shared with the parent).
+        const newAndRebasedParentDocumentSteps = Content.documents.find(
+          {
+            $and: [
+              {
+                contentKeys: parentDocument.contentKey,
+              },
+              {
+                contentKeys: {$ne: fork.contentKey},
+              },
+            ],
           },
-          contentKeys: original.contentKey,
-        },
-        {
-          sort: {
-            version: 1,
+          {
+            sort: {
+              version: 1,
+            },
+            transform: null,
           },
-        },
-      ).fetch()
-      .map((x) => {
-        return Step.fromJSON(schema, x.step);
-      });
+        ).map((x) => {
+          return Step.fromJSON(schema, x.step);
+        });
 
-      // Initialize doc and transform.
-      let doc = schema.topNodeType.createAndFill();
-      let transform;
-      let version = 0;
-
-      // Apply all the forked document steps to doc.
-      Content.documents.find({
-        contentKeys: fork.contentKey,
-        version: {
-          $gt: version,
-        },
-      }, {
-        sort: {
-          version: 1,
-        },
-        fields: {
-          step: 1,
-          version: 1,
-        },
-      }).fetch().forEach((content) => {
-        if (content.version > fork.rebasedAtVersion) {
-          if (!transform) {
-            transform = new Transform(doc);
-          }
-          transform.step(Step.fromJSON(schema, content.step));
-        }
-        else {
-          version = content.version;
+        // This should not really happen (because of the "forkQuery" above), but it
+        // looks like parent document does not have new steps which are not
+        // already in the fork.
+        if (!newAndRebasedParentDocumentSteps.length) {
+          return;
         }
 
-        const result = Step.fromJSON(schema, content.step).apply(doc);
+        // Transform of fork steps that come after existing shared steps.
+        const {transform, contents} = getNewStepsTransform(fork.contentKey, parentDocument.contentKey);
 
-        if (!result.doc) {
-          // eslint-disable-next-line no-console
-          console.error("Error applying a step.", result.failed);
-          throw new Meteor.Error('invalid-request', "Invalid step.");
-        }
-        doc = result.doc;
-      });
+        const newForkStepsAndRebasedInParentDocumentStepsCount = transform.steps.length;
+        const newForkStepsCount = fork.version - fork.rebasedAtVersion;
+        const rebasedInParentDocumentStepsCount = newForkStepsAndRebasedInParentDocumentStepsCount - newForkStepsCount;
+        const newParentDocumentStepsCount = newAndRebasedParentDocumentSteps.length - rebasedInParentDocumentStepsCount;
 
-      const shouldRebase = transform !== undefined && originalSteps.length > 0;
+        assert(newForkStepsAndRebasedInParentDocumentStepsCount >= 0, `${newForkStepsAndRebasedInParentDocumentStepsCount}`);
+        assert(newForkStepsCount >= 0, `${newForkStepsCount}`);
+        assert(rebasedInParentDocumentStepsCount >= 0, `${rebasedInParentDocumentStepsCount}`);
+        assert(newParentDocumentStepsCount >= 0, `${newParentDocumentStepsCount}`);
 
-      if (shouldRebase) {
-        // Revert steps that were applied on the forked document after fork.
-        for (let i = transform.steps.length - 1; i >= 0; i -= 1) {
-          const result = transform.steps[i].invert(transform.docs[i]).apply(doc);
+        // We first undo fork's new steps and then steps which have been rebased in the parent document.
+        // So all steps available in the transform (all steps after existing shared steps).
+        for (let i = newForkStepsAndRebasedInParentDocumentStepsCount - 1; i >= 0; i -= 1) {
           transform.step(transform.steps[i].invert(transform.docs[i]));
-          if (!result.doc) {
-            // eslint-disable-next-line no-console
-            console.error("Error applying a step.", result.failed);
-            throw new Meteor.Error('invalid-request', "Invalid step.");
-          }
-          doc = result.doc;
         }
-      }
-      else {
-        transform = new Transform(doc);
-      }
 
-      // Apply all the original document steps.
-      for (let i = 0; i < originalSteps.length; i += 1) {
-        const result = originalSteps[i].apply(doc);
-        transform.step(originalSteps[i]);
-        if (!result.doc) {
-          // eslint-disable-next-line no-console
-          console.error("Error applying a step.", result.failed);
-          throw new Meteor.Error('invalid-request', "Invalid step.");
+        // Then we add new steps from the parent document.
+        for (let i = 0; i < newParentDocumentStepsCount; i += 1) {
+          transform.step(newAndRebasedParentDocumentSteps[i]);
         }
-        doc = result.doc;
-      }
 
-      if (shouldRebase) {
-        // Remap forked document steps and apply.
-        for (let i = 0, mapFrom = forkSteps.length * 2; i < forkSteps.length; i += 1) {
-          const mapped = forkSteps[i].step.map(transform.mapping.slice(mapFrom));
+        const rebasedNewForkSteps = [];
+        // Redo steps which have been rebased in the parent document and then fork's new steps.
+        for (let i = 0, mapFrom = newForkStepsAndRebasedInParentDocumentStepsCount; i < newForkStepsAndRebasedInParentDocumentStepsCount; i += 1) {
+          const step = transform.steps[i];
+          const mapped = step.map(transform.mapping.slice(mapFrom));
           mapFrom -= 1;
           if (mapped && !transform.maybeStep(mapped).failed) {
-            const result = mapped.apply(doc);
             transform.mapping.setMirror(mapFrom, transform.steps.length - 1);
-
-            if (!result.doc) {
+            if (i < rebasedInParentDocumentStepsCount) {
+              // TODO: Check.
               // eslint-disable-next-line no-console
-              console.error("Error applying a step.", result.failed);
-              throw new Meteor.Error('invalid-request', "Invalid step.");
+              console.log("Should be equal", mapped, newAndRebasedParentDocumentSteps[newParentDocumentStepsCount + i]);
             }
-            doc = result.doc;
+            else {
+              rebasedNewForkSteps.push(mapped);
+            }
+          }
+          else if (i < rebasedInParentDocumentStepsCount) {
+            // TODO: Failure should not occur.
+            // eslint-disable-next-line no-console
+            console.log("Unexpected failed step", step);
+          }
+          else {
+            // TODO: Do something about failed steps.
+            // eslint-disable-next-line no-console
+            console.log("Failed step", step);
           }
         }
-      }
 
-      const timestamp = new Date();
+        assert.strictEqual(newForkStepsCount, rebasedNewForkSteps.length);
 
-      // Remove forked document steps.
-      Content.documents.remove({
-        contentKeys: fork.contentKey,
-        version: {
-          $gt: fork.rebasedAtVersion,
-        },
-      });
-
-      // Add original steps to forked.
-      const updated = Content.documents.update({
-        contentKeys: original.contentKey,
-        version: {
-          $gt: fork.rebasedAtVersion,
-          $lte: original.version,
-        },
-      }, {
-        $addToSet: {
-          contentKeys: fork.contentKey,
-        },
-      }, {
-        multi: true,
-      });
-
-      version = fork.rebasedAtVersion + updated;
-      let index = 0;
-
-      // Save merge steps.
-      transform.steps.forEach((x, i) => {
-        if (i >= ((forkSteps.length * 2) + (originalSteps.length))) {
-          version += 1;
-          Content.documents.upsert({
-            version,
-            contentKeys: fork.contentKey,
-          }, {
-            $setOnInsert: {
-              contentKeys: [fork.contentKey],
-              createdAt: forkSteps[index].createdAt,
-              author: forkSteps[index].author,
-              clientId: forkSteps[index].clientId,
-              step: x.toJSON(),
+        // Remove fork's "contentKey" from fork's old steps (those which are not
+        // shared with the parent document). We do not just remove these documents
+        // because some other fork might depend on them. We remove documents with
+        // empty "contentKeys" at the end of this function.
+        let changed = Content.documents.update(
+          {
+            $and: [
+              {
+                contentKeys: fork.contentKey,
+              },
+              {
+                contentKeys: {$ne: parentDocument.contentKey},
+              },
+            ],
+          },
+          {
+            $pull: {
+              contentKeys: fork.contentKey,
             },
-          });
-          index += 1;
-        }
-      });
+          },
+          {
+            multi: true,
+          },
+        );
 
-      // Update document version
-      Document.documents.update({
-        _id: fork._id,
-      }, {
-        $set: {
-          version,
-          body: doc.toJSON(),
-          updatedAt: timestamp,
-          lastActivity: timestamp,
-          title: extractTitle(doc),
-          rebasedAtVersion: original.version,
-          hasContentModifyLock: null,
-        },
+        assert.strictEqual(changed, newForkStepsAndRebasedInParentDocumentStepsCount);
+
+        // Add parent document's steps to the fork.
+        changed = Content.documents.update(
+          {
+            $and: [
+              {
+                contentKeys: parentDocument.contentKey,
+              },
+              {
+                contentKeys: {$ne: fork.contentKey},
+              },
+            ],
+          },
+          {
+            $addToSet: {
+              contentKeys: fork.contentKey,
+            },
+          },
+          {
+            multi: true,
+          },
+        );
+
+        assert.strictEqual(changed, newAndRebasedParentDocumentSteps);
+
+        let version = parentDocument.version;
+
+        // "newForkStepsCount" is equal to "rebasedNewForkSteps.length".
+        for (let i = 0; i < newForkStepsCount; i += 1) {
+          version += 1;
+
+          // We start without "_id" field.
+          const content = _.omit(contents[rebasedInParentDocumentStepsCount + i], '_id');
+
+          _.extend(content, {
+            version,
+            contentKeys: [fork.contentKey],
+            step: rebasedNewForkSteps[i].toJSON(),
+          });
+
+          // We just directly insert (and not do an upsert) because there should not
+          // be existing documents matching the "contentKey" and "version".
+          Content.documents.insert(content);
+        }
+
+        const timestamp = new Date();
+        const rebasedAtVersion = parentDocument.version;
+
+        Document.documents.update(
+          {
+            _id: fork._id,
+          },
+          {
+            $set: {
+              version,
+              rebasedAtVersion,
+              body: transform.doc.toJSON(),
+              updatedAt: timestamp,
+              lastActivity: timestamp,
+              title: extractTitle(transform.doc),
+            },
+          },
+        );
+
+        updateCurrentState(fork.contentKey, rebasedAtVersion, transform.doc, version);
+
+        Content.scheduleRebase(fork._id);
       });
-      updateCurrentState(fork.contentKey, fork.rebasedAtVersion, doc, version);
-    }
-    catch (err) {
-      Document.documents.update({
-        _id: fork._id,
-      }, {
-        $set: {
-          hasContentModifyLock: null,
-        },
-      });
-    }
-  }
+    });
+  });
+
+  // Remove all documents which have now empty "contentKeys".
+  Content.documents.remove({contentKeys: []});
 }
 
 // Schedules a rebase of all children (forks) of a document identified by
@@ -279,7 +356,7 @@ function rebaseSteps(documentId) {
 Content.scheduleRebase = function scheduleRebase(documentId) {
   Meteor.setTimeout(() => {
     rebaseSteps(documentId);
-  }, 100);
+  }, 1000);
 };
 
 // This assumes to be called inside locked content documents so that
@@ -317,7 +394,7 @@ Content.getCurrentState = function getCurrentState(contentKey, rebasedAtVersion)
     if (result.failed) {
       // eslint-disable-next-line no-console
       console.error("Error applying a step.", result.failed);
-      throw new Meteor.Error('invalid-request', "Invalid step.");
+      throw new Meteor.Error('internal-error', "Invalid step.");
     }
 
     doc = result.doc;
