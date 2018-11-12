@@ -113,6 +113,18 @@ function rebaseSteps(parentDocumentId) {
     _id: parentDocumentId,
   };
 
+  // Optimization. If there are no potential forks, do not lock anything.
+  if (!Document.documents.exists({
+    'forkedFrom._id': parentDocumentId,
+    // Document should not be published or merged.
+    publishedAt: null,
+    publishedBy: null,
+    mergeAcceptedAt: null,
+    mergeAcceptedBy: null,
+  })) {
+    return;
+  }
+
   // It is important that we lock in this order (parent document first, then fork)
   // because "_acceptMerge" is doing it in the same order as well. Otherwise it
   // could happen that we end up in a deadlock.
