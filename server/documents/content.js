@@ -43,6 +43,9 @@ function getNewStepsTransform(contentKey, otherContentKey) {
   Content.documents.find(
     {
       contentKeys: contentKey,
+      version: {
+        $gt: 0,
+      },
     },
     {
       sort: {
