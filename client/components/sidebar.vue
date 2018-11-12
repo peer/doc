@@ -16,23 +16,26 @@
               dense
               card
             >
-              <v-chip
-                v-if="!apiControlled && document.isPublished()"
-                label
-                disabled
-                color="green"
-                text-color="white"
-                class="sidebar__status"
-              ><translate>document-published</translate></v-chip>
+              <document-status :document-id="document._id" />
               <v-btn
-                v-if="!apiControlled && !document.isPublished() && canUserAdministerDocument"
+                v-if="!apiControlled && canUserPublishDocument"
                 :to="{name: 'document-publish', params: {documentId}}"
-                color="success"
+                outline
               ><translate>document-publish</translate></v-btn>
+              <v-btn
+                v-if="!apiControlled && canUserForkDocument"
+                outline
+                @click="forkDocument()"
+              ><translate>document-fork</translate></v-btn>
+              <v-btn
+                v-if="!apiControlled && canUserMergeDocument"
+                outline
+                @click="acceptMergeDocument()"
+              ><translate>document-accept-merge</translate></v-btn>
               <v-btn
                 v-if="!apiControlled && canUserAdministerDocument"
                 :to="{name: 'document-share', params: {documentId}}"
-                color="primary"
+                outline
               ><translate>share</translate></v-btn>
             </v-toolbar>
           </v-card>
@@ -105,6 +108,7 @@
   import {Comment} from '/lib/documents/comment';
   import {Document} from '/lib/documents/document';
   import {User} from '/lib/documents/user';
+  import {Snackbar} from '../snackbar';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
@@ -164,6 +168,17 @@
         });
       },
 
+      parentDocument() {
+        if (this.document && this.document.forkedFrom) {
+          return Document.documents.findOne({
+            _id: this.document.forkedFrom._id,
+          });
+        }
+        else {
+          return null;
+        }
+      },
+
       canUserCreateComments() {
         return !!(this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE) && User.hasClassPermission(Comment.PERMISSIONS.CREATE));
       },
@@ -171,11 +186,34 @@
       canUserAdministerDocument() {
         return !!(this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
       },
+
+      canUserPublishDocument() {
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.PUBLISH));
+      },
+
+      canUserForkDocument() {
+        return !!(this.document && this.document.isPublished() && this.document.canUser(Document.PERMISSIONS.VIEW) && User.hasClassPermission(Document.PERMISSIONS.CREATE));
+      },
+
+      canUserMergeDocument() {
+        return !!(
+          // TODO: Use "SUGGEST_MERGE" instead of "VIEW" here.
+          this.document && this.document.canUser(Document.PERMISSIONS.VIEW)
+          && !this.document.isMergeAccepted() && !this.document.isPublished()
+          && this.parentDocument && this.parentDocument.canUser(Document.PERMISSIONS.ACCEPT_MERGE)
+        );
+      },
     },
 
     created() {
       this.$autorun((computation) => {
         this.commentsHandle = this.$subscribe('Comment.list', {documentId: this.documentId});
+      });
+
+      this.$autorun((computation) => {
+        if (this.document && this.document.forkedFrom) {
+          this.$subscribe('Document.one', {documentId: this.document.forkedFrom._id});
+        }
       });
     },
 
@@ -198,6 +236,30 @@
     },
 
     methods: {
+      forkDocument() {
+        // TODO: Add "in progress" guard.
+        Document.fork({documentId: this.documentId}, (error, response) => {
+          if (error) {
+            Snackbar.enqueue(this.$gettext("fork-error"), 'error');
+            return;
+          }
+          this.$router.push({name: 'document', params: {documentId: response._id}});
+          Snackbar.enqueue(this.$gettext("fork-success"), 'success');
+        });
+      },
+
+      acceptMergeDocument() {
+        // TODO: Add "in progress" guard.
+        Document.acceptMerge({documentId: this.documentId}, (error) => {
+          if (error) {
+            Snackbar.enqueue(this.$gettext("accept-merge-error"), 'error');
+            return;
+          }
+          this.$router.push({name: 'document', params: {documentId: this.document.forkedFrom._id}});
+          Snackbar.enqueue(this.$gettext("accept-merge-success"), 'success');
+        });
+      },
+
       showNewCommentForm(show, start, selection) {
         this.commentDescriptors = this.commentDescriptors.filter((commentDescriptor) => {
           return !commentDescriptor.dummy;
@@ -616,11 +678,6 @@
       .v-toolbar__content {
         padding: 0 8px;
       }
-    }
-
-    .sidebar__status {
-      text-transform: uppercase;
-      font-weight: bold;
     }
 
     .sidebar__comments {

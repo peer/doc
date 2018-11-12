@@ -1,6 +1,6 @@
 <template>
   <v-layout
-    v-if="!apiControlled && canUserAdministerDocument"
+    v-if="!apiControlled && canUserPublishDocument"
     row
   >
     <v-container fill-height>
@@ -73,8 +73,8 @@
         });
       },
 
-      canUserAdministerDocument() {
-        return !!(this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
+      canUserPublishDocument() {
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.PUBLISH));
       },
     },
 
@@ -97,13 +97,12 @@
           this.documentPublishInProgress = false;
           return;
         }
-        Document.publish({documentId: this.documentId}, (error) => {
-          if (error) {
-            this.documentPublishInProgress = false;
+        Document.publish({documentId: this.documentId}, (error, changed) => {
+          this.documentPublishInProgress = false;
+          if (error || !changed) {
             Snackbar.enqueue(this.$gettext("publish-error"), 'error');
             return;
           }
-          this.documentPublishInProgress = false;
           this.$router.push({name: 'document', params: {documentId: this.documentId}});
           Snackbar.enqueue(this.$gettext("publish-success"), 'success');
         });

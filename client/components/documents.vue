@@ -39,6 +39,12 @@
                     class="timestamp"
                   >document-published-at</span>
                   <span
+                    v-translate="{at: $fromNow(document.mergeAcceptedAt)}"
+                    v-else-if="document.isMergeAccepted()"
+                    :title="document.mergeAcceptedAt | formatDate(DEFAULT_DATETIME_FORMAT)"
+                    class="timestamp"
+                  >document-merge-accepted-at</span>
+                  <span
                     v-translate="{at: $fromNow(document.createdAt)}"
                     v-else
                     :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
@@ -47,13 +53,7 @@
                 </v-list-tile-sub-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-chip
-                  v-if="!document.isPublished()"
-                  label
-                  disabled
-                  color="yellow lighten-2"
-                  class="documents__label"
-                ><translate>document-draft</translate></v-chip>
+                <document-status :document-id="document._id" />
               </v-list-tile-action>
             </v-list-tile>
             <v-divider
@@ -153,10 +153,6 @@
 </script>
 
 <style lang="scss">
-  .documents__label {
-    cursor: pointer;
-  }
-
   .documents__untitled {
     font-style: italic;
   }

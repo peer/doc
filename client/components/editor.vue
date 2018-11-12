@@ -219,6 +219,7 @@
         subscriptionHandle: null,
         commentsHandle: null,
         addingStepsInProgress: false,
+        contentModificationInProgress: false,
         cursorsHandle: null,
         selectedExistingHighlights: [],
         disabledButtons: {},
@@ -263,6 +264,20 @@
 
       canUserCreateComments() {
         return !!(this.document && this.document.canUser(Document.PERMISSIONS.COMMENT_CREATE) && User.hasClassPermission(Comment.PERMISSIONS.CREATE));
+      },
+    },
+
+    watch: {
+      document(newValue, oldValue) {
+        if (newValue.hasContentModifyLock) {
+          this.contentModificationInProgress = true;
+        }
+        else {
+          if (newValue.rebasedAtVersion !== oldValue.rebasedAtVersion) {
+            this.resetEditor();
+          }
+          this.contentModificationInProgress = false;
+        }
       },
     },
 
@@ -417,6 +432,10 @@
           return;
         }
 
+        if (this.contentModificationInProgress) {
+          return;
+        }
+
         // To register dependency on the latest version available from the server.
         const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
 
@@ -440,6 +459,7 @@
             sort: {
               version: 1,
             },
+            transform: null,
           }).map((x) => {
             return Object.assign({}, x, {
               step: Step.fromJSON(schema, x.step),
@@ -452,6 +472,9 @@
               this.$editorView.state,
               _.pluck(newContents, 'step'),
               _.pluck(newContents, 'clientId'),
+              {
+                mapSelectionBackward: true,
+              },
             ));
 
             newContents.filter((x) => {
@@ -511,6 +534,21 @@
     },
 
     methods: {
+      resetEditor() {
+        // TODO: Should we try to map some old state to new state?
+        //       Editor selection/cursor position is currently lost. How does this relate to existing
+        //       cursors of other editors being shown by the cursors plugin? Any unconfirmed steps in
+        //       collab plugin are currently lost. Undo/redo history is lost. Is there any other
+        //       state on the Vue instance which should be reset? Because it depends on the editor's
+        //       state? Ideally, state would flow only one way: from database to Vue instance to
+        //       editor state, so this would not be the case.
+        const newState = EditorState.create({
+          schema: this.$editorView.state.schema,
+          plugins: this.$editorView.state.plugins,
+        });
+        this.$editorView.updateState(newState);
+      },
+
       _addShortcut(translated, key) {
         const shortcut = mac ? `Cmd-${key.toUpperCase()}` : `Ctrl-${key.toUpperCase()}`;
         return this.$gettextInterpolate(translated, {shortcut});

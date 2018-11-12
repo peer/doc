@@ -166,7 +166,6 @@ Comment._delete = function delete_(args, user) {
   return deleted;
 };
 
-// Here we assume this is called from a trusted place and we do not check permissions again.
 Comment.filterOrphan = function filterOrphan(documentId, doc, version) {
   const highlightKeys = [];
 

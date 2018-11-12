@@ -11,7 +11,7 @@
         :document-id="document._id"
         :content-key="document.contentKey"
         :client-id="clientId"
-        :read-only="document.isPublished()"
+        :read-only="isReadOnly"
         @content-changed="onContentChanged"
         @highlight-selected="onHighlightSelected"
         @highlight-added="onHighlightAdded"
@@ -28,6 +28,7 @@
         @comment-clicked="onCommentClicked"
         @add-highlight="addCommentHighlight"
         @delete-highlight="deleteCommentHighlight"
+        @afterCommentAdded="onAfterCommentAdded"
       />
     </v-flex>
   </v-layout>
@@ -61,6 +62,10 @@
         return Document.documents.findOne({
           _id: this.documentId,
         });
+      },
+
+      isReadOnly() {
+        return this.document.isPublished() || this.document.isMergeAccepted() || this.document.hasContentModifyLock;
       },
     },
 

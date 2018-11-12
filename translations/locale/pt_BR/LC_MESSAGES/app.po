@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-28 00:52-0700\n"
+"POT-Creation-Date: 2018-11-07 23:52-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,11 +17,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+#: client/components/sidebar.vue:255
+msgid "accept-merge-error"
+msgstr ""
+
+#: client/components/sidebar.vue:259
+msgid "accept-merge-success"
+msgstr ""
+
 #: client/components/access-denied.vue:3
 msgid "access-denied"
 msgstr "Acesso negado."
 
-#: client/components/utils/placeholder.js:40
+#: client/components/utils/placeholder.js:41
 msgid "add-content"
 msgstr "Adicione aqui o texto do seu documento"
 
@@ -51,11 +59,11 @@ msgstr "[hoje às] LT"
 msgid "cancel"
 msgstr "Cancelar"
 
-#: client/components/utils/placeholder.js:26
+#: client/components/utils/placeholder.js:27
 msgid "choose-title"
 msgstr "Escreva aqui o título do seu documento"
 
-#: client/components/app-layout.vue:70
+#: client/components/app-layout.vue:77
 msgid "close"
 msgstr "Fechar"
 
@@ -67,11 +75,11 @@ msgstr "Criado %{at}"
 msgid "comment-deletion-confirmation"
 msgstr "Tem certeza de que deseja eliminar este comentário?"
 
-#: client/components/comment-editor.vue:109
+#: client/components/comment-editor.vue:110
 msgid "comment-hint"
 msgstr "Insira um comentário"
 
-#: client/components/comment-editor.vue:109
+#: client/components/comment-editor.vue:110
 msgid "comment-reply-hint"
 msgstr "Insira uma resposta"
 
@@ -85,19 +93,23 @@ msgstr[1] "%{value} dias"
 msgid "delete"
 msgstr "Eliminar"
 
+#: client/components/sidebar.vue:33
+msgid "document-accept-merge"
+msgstr "Mesclar"
+
 #: client/components/documents.vue:12
 msgid "document-create"
 msgstr "Novo documento"
 
-#: client/components/documents.vue:40
+#: client/components/documents.vue:46
 msgid "document-created-at"
 msgstr "Criado %{at}"
 
-#: client/components/documents.vue:128
+#: client/components/documents.vue:130
 msgid "document-created-error"
 msgstr "Erro na criação do documento: %{error}"
 
-#: client/components/documents.vue:132
+#: client/components/documents.vue:134
 msgid "document-created-success"
 msgstr "O novo documento foi criado."
 
@@ -109,17 +121,33 @@ msgstr "Permissões padrão"
 msgid "document-default-permissions-hint"
 msgstr "Permissões padrão para usuários que podem acessar o documento."
 
-#: client/components/documents.vue:55
-msgid "document-draft"
+#: client/components/sidebar.vue:28
+msgid "document-fork"
+msgstr "Emendar"
+
+#: client/components/document-status.vue:25
+msgid "document-is-draft"
 msgstr "Rascunho"
 
-#: client/components/sidebar.vue:30
+#: client/components/document-status.vue:32
+msgid "document-is-fork"
+msgstr ""
+
+#: client/components/document-status.vue:18
+msgid "document-is-merge-accepted"
+msgstr ""
+
+#: client/components/document-status.vue:11
+msgid "document-is-published"
+msgstr "publicado"
+
+#: client/components/documents.vue:40
+msgid "document-merge-accepted-at"
+msgstr ""
+
+#: client/components/sidebar.vue:23
 msgid "document-publish"
 msgstr "Publicar"
-
-#: client/components/sidebar.vue:25
-msgid "document-published"
-msgstr "publicado"
 
 #: client/components/documents.vue:34
 msgid "document-published-at"
@@ -201,6 +229,14 @@ msgstr "Salvo"
 msgid "editor-saving"
 msgstr "Salvando..."
 
+#: client/components/sidebar.vue:243
+msgid "fork-error"
+msgstr ""
+
+#: client/components/sidebar.vue:247
+msgid "fork-success"
+msgstr ""
+
 #: client/components/front-page.vue:3
 msgid "front-page"
 msgstr "Página inicial."
@@ -245,7 +281,7 @@ msgid_plural "minutes"
 msgstr[0] "%{value} minuto"
 msgstr[1] "%{value} minutos"
 
-#: client/components/sidebar.vue:77
+#: client/components/sidebar.vue:80
 msgid "no-comments"
 msgstr "Sem comentários."
 
@@ -365,7 +401,7 @@ msgstr "O usuário pode ver o documento."
 msgid "role-view-users-hint"
 msgstr "Usuários que podem acessar o documento podem vê-lo."
 
-#: client/components/sidebar.vue:35
+#: client/components/sidebar.vue:38
 msgid "share"
 msgstr "Partilhar"
 
@@ -377,19 +413,19 @@ msgstr "Entrar"
 msgid "sign-out"
 msgstr "Sair"
 
-#: client/components/user-signin.vue:104
+#: client/components/user-signin.vue:106
 msgid "signed-in-success"
 msgstr "Você entrou com sucesso."
 
-#: client/components/app-layout.vue:114
+#: client/components/app-layout.vue:121
 msgid "signed-out-error"
 msgstr "Erro durante a saída: %{error}"
 
-#: client/components/app-layout.vue:118
+#: client/components/app-layout.vue:125
 msgid "signed-out-success"
 msgstr "Você saiu com sucesso."
 
-#: client/components/sidebar.vue:81
+#: client/components/sidebar.vue:84
 msgid "start-a-new-comment"
 msgstr "Inicie um comentário selecionando o conteúdo à esquerda."
 
@@ -397,55 +433,55 @@ msgstr "Inicie um comentário selecionando o conteúdo à esquerda."
 msgid "thread-deletion-confirmation"
 msgstr "Tem certeza de que deseja eliminar esta linha de discussão?"
 
-#: client/components/editor.vue:322
+#: client/components/editor.vue:337
 msgid "title-length"
 msgstr "O título deve ser breve (max. 100 caracteres) e o texto do documento adicionado abaixo dele."
 
-#: client/components/editor.vue:236
+#: client/components/editor.vue:237
 msgid "toolbar-bold"
 msgstr "Negrito (%{shortcut})"
 
-#: client/components/editor.vue:244
+#: client/components/editor.vue:245
 msgid "toolbar-bulleted-list"
 msgstr "Lista com marcadores"
 
-#: client/components/editor.vue:240
+#: client/components/editor.vue:241
 msgid "toolbar-h1"
 msgstr "Título 1"
 
-#: client/components/editor.vue:241
+#: client/components/editor.vue:242
 msgid "toolbar-h2"
 msgstr "Título 2"
 
-#: client/components/editor.vue:242
+#: client/components/editor.vue:243
 msgid "toolbar-h3"
 msgstr "Título 3"
 
-#: client/components/editor.vue:237
+#: client/components/editor.vue:238
 msgid "toolbar-italic"
 msgstr "Itálico (%{shortcut})"
 
-#: client/components/editor.vue:239
+#: client/components/editor.vue:240
 msgid "toolbar-link"
 msgstr "Link (%{shortcut})"
 
-#: client/components/editor.vue:245
+#: client/components/editor.vue:246
 msgid "toolbar-numbered-list"
 msgstr "Lista numerada"
 
-#: client/components/editor.vue:243
+#: client/components/editor.vue:244
 msgid "toolbar-quote"
 msgstr "Recuar texto"
 
-#: client/components/editor.vue:235
+#: client/components/editor.vue:236
 msgid "toolbar-redo"
 msgstr "Refazer (%{shortcut})"
 
-#: client/components/editor.vue:238
+#: client/components/editor.vue:239
 msgid "toolbar-strikethrough"
 msgstr "Tachar (%{shortcut})"
 
-#: client/components/editor.vue:234
+#: client/components/editor.vue:235
 msgid "toolbar-undo"
 msgstr "Desfazer (%{shortcut})"
 
@@ -457,19 +493,19 @@ msgstr "Sem título"
 msgid "update"
 msgstr "Atualizar"
 
-#: client/components/user-signin.vue:86
+#: client/components/user-signin.vue:88
 msgid "username"
 msgstr "Username"
 
-#: client/components/user-signin.vue:71
+#: client/components/user-signin.vue:73
 msgid "username-invalid"
 msgstr "O nome de usuário é inválido. Deve conter apenas caracteres básicos."
 
-#: client/components/user-signin.vue:65
+#: client/components/user-signin.vue:67
 msgid "username-is-required"
 msgstr "O nome de usuário é obrigatório."
 
-#: client/components/user-signin.vue:68
+#: client/components/user-signin.vue:70
 msgid "username-too-short"
 msgstr "O nome de usuário é muito curto. Deve conter pelo menos 4 caracteres."
 
