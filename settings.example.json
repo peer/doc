@@ -4,6 +4,7 @@
   "public": {
     "apiControlled": false,
     "passwordlessAuthDisabled": false,
+    "mergingForkingOfAllDocuments": false,
     "defaultLanguage": "en_US",
     "defaultPermissions": [
       "DOCUMENT_CREATE",

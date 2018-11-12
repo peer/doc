@@ -435,12 +435,13 @@ Document._fork = function create(args, user, connectionId) {
   // We need a user reference.
   assert(user);
 
-  const parentDocument = this.documents.findOne(this.restrictQuery({
-    _id: args.documentId,
+  const parentDocumentBaseQuery = Meteor.settings.public.mergingForkingOfAllDocuments
+    ? {_id: args.documentId}
     // Parent document should be published.
-    publishedAt: {$ne: null},
-    publishedBy: {$ne: null},
-  }, this.PERMISSIONS.VIEW, user));
+    : {_id: args.documentId, publishedAt: {$ne: null}, publishedBy: {$ne: null}};
+  const parentDocumentQuery = this.restrictQuery(parentDocumentBaseQuery, this.PERMISSIONS.VIEW, user);
+
+  const parentDocument = this.documents.findOne(parentDocumentQuery);
 
   if (!parentDocument) {
     throw new Meteor.Error('not-found', "Document cannot be found.");
@@ -545,7 +546,8 @@ Document._acceptMerge = function create(args, user, connectionId) {
 
   const parentDocumentId = fork.forkedFrom._id;
 
-  // "restrictQuery" makes sure that the document is published.
+  // "restrictQuery" makes sure that the document is published (when configured
+  // too allow merging only into published documents).
   const parentDocumentQuery = this.restrictQuery({
     _id: parentDocumentId,
   }, this.PERMISSIONS.ACCEPT_MERGE, user);
@@ -556,9 +558,11 @@ Document._acceptMerge = function create(args, user, connectionId) {
   // the locks are acquired, nothing else can be merged into the parent,
   // it cannot be rebased, nor new steps can be added to its content.
   // We use both locks because even if the parent document is published,
-  // new content steps can be added for comment annotations. But we need
-  // to have a fixed version of the parent document to assure the fork
-  // has been rebased to it and move content steps correctly to the parent.
+  // new content steps can be added for comment annotations. Moreover,
+  // this allows accepting merge also when configured to allow merging
+  // into not-published documents. We need to have a fixed version of
+  // the parent document to assure the fork has been rebased to it and
+  // move content steps correctly to the parent.
   this.lock(parentDocumentQuery, true, true, (lockedParentDocumentId) => {
     if (lockedParentDocumentId) {
       throw new Meteor.Error('internal-error', "Lock could not be acquired.");

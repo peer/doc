@@ -192,7 +192,13 @@
       },
 
       canUserForkDocument() {
-        return !!(this.document && this.document.isPublished() && this.document.canUser(Document.PERMISSIONS.VIEW) && User.hasClassPermission(Document.PERMISSIONS.CREATE));
+        const condition = !!(this.document && this.document.canUser(Document.PERMISSIONS.VIEW) && User.hasClassPermission(Document.PERMISSIONS.CREATE));
+        if (Meteor.settings.public.mergingForkingOfAllDocuments) {
+          return condition;
+        }
+        else {
+          return condition && this.document.isPublished();
+        }
       },
 
       canUserMergeDocument() {
