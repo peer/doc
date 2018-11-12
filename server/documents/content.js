@@ -16,6 +16,8 @@ import {check} from '/server/check';
 // TODO: Make documents expire after a while.
 const documents = new Map();
 
+const scheduledRebase = new Set();
+
 function updateCurrentState(contentKey, rebasedAtVersion, doc, version) {
   const key = `${contentKey}/${rebasedAtVersion}`;
 
@@ -358,7 +360,13 @@ function rebaseSteps(parentDocumentId) {
 // "documentId" for (potential) new content available on the document.
 // TODO: Use a background job for this.
 Content.scheduleRebase = function scheduleRebase(documentId) {
+  if (scheduledRebase.has(documentId)) {
+    return;
+  }
+  scheduledRebase.add(documentId);
+
   Meteor.setTimeout(() => {
+    scheduledRebase.delete(documentId);
     rebaseSteps(documentId);
   }, 1000);
 };
