@@ -537,7 +537,7 @@ Document._acceptMerge = function create(args, user, connectionId) {
   // The second is to check that the user has permissions on the fork
   // so that locks are not made without permissions. (Check for permissions
   // on the parent document is made inside the first "lock" call.)
-  let fork = this.findOne(forkQuery, {forkedFrom: 1});
+  let fork = this.documents.findOne(forkQuery, {forkedFrom: 1});
 
   if (!fork) {
     throw new Meteor.Error('not-found', "Document cannot be found.");
