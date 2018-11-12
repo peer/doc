@@ -183,3 +183,84 @@ WebApp.connectHandlers.use('/document/share', (req, res, next) => {
     next();
   }
 });
+
+// TODO: Use path information from router instead of hard-coding the path here.
+WebApp.connectHandlers.use('/document/fork', (req, res, next) => {
+  const match = parseurl(req).pathname.match(/^\/([^/]+)$/);
+
+  if (!match) {
+    next();
+    return;
+  }
+
+  if (req.method === 'POST') {
+    try {
+      if (!req.query || !req.query.user) {
+        throw new Error("'user' query string parameter is missing.");
+      }
+
+      const documentId = match[1];
+
+      const user = createUserFromToken(req.query.user);
+
+      const document = Document._fork({documentId}, user, null);
+
+      const result = JSON.stringify({
+        documentId: document._id,
+        status: 'success',
+        // TODO: Use router to construct the path.
+        path: `/document/${document._id}`,
+      });
+
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.end(result);
+    }
+    catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Error handling /document/fork API request.", error);
+      res.writeHead(400, {'Content-Type': 'application/json'});
+      res.end(JSON.stringify({
+        status: 'error',
+      }));
+    }
+  }
+  else {
+    next();
+  }
+});
+
+// TODO: Use path information from router instead of hard-coding the path here.
+WebApp.connectHandlers.use('/document/merge', (req, res, next) => {
+  const match = parseurl(req).pathname.match(/^\/([^/]+)$/);
+
+  if (!match) {
+    next();
+    return;
+  }
+
+  if (req.method === 'POST') {
+    try {
+      if (!req.query || !req.query.user) {
+        throw new Error("'user' query string parameter is missing.");
+      }
+
+      const documentId = match[1];
+
+      const user = createUserFromToken(req.query.user);
+
+      // Throws an exception if merge is not possible.
+      Document._acceptMerge({documentId}, user, null);
+    }
+    catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Error handling /document/merge API request.", error);
+      res.writeHead(400, {'Content-Type': 'application/json'});
+      res.end(JSON.stringify({
+        status: 'error',
+      }));
+    }
+  }
+  else {
+    next();
+  }
+});
