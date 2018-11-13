@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-12 05:37-0800\n"
+"POT-Creation-Date: 2018-11-13 00:39-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: client/components/sidebar.vue:261
+#: client/components/sidebar.vue:249
 msgid "accept-merge-error"
 msgstr ""
 
-#: client/components/sidebar.vue:265
+#: client/components/sidebar.vue:253
 msgid "accept-merge-success"
 msgstr ""
 
@@ -54,6 +54,7 @@ msgid "calendar-same-day"
 msgstr "[hoje às] LT"
 
 #: client/components/comment-deletion-dialog.vue:21
+#: client/components/document-fork.vue:25
 #: client/components/document-publish.vue:25
 #: client/components/link-dialog.vue:31 client/components/thread.vue:78
 msgid "cancel"
@@ -233,11 +234,23 @@ msgstr "Salvo"
 msgid "editor-saving"
 msgstr "Salvando..."
 
-#: client/components/sidebar.vue:249
+#: client/components/document-fork.vue:33
+msgid "fork"
+msgstr ""
+
+#: client/components/document-fork.vue:15
+msgid "fork-document-confirmation-body"
+msgstr ""
+
+#: client/components/document-fork.vue:14
+msgid "fork-document-confirmation-title"
+msgstr ""
+
+#: client/components/document-fork.vue:110
 msgid "fork-error"
 msgstr ""
 
-#: client/components/sidebar.vue:253
+#: client/components/document-fork.vue:114
 msgid "fork-success"
 msgstr ""
 

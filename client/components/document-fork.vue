@@ -3,42 +3,44 @@
     v-if="!apiControlled && canUserForkDocument"
     row
   >
-    <v-container fill-height>
-      <v-layout fill-height>
-        <v-flex>
-          <v-form
-            @submit.prevent="onSubmit"
-          >
-            <v-card>
-              <v-card-title primary-title>
-                <div>
-                  <h3><translate>fork-document-confirmation-title</translate></h3>
-                  <div><translate>fork-document-confirmation-body</translate></div>
-                </div>
-              </v-card-title>
-              <v-card-actions>
-                <v-btn
-                  :disabled="documentForkInProgress"
-                  flat
-                  color="primary"
-                  @click="onCancelClick"
-                >
-                  <translate>cancel</translate>
-                </v-btn>
-                <p-button
-                  :progress="documentForkInProgress"
-                  :disabled="documentForkInProgress"
-                  type="submit"
-                  color="primary"
-                >
-                  <translate>fork</translate>
-                </p-button>
-              </v-card-actions>
-            </v-card>
-          </v-form>
-        </v-flex>
-      </v-layout>
-    </v-container>
+    <v-flex
+      xs12
+      sm10
+      offset-sm1
+      md8
+      offset-md2
+      xl6
+      offset-xl3
+    >
+      <v-card>
+        <v-toolbar card>
+          <v-toolbar-title><translate>fork-document-confirmation-title</translate></v-toolbar-title>
+        </v-toolbar>
+
+        <v-divider />
+
+        <v-card-text>
+          <translate>fork-document-confirmation-body</translate>
+        </v-card-text>
+
+        <v-divider />
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            :disabled="documentForkInProgress"
+            :to="{name: 'document', params: {documentId: documentId}}"
+            flat
+          ><translate>cancel</translate></v-btn>
+          <p-button
+            :progress="documentForkInProgress"
+            :disabled="documentForkInProgress"
+            color="primary"
+            @click="fork()"
+          ><translate>fork</translate></p-button>
+        </v-card-actions>
+      </v-card>
+    </v-flex>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />
 </template>
@@ -92,11 +94,7 @@
     },
 
     methods: {
-      onCancelClick() {
-        this.$router.push({name: 'document', params: {documentId: this.documentId}});
-      },
-
-      onSubmit() {
+      fork() {
         this.documentForkInProgress = true;
         if (!this.$currentUserId) {
           // Only fork the document if current user is set.
