@@ -5,7 +5,10 @@ hide the content of the button).
 -->
 
 <template>
-  <v-btn v-bind="btnProps">
+  <v-btn
+    v-bind="btnProps"
+    v-on="$listeners"
+  >
     <slot />
     <v-progress-linear
       v-if="progress"
