@@ -430,6 +430,12 @@
         editable: () => {
           return !!(!this.readOnly && this.canUserUpdateDocument);
         },
+        attributes: {
+          // This makes focus/selection be kept when editor is temporary locked and made read-only
+          // and then restored. Without this the focus is lost when editor becomes editable again.
+          // See: https://discuss.prosemirror.net/t/losing-focus-when-switching-to-read-only-mode/1624
+          tabindex: 0,
+        },
       });
 
       this.$autorun((computation) => {
