@@ -323,11 +323,11 @@ msgstr "Publicar"
 
 #: client/components/document-publish.vue:15
 msgid "publish-document-confirmation-body"
-msgstr "Uma vez publicado, o documento não será mais editável. O documento se tornará visível a outros usuários e todos poderão comentar."
+msgstr ""
 
 #: client/components/document-publish.vue:14
 msgid "publish-document-confirmation-title"
-msgstr "Você gostaria de publicar o documento agora?"
+msgstr ""
 
 #: client/components/document-publish.vue:103
 msgid "publish-error"

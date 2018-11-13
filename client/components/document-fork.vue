@@ -1,6 +1,6 @@
 <template>
   <v-layout
-    v-if="!apiControlled && canUserPublishDocument"
+    v-if="!apiControlled && canUserForkDocument"
     row
   >
     <v-container fill-height>
@@ -12,13 +12,13 @@
             <v-card>
               <v-card-title primary-title>
                 <div>
-                  <h3><translate>publish-document-confirmation-title</translate></h3>
-                  <div><translate>publish-document-confirmation-body</translate></div>
+                  <h3><translate>fork-document-confirmation-title</translate></h3>
+                  <div><translate>fork-document-confirmation-body</translate></div>
                 </div>
               </v-card-title>
               <v-card-actions>
                 <v-btn
-                  :disabled="documentPublishInProgress"
+                  :disabled="documentForkInProgress"
                   flat
                   color="primary"
                   @click="onCancelClick"
@@ -26,12 +26,12 @@
                   <translate>cancel</translate>
                 </v-btn>
                 <p-button
-                  :progress="documentPublishInProgress"
-                  :disabled="documentPublishInProgress"
+                  :progress="documentForkInProgress"
+                  :disabled="documentForkInProgress"
                   type="submit"
                   color="primary"
                 >
-                  <translate>publish</translate>
+                  <translate>fork</translate>
                 </p-button>
               </v-card-actions>
             </v-card>
@@ -48,6 +48,7 @@
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {Document} from '/lib/documents/document';
+  import {User} from '/lib/documents/user';
   import {Snackbar} from '../snackbar';
 
   // @vue/component
@@ -62,7 +63,7 @@
     data() {
       return {
         apiControlled: Meteor.settings.public.apiControlled,
-        documentPublishInProgress: false,
+        documentForkInProgress: false,
       };
     },
 
@@ -73,8 +74,14 @@
         });
       },
 
-      canUserPublishDocument() {
-        return !!(this.document && this.document.canUser(Document.PERMISSIONS.PUBLISH));
+      canUserForkDocument() {
+        const condition = !!(this.document && this.document.canUser(Document.PERMISSIONS.VIEW) && User.hasClassPermission(Document.PERMISSIONS.CREATE));
+        if (Meteor.settings.public.mergingForkingOfAllDocuments) {
+          return condition;
+        }
+        else {
+          return condition && this.document.isPublished();
+        }
       },
     },
 
@@ -90,21 +97,21 @@
       },
 
       onSubmit() {
-        this.documentPublishInProgress = true;
+        this.documentForkInProgress = true;
         if (!this.$currentUserId) {
-          // Only publish the document if current user is set.
-          this.documentPublishInProgress = false;
+          // Only fork the document if current user is set.
+          this.documentForkInProgress = false;
           this.$router.push({name: 'document', params: {documentId: this.documentId}});
           return;
         }
-        Document.publish({documentId: this.documentId}, (error, changed) => {
-          this.documentPublishInProgress = false;
-          if (error || !changed) {
-            Snackbar.enqueue(this.$gettext("publish-error"), 'error');
+        Document.fork({documentId: this.documentId}, (error, response) => {
+          this.documentForkInProgress = false;
+          if (error) {
+            Snackbar.enqueue(this.$gettext("fork-error"), 'error');
             return;
           }
-          this.$router.push({name: 'document', params: {documentId: this.documentId}});
-          Snackbar.enqueue(this.$gettext("publish-success"), 'success');
+          this.$router.push({name: 'document', params: {documentId: response._id}});
+          Snackbar.enqueue(this.$gettext("fork-success"), 'success');
         });
       },
     },
@@ -114,8 +121,8 @@
     factory.addRoutes([
       {
         component,
-        path: '/document/publish/:documentId',
-        name: 'document-publish',
+        path: '/document/fork/:documentId',
+        name: 'document-fork',
         props: true,
       },
     ]);

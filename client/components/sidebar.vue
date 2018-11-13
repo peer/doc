@@ -24,8 +24,8 @@
               ><translate>document-publish</translate></v-btn>
               <v-btn
                 v-if="!apiControlled && canUserForkDocument"
+                :to="{name: 'document-fork', params: {documentId}}"
                 outline
-                @click="forkDocument()"
               ><translate>document-fork</translate></v-btn>
               <v-btn
                 v-if="!apiControlled && canUserMergeDocument"
@@ -242,18 +242,6 @@
     },
 
     methods: {
-      forkDocument() {
-        // TODO: Add "in progress" guard.
-        Document.fork({documentId: this.documentId}, (error, response) => {
-          if (error) {
-            Snackbar.enqueue(this.$gettext("fork-error"), 'error');
-            return;
-          }
-          this.$router.push({name: 'document', params: {documentId: response._id}});
-          Snackbar.enqueue(this.$gettext("fork-success"), 'success');
-        });
-      },
-
       acceptMergeDocument() {
         // TODO: Add "in progress" guard.
         Document.acceptMerge({documentId: this.documentId}, (error) => {
