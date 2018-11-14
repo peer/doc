@@ -19,8 +19,12 @@
 
         <v-divider />
 
-        <v-card-text>
-          <translate>fork-document-confirmation-body</translate>
+        <v-card-text v-if="document.isMergeAccepted()">
+          <translate>fork-document-confirmation-merged-body</translate>
+        </v-card-text>
+
+        <v-card-text v-else>
+          <translate>fork-document-confirmation-regular-body</translate>
         </v-card-text>
 
         <v-divider />

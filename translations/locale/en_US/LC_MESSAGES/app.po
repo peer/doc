@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-13 20:35-0800\n"
+"POT-Creation-Date: 2018-11-13 21:05-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -23,7 +23,7 @@ msgstr "Merge"
 
 #: client/components/document-merge.vue:22
 msgid "accept-merge-document-confirmation-body"
-msgstr "Merging this document into its parent document will copy into the parent document any new content in this document not present in the parent document. Comments will not be copied. Once the document is merged it will not be directly editable anymore by anyone."
+msgstr "Merging this document into its parent document will copy into the parent document any new content in this document not present in the parent document. Comments will not be copied. Once the document is merged it will not be editable anymore by anyone."
 
 #: client/components/document-merge.vue:16
 msgid "accept-merge-document-confirmation-title"
@@ -66,9 +66,9 @@ msgid "calendar-same-day"
 msgstr "[today at] LT"
 
 #: client/components/comment-deletion-dialog.vue:21
-#: client/components/document-fork.vue:33
+#: client/components/document-fork.vue:37
 #: client/components/document-merge.vue:33
-#: client/components/document-publish.vue:33
+#: client/components/document-publish.vue:37
 #: client/components/link-dialog.vue:31 client/components/thread.vue:78
 msgid "cancel"
 msgstr "Cancel"
@@ -247,23 +247,27 @@ msgstr "Saved"
 msgid "editor-saving"
 msgstr "Saving..."
 
-#: client/components/document-fork.vue:39
+#: client/components/document-fork.vue:43
 msgid "fork"
 msgstr "Fork"
 
 #: client/components/document-fork.vue:22
-msgid "fork-document-confirmation-body"
-msgstr "Forking a document will copy document's content into a new document, a fork. Furthermore, all future changes to the content of this document will be automatically copied to the fork as well. Comments will not be copied."
+msgid "fork-document-confirmation-merged-body"
+msgstr "Forking a document will copy document's content into a new document, a fork. Comments will not be copied. Because this document is a merged fork itself, merging of any new content made in the fork into this document is not possible."
+
+#: client/components/document-fork.vue:26
+msgid "fork-document-confirmation-regular-body"
+msgstr "Forking a document will copy document's content into a new document, a fork. Furthermore, all future changes to the content of this document will be automatically copied to the fork as well. Comments will not be copied. Any new content made in the fork can be integrated back into this document through merging."
 
 #: client/components/document-fork.vue:16
 msgid "fork-document-confirmation-title"
 msgstr "Fork document"
 
-#: client/components/document-fork.vue:108
+#: client/components/document-fork.vue:112
 msgid "fork-error"
 msgstr "An error has occurred when trying to fork the document."
 
-#: client/components/document-fork.vue:112
+#: client/components/document-fork.vue:116
 msgid "fork-success"
 msgstr "The document has been successfully forked."
 
@@ -343,23 +347,27 @@ msgstr "Remove"
 msgid "permissions-list-select-users"
 msgstr "Select users"
 
-#: client/components/document-publish.vue:39
+#: client/components/document-publish.vue:43
 msgid "publish"
 msgstr "Publish"
 
 #: client/components/document-publish.vue:22
-msgid "publish-document-confirmation-body"
+msgid "publish-document-confirmation-fork-body"
+msgstr "Once the document is published it will not be directly editable anymore by anyone. Changes to the document will be possible only by making a fork of the document, editing the fork, and merging new contents back into this document. Moreover, the document will become visible to other users and everyone will be able to comment on it. This document is a fork of another (parent) document and publishing this document is an alternative to merging it into the parent document. If this document is published, merging it into the parent document will not be possible anymore."
+
+#: client/components/document-publish.vue:26
+msgid "publish-document-confirmation-regular-body"
 msgstr "Once the document is published it will not be directly editable anymore by anyone. Changes to the document will be possible only by making a fork of the document, editing the fork, and merging new contents back into this document. Moreover, the document will become visible to other users and everyone will be able to comment on it."
 
 #: client/components/document-publish.vue:16
 msgid "publish-document-confirmation-title"
 msgstr "Publish document"
 
-#: client/components/document-publish.vue:101
+#: client/components/document-publish.vue:105
 msgid "publish-error"
 msgstr "An error has occurred when trying to publish the document."
 
-#: client/components/document-publish.vue:105
+#: client/components/document-publish.vue:109
 msgid "publish-success"
 msgstr "The document has been successfully published."
 

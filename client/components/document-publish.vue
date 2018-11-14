@@ -19,8 +19,12 @@
 
         <v-divider />
 
-        <v-card-text>
-          <translate>publish-document-confirmation-body</translate>
+        <v-card-text v-if="document.forkedFrom">
+          <translate>publish-document-confirmation-fork-body</translate>
+        </v-card-text>
+
+        <v-card-text v-else>
+          <translate>publish-document-confirmation-regular-body</translate>
         </v-card-text>
 
         <v-divider />
