@@ -46,10 +46,20 @@
                   v-for="change of changes"
                   :key="change.key"
                   small
+                  color="white"
                   fill-dot
                 >
-                  <v-card>
-                    <v-card-text>
+                  <v-radio
+                    slot="icon"
+                    class="timeline-icon"
+                    @click="selectChange(change, $event)"
+                  />
+                  <v-card :class="{'elevation-10': isChangeSelected(change)}">
+                    <v-card-text
+                      v-ripple
+                      class="timeline-card"
+                      @click="selectChange(change, $event)"
+                    >
                       <div>
                         <v-avatar
                           v-for="author of change.authors"
@@ -142,6 +152,8 @@
     data() {
       return {
         subscriptionHandle: null,
+        startsWith: null,
+        endsWith: null,
       };
     },
 
@@ -195,6 +207,23 @@
         }
       });
     },
+
+    methods: {
+      selectChange(change, event) {
+        if (this.startsWith !== null && event.shiftKey) {
+          this.endsWith = change.key;
+        }
+        else {
+          this.startsWith = change.key;
+          this.endsWith = change.key;
+        }
+      },
+
+      isChangeSelected(change) {
+        // TODO
+        return true;
+      },
+    },
   };
 
   RouterFactory.configure((factory) => {
@@ -210,3 +239,15 @@
 
   export default component;
 </script>
+
+<style lang="scss">
+  .timeline-icon {
+    &.v-radio, .v-input--selection-controls__input {
+      margin-right: 0;
+    }
+  }
+
+  .timeline-card {
+    cursor: pointer;
+  }
+</style>
