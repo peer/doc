@@ -288,7 +288,7 @@
 
     created() {
       this.$autorun((computation) => {
-        this.subscriptionHandle = this.$subscribe('Content.list', {contentKey: this.contentKey});
+        this.subscriptionHandle = this.$subscribe('Content.list', {contentKey: this.contentKey, withClientId: true});
       });
 
       this.$autorun((computation) => {

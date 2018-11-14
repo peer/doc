@@ -653,6 +653,8 @@ Meteor.methods({
 Meteor.publish('Content.list', function contentList(args) {
   check(args, {
     contentKey: Match.DocumentId,
+    withClientId: Match.Optional(Boolean),
+    withMetadata: Match.Optional(Boolean),
   });
 
   this.enableScope();
@@ -663,10 +665,20 @@ Meteor.publish('Content.list', function contentList(args) {
       return [];
     }
 
+    const fields = Content.PUBLISH_FIELDS();
+
+    if (args.withClientId) {
+      fields.clientId = 1;
+    }
+    if (args.withMetadata) {
+      fields.createdAt = 1;
+      fields.author = 1;
+    }
+
     return Content.documents.find({
       contentKeys: args.contentKey,
     }, {
-      fields: Content.PUBLISH_FIELDS(),
+      fields,
     });
   });
 });

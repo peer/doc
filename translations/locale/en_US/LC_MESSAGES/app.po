@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-13 21:05-0800\n"
+"POT-Creation-Date: 2018-11-14 02:09-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -45,6 +45,10 @@ msgstr "Access denied."
 msgid "add-content"
 msgstr "Add the text of your document here"
 
+#: client/components/document-history.vue:28
+msgid "back-to-document"
+msgstr "Editor"
+
 #: client/vue-extensions.js:108
 msgid "calendar-last-day"
 msgstr "[yesterday at] LT"
@@ -72,6 +76,10 @@ msgstr "[today at] LT"
 #: client/components/link-dialog.vue:31 client/components/thread.vue:78
 msgid "cancel"
 msgstr "Cancel"
+
+#: client/components/document-history.vue:63
+msgid "change-starts-at"
+msgstr "Changed %{at}"
 
 #: client/components/utils/placeholder.js:27
 msgid "choose-title"
@@ -287,6 +295,10 @@ msgstr "h2"
 msgid "h3"
 msgstr "h3"
 
+#: client/components/sidebar.vue:42
+msgid "history"
+msgstr "History"
+
 #: client/vue-extensions.js:169
 msgid "hour"
 msgid_plural "hours"
@@ -315,7 +327,7 @@ msgid_plural "minutes"
 msgstr[0] "%{value} minute"
 msgstr[1] "%{value} minutes"
 
-#: client/components/sidebar.vue:80
+#: client/components/sidebar.vue:84
 msgid "no-comments"
 msgstr "No comments."
 
@@ -463,7 +475,7 @@ msgstr "Error signing out: %{error}"
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
-#: client/components/sidebar.vue:84
+#: client/components/sidebar.vue:88
 msgid "start-a-new-comment"
 msgstr "Start a new comment by selecting content on the left."
 

@@ -5,7 +5,6 @@
     @mousedown="onMouseDown"
   >
     <v-flex xs8>
-      <!-- TODO: Display editor only if you have permissions. -->
       <editor
         ref="editor"
         :document-id="document._id"
