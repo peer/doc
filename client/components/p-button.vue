@@ -33,7 +33,7 @@ hide the content of the button).
 
   // @vue/component
   const component = {
-    props: _.extend({}, Vue.component('v-btn').options.props, {
+    props: _.extend({}, Vue.component('VBtn').options.props, {
       progress: Boolean,
     }),
 
