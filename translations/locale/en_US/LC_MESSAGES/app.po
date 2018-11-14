@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-13 00:39-0800\n"
+"POT-Creation-Date: 2018-11-13 20:35-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,11 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: client/components/sidebar.vue:249
+#: client/components/document-merge.vue:39
+msgid "accept-merge"
+msgstr "Merge"
+
+#: client/components/document-merge.vue:22
+msgid "accept-merge-document-confirmation-body"
+msgstr "Merging this document into its parent document will copy into the parent document any new content in this document not present in the parent document. Comments will not be copied. Once the document is merged it will not be directly editable anymore by anyone."
+
+#: client/components/document-merge.vue:16
+msgid "accept-merge-document-confirmation-title"
+msgstr "Merge document"
+
+#: client/components/document-merge.vue:123
 msgid "accept-merge-error"
 msgstr "An error has occurred when trying to merge the document."
 
-#: client/components/sidebar.vue:253
+#: client/components/document-merge.vue:127
 msgid "accept-merge-success"
 msgstr "The document has been successfully merged into the parent document."
 
@@ -54,8 +66,9 @@ msgid "calendar-same-day"
 msgstr "[today at] LT"
 
 #: client/components/comment-deletion-dialog.vue:21
-#: client/components/document-fork.vue:25
-#: client/components/document-publish.vue:25
+#: client/components/document-fork.vue:33
+#: client/components/document-merge.vue:33
+#: client/components/document-publish.vue:33
 #: client/components/link-dialog.vue:31 client/components/thread.vue:78
 msgid "cancel"
 msgstr "Cancel"
@@ -234,23 +247,23 @@ msgstr "Saved"
 msgid "editor-saving"
 msgstr "Saving..."
 
-#: client/components/document-fork.vue:33
+#: client/components/document-fork.vue:39
 msgid "fork"
 msgstr "Fork"
 
-#: client/components/document-fork.vue:15
+#: client/components/document-fork.vue:22
 msgid "fork-document-confirmation-body"
 msgstr "Forking a document will copy document's content into a new document, a fork. Furthermore, all future changes to the content of this document will be automatically copied to the fork as well. Comments will not be copied."
 
-#: client/components/document-fork.vue:14
+#: client/components/document-fork.vue:16
 msgid "fork-document-confirmation-title"
 msgstr "Fork document"
 
-#: client/components/document-fork.vue:110
+#: client/components/document-fork.vue:108
 msgid "fork-error"
 msgstr "An error has occurred when trying to fork the document."
 
-#: client/components/document-fork.vue:114
+#: client/components/document-fork.vue:112
 msgid "fork-success"
 msgstr "The document has been successfully forked."
 
@@ -330,23 +343,23 @@ msgstr "Remove"
 msgid "permissions-list-select-users"
 msgstr "Select users"
 
-#: client/components/document-publish.vue:33
+#: client/components/document-publish.vue:39
 msgid "publish"
 msgstr "Publish"
 
-#: client/components/document-publish.vue:15
+#: client/components/document-publish.vue:22
 msgid "publish-document-confirmation-body"
 msgstr "Once the document is published it will not be directly editable anymore by anyone. Changes to the document will be possible only by making a fork of the document, editing the fork, and merging new contents back into this document. Moreover, the document will become visible to other users and everyone will be able to comment on it."
 
-#: client/components/document-publish.vue:14
+#: client/components/document-publish.vue:16
 msgid "publish-document-confirmation-title"
 msgstr "Publish document"
 
-#: client/components/document-publish.vue:103
+#: client/components/document-publish.vue:101
 msgid "publish-error"
 msgstr "An error has occurred when trying to publish the document."
 
-#: client/components/document-publish.vue:107
+#: client/components/document-publish.vue:105
 msgid "publish-success"
 msgstr "The document has been successfully published."
 

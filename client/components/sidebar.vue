@@ -29,8 +29,8 @@
               ><translate>document-fork</translate></v-btn>
               <v-btn
                 v-if="!apiControlled && canUserMergeDocument"
+                :to="{name: 'document-merge', params: {documentId}}"
                 outline
-                @click="acceptMergeDocument()"
               ><translate>document-accept-merge</translate></v-btn>
               <v-btn
                 v-if="!apiControlled && canUserAdministerDocument"
@@ -108,7 +108,6 @@
   import {Comment} from '/lib/documents/comment';
   import {Document} from '/lib/documents/document';
   import {User} from '/lib/documents/user';
-  import {Snackbar} from '../snackbar';
 
   function getOffset(el) {
     const e = el.getBoundingClientRect();
@@ -242,18 +241,6 @@
     },
 
     methods: {
-      acceptMergeDocument() {
-        // TODO: Add "in progress" guard.
-        Document.acceptMerge({documentId: this.documentId}, (error) => {
-          if (error) {
-            Snackbar.enqueue(this.$gettext("accept-merge-error"), 'error');
-            return;
-          }
-          this.$router.push({name: 'document', params: {documentId: this.document.forkedFrom._id}});
-          Snackbar.enqueue(this.$gettext("accept-merge-success"), 'success');
-        });
-      },
-
       showNewCommentForm(show, start, selection) {
         this.commentDescriptors = this.commentDescriptors.filter((commentDescriptor) => {
           return !commentDescriptor.dummy;

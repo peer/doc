@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-13 00:39-0800\n"
+"POT-Creation-Date: 2018-11-13 20:35-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,11 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: client/components/sidebar.vue:249
+#: client/components/document-merge.vue:39
+msgid "accept-merge"
+msgstr ""
+
+#: client/components/document-merge.vue:22
+msgid "accept-merge-document-confirmation-body"
+msgstr ""
+
+#: client/components/document-merge.vue:16
+msgid "accept-merge-document-confirmation-title"
+msgstr ""
+
+#: client/components/document-merge.vue:123
 msgid "accept-merge-error"
 msgstr ""
 
-#: client/components/sidebar.vue:253
+#: client/components/document-merge.vue:127
 msgid "accept-merge-success"
 msgstr ""
 
@@ -54,8 +66,9 @@ msgid "calendar-same-day"
 msgstr "[hoje às] LT"
 
 #: client/components/comment-deletion-dialog.vue:21
-#: client/components/document-fork.vue:25
-#: client/components/document-publish.vue:25
+#: client/components/document-fork.vue:33
+#: client/components/document-merge.vue:33
+#: client/components/document-publish.vue:33
 #: client/components/link-dialog.vue:31 client/components/thread.vue:78
 msgid "cancel"
 msgstr "Cancelar"
@@ -234,23 +247,23 @@ msgstr "Salvo"
 msgid "editor-saving"
 msgstr "Salvando..."
 
-#: client/components/document-fork.vue:33
+#: client/components/document-fork.vue:39
 msgid "fork"
 msgstr ""
 
-#: client/components/document-fork.vue:15
+#: client/components/document-fork.vue:22
 msgid "fork-document-confirmation-body"
 msgstr ""
 
-#: client/components/document-fork.vue:14
+#: client/components/document-fork.vue:16
 msgid "fork-document-confirmation-title"
 msgstr ""
 
-#: client/components/document-fork.vue:110
+#: client/components/document-fork.vue:108
 msgid "fork-error"
 msgstr ""
 
-#: client/components/document-fork.vue:114
+#: client/components/document-fork.vue:112
 msgid "fork-success"
 msgstr ""
 
@@ -330,23 +343,23 @@ msgstr "Remover"
 msgid "permissions-list-select-users"
 msgstr "Selecionar usuários"
 
-#: client/components/document-publish.vue:33
+#: client/components/document-publish.vue:39
 msgid "publish"
 msgstr "Publicar"
 
-#: client/components/document-publish.vue:15
+#: client/components/document-publish.vue:22
 msgid "publish-document-confirmation-body"
 msgstr ""
 
-#: client/components/document-publish.vue:14
+#: client/components/document-publish.vue:16
 msgid "publish-document-confirmation-title"
 msgstr ""
 
-#: client/components/document-publish.vue:103
+#: client/components/document-publish.vue:101
 msgid "publish-error"
 msgstr "Um erro ocorreu na publicação do documento."
 
-#: client/components/document-publish.vue:107
+#: client/components/document-publish.vue:105
 msgid "publish-success"
 msgstr "O documento foi publicado com sucesso."
 
