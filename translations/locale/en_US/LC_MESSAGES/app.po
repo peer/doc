@@ -79,7 +79,7 @@ msgstr "Cancel"
 
 #: client/components/document-history.vue:85
 msgid "change-starts-at"
-msgstr "Changed %{at}"
+msgstr "%{at}"
 
 #: client/components/utils/placeholder.js:27
 msgid "choose-title"

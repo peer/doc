@@ -72,6 +72,13 @@
                       class="timeline-card"
                       @click="selectChange(change, $event)"
                     >
+                      <div
+                        v-translate="{at: $fromNow(change.startsAt)}"
+                        :title="change.startsAt | formatDate(DEFAULT_DATETIME_FORMAT)"
+                        class="timestamp mb-2"
+                      >
+                        change-starts-at
+                      </div>
                       <div>
                         <v-avatar
                           v-for="author of change.authors"
@@ -82,13 +89,6 @@
                           :alt="author.username"
                           :title="author.username"
                         ></v-avatar>
-                      </div>
-                      <div
-                        v-translate="{at: $fromNow(change.startsAt)}"
-                        :title="change.startsAt | formatDate(DEFAULT_DATETIME_FORMAT)"
-                        class="timestamp mt-2"
-                      >
-                        change-starts-at
                       </div>
                     </v-card-text>
                   </v-card>
@@ -300,5 +300,9 @@
   .timeline-card {
     cursor: pointer;
     user-select: none;
+
+    .timestamp {
+      font-weight: bold;
+    }
   }
 </style>
