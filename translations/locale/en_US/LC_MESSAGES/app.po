@@ -301,7 +301,7 @@ msgstr "History"
 
 #: client/components/document-history.vue:169
 msgid "history-select-range"
-msgstr "Hold Shift to select a range of changes
+msgstr "Hold Shift to select a range of changes"
 
 #: client/vue-extensions.js:169
 msgid "hour"
