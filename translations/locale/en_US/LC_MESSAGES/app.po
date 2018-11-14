@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-14 02:09-0800\n"
+"POT-Creation-Date: 2018-11-14 09:32-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -77,7 +77,7 @@ msgstr "[today at] LT"
 msgid "cancel"
 msgstr "Cancel"
 
-#: client/components/document-history.vue:63
+#: client/components/document-history.vue:85
 msgid "change-starts-at"
 msgstr "Changed %{at}"
 
@@ -298,6 +298,10 @@ msgstr "h3"
 #: client/components/sidebar.vue:42
 msgid "history"
 msgstr "History"
+
+#: client/components/document-history.vue:169
+msgid "history-select-range"
+msgstr "Hold Shift to select a range of changes
 
 #: client/vue-extensions.js:169
 msgid "hour"

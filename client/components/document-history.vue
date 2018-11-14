@@ -49,14 +49,26 @@
                   color="white"
                   fill-dot
                 >
-                  <v-radio
+                  <v-radio-group
                     slot="icon"
+                    :value="selectedChanges.get(change.key)"
+                    :hide-details="true"
+                    :title="selectRangeHint"
                     class="timeline-icon"
-                    @click="selectChange(change, $event)"
-                  />
-                  <v-card :class="{'elevation-10': isChangeSelected(change)}">
+                  >
+                    <!--
+                      We use JavaScript value "true" as its value so that when we
+                      set "selectedChanges" to "true" it matches".
+                    -->
+                    <v-radio
+                      :value="true"
+                      @click.prevent="selectChange(change, $event)"
+                    />
+                  </v-radio-group>
+                  <v-card :class="{'elevation-10': selectedChanges.get(change.key)}">
                     <v-card-text
                       v-ripple
+                      :title="selectRangeHint"
                       class="timeline-card"
                       @click="selectChange(change, $event)"
                     >
@@ -130,8 +142,8 @@
 
     return {
       authors,
-      // We use the first ID as a key.
-      key: contents[0]._id,
+      // We use the last ID as a key, it is probably changing the least.
+      key: contents[contents.length - 1]._id,
       startsAt: contents[0].createdAt,
       endsAt: contents[contents.length - 1].createdAt,
       steps: contents.map((content) => {
@@ -154,6 +166,7 @@
         subscriptionHandle: null,
         startsWith: null,
         endsWith: null,
+        selectRangeHint: this.$gettext("history-select-range"),
       };
     },
 
@@ -194,6 +207,45 @@
 
         return changes;
       },
+
+      selectedChanges() {
+        const changes = new Map();
+
+        let insideRange = false;
+        let swapped = false;
+        for (const change of this.changes) {
+          // If we have first hit "endsWith" and only it,
+          // then "startsWith" and "endsWith" are swapped.
+          if (this.startsWith !== change.key && this.endsWith === change.key) {
+            swapped = true;
+          }
+
+          if (swapped) {
+            if (this.endsWith === change.key) {
+              insideRange = true;
+            }
+            if (insideRange) {
+              changes.set(change.key, true);
+            }
+            if (this.startsWith === change.key) {
+              insideRange = false;
+            }
+          }
+          else {
+            if (this.startsWith === change.key) {
+              insideRange = true;
+            }
+            if (insideRange) {
+              changes.set(change.key, true);
+            }
+            if (this.endsWith === change.key) {
+              insideRange = false;
+            }
+          }
+        }
+
+        return changes;
+      },
     },
 
     created() {
@@ -218,11 +270,6 @@
           this.endsWith = change.key;
         }
       },
-
-      isChangeSelected(change) {
-        // TODO
-        return true;
-      },
     },
   };
 
@@ -242,7 +289,10 @@
 
 <style lang="scss">
   .timeline-icon {
-    &.v-radio, .v-input--selection-controls__input {
+    margin: 0;
+    padding: 0;
+
+    .v-radio, .v-input--selection-controls__input {
       margin-right: 0;
     }
   }
