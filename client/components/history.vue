@@ -19,13 +19,17 @@
   import {Tracker} from 'meteor/tracker';
   import {_} from 'meteor/underscore';
 
+  import assert from 'assert';
   import {EditorState} from 'prosemirror-state';
   import {EditorView} from 'prosemirror-view';
   import {Step} from 'prosemirror-transform';
+  import {ChangeSet} from 'prosemirror-changeset';
 
   import {Content} from '/lib/documents/content';
   import {Document} from '/lib/documents/document';
   import {schema} from '/lib/full-schema';
+
+  import {diffPlugin} from './utils/diff-plugin';
 
   // @vue/component
   const component = {
@@ -53,6 +57,7 @@
         contentsHandle: null,
         currentVersion: 0,
         currentStartVersion: null,
+        currentChangeSet: null,
       };
     },
 
@@ -91,6 +96,7 @@
           this.$editorView.updateState(this.createInitialState());
           this.currentVersion = 0;
           this.currentStartVersion = this.startVersion;
+          this.currentChangeSet = null;
         }
       });
 
@@ -152,10 +158,40 @@
             currentVersion += 1;
           });
 
+          assert.strictEqual(this.startVersion, currentVersion);
+
           if (currentVersion !== this.currentVersion) {
+            const transactionEndIndex = transaction.docs.length - (this.startVersion - this.endVersion);
+            let changeset = this.currentChangeSet;
+            if (changeset === null) {
+              assert(transactionEndIndex >= 0, `${transactionEndIndex}`);
+              if (transactionEndIndex < transaction.docs.length) {
+                changeset = ChangeSet.create(transaction.docs[transactionEndIndex]);
+              }
+              else {
+                // If "startVersion === endVersion" then "transactionEndIndex === transaction.docs.length"
+                // and there are no changes anyway, so we just use the last document.
+                changeset = ChangeSet.create(transaction.doc);
+              }
+            }
+
+            // If "startVersion === endVersion" then "transactionEndIndex === transaction.steps.length"
+            // and there are no changes anyway, so there are no steps we can add to the changeset.
+            if (transactionEndIndex < transaction.steps.length) {
+              if (transactionEndIndex >= 0) {
+                changeset = changeset.addSteps(transaction.doc, transaction.mapping.slice(transactionEndIndex).maps);
+              }
+              else {
+                changeset = changeset.addSteps(transaction.doc, transaction.mapping.maps);
+              }
+            }
+
+            transaction.setMeta(diffPlugin, changeset);
+
             this.$editorView.dispatch(transaction);
             this.currentVersion = currentVersion;
             this.currentStartVersion = this.startVersion;
+            this.currentChangeSet = changeset;
           }
         });
       });
@@ -169,6 +205,9 @@
       createInitialState() {
         return EditorState.create({
           schema,
+          plugins: [
+            diffPlugin,
+          ],
         });
       },
     },
