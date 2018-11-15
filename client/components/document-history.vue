@@ -249,6 +249,11 @@
           }
         }
 
+        // If nothing is selected, select the first change.
+        if (!changes.size && this.changes.length) {
+          changes.set(this.changes[0].key, true);
+        }
+
         return changes;
       },
     },
