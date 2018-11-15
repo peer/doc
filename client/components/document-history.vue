@@ -212,12 +212,17 @@
         const changes = new Map();
 
         let insideRange = false;
-        let swapped = false;
+        let swapped = null;
         for (const change of this.changes) {
           // If we have first hit "endsWith" and only it,
           // then "startsWith" and "endsWith" are swapped.
-          if (this.startsWith !== change.key && this.endsWith === change.key) {
-            swapped = true;
+          if (swapped === null) {
+            if (this.startsWith === change.key) {
+              swapped = false;
+            }
+            else if (this.endsWith === change.key) {
+              swapped = true;
+            }
           }
 
           if (swapped) {
