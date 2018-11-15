@@ -110,14 +110,14 @@
       },
 
       documents() {
-        if (!this.subscriptionHandle) return [];
+        if (!this.contentsHandle) return [];
 
-        return Document.documents.find(this.subscriptionHandle.scopeQuery(), {sort: {createdAt: -1}});
+        return Document.documents.find(this.contentsHandle.scopeQuery(), {sort: {createdAt: -1}});
       },
     },
 
     created() {
-      this.subscriptionHandle = this.$subscribe('Document.list', {});
+      this.contentsHandle = this.$subscribe('Document.list', {});
     },
 
     methods: {

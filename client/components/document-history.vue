@@ -179,7 +179,7 @@
 
     data() {
       return {
-        subscriptionHandle: null,
+        contentsHandle: null,
         startsWith: null,
         endsWith: null,
         selectRangeHint: this.$gettext("history-select-range"),
@@ -196,9 +196,9 @@
       changes() {
         const changes = [];
 
-        if (this.subscriptionHandle) {
+        if (this.contentsHandle) {
           let contents = [];
-          Content.documents.find(this.subscriptionHandle.scopeQuery(), {sort: {version: -1}}).forEach((content) => {
+          Content.documents.find(this.contentsHandle.scopeQuery(), {sort: {version: -1}}).forEach((content) => {
             if (content.step === null) {
               return;
             }
@@ -317,7 +317,7 @@
 
       this.$autorun((computation) => {
         if (this.document) {
-          this.subscriptionHandle = this.$subscribe('Content.list', {contentKey: this.document.contentKey, withMetadata: true});
+          this.contentsHandle = this.$subscribe('Content.list', {contentKey: this.document.contentKey, withMetadata: true});
         }
       });
     },

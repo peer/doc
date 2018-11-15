@@ -440,6 +440,10 @@
       });
 
       this.$autorun((computation) => {
+        if (!this.contentsHandle) {
+          return;
+        }
+
         if (this.addingStepsInProgress) {
           return;
         }
