@@ -299,6 +299,7 @@
         this.cursorsHandle = this.$subscribe('Cursor.list', {contentKey: this.contentKey});
       });
     },
+
     mounted() {
       this.$highlightIdsToCommentIds = new Map();
 
