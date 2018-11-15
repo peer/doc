@@ -673,7 +673,6 @@
           this.$emit('highlight-deleted', {id: commentDescriptor.comment._id, version: collab.getVersion(this.$editorView.state)});
         }
       },
-
     },
   };
 
