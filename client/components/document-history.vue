@@ -4,7 +4,12 @@
     row
   >
     <v-flex xs8>
-      TODO
+      <history
+        :document-id="document._id"
+        :content-key="document.contentKey"
+        :start-version="startVersion"
+        :end-version="endVersion"
+      />
     </v-flex>
     <v-flex xs4>
       <v-container
@@ -145,11 +150,22 @@
       // We use the last ID as a key, it is probably changing the least.
       key: contents[contents.length - 1]._id,
       startsAt: contents[0].createdAt,
+      startVersion: contents[0].version,
       endsAt: contents[contents.length - 1].createdAt,
+      endVersion: contents[contents.length - 1].version,
       steps: contents.map((content) => {
         return Step.fromJSON(schema, content.step);
       }),
     };
+  }
+
+  function getChangeFromKey(key, changes) {
+    for (const change of changes) {
+      if (change.key === key) {
+        return change;
+      }
+    }
+    return null;
   }
 
   // @vue/component
@@ -255,6 +271,42 @@
         }
 
         return changes;
+      },
+
+      startVersion() {
+        let startVersion = null;
+
+        for (const [key] of this.selectedChanges) {
+          const change = getChangeFromKey(key, this.changes);
+          if (change !== null) {
+            if (startVersion === null) {
+              startVersion = change.startVersion;
+            }
+            else if (change.startVersion > startVersion) {
+              startVersion = change.startVersion;
+            }
+          }
+        }
+
+        return startVersion;
+      },
+
+      endVersion() {
+        let endVersion = null;
+
+        for (const [key] of this.selectedChanges) {
+          const change = getChangeFromKey(key, this.changes);
+          if (change !== null) {
+            if (endVersion === null) {
+              endVersion = change.endVersion;
+            }
+            else if (change.endVersion < endVersion) {
+              endVersion = change.endVersion;
+            }
+          }
+        }
+
+        return endVersion;
       },
     },
 
