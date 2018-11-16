@@ -220,7 +220,13 @@
   .editor {
     .inserted {
       // Equal to "green darken-2".
-      color: #388E3C;
+      color: #388e3c;
+      font-weight: bold;
+    }
+
+    .deleted {
+      // Equal to "red darken-2".
+      color: #d32f2f;
       font-weight: bold;
     }
   }

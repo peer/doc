@@ -28,6 +28,7 @@
     "body-parser": "~1.18.3",
     "core-js": "~2.5.5",
     "css-loader": "~0.28.11",
+    "fast-json-stable-stringify": "^2.0.0",
     "material-design-icons": "git://github.com/mitar/material-design-icons.git",
     "meteor-node-stubs": "~0.3.2",
     "moment": "~2.22.1",
