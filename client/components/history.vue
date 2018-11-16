@@ -179,7 +179,7 @@
             // and there are no changes anyway, so there are no steps we can add to the changeset.
             if (transactionEndIndex < transaction.steps.length) {
               if (transactionEndIndex >= 0) {
-                changeset = changeset.addSteps(transaction.doc, transaction.mapping.slice(transactionEndIndex).maps);
+                changeset = changeset.addSteps(transaction.doc, transaction.mapping.maps.slice(transactionEndIndex));
               }
               else {
                 changeset = changeset.addSteps(transaction.doc, transaction.mapping.maps);
