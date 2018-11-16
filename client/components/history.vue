@@ -158,7 +158,9 @@
           assert.strictEqual(this.startVersion, currentVersion);
 
           if (currentVersion !== this.currentVersion) {
-            const transactionEndIndex = transaction.docs.length - (this.startVersion - this.endVersion);
+            // "startVersion" and "endVersion" represent an inclusive interval, so we have to
+            // subtract 1 from "endVersion" to include also the change at "endVersion" itself.
+            const transactionEndIndex = transaction.docs.length - (this.startVersion - (this.endVersion - 1));
             let changeset = this.currentChangeSet;
             if (changeset === null) {
               assert(transactionEndIndex >= 0, `${transactionEndIndex}`);
