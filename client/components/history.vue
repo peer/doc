@@ -215,3 +215,13 @@
 
   export default component;
 </script>
+
+<style lang="scss">
+  .editor {
+    .inserted {
+      // Equal to "green darken-2".
+      color: #388E3C;
+      font-weight: bold;
+    }
+  }
+</style>

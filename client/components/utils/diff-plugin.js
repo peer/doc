@@ -17,7 +17,7 @@ export const diffPlugin = new Plugin({
       const decorations = [];
 
       for (const span of changeset.inserted) {
-        decorations.push(Decoration.inline(span.from, span.to, {style: "color: purple"}));
+        decorations.push(Decoration.inline(span.from, span.to, {class: 'inserted'}));
       }
 
       return DecorationSet.create(tr.doc, decorations);
