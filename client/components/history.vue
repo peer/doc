@@ -57,6 +57,7 @@
         contentsHandle: null,
         currentVersion: 0,
         currentStartVersion: null,
+        currentEndVersion: null,
         currentChangeSet: null,
       };
     },
@@ -83,21 +84,6 @@
         editable: () => {
           return false;
         },
-      });
-
-      this.$autorun((computation) => {
-        if (this.startVersion === null || this.currentStartVersion === null) {
-          return;
-        }
-
-        // If "startVersion" is older than "currentStartVersion",
-        // we have to reset editor's state.
-        if (this.startVersion < this.currentStartVersion) {
-          this.$editorView.updateState(this.createInitialState());
-          this.currentVersion = 0;
-          this.currentStartVersion = this.startVersion;
-          this.currentChangeSet = null;
-        }
       });
 
       this.$autorun((computation) => {
@@ -133,6 +119,17 @@
 
         if (versions.length !== this.startVersion + 1) {
           return;
+        }
+
+        // If "startVersion" is older than "currentStartVersion", we have to reset editor's state.
+        // When "endVersion" is different from "currentEndVersion" we could maybe recreate just
+        // the changeset, but it easier to just reset editor's state.
+        if ((this.currentStartVersion !== null && this.startVersion < this.currentStartVersion) || (this.currentEndVersion !== null && this.endVersion !== this.currentEndVersion)) {
+          this.$editorView.updateState(this.createInitialState());
+          this.currentVersion = 0;
+          this.currentStartVersion = this.startVersion;
+          this.currentEndVersion = this.endVersion;
+          this.currentChangeSet = null;
         }
 
         Tracker.nonreactive(() => {
@@ -191,6 +188,7 @@
             this.$editorView.dispatch(transaction);
             this.currentVersion = currentVersion;
             this.currentStartVersion = this.startVersion;
+            this.currentEndVersion = this.endVersion;
             this.currentChangeSet = changeset;
           }
         });
