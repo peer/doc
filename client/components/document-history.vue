@@ -70,6 +70,9 @@
                     <v-radio
                       :value="true"
                       @click.prevent="selectChange(change, $event)"
+                      @mousedown="startDrag(change)"
+                      @mousemove="continueDrag(change)"
+                      @mouseup="stopDrag(change)"
                     />
                   </v-radio-group>
                   <v-card :class="{'elevation-10': selectedChanges.get(change.key)}">
@@ -78,6 +81,9 @@
                       :title="selectRangeHint"
                       class="timeline-card"
                       @click="selectChange(change, $event)"
+                      @mousedown="startDrag(change)"
+                      @mousemove="continueDrag(change)"
+                      @mouseup="stopDrag(change)"
                     >
                       <div
                         v-translate="{at: $fromNow(change.startsAt)}"
@@ -170,6 +176,55 @@
     return null;
   }
 
+  function changesBetween(changes, startsWith, endsWith) {
+    const result = [];
+
+    let insideRange = false;
+    let swapped = null;
+    for (const change of changes) {
+      // If we have first hit "endsWith" and only it,
+      // then "startsWith" and "endsWith" are swapped.
+      if (swapped === null) {
+        if (startsWith === change.key) {
+          swapped = false;
+        }
+        else if (endsWith === change.key) {
+          swapped = true;
+        }
+      }
+
+      if (swapped) {
+        if (endsWith === change.key) {
+          insideRange = true;
+        }
+        if (insideRange) {
+          result.push(change.key);
+        }
+        if (startsWith === change.key) {
+          insideRange = false;
+        }
+      }
+      else {
+        if (startsWith === change.key) {
+          insideRange = true;
+        }
+        if (insideRange) {
+          result.push(change.key);
+        }
+        if (endsWith === change.key) {
+          insideRange = false;
+        }
+      }
+    }
+
+    // If nothing is selected, select the first change.
+    if (!result.length && changes.length) {
+      result.push(changes[0].key);
+    }
+
+    return result;
+  }
+
   // @vue/component
   const component = {
     props: {
@@ -184,6 +239,8 @@
         contentsHandle: null,
         startsWith: null,
         endsWith: null,
+        startDragChange: null,
+        dragSelected: [],
         selectRangeHint: this.$gettext("history-select-range"),
       };
     },
@@ -227,49 +284,11 @@
       },
 
       selectedChanges() {
+        const selected = this.dragSelected.length ? this.dragSelected : changesBetween(this.changes, this.startsWith, this.endsWith);
+
         const changes = new Map();
-
-        let insideRange = false;
-        let swapped = null;
-        for (const change of this.changes) {
-          // If we have first hit "endsWith" and only it,
-          // then "startsWith" and "endsWith" are swapped.
-          if (swapped === null) {
-            if (this.startsWith === change.key) {
-              swapped = false;
-            }
-            else if (this.endsWith === change.key) {
-              swapped = true;
-            }
-          }
-
-          if (swapped) {
-            if (this.endsWith === change.key) {
-              insideRange = true;
-            }
-            if (insideRange) {
-              changes.set(change.key, true);
-            }
-            if (this.startsWith === change.key) {
-              insideRange = false;
-            }
-          }
-          else {
-            if (this.startsWith === change.key) {
-              insideRange = true;
-            }
-            if (insideRange) {
-              changes.set(change.key, true);
-            }
-            if (this.endsWith === change.key) {
-              insideRange = false;
-            }
-          }
-        }
-
-        // If nothing is selected, select the first change.
-        if (!changes.size && this.changes.length) {
-          changes.set(this.changes[0].key, true);
+        for (const key of selected) {
+          changes.set(key, true);
         }
 
         return changes;
@@ -333,6 +352,33 @@
           this.startsWith = change.key;
           this.endsWith = change.key;
         }
+      },
+
+      startDrag(change) {
+        this.startDragChange = change.key;
+      },
+
+      continueDrag(change) {
+        if (this.startDragChange === null) {
+          return;
+        }
+
+        if (change.key === this.startDragChange) {
+          this.dragSelected = [];
+        }
+        else {
+          this.dragSelected = changesBetween(this.changes, this.startDragChange, change.key);
+        }
+      },
+
+      stopDrag(change) {
+        if (change.key !== this.startDragChange) {
+          this.startsWith = this.startDragChange;
+          this.endsWith = change.key;
+        }
+
+        this.startDragChange = null;
+        this.dragSelected = [];
       },
     },
   };
