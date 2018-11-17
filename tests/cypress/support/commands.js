@@ -2,7 +2,7 @@
 
 // Call a Meteor method.
 // TODO: This should be improved. See: https://github.com/cypress-io/cypress/issues/2443
-Cypress.Commands.add('call', (methodName, ...args) => {
+Cypress.Commands.add('call', function call(methodName, ...args) {
   const log = Cypress.log({
     name: 'call',
     message: `${methodName}(${Cypress.utils.stringify(args)})`,
@@ -17,9 +17,11 @@ Cypress.Commands.add('call', (methodName, ...args) => {
   return new Promise((resolve, reject) => {
     const Meteor = cy.state('window').Meteor;
 
-    const testConnection = Meteor.connect(Meteor.absoluteUrl());
+    if (!this.testConnection) {
+      this.testConnection = Meteor.connect(Meteor.absoluteUrl());
+    }
 
-    testConnection.apply(methodName, args, (error, result) => {
+    this.testConnection.apply(methodName, args, (error, result) => {
       log.set({
         consoleProps() {
           return {
@@ -45,18 +47,20 @@ Cypress.Commands.add('call', (methodName, ...args) => {
   });
 });
 
-Cypress.Commands.add('resetDatbase', () => {
+Cypress.Commands.add('resetDatabase', function resetDatabase() {
   const log = Cypress.log({
-    name: 'resetDatbase',
-    message: 'resetDatbase',
+    name: 'resetDatabase',
+    message: 'resetDatabase',
   });
 
   return new Promise((resolve, reject) => {
     const Meteor = cy.state('window').Meteor;
 
-    const testConnection = Meteor.connect(Meteor.absoluteUrl());
+    if (!this.testConnection) {
+      this.testConnection = Meteor.connect(Meteor.absoluteUrl());
+    }
 
-    testConnection.apply('xolvio:cleaner/resetDatabase', [], (error) => {
+    this.testConnection.apply('xolvio:cleaner/resetDatabase', [], (error) => {
       if (error) {
         reject(error);
       }
