@@ -1,6 +1,6 @@
 <template>
   <v-layout
-    v-if="!apiControlled && canUserMergeDocument"
+    v-if="canUserMergeDocument"
     row
   >
     <v-flex
@@ -13,13 +13,16 @@
       offset-xl3
     >
       <v-card>
-        <v-toolbar card>
+        <v-toolbar
+          v-if="!apiControlled"
+          card
+        >
           <v-toolbar-title><translate>accept-merge-document-confirmation-title</translate></v-toolbar-title>
         </v-toolbar>
 
-        <v-divider />
+        <v-divider v-if="!apiControlled" />
 
-        <v-card-text>
+        <v-card-text v-if="!apiControlled">
           <translate>accept-merge-document-confirmation-body</translate>
         </v-card-text>
 
@@ -33,9 +36,9 @@
           :end-version="document.rebasedAtVersion + 1"
         />
 
-        <v-divider />
+        <v-divider v-if="!apiControlled" />
 
-        <v-card-actions>
+        <v-card-actions v-if="!apiControlled">
           <v-spacer />
           <v-btn
             :disabled="documentAcceptMergeInProgress"
