@@ -773,13 +773,20 @@ Meteor.publish('Document.list', function documentList(args) {
 Meteor.publish('Document.one', function documentOne(args) {
   check(args, {
     documentId: Match.DocumentId,
+    withVersion: Match.Optional(Boolean),
   });
 
   this.autorun((computation) => {
+    const fields = Document.PUBLISH_FIELDS();
+
+    if (args.withVersion) {
+      fields.version = 1;
+    }
+
     return Document.documents.find(Document.restrictQuery({
       _id: args.documentId,
     }, Document.PERMISSIONS.VIEW), {
-      fields: Document.PUBLISH_FIELDS(),
+      fields,
     });
   });
 });

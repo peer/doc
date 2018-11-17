@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <div>
     <div class="editor__toolbar">
       <v-toolbar
         card
@@ -12,7 +12,7 @@
       ref="editor"
       class="editor"
     />
-  </v-card>
+  </div>
 </template>
 
 <script>

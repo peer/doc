@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <div>
     <div class="editor__toolbar">
       <v-toolbar
         card
@@ -162,7 +162,7 @@
       @link-inserted="onLinkInserted"
       @link-removed="onLinkRemoved"
     />
-  </v-card>
+  </div>
 </template>
 
 <script>

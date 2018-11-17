@@ -4,12 +4,14 @@
     row
   >
     <v-flex xs8>
-      <history
-        :document-id="document._id"
-        :content-key="document.contentKey"
-        :start-version="startVersion"
-        :end-version="endVersion"
-      />
+      <v-card>
+        <history
+          :document-id="document._id"
+          :content-key="document.contentKey"
+          :start-version="startVersion"
+          :end-version="endVersion"
+        />
+      </v-card>
     </v-flex>
     <v-flex xs4>
       <v-container

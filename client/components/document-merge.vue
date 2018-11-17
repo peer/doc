@@ -25,6 +25,16 @@
 
         <v-divider />
 
+        <!-- "startVersion" and "endVersion" are inclusive, so we have to add 1 for "endVersion". -->
+        <history
+          :document-id="document._id"
+          :content-key="document.contentKey"
+          :start-version="document.version"
+          :end-version="document.rebasedAtVersion + 1"
+        />
+
+        <v-divider />
+
         <v-card-actions>
           <v-spacer />
           <v-btn
@@ -98,7 +108,7 @@
 
     created() {
       this.$autorun((computation) => {
-        this.$subscribe('Document.one', {documentId: this.documentId});
+        this.$subscribe('Document.one', {documentId: this.documentId, withVersion: true});
       });
 
       this.$autorun((computation) => {
