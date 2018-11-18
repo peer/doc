@@ -150,6 +150,7 @@
   import {Content} from '/lib/documents/content';
   import {Document} from '/lib/documents/document';
   import {schema} from '/lib/full-schema';
+  import {stepsAreOnlyHighlights} from '/lib/utils';
 
   // How long between steps for them to be counted as a separate change?
   const CHANGES_BREAK = 15 * 60 * 1000; // milliseconds
@@ -338,6 +339,10 @@
           let contents = [];
           Content.documents.find(this.contentsHandle.scopeQuery(), {sort: {version: -1}}).forEach((content) => {
             if (content.step === null) {
+              return;
+            }
+
+            if (stepsAreOnlyHighlights([Step.fromJSON(schema, content.step)])) {
               return;
             }
 
