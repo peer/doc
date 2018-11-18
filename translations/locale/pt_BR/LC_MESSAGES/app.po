@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-17 20:16-0800\n"
+"POT-Creation-Date: 2018-11-18 00:05-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -301,6 +301,10 @@ msgstr ""
 
 #: client/components/document-history.vue:306
 msgid "history-created-event"
+msgstr ""
+
+#: client/components/history.vue:19
+msgid "history-empty"
 msgstr ""
 
 #: client/components/document-history.vue:298

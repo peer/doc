@@ -12,6 +12,13 @@
       ref="editor"
       class="editor"
     />
+
+    <v-alert
+      :value="emptyHistory"
+      type="warning"
+    >
+      <translate>history-empty</translate>
+    </v-alert>
   </div>
 </template>
 
@@ -45,10 +52,16 @@
       startVersion: {
         type: Number,
         default: null,
+        validator: (value) => {
+          return value === null || value >= 0;
+        },
       },
       endVersion: {
         type: Number,
         default: null,
+        validator: (value) => {
+          return value === null || value >= 0;
+        },
       },
     },
 
@@ -67,6 +80,16 @@
         return Document.documents.findOne({
           _id: this.documentId,
         });
+      },
+
+      emptyHistory() {
+        if (this.currentChangeSet === null) {
+          // This should be true, but just want to make sure we have all data first.
+          return this.$subscriptionsReady();
+        }
+        else {
+          return this.currentChangeSet.inserted.length === 0 && this.currentChangeSet.deleted.length === 0;
+        }
       },
     },
 
