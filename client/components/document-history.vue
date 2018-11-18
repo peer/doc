@@ -50,15 +50,16 @@
                 align-top
               >
                 <v-timeline-item
-                  v-for="change of changes"
-                  :key="change.key"
+                  v-for="event of events"
+                  :key="event.key"
                   small
                   color="white"
                   fill-dot
                 >
                   <v-radio-group
+                    v-if="event.change"
                     slot="icon"
-                    :value="selectedChanges.get(change.key)"
+                    :value="selectedChanges.get(event.change.key)"
                     :hide-details="true"
                     :title="selectRangeHint"
                     class="timeline-icon"
@@ -69,32 +70,35 @@
                     -->
                     <v-radio
                       :value="true"
-                      @click.prevent="selectChange(change, $event)"
-                      @mousedown="startDrag(change)"
-                      @mousemove="continueDrag(change)"
-                      @mouseup="stopDrag(change)"
+                      @click.prevent="selectChange(event.change, $event)"
+                      @mousedown="startDrag(event.change)"
+                      @mousemove="continueDrag(event.change)"
+                      @mouseup="stopDrag(event.change)"
                     />
                   </v-radio-group>
-                  <v-card :class="{'elevation-10': selectedChanges.get(change.key)}">
+                  <v-card
+                    v-if="event.change"
+                    :class="{'elevation-10': selectedChanges.get(event.change.key)}"
+                  >
                     <v-card-text
                       v-ripple
                       :title="selectRangeHint"
-                      class="timeline-card"
-                      @click="selectChange(change, $event)"
-                      @mousedown="startDrag(change)"
-                      @mousemove="continueDrag(change)"
-                      @mouseup="stopDrag(change)"
+                      class="timeline-card change"
+                      @click="selectChange(event.change, $event)"
+                      @mousedown="startDrag(event.change)"
+                      @mousemove="continueDrag(event.change)"
+                      @mouseup="stopDrag(event.change)"
                     >
                       <div
-                        v-translate="{at: $fromNow(change.startsAt)}"
-                        :title="change.startsAt | formatDate(DEFAULT_DATETIME_FORMAT)"
+                        v-translate="{at: $fromNow(event.change.startsAt)}"
+                        :title="event.change.startsAt | formatDate(DEFAULT_DATETIME_FORMAT)"
                         class="timestamp mb-2"
                       >
                         change-starts-at
                       </div>
                       <div>
                         <v-avatar
-                          v-for="author of change.authors"
+                          v-for="author of event.change.authors"
                           :key="author._id"
                           size="36px"
                         ><img
@@ -103,6 +107,28 @@
                           :title="author.username"
                         ></v-avatar>
                       </div>
+                    </v-card-text>
+                  </v-card>
+                  <v-card v-else-if="event.message">
+                    <v-card-text class="timeline-card">
+                      <div
+                        :title="event.timestamp | formatDate(DEFAULT_DATETIME_FORMAT)"
+                        class="timestamp mb-2"
+                      >
+                        <!--
+                          We interpolate here and not in "events" computed property so that
+                          "$fromNow" reactivity is inside a template.
+                        -->
+                        {{$gettextInterpolate(event.message, {at: $fromNow(event.timestamp)})}}
+                      </div>
+                      <v-avatar
+                        v-if="event.by"
+                        size="36px"
+                      ><img
+                        :src="event.by.avatarUrl()"
+                        :alt="event.by.username"
+                        :title="event.by.username"
+                      ></v-avatar>
                     </v-card-text>
                   </v-card>
                 </v-timeline-item>
@@ -249,6 +275,59 @@
       document() {
         return Document.documents.findOne({
           _id: this.documentId,
+        });
+      },
+
+      events() {
+        const events = [];
+
+        for (const change of this.changes) {
+          events.push({
+            change,
+            key: change.key,
+            timestamp: change.startsAt,
+          });
+        }
+
+        if (this.document) {
+          if (this.document.createdAt) {
+            if (this.document.forkedFrom) {
+              events.push({
+                key: 'forked',
+                timestamp: this.document.createdAt,
+                message: this.$gettext("history-forked-event"),
+                by: this.document.author,
+              });
+            }
+            else {
+              events.push({
+                key: 'created',
+                timestamp: this.document.createdAt,
+                message: this.$gettext("history-created-event"),
+                by: this.document.author,
+              });
+            }
+          }
+          if (this.document.publishedAt) {
+            events.push({
+              key: 'published',
+              timestamp: this.document.publishedAt,
+              message: this.$gettext("history-published-event"),
+              by: this.document.publishedBy,
+            });
+          }
+          if (this.document.mergeAcceptedAt) {
+            events.push({
+              key: 'merge-accepted',
+              timestamp: this.document.mergeAcceptedAt,
+              message: this.$gettext("history-merge-accepted-event"),
+              by: this.document.mergeAcceptedBy,
+            });
+          }
+        }
+
+        return events.sort((a, b) => {
+          return b.timestamp.valueOf() - a.timestamp.valueOf();
         });
       },
 
@@ -408,11 +487,14 @@
   }
 
   .timeline-card {
-    cursor: pointer;
     user-select: none;
 
     .timestamp {
       font-weight: bold;
+    }
+
+    &.change {
+      cursor: pointer;
     }
   }
 </style>

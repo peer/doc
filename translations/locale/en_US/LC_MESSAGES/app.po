@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-16 22:36-0800\n"
+"POT-Creation-Date: 2018-11-17 20:16-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -77,9 +77,9 @@ msgstr "[today at] LT"
 msgid "cancel"
 msgstr "Cancel"
 
-#: client/components/document-history.vue:81
+#: client/components/document-history.vue:91
 msgid "change-starts-at"
-msgstr "%{at}"
+msgstr "Changed %{at}"
 
 #: client/components/utils/placeholder.js:27
 msgid "choose-title"
@@ -299,7 +299,23 @@ msgstr "h3"
 msgid "history"
 msgstr "History"
 
-#: client/components/document-history.vue:187
+#: client/components/document-history.vue:306
+msgid "history-created-event"
+msgstr "Created %{at}"
+
+#: client/components/document-history.vue:298
+msgid "history-forked-event"
+msgstr "Forked %{at}"
+
+#: client/components/document-history.vue:323
+msgid "history-merge-accepted-event"
+msgstr "Merged %{at}"
+
+#: client/components/document-history.vue:315
+msgid "history-published-event"
+msgstr "Published %{at}"
+
+#: client/components/document-history.vue:270
 msgid "history-select-range"
 msgstr "Click and drag or hold Shift key to select a range of changes"
 
