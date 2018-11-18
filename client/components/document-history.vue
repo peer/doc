@@ -80,6 +80,7 @@
                     v-if="event.change"
                     :class="{'elevation-10': selectedChanges.get(event.change.key)}"
                   >
+                    <global-events @mouseup="stopDrag()" />
                     <v-card-text
                       v-ripple
                       :title="selectRangeHint"
@@ -456,7 +457,7 @@
       },
 
       stopDrag(change) {
-        if (change.key !== this.startDragChange) {
+        if (change && change.key !== this.startDragChange) {
           this.startsWith = this.startDragChange;
           this.endsWith = change.key;
         }
