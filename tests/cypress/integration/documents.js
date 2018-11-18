@@ -177,19 +177,19 @@ describe('documents', function () {
 
     cy.get('.v-btn').contains('History').click({force: true});
 
-    cy.wait(100);
+    cy.wait(500);
 
     cy.visualSnapshot(this.test, 'initial history');
 
     cy.get('.v-timeline-item__body .v-card__text').eq(1).click();
 
-    cy.wait(100);
+    cy.wait(500);
 
     cy.visualSnapshot(this.test, 'second change');
 
     cy.get('.v-timeline-item__body .v-card__text').eq(0).trigger('click', {shiftKey: true});
 
-    cy.wait(100);
+    cy.wait(500);
 
     cy.visualSnapshot(this.test, 'both changes');
   });
