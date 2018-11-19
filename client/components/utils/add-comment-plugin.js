@@ -1,6 +1,6 @@
 import {Plugin} from 'prosemirror-state';
 import {MarkType} from 'prosemirror-model';
-import {RemoveMarkStep} from "prosemirror-transform";
+import {RemoveMarkStep} from 'prosemirror-transform';
 
 class AddComment {
   constructor(view, vueInstance) {

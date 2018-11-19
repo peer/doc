@@ -9,6 +9,16 @@ class Migration extends Document.MajorMigration {
   forward(documentClass, collection, currentSchema, newSchema) {
     let count = 0;
 
+    try {
+      collection.dropIndex({
+        contentKey: 1,
+        version: -1,
+      });
+    }
+    catch (error) {
+      // We ignore any error.
+    }
+
     collection.findEach({_schema: currentSchema, contentKey: {$exists: true}}, {contentKey: 1}, (document) => {
       const updateQuery = {
         $set: {
@@ -34,6 +44,16 @@ class Migration extends Document.MajorMigration {
   // document is created for each additional value.
   backward(documentClass, collection, currentSchema, oldSchema) {
     let count = 0;
+
+    try {
+      collection.dropIndex({
+        contentKeys: 1,
+        version: -1,
+      });
+    }
+    catch (error) {
+      // We ignore any error.
+    }
 
     collection.findEach({_schema: currentSchema, contentKeys: {$exists: true}}, {}, (document) => {
       const updateQuery = {

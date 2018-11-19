@@ -8,6 +8,7 @@ import moment from 'moment';
 import 'moment/locale/pt-br';
 import Vue from 'vue';
 import GetTextPlugin from 'vue-gettext';
+import GlobalEvents from 'vue-global-events';
 import Vuetify from 'vuetify';
 
 import {Activity} from '/lib/documents/activity';
@@ -24,6 +25,8 @@ Vue.use(GetTextPlugin, {
   translations,
 });
 Vue.use(VueExtensions);
+
+Vue.component('global-events', GlobalEvents);
 
 moment.locale(Vue.config.language);
 

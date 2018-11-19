@@ -1,6 +1,6 @@
 <template>
   <v-layout
-    v-if="!apiControlled && canUserPublishDocument"
+    v-if="!apiControlled && canUserForkDocument"
     row
   >
     <v-flex
@@ -14,17 +14,17 @@
     >
       <v-card>
         <v-toolbar card>
-          <v-toolbar-title><translate>publish-document-confirmation-title</translate></v-toolbar-title>
+          <v-toolbar-title><translate>fork-document-confirmation-title</translate></v-toolbar-title>
         </v-toolbar>
 
         <v-divider />
 
-        <v-card-text v-if="document.forkedFrom">
-          <translate>publish-document-confirmation-fork-body</translate>
+        <v-card-text v-if="document.isMergeAccepted()">
+          <translate>fork-document-confirmation-merged-body</translate>
         </v-card-text>
 
         <v-card-text v-else>
-          <translate>publish-document-confirmation-regular-body</translate>
+          <translate>fork-document-confirmation-regular-body</translate>
         </v-card-text>
 
         <v-divider />
@@ -32,16 +32,16 @@
         <v-card-actions>
           <v-spacer />
           <v-btn
-            :disabled="documentPublishInProgress"
+            :disabled="documentForkInProgress"
             :to="{name: 'document', params: {documentId: documentId}}"
             flat
           ><translate>cancel</translate></v-btn>
           <p-button
-            :progress="documentPublishInProgress"
-            :disabled="documentPublishInProgress"
+            :progress="documentForkInProgress"
+            :disabled="documentForkInProgress"
             color="primary"
-            @click="publish()"
-          ><translate>publish</translate></p-button>
+            @click="fork()"
+          ><translate>fork</translate></p-button>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -54,6 +54,7 @@
   import {RouterFactory} from 'meteor/akryum:vue-router2';
 
   import {Document} from '/lib/documents/document';
+  import {User} from '/lib/documents/user';
   import {Snackbar} from '../snackbar';
 
   // @vue/component
@@ -68,7 +69,7 @@
     data() {
       return {
         apiControlled: Meteor.settings.public.apiControlled,
-        documentPublishInProgress: false,
+        documentForkInProgress: false,
       };
     },
 
@@ -79,8 +80,14 @@
         });
       },
 
-      canUserPublishDocument() {
-        return !!(this.document && this.document.canUser(Document.PERMISSIONS.PUBLISH));
+      canUserForkDocument() {
+        const condition = !!(this.document && this.document.canUser(Document.PERMISSIONS.VIEW) && User.hasClassPermission(Document.PERMISSIONS.CREATE));
+        if (Meteor.settings.public.mergingForkingOfAllDocuments) {
+          return condition;
+        }
+        else {
+          return condition && this.document.isPublished();
+        }
       },
     },
 
@@ -91,22 +98,22 @@
     },
 
     methods: {
-      publish() {
-        this.documentPublishInProgress = true;
+      fork() {
+        this.documentForkInProgress = true;
         if (!this.$currentUserId) {
-          // Only publish the document if current user is set.
-          this.documentPublishInProgress = false;
+          // Only fork the document if current user is set.
+          this.documentForkInProgress = false;
           this.$router.push({name: 'document', params: {documentId: this.documentId}});
           return;
         }
-        Document.publish({documentId: this.documentId}, (error, changed) => {
-          this.documentPublishInProgress = false;
-          if (error || !changed) {
-            Snackbar.enqueue(this.$gettext("publish-error"), 'error');
+        Document.fork({documentId: this.documentId}, (error, response) => {
+          this.documentForkInProgress = false;
+          if (error) {
+            Snackbar.enqueue(this.$gettext("fork-error"), 'error');
             return;
           }
-          this.$router.push({name: 'document', params: {documentId: this.documentId}});
-          Snackbar.enqueue(this.$gettext("publish-success"), 'success');
+          this.$router.push({name: 'document', params: {documentId: response._id}});
+          Snackbar.enqueue(this.$gettext("fork-success"), 'success');
         });
       },
     },
@@ -116,8 +123,8 @@
     factory.addRoutes([
       {
         component,
-        path: '/document/publish/:documentId',
-        name: 'document-publish',
+        path: '/document/fork/:documentId',
+        name: 'document-fork',
         props: true,
       },
     ]);

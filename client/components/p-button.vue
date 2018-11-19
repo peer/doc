@@ -5,7 +5,10 @@ hide the content of the button).
 -->
 
 <template>
-  <v-btn v-bind="btnProps">
+  <v-btn
+    v-bind="btnProps"
+    v-on="$listeners"
+  >
     <slot />
     <v-progress-linear
       v-if="progress"
@@ -30,7 +33,7 @@ hide the content of the button).
 
   // @vue/component
   const component = {
-    props: _.extend({}, Vue.component('v-btn').options.props, {
+    props: _.extend({}, Vue.component('VBtn').options.props, {
       progress: Boolean,
     }),
 

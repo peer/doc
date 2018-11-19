@@ -23,15 +23,12 @@ Meteor.methods({
       username: Match.NonEmptyString,
     });
 
-    const users = User.documents.find(
-      {
-        // TODO: Check that given "username" is just string and not regex.
-        username: {$regex: args.username},
-      },
-      {
-        fields: User.REFERENCE_FIELDS(),
-      },
-    ).fetch();
+    const users = User.documents.find({
+      // TODO: Check that given "username" is just string and not regex.
+      username: {$regex: args.username},
+    }, {
+      fields: User.REFERENCE_FIELDS(),
+    }).fetch();
 
     return users;
   },

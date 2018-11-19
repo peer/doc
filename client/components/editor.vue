@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <div>
     <div class="editor__toolbar">
       <v-toolbar
         card
@@ -118,7 +118,12 @@
 
         <div
           v-translate
-          v-if="canUserUpdateDocument && unconfirmedCount"
+          v-if="canUserUpdateDocument && document.hasContentModifyLock"
+          class="editor__saving text--secondary"
+        >editor-locked</div>
+        <div
+          v-translate
+          v-else-if="canUserUpdateDocument && unconfirmedCount"
           class="editor__saving text--secondary"
         >editor-saving</div>
         <div
@@ -157,7 +162,7 @@
       @link-inserted="onLinkInserted"
       @link-removed="onLinkRemoved"
     />
-  </v-card>
+  </div>
 </template>
 
 <script>
@@ -216,7 +221,7 @@
 
     data() {
       return {
-        subscriptionHandle: null,
+        contentsHandle: null,
         commentsHandle: null,
         addingStepsInProgress: false,
         contentModificationInProgress: false,
@@ -283,7 +288,7 @@
 
     created() {
       this.$autorun((computation) => {
-        this.subscriptionHandle = this.$subscribe('Content.list', {contentKey: this.contentKey});
+        this.contentsHandle = this.$subscribe('Content.list', {contentKey: this.contentKey, withClientId: true});
       });
 
       this.$autorun((computation) => {
@@ -294,6 +299,7 @@
         this.cursorsHandle = this.$subscribe('Cursor.list', {contentKey: this.contentKey});
       });
     },
+
     mounted() {
       this.$highlightIdsToCommentIds = new Map();
 
@@ -425,9 +431,19 @@
         editable: () => {
           return !!(!this.readOnly && this.canUserUpdateDocument);
         },
+        attributes: {
+          // This makes focus/selection be kept when editor is temporary locked and made read-only
+          // and then restored. Without this the focus is lost when editor becomes editable again.
+          // See: https://discuss.prosemirror.net/t/losing-focus-when-switching-to-read-only-mode/1624
+          tabindex: 0,
+        },
       });
 
       this.$autorun((computation) => {
+        if (!this.contentsHandle) {
+          return;
+        }
+
         if (this.addingStepsInProgress) {
           return;
         }
@@ -437,7 +453,7 @@
         }
 
         // To register dependency on the latest version available from the server.
-        const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
+        const versions = _.pluck(Content.documents.find(this.contentsHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
 
         // We want all versions to be available without any version missing, before we start applying them.
         // TODO: We could also just apply the initial consecutive set of versions we might have.
@@ -451,7 +467,7 @@
         }
 
         Tracker.nonreactive(() => {
-          const newContents = Content.documents.find(_.extend(this.subscriptionHandle.scopeQuery(), {
+          const newContents = Content.documents.find(_.extend(this.contentsHandle.scopeQuery(), {
             version: {
               $gt: collab.getVersion(this.$editorView.state),
             },
@@ -459,6 +475,7 @@
             sort: {
               version: 1,
             },
+            transform: null,
           }).map((x) => {
             return Object.assign({}, x, {
               step: Step.fromJSON(schema, x.step),
@@ -471,6 +488,9 @@
               this.$editorView.state,
               _.pluck(newContents, 'step'),
               _.pluck(newContents, 'clientId'),
+              {
+                mapSelectionBackward: true,
+              },
             ));
 
             newContents.filter((x) => {
@@ -658,7 +678,6 @@
           this.$emit('highlight-deleted', {id: commentDescriptor.comment._id, version: collab.getVersion(this.$editorView.state)});
         }
       },
-
     },
   };
 

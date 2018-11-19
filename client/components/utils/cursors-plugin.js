@@ -69,6 +69,7 @@ export const cursorsPlugin = new Plugin({
     init(config, {doc}) {
       return DecorationSet.empty;
     },
+
     apply(tr, old) {
       if (tr.getMeta(cursorsPlugin)) {
         return getDecorations(tr.doc, tr.getMeta(cursorsPlugin));
@@ -76,6 +77,7 @@ export const cursorsPlugin = new Plugin({
       return old;
     },
   },
+
   props: {
     decorations(state) {
       return this.getState(state);
