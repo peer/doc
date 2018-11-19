@@ -250,6 +250,11 @@ WebApp.connectHandlers.use('/document/merge', (req, res, next) => {
 
       // Throws an exception if merge is not possible.
       Document._acceptMerge({documentId}, user, null);
+
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.end(JSON.stringify({
+        status: 'success',
+      }));
     }
     catch (error) {
       // eslint-disable-next-line no-console
