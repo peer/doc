@@ -236,64 +236,51 @@
     data() {
       return {
         apiControlled: Meteor.settings.public.apiControlled,
-        visibilityLevels: [
-          {
-            value: Document.VISIBILITY_LEVELS.PRIVATE,
-            label: this.$gettext("document-visibility-private"),
-            hint: this.$gettext("document-visibility-private-hint"),
-          },
-          {
-            value: Document.VISIBILITY_LEVELS.PUBLIC,
-            label: this.$gettext("document-visibility-public"),
-            hint: this.$gettext("document-visibility-public-hint"),
-          },
-          {
-            value: Document.VISIBILITY_LEVELS.LISTED,
-            label: this.$gettext("document-visibility-listed"),
-            hint: this.$gettext("document-visibility-listed-hint"),
-          },
-        ],
+        visibilityLevels: [{
+          value: Document.VISIBILITY_LEVELS.PRIVATE,
+          label: this.$gettext("document-visibility-private"),
+          hint: this.$gettext("document-visibility-private-hint"),
+        }, {
+          value: Document.VISIBILITY_LEVELS.PUBLIC,
+          label: this.$gettext("document-visibility-public"),
+          hint: this.$gettext("document-visibility-public-hint"),
+        }, {
+          value: Document.VISIBILITY_LEVELS.LISTED,
+          label: this.$gettext("document-visibility-listed"),
+          hint: this.$gettext("document-visibility-listed-hint"),
+        }],
         visibilityLevel: null,
-        defaultRoles: [
-          {
-            value: Document.ROLES.VIEW,
-            label: this.$gettext("role-view-label"),
-            hint: this.$gettext("role-view-users-hint"),
-          },
-          {
-            value: Document.ROLES.COMMENT,
-            label: this.$gettext("role-comment-label"),
-            hint: this.$gettext("role-comment-users-hint"),
-          },
-          {
-            value: Document.ROLES.EDIT,
-            label: this.$gettext("role-edit-label"),
-            hint: this.$gettext("role-edit-users-hint"),
-          },
-        ],
+        defaultRoles: [{
+          value: Document.ROLES.VIEW,
+          label: this.$gettext("role-view-label"),
+          hint: this.$gettext("role-view-users-hint"),
+        }, {
+          value: Document.ROLES.COMMENT,
+          label: this.$gettext("role-comment-label"),
+          hint: this.$gettext("role-comment-users-hint"),
+        }, {
+          value: Document.ROLES.EDIT,
+          label: this.$gettext("role-edit-label"),
+          hint: this.$gettext("role-edit-users-hint"),
+        }],
         defaultRole: null,
-        roles: [
-          {
-            value: Document.ROLES.VIEW,
-            label: this.$gettext("role-view-label"),
-            hint: this.$gettext("role-view-user-hint"),
-          },
-          {
-            value: Document.ROLES.COMMENT,
-            label: this.$gettext("role-comment-label"),
-            hint: this.$gettext("role-comment-user-hint"),
-          },
-          {
-            value: Document.ROLES.EDIT,
-            label: this.$gettext("role-edit-label"),
-            hint: this.$gettext("role-edit-user-hint"),
-          },
-          {
-            value: Document.ROLES.ADMIN,
-            label: this.$gettext("role-admin-label"),
-            hint: this.$gettext("role-admin-user-hint"),
-          },
-        ],
+        roles: [{
+          value: Document.ROLES.VIEW,
+          label: this.$gettext("role-view-label"),
+          hint: this.$gettext("role-view-user-hint"),
+        }, {
+          value: Document.ROLES.COMMENT,
+          label: this.$gettext("role-comment-label"),
+          hint: this.$gettext("role-comment-user-hint"),
+        }, {
+          value: Document.ROLES.EDIT,
+          label: this.$gettext("role-edit-label"),
+          hint: this.$gettext("role-edit-user-hint"),
+        }, {
+          value: Document.ROLES.ADMIN,
+          label: this.$gettext("role-admin-label"),
+          hint: this.$gettext("role-admin-user-hint"),
+        }],
         role: {
           value: Document.ROLES.VIEW,
           label: this.$gettext("role-view-label"),

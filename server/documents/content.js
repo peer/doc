@@ -41,22 +41,19 @@ function getNewStepsTransform(contentKey, otherContentKey) {
   let doc = schema.topNodeType.createAndFill();
 
   // Populate the transform with fork's content documents.
-  Content.documents.find(
-    {
-      contentKeys: contentKey,
-      version: {
-        $gt: 0,
-      },
+  Content.documents.find({
+    contentKeys: contentKey,
+    version: {
+      $gt: 0,
     },
-    {
-      sort: {
-        version: 1,
-      },
-      // We do not transform documents because we are using documents
-      // directly to re-insert rebased steps.
-      transform: null,
+  }, {
+    sort: {
+      version: 1,
     },
-  ).forEach((content) => {
+    // We do not transform documents because we are using documents
+    // directly to re-insert rebased steps.
+    transform: null,
+  }).forEach((content) => {
     const step = Step.fromJSON(schema, content.step);
 
     let result = null;
@@ -188,24 +185,18 @@ function rebaseSteps(parentDocumentId) {
         // Get parent document's steps that are not shared with the fork.
         // They include new steps but also rebased steps which might be previously
         // part of the fork's steps (shared with the parent).
-        const newAndRebasedParentDocumentSteps = Content.documents.find(
-          {
-            $and: [
-              {
-                contentKeys: parentDocument.contentKey,
-              },
-              {
-                contentKeys: {$ne: fork.contentKey},
-              },
-            ],
+        const newAndRebasedParentDocumentSteps = Content.documents.find({
+          $and: [{
+            contentKeys: parentDocument.contentKey,
+          }, {
+            contentKeys: {$ne: fork.contentKey},
+          }],
+        }, {
+          sort: {
+            version: 1,
           },
-          {
-            sort: {
-              version: 1,
-            },
-            transform: null,
-          },
-        ).map((x) => {
+          transform: null,
+        }).map((x) => {
           return Step.fromJSON(schema, x.step);
         });
 
@@ -285,50 +276,36 @@ function rebaseSteps(parentDocumentId) {
         // shared with the parent document). We do not just remove these documents
         // because some other fork might depend on them. We remove documents with
         // empty "contentKeys" at the end of this function.
-        let changed = Content.documents.update(
-          {
-            $and: [
-              {
-                contentKeys: fork.contentKey,
-              },
-              {
-                contentKeys: {$ne: parentDocument.contentKey},
-              },
-            ],
+        let changed = Content.documents.update({
+          $and: [{
+            contentKeys: fork.contentKey,
+          }, {
+            contentKeys: {$ne: parentDocument.contentKey},
+          }],
+        }, {
+          $pull: {
+            contentKeys: fork.contentKey,
           },
-          {
-            $pull: {
-              contentKeys: fork.contentKey,
-            },
-          },
-          {
-            multi: true,
-          },
-        );
+        }, {
+          multi: true,
+        });
 
         assert.strictEqual(changed, newForkStepsAndRebasedInParentDocumentStepsCount);
 
         // Add parent document's steps to the fork.
-        changed = Content.documents.update(
-          {
-            $and: [
-              {
-                contentKeys: parentDocument.contentKey,
-              },
-              {
-                contentKeys: {$ne: fork.contentKey},
-              },
-            ],
+        changed = Content.documents.update({
+          $and: [{
+            contentKeys: parentDocument.contentKey,
+          }, {
+            contentKeys: {$ne: fork.contentKey},
+          }],
+        }, {
+          $addToSet: {
+            contentKeys: fork.contentKey,
           },
-          {
-            $addToSet: {
-              contentKeys: fork.contentKey,
-            },
-          },
-          {
-            multi: true,
-          },
-        );
+        }, {
+          multi: true,
+        });
 
         assert.strictEqual(changed, newAndRebasedParentDocumentSteps.length);
 
@@ -364,21 +341,18 @@ function rebaseSteps(parentDocumentId) {
         const timestamp = new Date();
         const rebasedAtVersion = parentDocument.version;
 
-        Document.documents.update(
-          {
-            _id: fork._id,
+        Document.documents.update({
+          _id: fork._id,
+        }, {
+          $set: {
+            version,
+            rebasedAtVersion,
+            body: transform.doc.toJSON(),
+            updatedAt: timestamp,
+            lastActivity: timestamp,
+            title: extractTitle(transform.doc),
           },
-          {
-            $set: {
-              version,
-              rebasedAtVersion,
-              body: transform.doc.toJSON(),
-              updatedAt: timestamp,
-              lastActivity: timestamp,
-              title: extractTitle(transform.doc),
-            },
-          },
-        );
+        });
 
         updateCurrentState(fork.contentKey, rebasedAtVersion, transform.doc, version);
 

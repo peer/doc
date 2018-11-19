@@ -15,20 +15,17 @@ class Migration extends Document.PatchMigration {
         return;
       }
 
-      const userPermissions = [
-        {
-          user: document.author,
-          addedAt: document.createdAt,
-          addedBy: document.author,
-          permission: Comment.PERMISSIONS.VIEW,
-        },
-        {
-          user: document.author,
-          addedAt: document.createdAt,
-          addedBy: document.author,
-          permission: Comment.PERMISSIONS.DELETE,
-        },
-      ];
+      const userPermissions = [{
+        user: document.author,
+        addedAt: document.createdAt,
+        addedBy: document.author,
+        permission: Comment.PERMISSIONS.VIEW,
+      }, {
+        user: document.author,
+        addedAt: document.createdAt,
+        addedBy: document.author,
+        permission: Comment.PERMISSIONS.DELETE,
+      }];
 
       let changed = 0;
 

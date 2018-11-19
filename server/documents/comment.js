@@ -68,20 +68,17 @@ Comment._create = function create(args, user, connectionId) {
     deletedAt: null,
     deletedBy: null,
     status: this.STATUS.CREATED,
-    userPermissions: [
-      {
-        user: user.getReference(),
-        addedAt: createdAt,
-        addedBy: user.getReference(),
-        permission: this.PERMISSIONS.VIEW,
-      },
-      {
-        user: user.getReference(),
-        addedAt: createdAt,
-        addedBy: user.getReference(),
-        permission: this.PERMISSIONS.DELETE,
-      },
-    ],
+    userPermissions: [{
+      user: user.getReference(),
+      addedAt: createdAt,
+      addedBy: user.getReference(),
+      permission: this.PERMISSIONS.VIEW,
+    }, {
+      user: user.getReference(),
+      addedAt: createdAt,
+      addedBy: user.getReference(),
+      permission: this.PERMISSIONS.DELETE,
+    }],
   });
 
   Document.documents.update({
