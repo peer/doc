@@ -1,4 +1,5 @@
 import {_} from 'meteor/underscore';
+
 import {Plugin} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
 
@@ -24,6 +25,7 @@ function getDecorations(doc, vueInstance) {
   vueInstance.currentHighlightKeyChanged = false; // eslint-disable-line no-param-reassign
   return DecorationSet.create(doc, result);
 }
+
 export const commentPlugin = (vueInstance) => {
   return new Plugin({
     state: {

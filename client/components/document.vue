@@ -5,19 +5,20 @@
     @mousedown="onMouseDown"
   >
     <v-flex xs8>
-      <!-- TODO: Display editor only if you have permissions. -->
-      <editor
-        ref="editor"
-        :document-id="document._id"
-        :content-key="document.contentKey"
-        :client-id="clientId"
-        :read-only="isReadOnly"
-        @content-changed="onContentChanged"
-        @highlight-selected="onHighlightSelected"
-        @highlight-added="onHighlightAdded"
-        @highlight-deleted="onHighlightDeleted"
-        @show-new-comment-form="onShowNewCommentForm"
-      />
+      <v-card>
+        <editor
+          ref="editor"
+          :document-id="document._id"
+          :content-key="document.contentKey"
+          :client-id="clientId"
+          :read-only="isReadOnly"
+          @content-changed="onContentChanged"
+          @highlight-selected="onHighlightSelected"
+          @highlight-added="onHighlightAdded"
+          @highlight-deleted="onHighlightDeleted"
+          @show-new-comment-form="onShowNewCommentForm"
+        />
+      </v-card>
     </v-flex>
     <v-flex xs4>
       <sidebar

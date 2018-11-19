@@ -37,6 +37,10 @@
                 :to="{name: 'document-share', params: {documentId}}"
                 outline
               ><translate>share</translate></v-btn>
+              <v-btn
+                :to="{name: 'document-history', params: {documentId}}"
+                outline
+              ><translate>history</translate></v-btn>
             </v-toolbar>
           </v-card>
         </v-flex>

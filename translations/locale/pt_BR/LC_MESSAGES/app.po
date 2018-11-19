@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-13 21:05-0800\n"
+"POT-Creation-Date: 2018-11-18 00:05-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: client/components/document-merge.vue:39
+#: client/components/document-merge.vue:52
 msgid "accept-merge"
 msgstr ""
 
-#: client/components/document-merge.vue:22
+#: client/components/document-merge.vue:25
 msgid "accept-merge-document-confirmation-body"
 msgstr ""
 
-#: client/components/document-merge.vue:16
+#: client/components/document-merge.vue:19
 msgid "accept-merge-document-confirmation-title"
 msgstr ""
 
-#: client/components/document-merge.vue:123
+#: client/components/document-merge.vue:136
 msgid "accept-merge-error"
 msgstr ""
 
-#: client/components/document-merge.vue:127
+#: client/components/document-merge.vue:140
 msgid "accept-merge-success"
 msgstr ""
 
@@ -44,6 +44,10 @@ msgstr "Acesso negado."
 #: client/components/utils/placeholder.js:41
 msgid "add-content"
 msgstr "Adicione aqui o texto do seu documento"
+
+#: client/components/document-history.vue:35
+msgid "back-to-document"
+msgstr ""
 
 #: client/vue-extensions.js:108
 msgid "calendar-last-day"
@@ -67,11 +71,15 @@ msgstr "[hoje às] LT"
 
 #: client/components/comment-deletion-dialog.vue:21
 #: client/components/document-fork.vue:37
-#: client/components/document-merge.vue:33
+#: client/components/document-merge.vue:46
 #: client/components/document-publish.vue:37
 #: client/components/link-dialog.vue:31 client/components/thread.vue:78
 msgid "cancel"
 msgstr "Cancelar"
+
+#: client/components/document-history.vue:91
+msgid "change-starts-at"
+msgstr ""
 
 #: client/components/utils/placeholder.js:27
 msgid "choose-title"
@@ -287,6 +295,34 @@ msgstr "t2"
 msgid "h3"
 msgstr "t3"
 
+#: client/components/sidebar.vue:42
+msgid "history"
+msgstr ""
+
+#: client/components/document-history.vue:306
+msgid "history-created-event"
+msgstr ""
+
+#: client/components/history.vue:19
+msgid "history-empty"
+msgstr ""
+
+#: client/components/document-history.vue:298
+msgid "history-forked-event"
+msgstr ""
+
+#: client/components/document-history.vue:323
+msgid "history-merge-accepted-event"
+msgstr ""
+
+#: client/components/document-history.vue:315
+msgid "history-published-event"
+msgstr ""
+
+#: client/components/document-history.vue:270
+msgid "history-select-range"
+msgstr ""
+
 #: client/vue-extensions.js:169
 msgid "hour"
 msgid_plural "hours"
@@ -315,7 +351,7 @@ msgid_plural "minutes"
 msgstr[0] "%{value} minuto"
 msgstr[1] "%{value} minutos"
 
-#: client/components/sidebar.vue:80
+#: client/components/sidebar.vue:84
 msgid "no-comments"
 msgstr "Sem comentários."
 
@@ -463,7 +499,7 @@ msgstr "Erro durante a saída: %{error}"
 msgid "signed-out-success"
 msgstr "Você saiu com sucesso."
 
-#: client/components/sidebar.vue:84
+#: client/components/sidebar.vue:88
 msgid "start-a-new-comment"
 msgstr "Inicie um comentário selecionando o conteúdo à esquerda."
 
@@ -471,7 +507,7 @@ msgstr "Inicie um comentário selecionando o conteúdo à esquerda."
 msgid "thread-deletion-confirmation"
 msgstr "Tem certeza de que deseja eliminar esta linha de discussão?"
 
-#: client/components/editor.vue:342
+#: client/components/editor.vue:343
 msgid "title-length"
 msgstr "O título deve ser breve (max. 100 caracteres) e o texto do documento adicionado abaixo dele."
 

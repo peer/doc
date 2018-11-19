@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <div>
     <div class="editor__toolbar">
       <v-toolbar
         card
@@ -162,7 +162,7 @@
       @link-inserted="onLinkInserted"
       @link-removed="onLinkRemoved"
     />
-  </v-card>
+  </div>
 </template>
 
 <script>
@@ -221,7 +221,7 @@
 
     data() {
       return {
-        subscriptionHandle: null,
+        contentsHandle: null,
         commentsHandle: null,
         addingStepsInProgress: false,
         contentModificationInProgress: false,
@@ -288,7 +288,7 @@
 
     created() {
       this.$autorun((computation) => {
-        this.subscriptionHandle = this.$subscribe('Content.list', {contentKey: this.contentKey});
+        this.contentsHandle = this.$subscribe('Content.list', {contentKey: this.contentKey, withClientId: true});
       });
 
       this.$autorun((computation) => {
@@ -299,6 +299,7 @@
         this.cursorsHandle = this.$subscribe('Cursor.list', {contentKey: this.contentKey});
       });
     },
+
     mounted() {
       this.$highlightIdsToCommentIds = new Map();
 
@@ -439,6 +440,10 @@
       });
 
       this.$autorun((computation) => {
+        if (!this.contentsHandle) {
+          return;
+        }
+
         if (this.addingStepsInProgress) {
           return;
         }
@@ -448,7 +453,7 @@
         }
 
         // To register dependency on the latest version available from the server.
-        const versions = _.pluck(Content.documents.find(this.subscriptionHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
+        const versions = _.pluck(Content.documents.find(this.contentsHandle.scopeQuery(), {fields: {version: 1}}).fetch(), 'version');
 
         // We want all versions to be available without any version missing, before we start applying them.
         // TODO: We could also just apply the initial consecutive set of versions we might have.
@@ -462,7 +467,7 @@
         }
 
         Tracker.nonreactive(() => {
-          const newContents = Content.documents.find(_.extend(this.subscriptionHandle.scopeQuery(), {
+          const newContents = Content.documents.find(_.extend(this.contentsHandle.scopeQuery(), {
             version: {
               $gt: collab.getVersion(this.$editorView.state),
             },
@@ -673,7 +678,6 @@
           this.$emit('highlight-deleted', {id: commentDescriptor.comment._id, version: collab.getVersion(this.$editorView.state)});
         }
       },
-
     },
   };
 
