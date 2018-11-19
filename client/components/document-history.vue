@@ -145,6 +145,7 @@
 
 <script>
   import {RouterFactory} from 'meteor/akryum:vue-router2';
+  import {_} from 'meteor/underscore';
 
   import {Step} from 'prosemirror-transform';
 
@@ -287,7 +288,7 @@
           events.push({
             change,
             key: change.key,
-            timestamp: change.startsAt,
+            version: change.startVersion,
           });
         }
 
@@ -296,6 +297,7 @@
             if (this.document.forkedFrom) {
               events.push({
                 key: 'forked',
+                version: this.document.forkedAtVersion,
                 timestamp: this.document.createdAt,
                 message: this.$gettext("history-forked-event"),
                 by: this.document.author,
@@ -304,6 +306,7 @@
             else {
               events.push({
                 key: 'created',
+                version: 0,
                 timestamp: this.document.createdAt,
                 message: this.$gettext("history-created-event"),
                 by: this.document.author,
@@ -313,6 +316,7 @@
           if (this.document.publishedAt) {
             events.push({
               key: 'published',
+              version: this.document.publishedAtVersion,
               timestamp: this.document.publishedAt,
               message: this.$gettext("history-published-event"),
               by: this.document.publishedBy,
@@ -321,6 +325,7 @@
           if (this.document.mergeAcceptedAt) {
             events.push({
               key: 'merge-accepted',
+              version: this.document.mergeAcceptedAtVersion,
               timestamp: this.document.mergeAcceptedAt,
               message: this.$gettext("history-merge-accepted-event"),
               by: this.document.mergeAcceptedBy,
@@ -328,9 +333,9 @@
           }
         }
 
-        return events.sort((a, b) => {
-          return b.timestamp.valueOf() - a.timestamp.valueOf();
-        });
+        // Sort is stable, so if both a change and a message have the same version, the message will be
+        // higher up because messages were added last to the "events" array which is then reversed.
+        return _.sortBy(events, 'version').reverse();
       },
 
       changes() {

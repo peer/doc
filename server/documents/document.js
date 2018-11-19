@@ -91,6 +91,7 @@ function insertNewDocument(user, connectionId, createdAt, contentKey, documentFi
     author: user.getReference(),
     publishedBy: null,
     publishedAt: null,
+    publishedAtVersion: null,
     title: '',
     body: schema.topNodeType.createAndFill().toJSON(),
     version: 0,
@@ -101,6 +102,7 @@ function insertNewDocument(user, connectionId, createdAt, contentKey, documentFi
     hasContentModifyLock: null,
     mergeAcceptedBy: null,
     mergeAcceptedAt: null,
+    mergeAcceptedAtVersion: null,
     userPermissions,
     visibility: Document.VISIBILITY_LEVELS.PRIVATE,
     defaultPermissions: Document.getPermissionsFromRole(Document.ROLES.VIEW),
@@ -176,23 +178,66 @@ Document._publish = function publish(args, user, connectionId) {
     throw new Meteor.Error('unauthorized', "Unauthorized.");
   }
 
+  const documentId = args.documentId;
+
   const publishedAt = new Date();
 
   // "restrictQuery" makes sure that the document is not already published or merged.
-  const changed = this.documents.update(this.restrictQuery({
-    _id: args.documentId,
+  const query = this.restrictQuery({
+    _id: documentId,
     // We should not change the published status while content is being modified.
     hasContentAppendLock: null,
     hasContentModifyLock: null,
-  }, this.PERMISSIONS.PUBLISH, user), {
-    $set: {
-      publishedAt,
-      publishedBy: user.getReference(),
-      updatedAt: publishedAt,
-      lastActivity: publishedAt,
-      defaultPermissions: this.getPermissionsFromRole(this.ROLES.COMMENT),
-      visibility: this.VISIBILITY_LEVELS.LISTED,
-    },
+  }, this.PERMISSIONS.PUBLISH, user);
+
+  const changed = this.lock(query, true, true, (lockedDocumentId) => {
+    if (lockedDocumentId) {
+      throw new Meteor.Error('internal-error', "Lock could not be acquired.");
+    }
+    else {
+      return 0;
+    }
+  }, (lockedDocumentId) => {
+    assert.strictEqual(lockedDocumentId, documentId);
+
+    // We fetch the document here to make sure we have the most recent (and locked) state.
+    const document = this.documents.findOne({
+      $and: [
+        {
+          _id: documentId,
+        },
+        query,
+      ],
+    });
+
+    if (!document) {
+      return 0;
+    }
+
+    assert(document.hasContentAppendLock);
+    assert(document.hasContentModifyLock);
+
+    return this.documents.update({
+      $and: [
+        {
+          _id: documentId,
+          // It should never happen that the version has
+          // changed while locked, but we want to make sure.
+          version: document.version,
+        },
+        query,
+      ],
+    }, {
+      $set: {
+        publishedAt,
+        publishedBy: user.getReference(),
+        publishedAtVersion: document.version,
+        updatedAt: publishedAt,
+        lastActivity: publishedAt,
+        defaultPermissions: this.getPermissionsFromRole(this.ROLES.COMMENT),
+        visibility: this.VISIBILITY_LEVELS.LISTED,
+      },
+    });
   });
 
   if (changed) {
@@ -663,6 +708,7 @@ Document._acceptMerge = function create(args, user, connectionId) {
         $set: {
           mergeAcceptedAt,
           mergeAcceptedBy: user.getReference(),
+          mergeAcceptedAtVersion: fork.version,
           updatedAt: mergeAcceptedAt,
           lastActivity: mergeAcceptedAt,
         },
