@@ -185,9 +185,6 @@ Document._publish = function publish(args, user, connectionId) {
   // "restrictQuery" makes sure that the document is not already published or merged.
   const query = this.restrictQuery({
     _id: documentId,
-    // We should not change the published status while content is being modified.
-    hasContentAppendLock: null,
-    hasContentModifyLock: null,
   }, this.PERMISSIONS.PUBLISH, user);
 
   const changed = this.lock(query, true, true, (lockedDocumentId) => {
