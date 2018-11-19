@@ -254,6 +254,16 @@
     return result;
   }
 
+  function crossesEvent(contents, eventVersions, content) {
+    for (const eventVersion of eventVersions) {
+      if (content.version <= eventVersion && eventVersion < contents[0].version) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   // @vue/component
   const component = {
     props: {
@@ -293,25 +303,23 @@
         }
 
         if (this.document) {
-          if (this.document.createdAt) {
-            if (this.document.forkedFrom) {
-              events.push({
-                key: 'forked',
-                version: this.document.forkedAtVersion,
-                timestamp: this.document.createdAt,
-                message: this.$gettext("history-forked-event"),
-                by: this.document.author,
-              });
-            }
-            else {
-              events.push({
-                key: 'created',
-                version: 0,
-                timestamp: this.document.createdAt,
-                message: this.$gettext("history-created-event"),
-                by: this.document.author,
-              });
-            }
+          if (this.document.forkedFrom) {
+            events.push({
+              key: 'forked',
+              version: this.document.forkedAtVersion,
+              timestamp: this.document.createdAt,
+              message: this.$gettext("history-forked-event"),
+              by: this.document.author,
+            });
+          }
+          else {
+            events.push({
+              key: 'created',
+              version: 0,
+              timestamp: this.document.createdAt,
+              message: this.$gettext("history-created-event"),
+              by: this.document.author,
+            });
           }
           if (this.document.publishedAt) {
             events.push({
@@ -339,6 +347,20 @@
       },
 
       changes() {
+        // A list versions of events on the document which a set of changes should not cross.
+        const eventVersions = [];
+        if (this.document) {
+          if (this.document.forkedFrom) {
+            eventVersions.push(this.document.forkedAtVersion);
+          }
+          if (this.document.publishedAt) {
+            eventVersions.push(this.document.publishedAtVersion);
+          }
+          if (this.document.mergeAcceptedAt) {
+            eventVersions.push(this.document.mergeAcceptedAtVersion);
+          }
+        }
+
         const changes = [];
 
         if (this.contentsHandle) {
@@ -356,7 +378,8 @@
             if (lastTimestamp === null) {
               contents.push(content);
             }
-            else if (lastTimestamp.valueOf() - content.createdAt.valueOf() < CHANGES_BREAK) {
+            // A set of changes should not cross any of the events.
+            else if (!crossesEvent(contents, eventVersions, content) && lastTimestamp.valueOf() - content.createdAt.valueOf() < CHANGES_BREAK) {
               contents.push(content);
             }
             else {
