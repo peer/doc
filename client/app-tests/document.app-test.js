@@ -2,18 +2,21 @@
 /* eslint-disable func-names, prefer-arrow-callback */
 
 import {Random} from 'meteor/random';
+import {_} from 'meteor/underscore';
 
 import {assert} from 'chai';
 
 import {Content} from '/lib/documents/content';
 import {Document} from '/lib/documents/document';
 import {User} from '/lib/documents/user';
-import {documentFind} from '/lib/utils.app-test';
+import {documentFind, waitForDatabase} from '/lib/utils.app-test';
 
 // Augment "User" class.
 import '../auth-passwordless';
 
 describe('document', function () {
+  this.timeout(10000);
+
   const username = `user${Random.id()}`;
 
   before(async function () {
@@ -94,7 +97,7 @@ describe('document', function () {
     });
   });
 
-  it('cannot be forked if it\'s not published', async function () {
+  it('cannot be forked if it is not published', async function () {
     try {
       await Document.fork({
         documentId: this.documentId,
@@ -107,43 +110,65 @@ describe('document', function () {
   });
 
   it('can be published', async function () {
-    await Document.publish({
+    let [document] = await documentFind({_id: this.documentId});
+
+    assert.equal(document.publishedBy, null);
+    assert.equal(document.publishedAt, null);
+    assert.equal(document.publishedAtVersion, null);
+
+    const changed = await Document.publish({
       documentId: this.documentId,
     });
-    const document = (await documentFind({_id: this.documentId}))[0];
+
+    assert.equal(changed, 1);
+
+    [document] = await documentFind({_id: this.documentId});
+
     assert.notEqual(document.publishedBy, null);
     assert.notEqual(document.publishedAt, null);
+    assert.notEqual(document.publishedAtVersion, null);
   });
 
-  it('can be forked if it\'s published', async function () {
+  it('can be forked if it is published', async function () {
     // Create two forks from parent document.
-    await Document.fork({
+    const {_id: fork1Id} = await Document.fork({
       documentId: this.documentId,
     });
 
-    await Document.fork({
+    const {_id: fork2Id} = await Document.fork({
       documentId: this.documentId,
     });
 
     const forkedDocuments = await documentFind({'forkedFrom._id': this.documentId});
 
+    assert.include(_.pluck(forkedDocuments, '_id'), fork1Id);
+    assert.include(_.pluck(forkedDocuments, '_id'), fork2Id);
+
     forkedDocuments.forEach((x) => {
       assert.equal(x.forkedFrom._id, this.documentId);
       assert.equal(x.forkedAtVersion, 4);
+      assert.equal(x.rebasedAtVersion, 4);
+      assert.equal(x.version, 4);
     });
   });
 
   it('can be merged', async function () {
-    const clientId = Random.id();
     // Obtain parent document forks.
     let [fork1, fork2] = await documentFind({'forkedFrom._id': this.documentId});
 
-    assert.equal(fork1.mergeAcceptedBy, null);
-    assert.equal(fork1.mergeAcceptedAt, null);
-    assert.equal(fork2.mergeAcceptedBy, null);
-    assert.equal(fork2.mergeAcceptedAt, null);
+    [fork1, fork2].forEach((x) => {
+      assert.equal(x.mergeAcceptedBy, null);
+      assert.equal(x.mergeAcceptedAt, null);
+      assert.equal(x.mergeAcceptedAtVersion, null);
+      assert.equal(x.forkedFrom._id, this.documentId);
+      assert.equal(x.forkedAtVersion, 4);
+      assert.equal(x.rebasedAtVersion, 4);
+      assert.equal(x.version, 4);
+    });
 
-    // Add steps to fork1
+    const clientId = Random.id();
+
+    // Add steps to fork1.
     await Content.addSteps({
       clientId,
       contentKey: fork1.contentKey,
@@ -161,12 +186,39 @@ describe('document', function () {
       }],
     });
 
-    // Merge fork1 into parent document.
+    [fork1] = await documentFind({_id: fork1._id});
+
+    assert.equal(fork1.mergeAcceptedBy, null);
+    assert.equal(fork1.mergeAcceptedAt, null);
+    assert.equal(fork1.mergeAcceptedAtVersion, null);
+    assert.equal(fork1.forkedFrom._id, this.documentId);
+    assert.equal(fork1.forkedAtVersion, 4);
+    assert.equal(fork1.rebasedAtVersion, 4);
+    assert.equal(fork1.version, 5);
+
+    // Merge fork1 into the parent document.
     await Document.acceptMerge({
       documentId: fork1._id,
     });
 
-    let parentDocument = (await documentFind({_id: this.documentId}))[0];
+    // Wait for Scheduled rebaseSteps.
+    await new Promise((resolve) => {
+      return setTimeout(resolve, 1100);
+    });
+
+    await waitForDatabase();
+
+    [fork1] = await documentFind({_id: fork1._id});
+
+    assert.notEqual(fork1.mergeAcceptedBy, null);
+    assert.notEqual(fork1.mergeAcceptedAt, null);
+    assert.equal(fork1.mergeAcceptedAtVersion, 5);
+    assert.equal(fork1.forkedFrom._id, this.documentId);
+    assert.equal(fork1.forkedAtVersion, 4);
+    assert.equal(fork1.rebasedAtVersion, 4);
+    assert.equal(fork1.version, 5);
+
+    let [parentDocument] = await documentFind({_id: this.documentId});
 
     assert.deepEqual(parentDocument.body, {
       type: 'doc',
@@ -180,6 +232,18 @@ describe('document', function () {
         }],
       }],
     });
+
+    assert.equal(parentDocument.version, 5);
+
+    [fork2] = await documentFind({_id: fork2._id});
+
+    assert.equal(fork2.mergeAcceptedBy, null);
+    assert.equal(fork2.mergeAcceptedAt, null);
+    assert.equal(fork2.mergeAcceptedAtVersion, null);
+    assert.equal(fork2.forkedFrom._id, this.documentId);
+    assert.equal(fork2.forkedAtVersion, 4);
+    assert.equal(fork2.rebasedAtVersion, 5);
+    assert.equal(fork2.version, 5);
 
     // Add steps to fork2.
     await Content.addSteps({
@@ -199,17 +263,40 @@ describe('document', function () {
       }],
     });
 
-    // Wait for Scheduled rebaseSteps.
-    await new Promise((resolve) => {
-      return setTimeout(resolve, 200);
-    });
-
     // Merge fork2 into parent document.
     await Document.acceptMerge({
       documentId: fork2._id,
     });
 
-    parentDocument = (await documentFind({_id: this.documentId}))[0];
+    // Wait for Scheduled rebaseSteps.
+    await new Promise((resolve) => {
+      return setTimeout(resolve, 1100);
+    });
+
+    await waitForDatabase();
+
+    // Nothing changes for fork1.
+    [fork1] = await documentFind({_id: fork1._id});
+
+    assert.notEqual(fork1.mergeAcceptedBy, null);
+    assert.notEqual(fork1.mergeAcceptedAt, null);
+    assert.equal(fork1.mergeAcceptedAtVersion, 5);
+    assert.equal(fork1.forkedFrom._id, this.documentId);
+    assert.equal(fork1.forkedAtVersion, 4);
+    assert.equal(fork1.rebasedAtVersion, 4);
+    assert.equal(fork1.version, 5);
+
+    [fork2] = await documentFind({_id: fork2._id});
+
+    assert.notEqual(fork2.mergeAcceptedBy, null);
+    assert.notEqual(fork2.mergeAcceptedAt, null);
+    assert.equal(fork2.mergeAcceptedAtVersion, 6);
+    assert.equal(fork2.forkedFrom._id, this.documentId);
+    assert.equal(fork2.forkedAtVersion, 4);
+    assert.equal(fork2.rebasedAtVersion, 5);
+    assert.equal(fork2.version, 6);
+
+    [parentDocument] = await documentFind({_id: this.documentId});
 
     assert.deepEqual(parentDocument.body, {
       type: 'doc',
@@ -224,11 +311,6 @@ describe('document', function () {
       }],
     });
 
-    [fork1, fork2] = await documentFind({'forkedFrom._id': this.documentId});
-    assert.notEqual(fork1.mergeAcceptedBy, null);
-    assert.notEqual(fork1.mergeAcceptedAt, null);
-    assert.notEqual(fork2.mergeAcceptedBy, null);
-    assert.notEqual(fork2.mergeAcceptedAt, null);
+    assert.equal(parentDocument.version, 6);
   });
 });
-

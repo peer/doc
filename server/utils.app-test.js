@@ -9,6 +9,53 @@ import {Document} from '/lib/documents/document';
 import {User} from '/lib/documents/user';
 import {check} from '/server/check';
 
+// We use "Npm.require" because otherwise Meteor and eslint
+// complain that this module might not be found.
+// eslint-disable-next-line no-undef
+const Future = Npm.require('fibers/future');
+
+const WAIT_FOR_DATABASE_TIMEOUT = 1500; // ms
+
+export function waitForDatabase() {
+  const future = new Future();
+
+  let timeout = null;
+  const newTimeout = function () {
+    if (timeout) {
+      Meteor.clearTimeout(timeout);
+    }
+    timeout = Meteor.setTimeout(function () {
+      timeout = null;
+      if (!future.isResolved()) {
+        future.return();
+      }
+    }, WAIT_FOR_DATABASE_TIMEOUT);
+  };
+
+  newTimeout();
+
+  const handles = [];
+  for (const document of Document.list) {
+    handles.push(document.documents.find({}).observeChanges({
+      added(id, fields) {
+        newTimeout();
+      },
+      changed(id, fields) {
+        newTimeout();
+      },
+      removed(id) {
+        newTimeout();
+      },
+    }));
+  }
+
+  future.wait();
+
+  for (const handle of handles) {
+    handle.stop();
+  }
+}
+
 Meteor.methods({
   '_test.commentFind'(query, options) {
     check(query, Match.Any);
@@ -56,5 +103,9 @@ Meteor.methods({
     check(query, Match.Any);
     check(update, Match.Any);
     return User.documents.update(query, update, {multi: true});
+  },
+
+  '_test.waitForDatabase'() {
+    waitForDatabase();
   },
 });
