@@ -109,6 +109,18 @@ describe('document', function () {
     }
   });
 
+  it('cannot be merged if it is not forked', async function () {
+    try {
+      await Document.acceptMerge({
+        documentId: this.documentId,
+      });
+      assert.fail();
+    }
+    catch (err) {
+      assert.equal(err.error, 'not-found');
+    }
+  });
+
   it('can be published', async function () {
     let [document] = await documentFind({_id: this.documentId});
 
@@ -312,5 +324,42 @@ describe('document', function () {
     });
 
     assert.equal(parentDocument.version, 6);
+  });
+
+  it('cannot be merged if it is published', async function () {
+    const {_id: forkId} = await Document.fork({
+      documentId: this.documentId,
+    });
+
+    const changed = await Document.publish({
+      documentId: forkId,
+    });
+
+    assert.equal(changed, 1);
+
+    try {
+      await Document.acceptMerge({
+        documentId: forkId,
+      });
+      assert.fail();
+    }
+    catch (err) {
+      assert.equal(err.error, 'not-found');
+    }
+  });
+
+  it('cannot be published if it is merged', async function () {
+    const {_id: forkId} = await Document.fork({
+      documentId: this.documentId,
+    });
+
+    await Document.acceptMerge({
+      documentId: forkId,
+    });
+
+    const changed = await Document.publish({
+      documentId: forkId,
+    });
+    assert.equal(changed, 0);
   });
 });
