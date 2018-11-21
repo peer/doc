@@ -212,7 +212,6 @@ Document._publish = function publish(args, user, connectionId) {
     }
 
     assert(document.hasContentAppendLock);
-    assert(document.hasContentModifyLock);
 
     return this.documents.update({
       $and: [
