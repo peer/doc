@@ -37,7 +37,7 @@
             flat
           ><translate>cancel</translate></v-btn>
           <p-button
-            :progress="documentPublishInProgress"
+            :loading="documentPublishInProgress"
             :disabled="documentPublishInProgress"
             color="primary"
             @click="publish()"

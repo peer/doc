@@ -37,7 +37,7 @@
             flat
           ><translate>cancel</translate></v-btn>
           <p-button
-            :progress="documentForkInProgress"
+            :loading="documentForkInProgress"
             :disabled="documentForkInProgress"
             color="primary"
             @click="fork()"
