@@ -80,7 +80,7 @@
                     v-if="event.change"
                     :class="{'elevation-10': selectedChanges.get(event.change.key)}"
                   >
-                    <global-events @mouseup="stopDrag()" />
+                    <global-events @mouseup="onMouseUp()" />
                     <v-card-text
                       v-ripple
                       :title="selectRangeHint"
@@ -144,6 +144,7 @@
 </template>
 
 <script>
+  import {Meteor} from 'meteor/meteor';
   import {RouterFactory} from 'meteor/akryum:vue-router2';
   import {_} from 'meteor/underscore';
 
@@ -492,6 +493,14 @@
 
         this.startDragChange = null;
         this.dragSelected = [];
+      },
+
+      // Workaround for: https://github.com/peer/doc/issues/164
+      // See: https://github.com/shentao/vue-global-events/issues/12
+      onMouseUp() {
+        Meteor.defer(() => {
+          this.stopDrag();
+        });
       },
     },
   };

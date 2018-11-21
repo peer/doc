@@ -38,7 +38,7 @@
           </v-card-text>
           <v-card-actions>
             <p-button
-              :progress="formSubmissionInProgress"
+              :loading="formSubmissionInProgress"
               :disabled="!valid || formSubmissionInProgress"
               type="submit"
               block

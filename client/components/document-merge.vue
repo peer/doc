@@ -46,7 +46,7 @@
             flat
           ><translate>cancel</translate></v-btn>
           <p-button
-            :progress="documentAcceptMergeInProgress"
+            :loading="documentAcceptMergeInProgress"
             :disabled="documentAcceptMergeInProgress"
             color="primary"
             @click="acceptMerge()"

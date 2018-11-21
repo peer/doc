@@ -1,17 +1,17 @@
 <!--
-Button equivalent to v-btn component with additional "progress" prop which shows a progress
-bar when true. Similar to v-btn's "loading", but subjectively better UI/UX (it does not
-hide the content of the button).
+Button equivalent to v-btn component, which defines "loading" with a
+subjectively better UI/UX (it does not hide the content of the button).
 -->
 
 <template>
   <v-btn
-    v-bind="btnProps"
+    v-bind="$props"
+    class="p-button"
     v-on="$listeners"
   >
     <slot />
     <v-progress-linear
-      v-if="progress"
+      slot="loader"
       :indeterminate="true"
       :height="3"
       color="primary"
@@ -21,8 +21,6 @@ hide the content of the button).
 </template>
 
 <script>
-  import {_} from 'meteor/underscore';
-
   import Vue from 'vue';
   import Vuetify from 'vuetify';
 
@@ -33,21 +31,17 @@ hide the content of the button).
 
   // @vue/component
   const component = {
-    props: _.extend({}, Vue.component('VBtn').options.props, {
-      progress: Boolean,
-    }),
-
-    computed: {
-      btnProps() {
-        return _.omit(this.$props, 'progress');
-      },
-    },
+    props: Vue.component('VBtn').options.props,
   };
 
   export default component;
 </script>
 
 <style lang="scss">
+  .p-button.v-btn--loader .v-btn__content {
+    opacity: 1;
+  }
+
   .p-button__progress {
     position: absolute;
     bottom: 0;

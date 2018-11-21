@@ -4,14 +4,15 @@
       <v-card>
         <v-toolbar card>
           <v-spacer />
-          <v-btn
+          <p-button
             v-if="!apiControlled && hasCreateDocumentsPermission"
+            :loading="documentCreationInProgress"
             :disabled="documentCreationInProgress"
             outline
             @click.native="onDocumentCreate"
           >
             <translate>document-create</translate>
-          </v-btn>
+          </p-button>
         </v-toolbar>
         <v-divider />
         <v-list

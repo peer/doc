@@ -554,7 +554,8 @@
         // TODO: Should we try to map some old state to new state?
         //       Editor selection/cursor position is currently lost. How does this relate to existing
         //       cursors of other editors being shown by the cursors plugin? Any unconfirmed steps in
-        //       collab plugin are currently lost. Undo/redo history is lost. Is there any other
+        //       collab plugin are currently lost. Undo/redo history is lost. What if a comment/highlight
+        //       has just been made and is waiting for "highlight-added" event? Is there any other
         //       state on the Vue instance which should be reset? Because it depends on the editor's
         //       state? Ideally, state would flow only one way: from database to Vue instance to
         //       editor state, so this would not be the case.
