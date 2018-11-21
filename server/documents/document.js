@@ -187,7 +187,7 @@ Document._publish = function publish(args, user, connectionId) {
     _id: documentId,
   }, this.PERMISSIONS.PUBLISH, user);
 
-  const changed = this.lock(query, true, true, (lockedDocumentId) => {
+  const changed = this.lock(query, true, false, (lockedDocumentId) => {
     if (lockedDocumentId) {
       throw new Meteor.Error('internal-error', "Lock could not be acquired.");
     }
