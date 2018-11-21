@@ -24,7 +24,7 @@ Document.lock = function lock(query, appendLock, modifyLock, onFailure, onSucces
   const document = this.documents.findOne(query, {_id: 1});
 
   if (!document) {
-    onFailure();
+    return onFailure();
   }
 
   const lockTimestamp = new Date();
