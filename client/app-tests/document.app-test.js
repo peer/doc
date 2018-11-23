@@ -5,14 +5,96 @@ import {Random} from 'meteor/random';
 import {_} from 'meteor/underscore';
 
 import {assert} from 'chai';
+import {rebaseSteps} from 'prosemirror-collab';
+import {Step, Transform} from 'prosemirror-transform';
 
 import {Content} from '/lib/documents/content';
 import {Document} from '/lib/documents/document';
 import {User} from '/lib/documents/user';
+import {schema} from '/lib/full-schema';
 import {documentFind, waitForDatabase} from '/lib/utils.app-test';
 
 // Augment "User" class.
 import '../auth-passwordless';
+
+const INITIAL_STEPS = [{
+  stepType: 'replace',
+  from: 3,
+  to: 3,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 't',
+    }],
+  },
+}, {
+  stepType: 'replace',
+  from: 4,
+  to: 4,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 'e',
+    }],
+  },
+}, {
+  stepType: 'replace',
+  from: 5,
+  to: 5,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 's',
+    }],
+  },
+}, {
+  stepType: 'replace',
+  from: 6,
+  to: 6,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 't',
+    }],
+  },
+}];
+
+const FORK1_STEPS = [{
+  stepType: 'replace',
+  from: 7,
+  to: 7,
+  slice: {
+    content: [{
+      type: 'text',
+      text: '.',
+    }],
+  },
+}];
+
+const FORK2_STEPS = [{
+  stepType: 'replace',
+  from: 3,
+  to: 4,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 'T',
+    }],
+  },
+}];
+
+const FINAL_CONTENT = {
+  type: 'doc',
+  content: [{
+    type: 'title',
+  }, {
+    type: 'paragraph',
+    content: [{
+      type: 'text',
+      text: 'Test.',
+    }],
+  }],
+};
 
 describe('document', function () {
   this.timeout(10000);
@@ -35,47 +117,7 @@ describe('document', function () {
       clientId,
       contentKey: this.contentKey,
       currentVersion: 0,
-      steps: [{
-        stepType: 'replace',
-        from: 3,
-        to: 3,
-        slice: {
-          content: [{
-            type: 'text',
-            text: 't',
-          }],
-        },
-      }, {
-        stepType: 'replace',
-        from: 4,
-        to: 4,
-        slice: {
-          content: [{
-            type: 'text',
-            text: 'e',
-          }],
-        },
-      }, {
-        stepType: 'replace',
-        from: 5,
-        to: 5,
-        slice: {
-          content: [{
-            type: 'text',
-            text: 's',
-          }],
-        },
-      }, {
-        stepType: 'replace',
-        from: 6,
-        to: 6,
-        slice: {
-          content: [{
-            type: 'text',
-            text: 't',
-          }],
-        },
-      }],
+      steps: INITIAL_STEPS,
     });
 
     assert.equal(changes, 4);
@@ -185,17 +227,7 @@ describe('document', function () {
       clientId,
       contentKey: fork1.contentKey,
       currentVersion: fork1.version,
-      steps: [{
-        stepType: 'replace',
-        from: 7,
-        to: 7,
-        slice: {
-          content: [{
-            type: 'text',
-            text: '.',
-          }],
-        },
-      }],
+      steps: FORK1_STEPS,
     });
 
     [fork1] = await documentFind({_id: fork1._id});
@@ -213,17 +245,7 @@ describe('document', function () {
       clientId,
       contentKey: fork2.contentKey,
       currentVersion: fork2.version,
-      steps: [{
-        stepType: 'replace',
-        from: 3,
-        to: 4,
-        slice: {
-          content: [{
-            type: 'text',
-            text: 'T',
-          }],
-        },
-      }],
+      steps: FORK2_STEPS,
     });
 
     [fork2] = await documentFind({_id: fork2._id});
@@ -286,18 +308,7 @@ describe('document', function () {
     assert.equal(fork2.version, 6);
 
     // Previous additional step on top of fork2 should be now rebased.
-    assert.deepEqual(fork2.body, {
-      type: 'doc',
-      content: [{
-        type: 'title',
-      }, {
-        type: 'paragraph',
-        content: [{
-          type: 'text',
-          text: 'Test.',
-        }],
-      }],
-    });
+    assert.deepEqual(fork2.body, FINAL_CONTENT);
 
     // Add steps to fork2.
     await Content.addSteps({
@@ -413,5 +424,36 @@ describe('document', function () {
       documentId: forkId,
     });
     assert.equal(changed, 0);
+  });
+
+  it('is compatible with collab rebase', async function () {
+    const doc = schema.topNodeType.createAndFill();
+    const transform = new Transform(doc);
+
+    const initialSteps = [];
+    for (const step of INITIAL_STEPS) {
+      initialSteps.push(Step.fromJSON(schema, step));
+      transform.step(initialSteps[initialSteps.length - 1]);
+    }
+
+    const fork2steps = [];
+    for (const step of FORK2_STEPS) {
+      fork2steps.push(Step.fromJSON(schema, step));
+      transform.step(fork2steps[fork2steps.length - 1]);
+    }
+
+    const fork1steps = [];
+    for (const step of FORK1_STEPS) {
+      fork1steps.push(Step.fromJSON(schema, step));
+    }
+
+    rebaseSteps(fork2steps.map((s, i) => {
+      return {
+        step: s,
+        inverted: s.invert(transform.docs[initialSteps.length + i]),
+      };
+    }), fork1steps, transform);
+
+    assert.deepEqual(transform.doc.toJSON(), FINAL_CONTENT);
   });
 });
