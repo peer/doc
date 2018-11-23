@@ -208,6 +208,34 @@ describe('document', function () {
     assert.equal(fork1.rebasedAtVersion, 4);
     assert.equal(fork1.version, 5);
 
+    // Add steps to fork2.
+    await Content.addSteps({
+      clientId,
+      contentKey: fork2.contentKey,
+      currentVersion: fork2.version,
+      steps: [{
+        stepType: 'replace',
+        from: 3,
+        to: 4,
+        slice: {
+          content: [{
+            type: 'text',
+            text: 'T',
+          }],
+        },
+      }],
+    });
+
+    [fork2] = await documentFind({_id: fork2._id});
+
+    assert.equal(fork2.mergeAcceptedBy, null);
+    assert.equal(fork2.mergeAcceptedAt, null);
+    assert.equal(fork2.mergeAcceptedAtVersion, null);
+    assert.equal(fork2.forkedFrom._id, this.documentId);
+    assert.equal(fork2.forkedAtVersion, 4);
+    assert.equal(fork2.rebasedAtVersion, 4);
+    assert.equal(fork2.version, 5);
+
     // Merge fork1 into the parent document.
     await Document.acceptMerge({
       documentId: fork1._id,
@@ -255,7 +283,21 @@ describe('document', function () {
     assert.equal(fork2.forkedFrom._id, this.documentId);
     assert.equal(fork2.forkedAtVersion, 4);
     assert.equal(fork2.rebasedAtVersion, 5);
-    assert.equal(fork2.version, 5);
+    assert.equal(fork2.version, 6);
+
+    // Previous additional step on top of fork2 should be now rebased.
+    assert.deepEqual(fork2.body, {
+      type: 'doc',
+      content: [{
+        type: 'title',
+      }, {
+        type: 'paragraph',
+        content: [{
+          type: 'text',
+          text: 'Test.',
+        }],
+      }],
+    });
 
     // Add steps to fork2.
     await Content.addSteps({
@@ -264,16 +306,26 @@ describe('document', function () {
       currentVersion: fork2.version,
       steps: [{
         stepType: 'replace',
-        from: 3,
+        from: 4,
         to: 4,
         slice: {
           content: [{
             type: 'text',
-            text: 'T',
+            text: 'X',
           }],
         },
       }],
     });
+
+    [fork2] = await documentFind({_id: fork2._id});
+
+    assert.equal(fork2.mergeAcceptedBy, null);
+    assert.equal(fork2.mergeAcceptedAt, null);
+    assert.equal(fork2.mergeAcceptedAtVersion, null);
+    assert.equal(fork2.forkedFrom._id, this.documentId);
+    assert.equal(fork2.forkedAtVersion, 4);
+    assert.equal(fork2.rebasedAtVersion, 5);
+    assert.equal(fork2.version, 7);
 
     // Merge fork2 into parent document.
     await Document.acceptMerge({
@@ -302,11 +354,11 @@ describe('document', function () {
 
     assert.notEqual(fork2.mergeAcceptedBy, null);
     assert.notEqual(fork2.mergeAcceptedAt, null);
-    assert.equal(fork2.mergeAcceptedAtVersion, 6);
+    assert.equal(fork2.mergeAcceptedAtVersion, 7);
     assert.equal(fork2.forkedFrom._id, this.documentId);
     assert.equal(fork2.forkedAtVersion, 4);
     assert.equal(fork2.rebasedAtVersion, 5);
-    assert.equal(fork2.version, 6);
+    assert.equal(fork2.version, 7);
 
     [parentDocument] = await documentFind({_id: this.documentId});
 
@@ -318,12 +370,12 @@ describe('document', function () {
         type: 'paragraph',
         content: [{
           type: 'text',
-          text: 'Test.',
+          text: 'TXest.',
         }],
       }],
     });
 
-    assert.equal(parentDocument.version, 6);
+    assert.equal(parentDocument.version, 7);
   });
 
   it('cannot be merged if it is published', async function () {
