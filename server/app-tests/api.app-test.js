@@ -236,6 +236,22 @@ describe('document api', function () {
 
     userToken = encrypt(userPayload, keyHex);
 
+    try {
+      // Cannot publish twice.
+      HTTP.post(`${apiEndpoint}/publish/${documentId}`, {
+        params: {
+          user: userToken,
+        },
+        data: {},
+      });
+    }
+    catch (error) {
+      assert.equal(error.response.statusCode, 400);
+      assert.deepEqual(error.response.data, {status: 'error'});
+    }
+
+    userToken = encrypt(userPayload, keyHex);
+
     response = HTTP.post(`${apiEndpoint}/fork/${documentId}`, {
       params: {
         user: userToken,
