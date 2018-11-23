@@ -277,6 +277,22 @@ describe('document api', function () {
     assert.equal(response.statusCode, 200);
     assert.equal(response.data.status, 'success');
     assert.isOk(Document.documents.findOne({_id: documentId}).isPublished());
+
+    userToken = encrypt(userPayload, keyHex);
+
+    try {
+      // Cannot publish twice.
+      HTTP.post(`${apiEndpoint}/publish/${documentId}`, {
+        params: {
+          user: userToken,
+        },
+        data: {},
+      });
+    }
+    catch (error) {
+      assert.equal(error.response.statusCode, 400);
+      assert.deepEqual(error.response.data, {status: 'error'});
+    }
   });
 
   it('should allow changing visibility', function () {
