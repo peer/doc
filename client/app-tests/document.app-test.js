@@ -69,12 +69,82 @@ const FORK1_STEPS = [{
       text: '.',
     }],
   },
+}, {
+  stepType: 'replace',
+  from: 8,
+  to: 8,
+  slice: {
+    content: [{
+      type: 'text',
+      text: ' ',
+    }],
+  },
+}, {
+  stepType: 'replace',
+  from: 9,
+  to: 9,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 'f',
+    }],
+  },
+}, {
+  stepType: 'replace',
+  from: 10,
+  to: 10,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 'o',
+    }],
+  },
+}, {
+  stepType: 'replace',
+  from: 11,
+  to: 11,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 'o',
+    }],
+  },
 }];
 
 const FORK2_STEPS = [{
   stepType: 'replace',
   from: 3,
   to: 4,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 'T',
+    }],
+  },
+}, {
+  stepType: 'replace',
+  from: 4,
+  to: 4,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 'E',
+    }],
+  },
+}, {
+  stepType: 'replace',
+  from: 5,
+  to: 5,
+  slice: {
+    content: [{
+      type: 'text',
+      text: 'S',
+    }],
+  },
+}, {
+  stepType: 'replace',
+  from: 6,
+  to: 6,
   slice: {
     content: [{
       type: 'text',
@@ -91,7 +161,7 @@ const FINAL_CONTENT = {
     type: 'paragraph',
     content: [{
       type: 'text',
-      text: 'Test.',
+      text: 'TESTest. foo',
     }],
   }],
 };
@@ -238,7 +308,7 @@ describe('document', function () {
     assert.equal(fork1.forkedFrom._id, this.documentId);
     assert.equal(fork1.forkedAtVersion, 4);
     assert.equal(fork1.rebasedAtVersion, 4);
-    assert.equal(fork1.version, 5);
+    assert.equal(fork1.version, 9);
 
     // Add steps to fork2.
     await Content.addSteps({
@@ -256,7 +326,7 @@ describe('document', function () {
     assert.equal(fork2.forkedFrom._id, this.documentId);
     assert.equal(fork2.forkedAtVersion, 4);
     assert.equal(fork2.rebasedAtVersion, 4);
-    assert.equal(fork2.version, 5);
+    assert.equal(fork2.version, 8);
 
     // Merge fork1 into the parent document.
     await Document.acceptMerge({
@@ -274,11 +344,11 @@ describe('document', function () {
 
     assert.notEqual(fork1.mergeAcceptedBy, null);
     assert.notEqual(fork1.mergeAcceptedAt, null);
-    assert.equal(fork1.mergeAcceptedAtVersion, 5);
+    assert.equal(fork1.mergeAcceptedAtVersion, 9);
     assert.equal(fork1.forkedFrom._id, this.documentId);
     assert.equal(fork1.forkedAtVersion, 4);
     assert.equal(fork1.rebasedAtVersion, 4);
-    assert.equal(fork1.version, 5);
+    assert.equal(fork1.version, 9);
 
     let [parentDocument] = await documentFind({_id: this.documentId});
 
@@ -290,12 +360,12 @@ describe('document', function () {
         type: 'paragraph',
         content: [{
           type: 'text',
-          text: 'test.',
+          text: 'test. foo',
         }],
       }],
     });
 
-    assert.equal(parentDocument.version, 5);
+    assert.equal(parentDocument.version, 9);
 
     [fork2] = await documentFind({_id: fork2._id});
 
@@ -304,8 +374,8 @@ describe('document', function () {
     assert.equal(fork2.mergeAcceptedAtVersion, null);
     assert.equal(fork2.forkedFrom._id, this.documentId);
     assert.equal(fork2.forkedAtVersion, 4);
-    assert.equal(fork2.rebasedAtVersion, 5);
-    assert.equal(fork2.version, 6);
+    assert.equal(fork2.rebasedAtVersion, 9);
+    assert.equal(fork2.version, 13);
 
     // Previous additional step on top of fork2 should be now rebased.
     assert.deepEqual(fork2.body, FINAL_CONTENT);
@@ -335,8 +405,8 @@ describe('document', function () {
     assert.equal(fork2.mergeAcceptedAtVersion, null);
     assert.equal(fork2.forkedFrom._id, this.documentId);
     assert.equal(fork2.forkedAtVersion, 4);
-    assert.equal(fork2.rebasedAtVersion, 5);
-    assert.equal(fork2.version, 7);
+    assert.equal(fork2.rebasedAtVersion, 9);
+    assert.equal(fork2.version, 14);
 
     // Merge fork2 into parent document.
     await Document.acceptMerge({
@@ -355,21 +425,21 @@ describe('document', function () {
 
     assert.notEqual(fork1.mergeAcceptedBy, null);
     assert.notEqual(fork1.mergeAcceptedAt, null);
-    assert.equal(fork1.mergeAcceptedAtVersion, 5);
+    assert.equal(fork1.mergeAcceptedAtVersion, 9);
     assert.equal(fork1.forkedFrom._id, this.documentId);
     assert.equal(fork1.forkedAtVersion, 4);
     assert.equal(fork1.rebasedAtVersion, 4);
-    assert.equal(fork1.version, 5);
+    assert.equal(fork1.version, 9);
 
     [fork2] = await documentFind({_id: fork2._id});
 
     assert.notEqual(fork2.mergeAcceptedBy, null);
     assert.notEqual(fork2.mergeAcceptedAt, null);
-    assert.equal(fork2.mergeAcceptedAtVersion, 7);
+    assert.equal(fork2.mergeAcceptedAtVersion, 14);
     assert.equal(fork2.forkedFrom._id, this.documentId);
     assert.equal(fork2.forkedAtVersion, 4);
-    assert.equal(fork2.rebasedAtVersion, 5);
-    assert.equal(fork2.version, 7);
+    assert.equal(fork2.rebasedAtVersion, 9);
+    assert.equal(fork2.version, 14);
 
     [parentDocument] = await documentFind({_id: this.documentId});
 
@@ -381,12 +451,12 @@ describe('document', function () {
         type: 'paragraph',
         content: [{
           type: 'text',
-          text: 'TXest.',
+          text: 'TXESTest. foo',
         }],
       }],
     });
 
-    assert.equal(parentDocument.version, 7);
+    assert.equal(parentDocument.version, 14);
   });
 
   it('cannot be merged if it is published', async function () {
@@ -429,12 +499,40 @@ describe('document', function () {
   it('is compatible with collab rebase', async function () {
     const doc = schema.topNodeType.createAndFill();
     const transform = new Transform(doc);
+    const transformFork1 = new Transform(doc);
 
     const initialSteps = [];
     for (const step of INITIAL_STEPS) {
       initialSteps.push(Step.fromJSON(schema, step));
       transform.step(initialSteps[initialSteps.length - 1]);
+      transformFork1.step(initialSteps[initialSteps.length - 1]);
     }
+
+    assert.deepEqual(transform.doc.toJSON(), {
+      type: 'doc',
+      content: [{
+        type: 'title',
+      }, {
+        type: 'paragraph',
+        content: [{
+          type: 'text',
+          text: 'test',
+        }],
+      }],
+    });
+
+    assert.deepEqual(transformFork1.doc.toJSON(), {
+      type: 'doc',
+      content: [{
+        type: 'title',
+      }, {
+        type: 'paragraph',
+        content: [{
+          type: 'text',
+          text: 'test',
+        }],
+      }],
+    });
 
     const fork2steps = [];
     for (const step of FORK2_STEPS) {
@@ -442,10 +540,37 @@ describe('document', function () {
       transform.step(fork2steps[fork2steps.length - 1]);
     }
 
+    assert.deepEqual(transform.doc.toJSON(), {
+      type: 'doc',
+      content: [{
+        type: 'title',
+      }, {
+        type: 'paragraph',
+        content: [{
+          type: 'text',
+          text: 'TESTest',
+        }],
+      }],
+    });
+
     const fork1steps = [];
     for (const step of FORK1_STEPS) {
       fork1steps.push(Step.fromJSON(schema, step));
+      transformFork1.step(fork1steps[fork1steps.length - 1]);
     }
+
+    assert.deepEqual(transformFork1.doc.toJSON(), {
+      type: 'doc',
+      content: [{
+        type: 'title',
+      }, {
+        type: 'paragraph',
+        content: [{
+          type: 'text',
+          text: 'test. foo',
+        }],
+      }],
+    });
 
     // We have to make another transform for rebasing to work correctly.
     // See: https://github.com/ProseMirror/prosemirror/issues/874
