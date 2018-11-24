@@ -241,8 +241,7 @@ function rebaseSteps(parentDocumentId) {
 
         const rebasedNewForkSteps = [];
         // Redo steps which have been rebased in the parent document and then fork's new steps.
-        // TODO: When removing "rebaseTransform", replace "rebaseTransform.steps.length" with "newForkStepsAndRebasedInParentDocumentStepsCount".
-        for (let i = 0, mapFrom = rebaseTransform.steps.length; i < newForkStepsAndRebasedInParentDocumentStepsCount; i += 1) {
+        for (let i = 0, mapFrom = newForkStepsAndRebasedInParentDocumentStepsCount; i < newForkStepsAndRebasedInParentDocumentStepsCount; i += 1) {
           const step = transform.steps[i];
           const mapped = step.map(rebaseTransform.mapping.slice(mapFrom));
           mapFrom -= 1;
