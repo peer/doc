@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 /* eslint-disable func-names, prefer-arrow-callback */
 
+import {Meteor} from 'meteor/meteor';
 import {Random} from 'meteor/random';
 import {_} from 'meteor/underscore';
 
@@ -12,7 +13,7 @@ import {Content} from '/lib/documents/content';
 import {Document} from '/lib/documents/document';
 import {User} from '/lib/documents/user';
 import {schema} from '/lib/full-schema';
-import {documentFind, waitForDatabase} from '/lib/utils.app-test';
+import {documentFind, waitForDatabase, configureSettings} from '/lib/utils.app-test';
 
 // Augment "User" class.
 import '../auth-passwordless';
@@ -585,5 +586,450 @@ describe('document', function () {
     }), fork1steps, rebaseTransform);
 
     assert.deepEqual(rebaseTransform.doc.toJSON(), FINAL_CONTENT);
+  });
+
+  it('can be recursively rebased', async function () {
+    this.timeout(20000);
+
+    Meteor.settings.public.mergingForkingOfAllDocuments = true;
+    await configureSettings('public.mergingForkingOfAllDocuments', true);
+
+    try {
+      const {contentKey, _id: documentId} = await Document.create({});
+
+      // Two forks of the top document.
+      const {contentKey: fork1ContentKey, _id: fork1Id} = await Document.fork({
+        documentId,
+      });
+      const {contentKey: fork2ContentKey, _id: fork2Id} = await Document.fork({
+        documentId,
+      });
+
+      // A fork of a fork.
+      const {contentKey: fork1aContentKey, _id: fork1aId} = await Document.fork({
+        documentId: fork1Id,
+      });
+
+      let [parentDocument] = await documentFind({_id: documentId});
+
+      assert.equal(parentDocument.mergeAcceptedBy, null);
+      assert.equal(parentDocument.mergeAcceptedAt, null);
+      assert.equal(parentDocument.mergeAcceptedAtVersion, null);
+      assert.equal(parentDocument.forkedFrom, null);
+      assert.equal(parentDocument.forkedAtVersion, null);
+      assert.equal(parentDocument.rebasedAtVersion, null);
+      assert.equal(parentDocument.version, 0);
+
+      let [fork1] = await documentFind({_id: fork1Id});
+
+      assert.equal(fork1.mergeAcceptedBy, null);
+      assert.equal(fork1.mergeAcceptedAt, null);
+      assert.equal(fork1.mergeAcceptedAtVersion, null);
+      assert.equal(fork1.forkedFrom._id, documentId);
+      assert.equal(fork1.forkedAtVersion, 0);
+      assert.equal(fork1.rebasedAtVersion, 0);
+      assert.equal(fork1.version, 0);
+
+      let [fork2] = await documentFind({_id: fork2Id});
+
+      assert.equal(fork2.mergeAcceptedBy, null);
+      assert.equal(fork2.mergeAcceptedAt, null);
+      assert.equal(fork2.mergeAcceptedAtVersion, null);
+      assert.equal(fork2.forkedFrom._id, documentId);
+      assert.equal(fork2.forkedAtVersion, 0);
+      assert.equal(fork2.rebasedAtVersion, 0);
+      assert.equal(fork2.version, 0);
+
+      let [fork1a] = await documentFind({_id: fork1aId});
+
+      assert.equal(fork1a.mergeAcceptedBy, null);
+      assert.equal(fork1a.mergeAcceptedAt, null);
+      assert.equal(fork1a.mergeAcceptedAtVersion, null);
+      assert.equal(fork1a.forkedFrom._id, fork1Id);
+      assert.equal(fork1a.forkedAtVersion, 0);
+      assert.equal(fork1a.rebasedAtVersion, 0);
+      assert.equal(fork1a.version, 0);
+
+      const clientId = Random.id();
+
+      await Content.addSteps({
+        clientId,
+        contentKey,
+        currentVersion: 0,
+        steps: INITIAL_STEPS,
+      });
+
+      // Wait for Scheduled rebaseSteps.
+      await new Promise((resolve) => {
+        return setTimeout(resolve, 1100);
+      });
+
+      await waitForDatabase();
+
+      [parentDocument] = await documentFind({_id: documentId});
+
+      assert.equal(parentDocument.mergeAcceptedBy, null);
+      assert.equal(parentDocument.mergeAcceptedAt, null);
+      assert.equal(parentDocument.mergeAcceptedAtVersion, null);
+      assert.equal(parentDocument.forkedFrom, null);
+      assert.equal(parentDocument.forkedAtVersion, null);
+      assert.equal(parentDocument.rebasedAtVersion, null);
+      assert.equal(parentDocument.version, 4);
+
+      [fork1] = await documentFind({_id: fork1Id});
+
+      assert.equal(fork1.mergeAcceptedBy, null);
+      assert.equal(fork1.mergeAcceptedAt, null);
+      assert.equal(fork1.mergeAcceptedAtVersion, null);
+      assert.equal(fork1.forkedFrom._id, documentId);
+      assert.equal(fork1.forkedAtVersion, 0);
+      assert.equal(fork1.rebasedAtVersion, 4);
+      assert.equal(fork1.version, 4);
+
+      [fork2] = await documentFind({_id: fork2Id});
+
+      assert.equal(fork2.mergeAcceptedBy, null);
+      assert.equal(fork2.mergeAcceptedAt, null);
+      assert.equal(fork2.mergeAcceptedAtVersion, null);
+      assert.equal(fork2.forkedFrom._id, documentId);
+      assert.equal(fork2.forkedAtVersion, 0);
+      assert.equal(fork2.rebasedAtVersion, 4);
+      assert.equal(fork2.version, 4);
+
+      [fork1a] = await documentFind({_id: fork1aId});
+
+      assert.equal(fork1a.mergeAcceptedBy, null);
+      assert.equal(fork1a.mergeAcceptedAt, null);
+      assert.equal(fork1a.mergeAcceptedAtVersion, null);
+      assert.equal(fork1a.forkedFrom._id, fork1Id);
+      assert.equal(fork1a.forkedAtVersion, 0);
+      assert.equal(fork1a.rebasedAtVersion, 4);
+      assert.equal(fork1a.version, 4);
+
+      assert.deepEqual(parentDocument.body, {
+        type: 'doc',
+        content: [{
+          type: 'title',
+        }, {
+          type: 'paragraph',
+          content: [{
+            type: 'text',
+            text: 'test',
+          }],
+        }],
+      });
+
+      // Add steps to fork1.
+      await Content.addSteps({
+        clientId,
+        contentKey: fork1ContentKey,
+        currentVersion: 4,
+        steps: FORK1_STEPS,
+      });
+
+      // Wait for Scheduled rebaseSteps.
+      await new Promise((resolve) => {
+        return setTimeout(resolve, 1100);
+      });
+
+      await waitForDatabase();
+
+      [parentDocument] = await documentFind({_id: documentId});
+
+      assert.equal(parentDocument.mergeAcceptedBy, null);
+      assert.equal(parentDocument.mergeAcceptedAt, null);
+      assert.equal(parentDocument.mergeAcceptedAtVersion, null);
+      assert.equal(parentDocument.forkedFrom, null);
+      assert.equal(parentDocument.forkedAtVersion, null);
+      assert.equal(parentDocument.rebasedAtVersion, null);
+      assert.equal(parentDocument.version, 4);
+
+      [fork1] = await documentFind({_id: fork1Id});
+
+      assert.equal(fork1.mergeAcceptedBy, null);
+      assert.equal(fork1.mergeAcceptedAt, null);
+      assert.equal(fork1.mergeAcceptedAtVersion, null);
+      assert.equal(fork1.forkedFrom._id, documentId);
+      assert.equal(fork1.forkedAtVersion, 0);
+      assert.equal(fork1.rebasedAtVersion, 4);
+      assert.equal(fork1.version, 9);
+
+      [fork2] = await documentFind({_id: fork2Id});
+
+      assert.equal(fork2.mergeAcceptedBy, null);
+      assert.equal(fork2.mergeAcceptedAt, null);
+      assert.equal(fork2.mergeAcceptedAtVersion, null);
+      assert.equal(fork2.forkedFrom._id, documentId);
+      assert.equal(fork2.forkedAtVersion, 0);
+      assert.equal(fork2.rebasedAtVersion, 4);
+      assert.equal(fork2.version, 4);
+
+      [fork1a] = await documentFind({_id: fork1aId});
+
+      assert.equal(fork1a.mergeAcceptedBy, null);
+      assert.equal(fork1a.mergeAcceptedAt, null);
+      assert.equal(fork1a.mergeAcceptedAtVersion, null);
+      assert.equal(fork1a.forkedFrom._id, fork1Id);
+      assert.equal(fork1a.forkedAtVersion, 0);
+      assert.equal(fork1a.rebasedAtVersion, 9);
+      assert.equal(fork1a.version, 9);
+
+      assert.deepEqual(fork1.body, {
+        type: 'doc',
+        content: [{
+          type: 'title',
+        }, {
+          type: 'paragraph',
+          content: [{
+            type: 'text',
+            text: 'test. foo',
+          }],
+        }],
+      });
+
+      // Add steps to fork1a.
+      await Content.addSteps({
+        clientId,
+        contentKey: fork1aContentKey,
+        currentVersion: 9,
+        steps: [{
+          stepType: 'replace',
+          from: 4,
+          to: 4,
+          slice: {
+            content: [{
+              type: 'text',
+              text: 'X',
+            }],
+          },
+        }],
+      });
+
+      // Wait for Scheduled rebaseSteps.
+      await new Promise((resolve) => {
+        return setTimeout(resolve, 1100);
+      });
+
+      await waitForDatabase();
+
+      [parentDocument] = await documentFind({_id: documentId});
+
+      assert.equal(parentDocument.mergeAcceptedBy, null);
+      assert.equal(parentDocument.mergeAcceptedAt, null);
+      assert.equal(parentDocument.mergeAcceptedAtVersion, null);
+      assert.equal(parentDocument.forkedFrom, null);
+      assert.equal(parentDocument.forkedAtVersion, null);
+      assert.equal(parentDocument.rebasedAtVersion, null);
+      assert.equal(parentDocument.version, 4);
+
+      [fork1] = await documentFind({_id: fork1Id});
+
+      assert.equal(fork1.mergeAcceptedBy, null);
+      assert.equal(fork1.mergeAcceptedAt, null);
+      assert.equal(fork1.mergeAcceptedAtVersion, null);
+      assert.equal(fork1.forkedFrom._id, documentId);
+      assert.equal(fork1.forkedAtVersion, 0);
+      assert.equal(fork1.rebasedAtVersion, 4);
+      assert.equal(fork1.version, 9);
+
+      [fork2] = await documentFind({_id: fork2Id});
+
+      assert.equal(fork2.mergeAcceptedBy, null);
+      assert.equal(fork2.mergeAcceptedAt, null);
+      assert.equal(fork2.mergeAcceptedAtVersion, null);
+      assert.equal(fork2.forkedFrom._id, documentId);
+      assert.equal(fork2.forkedAtVersion, 0);
+      assert.equal(fork2.rebasedAtVersion, 4);
+      assert.equal(fork2.version, 4);
+
+      [fork1a] = await documentFind({_id: fork1aId});
+
+      assert.equal(fork1a.mergeAcceptedBy, null);
+      assert.equal(fork1a.mergeAcceptedAt, null);
+      assert.equal(fork1a.mergeAcceptedAtVersion, null);
+      assert.equal(fork1a.forkedFrom._id, fork1Id);
+      assert.equal(fork1a.forkedAtVersion, 0);
+      assert.equal(fork1a.rebasedAtVersion, 9);
+      assert.equal(fork1a.version, 10);
+
+      assert.deepEqual(fork1a.body, {
+        type: 'doc',
+        content: [{
+          type: 'title',
+        }, {
+          type: 'paragraph',
+          content: [{
+            type: 'text',
+            text: 'tXest. foo',
+          }],
+        }],
+      });
+
+      // Add steps to fork2.
+      await Content.addSteps({
+        clientId,
+        contentKey: fork2ContentKey,
+        currentVersion: 4,
+        steps: FORK2_STEPS,
+      });
+
+      // Wait for Scheduled rebaseSteps.
+      await new Promise((resolve) => {
+        return setTimeout(resolve, 1100);
+      });
+
+      await waitForDatabase();
+
+      [parentDocument] = await documentFind({_id: documentId});
+
+      assert.equal(parentDocument.mergeAcceptedBy, null);
+      assert.equal(parentDocument.mergeAcceptedAt, null);
+      assert.equal(parentDocument.mergeAcceptedAtVersion, null);
+      assert.equal(parentDocument.forkedFrom, null);
+      assert.equal(parentDocument.forkedAtVersion, null);
+      assert.equal(parentDocument.rebasedAtVersion, null);
+      assert.equal(parentDocument.version, 4);
+
+      [fork1] = await documentFind({_id: fork1Id});
+
+      assert.equal(fork1.mergeAcceptedBy, null);
+      assert.equal(fork1.mergeAcceptedAt, null);
+      assert.equal(fork1.mergeAcceptedAtVersion, null);
+      assert.equal(fork1.forkedFrom._id, documentId);
+      assert.equal(fork1.forkedAtVersion, 0);
+      assert.equal(fork1.rebasedAtVersion, 4);
+      assert.equal(fork1.version, 9);
+
+      [fork2] = await documentFind({_id: fork2Id});
+
+      assert.equal(fork2.mergeAcceptedBy, null);
+      assert.equal(fork2.mergeAcceptedAt, null);
+      assert.equal(fork2.mergeAcceptedAtVersion, null);
+      assert.equal(fork2.forkedFrom._id, documentId);
+      assert.equal(fork2.forkedAtVersion, 0);
+      assert.equal(fork2.rebasedAtVersion, 4);
+      assert.equal(fork2.version, 8);
+
+      [fork1a] = await documentFind({_id: fork1aId});
+
+      assert.equal(fork1a.mergeAcceptedBy, null);
+      assert.equal(fork1a.mergeAcceptedAt, null);
+      assert.equal(fork1a.mergeAcceptedAtVersion, null);
+      assert.equal(fork1a.forkedFrom._id, fork1Id);
+      assert.equal(fork1a.forkedAtVersion, 0);
+      assert.equal(fork1a.rebasedAtVersion, 9);
+      assert.equal(fork1a.version, 10);
+
+      assert.deepEqual(fork2.body, {
+        type: 'doc',
+        content: [{
+          type: 'title',
+        }, {
+          type: 'paragraph',
+          content: [{
+            type: 'text',
+            text: 'TESTest',
+          }],
+        }],
+      });
+
+      // Merge fork2 into parent document.
+      await Document.acceptMerge({
+        documentId: fork2Id,
+      });
+
+      // Wait for Scheduled rebaseSteps.
+      await new Promise((resolve) => {
+        return setTimeout(resolve, 1100);
+      });
+
+      await waitForDatabase();
+
+      [parentDocument] = await documentFind({_id: documentId});
+
+      assert.equal(parentDocument.mergeAcceptedBy, null);
+      assert.equal(parentDocument.mergeAcceptedAt, null);
+      assert.equal(parentDocument.mergeAcceptedAtVersion, null);
+      assert.equal(parentDocument.forkedFrom, null);
+      assert.equal(parentDocument.forkedAtVersion, null);
+      assert.equal(parentDocument.rebasedAtVersion, null);
+      assert.equal(parentDocument.version, 8);
+
+      [fork1] = await documentFind({_id: fork1Id});
+
+      assert.equal(fork1.mergeAcceptedBy, null);
+      assert.equal(fork1.mergeAcceptedAt, null);
+      assert.equal(fork1.mergeAcceptedAtVersion, null);
+      assert.equal(fork1.forkedFrom._id, documentId);
+      assert.equal(fork1.forkedAtVersion, 0);
+      assert.equal(fork1.rebasedAtVersion, 8);
+      assert.equal(fork1.version, 13);
+
+      [fork2] = await documentFind({_id: fork2Id});
+
+      assert.notEqual(fork2.mergeAcceptedBy, null);
+      assert.notEqual(fork2.mergeAcceptedAt, null);
+      assert.equal(fork2.mergeAcceptedAtVersion, 8);
+      assert.equal(fork2.forkedFrom._id, documentId);
+      assert.equal(fork2.forkedAtVersion, 0);
+      assert.equal(fork2.rebasedAtVersion, 4);
+      assert.equal(fork2.version, 8);
+
+      [fork1a] = await documentFind({_id: fork1aId});
+
+      assert.equal(fork1a.mergeAcceptedBy, null);
+      assert.equal(fork1a.mergeAcceptedAt, null);
+      assert.equal(fork1a.mergeAcceptedAtVersion, null);
+      assert.equal(fork1a.forkedFrom._id, fork1Id);
+      assert.equal(fork1a.forkedAtVersion, 0);
+      assert.equal(fork1a.rebasedAtVersion, 13);
+      assert.equal(fork1a.version, 14);
+
+      assert.deepEqual(parentDocument.body, {
+        type: 'doc',
+        content: [{
+          type: 'title',
+        }, {
+          type: 'paragraph',
+          content: [{
+            type: 'text',
+            text: 'TESTest',
+          }],
+        }],
+      });
+
+      assert.deepEqual(fork1.body, FINAL_CONTENT);
+
+      assert.deepEqual(fork2.body, {
+        type: 'doc',
+        content: [{
+          type: 'title',
+        }, {
+          type: 'paragraph',
+          content: [{
+            type: 'text',
+            text: 'TESTest',
+          }],
+        }],
+      });
+
+      assert.deepEqual(fork1a.body, {
+        type: 'doc',
+        content: [{
+          type: 'title',
+        }, {
+          type: 'paragraph',
+          content: [{
+            type: 'text',
+            // Not sure why it is not "TXESTest. foo", but this also looks OK.
+            text: 'TESTXest. foo',
+          }],
+        }],
+      });
+    }
+    finally {
+      Meteor.settings.public.mergingForkingOfAllDocuments = false;
+      await configureSettings('public.mergingForkingOfAllDocuments', false);
+    }
   });
 });

@@ -2,6 +2,7 @@
 
 import {Match} from 'meteor/check';
 import {Meteor} from 'meteor/meteor';
+import {_} from 'meteor/underscore';
 
 import {Comment} from '/lib/documents/comment';
 import {Content} from '/lib/documents/content';
@@ -107,5 +108,26 @@ Meteor.methods({
 
   '_test.waitForDatabase'() {
     waitForDatabase();
+  },
+
+  '_test.configureSettings'(path, value) {
+    check(path, String);
+    check(value, Match.Any);
+    const splitPath = path.split('.');
+    let settings = Meteor.settings;
+    for (let i = 0; i < splitPath.length - 1; i += 1) {
+      let name = splitPath[i];
+      if (_.isArray(settings)) {
+        name = parseInt(name, 10);
+      }
+      if (!_.isObject(settings[name])) {
+        settings[name] = {};
+        settings = settings[name];
+      }
+      else {
+        settings = settings[name];
+      }
+    }
+    settings[splitPath[splitPath.length - 1]] = value;
   },
 });

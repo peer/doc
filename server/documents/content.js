@@ -250,9 +250,7 @@ function rebaseSteps(parentDocumentId) {
           if (mapped && !(result = rebaseTransform.maybeStep(mapped)).failed) {
             rebaseTransform.mapping.setMirror(mapFrom, rebaseTransform.steps.length - 1);
             if (i < rebasedInParentDocumentStepsCount) {
-              // TODO: Check.
-              // eslint-disable-next-line no-console
-              console.log("Should be equal", util.inspect(mapped.toJSON(), {depth: null}), util.inspect(newAndRebasedParentDocumentSteps[newParentDocumentStepsCount + i].toJSON(), {depth: null}));
+              assert.deepStrictEqual(mapped.toJSON(), newAndRebasedParentDocumentSteps[newParentDocumentStepsCount + i].toJSON());
             }
             else {
               rebasedNewForkSteps.push({step: mapped, failed: null});
