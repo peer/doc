@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-18 00:05-0800\n"
+"POT-Creation-Date: 2018-11-24 15:39-0800\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -77,7 +77,7 @@ msgstr "[today at] LT"
 msgid "cancel"
 msgstr "Cancel"
 
-#: client/components/document-history.vue:91
+#: client/components/document-history.vue:92
 msgid "change-starts-at"
 msgstr "Changed %{at}"
 
@@ -119,19 +119,19 @@ msgstr "Delete"
 msgid "document-accept-merge"
 msgstr "Merge"
 
-#: client/components/documents.vue:12
+#: client/components/documents.vue:13
 msgid "document-create"
 msgstr "New document"
 
-#: client/components/documents.vue:46
+#: client/components/documents.vue:47
 msgid "document-created-at"
 msgstr "Created %{at}"
 
-#: client/components/documents.vue:130
+#: client/components/documents.vue:131
 msgid "document-created-error"
 msgstr "Error creating a new document: %{error}"
 
-#: client/components/documents.vue:134
+#: client/components/documents.vue:135
 msgid "document-created-success"
 msgstr "New document has been created."
 
@@ -163,7 +163,7 @@ msgstr "merged"
 msgid "document-is-published"
 msgstr "published"
 
-#: client/components/documents.vue:40
+#: client/components/documents.vue:41
 msgid "document-merge-accepted-at"
 msgstr "Merged %{at}"
 
@@ -171,7 +171,7 @@ msgstr "Merged %{at}"
 msgid "document-publish"
 msgstr "Publish"
 
-#: client/components/documents.vue:34
+#: client/components/documents.vue:35
 msgid "document-published-at"
 msgstr "Published %{at}"
 
@@ -183,15 +183,15 @@ msgstr "Cancel"
 msgid "document-share-done"
 msgstr "Done"
 
-#: client/components/document-share.vue:495
+#: client/components/document-share.vue:482
 msgid "document-shared-error"
 msgstr "Error updating document sharing."
 
-#: client/components/document-share.vue:502
+#: client/components/document-share.vue:489
 msgid "document-shared-no-change"
 msgstr "No changes to document sharing."
 
-#: client/components/document-share.vue:499
+#: client/components/document-share.vue:486
 msgid "document-shared-success"
 msgstr "Document sharing has been updated."
 
@@ -215,27 +215,27 @@ msgstr "Document visibility"
 msgid "document-visibility-hint"
 msgstr "Who can access the document?"
 
-#: client/components/document-share.vue:252
+#: client/components/document-share.vue:249
 msgid "document-visibility-listed"
 msgstr "Listed"
 
-#: client/components/document-share.vue:253
+#: client/components/document-share.vue:250
 msgid "document-visibility-listed-hint"
 msgstr "The document is listed for everyone to find it and access it."
 
-#: client/components/document-share.vue:242
+#: client/components/document-share.vue:241
 msgid "document-visibility-private"
 msgstr "Private"
 
-#: client/components/document-share.vue:243
+#: client/components/document-share.vue:242
 msgid "document-visibility-private-hint"
 msgstr "Only specific users can access the document."
 
-#: client/components/document-share.vue:247
+#: client/components/document-share.vue:245
 msgid "document-visibility-public"
 msgstr "Public"
 
-#: client/components/document-share.vue:248
+#: client/components/document-share.vue:246
 msgid "document-visibility-public-hint"
 msgstr "Anyone with the link to the document can access the document."
 
@@ -299,7 +299,7 @@ msgstr "h3"
 msgid "history"
 msgstr "History"
 
-#: client/components/document-history.vue:306
+#: client/components/document-history.vue:321
 msgid "history-created-event"
 msgstr "Created %{at}"
 
@@ -307,19 +307,19 @@ msgstr "Created %{at}"
 msgid "history-empty"
 msgstr "There are no changes to be shown."
 
-#: client/components/document-history.vue:298
+#: client/components/document-history.vue:312
 msgid "history-forked-event"
 msgstr "Forked %{at}"
 
-#: client/components/document-history.vue:323
+#: client/components/document-history.vue:339
 msgid "history-merge-accepted-event"
 msgstr "Merged %{at}"
 
-#: client/components/document-history.vue:315
+#: client/components/document-history.vue:330
 msgid "history-published-event"
 msgstr "Published %{at}"
 
-#: client/components/document-history.vue:270
+#: client/components/document-history.vue:284
 msgid "history-select-range"
 msgstr "Click and drag or hold Shift key to select a range of changes"
 
@@ -355,7 +355,7 @@ msgstr[1] "%{value} minutes"
 msgid "no-comments"
 msgstr "No comments."
 
-#: client/components/documents.vue:64
+#: client/components/documents.vue:65
 msgid "no-documents"
 msgstr "No documents."
 
@@ -371,7 +371,7 @@ msgstr "Assign"
 msgid "permissions-list-add-users-hint"
 msgstr "Assign permissions to users"
 
-#: client/components/document-share.vue:306
+#: client/components/document-share.vue:293
 msgid "permissions-list-no-users-found"
 msgstr "No users found."
 
@@ -379,7 +379,7 @@ msgstr "No users found."
 msgid "permissions-list-remove-user"
 msgstr "Remove"
 
-#: client/components/document-share.vue:305
+#: client/components/document-share.vue:292
 msgid "permissions-list-select-users"
 msgstr "Select users"
 
@@ -411,67 +411,67 @@ msgstr "The document has been successfully published."
 msgid "remove"
 msgstr "Remove"
 
-#: client/components/document-share.vue:293
+#: client/components/document-share.vue:281
 msgid "role-admin-label"
 msgstr "Can administer"
 
-#: client/components/document-share.vue:294
+#: client/components/document-share.vue:282
 msgid "role-admin-user-hint"
 msgstr "Alongside everything else, user can manage sharing of the document and publish it."
 
-#: client/components/document-share.vue:265
-#: client/components/document-share.vue:283
+#: client/components/document-share.vue:259
+#: client/components/document-share.vue:273
 msgid "role-comment-label"
 msgstr "Can comment"
 
-#: client/components/document-share.vue:284
+#: client/components/document-share.vue:274
 msgid "role-comment-user-hint"
 msgstr "User can view the document and comment publicly."
 
-#: client/components/document-share.vue:266
+#: client/components/document-share.vue:260
 msgid "role-comment-users-hint"
 msgstr "Users who can access the document can view it and comment publicly."
 
-#: client/components/document-share.vue:391
-#: client/components/document-share.vue:408
-#: client/components/document-share.vue:469
+#: client/components/document-share.vue:378
+#: client/components/document-share.vue:395
+#: client/components/document-share.vue:456
 msgid "role-custom-label"
 msgstr "Custom permissions"
 
-#: client/components/document-share.vue:392
-#: client/components/document-share.vue:470
+#: client/components/document-share.vue:379
+#: client/components/document-share.vue:457
 msgid "role-custom-user-hint"
 msgstr "User has custom permissions."
 
-#: client/components/document-share.vue:409
+#: client/components/document-share.vue:396
 msgid "role-custom-users-hint"
 msgstr "Users who can access the document have custom permissions."
 
-#: client/components/document-share.vue:270
-#: client/components/document-share.vue:288
+#: client/components/document-share.vue:263
+#: client/components/document-share.vue:277
 msgid "role-edit-label"
 msgstr "Can edit"
 
-#: client/components/document-share.vue:289
+#: client/components/document-share.vue:278
 msgid "role-edit-user-hint"
 msgstr "User can view the document, comment privately and publicly, and edit it."
 
-#: client/components/document-share.vue:271
+#: client/components/document-share.vue:264
 msgid "role-edit-users-hint"
 msgstr "Users who can access the document can view it, comment privately and publicly, and edit it."
 
-#: client/components/document-share.vue:260
-#: client/components/document-share.vue:278
-#: client/components/document-share.vue:299
+#: client/components/document-share.vue:255
+#: client/components/document-share.vue:269
+#: client/components/document-share.vue:286
 msgid "role-view-label"
 msgstr "Can view"
 
-#: client/components/document-share.vue:279
-#: client/components/document-share.vue:300
+#: client/components/document-share.vue:270
+#: client/components/document-share.vue:287
 msgid "role-view-user-hint"
 msgstr "User can view the document."
 
-#: client/components/document-share.vue:261
+#: client/components/document-share.vue:256
 msgid "role-view-users-hint"
 msgstr "Users who can access the document can view it."
 
@@ -559,7 +559,7 @@ msgstr "Strikethrough (%{shortcut})"
 msgid "toolbar-undo"
 msgstr "Undo (%{shortcut})"
 
-#: client/components/documents.vue:28
+#: client/components/documents.vue:29
 msgid "untitled"
 msgstr "Untitled"
 
