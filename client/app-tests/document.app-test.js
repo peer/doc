@@ -447,13 +447,18 @@ describe('document', function () {
       fork1steps.push(Step.fromJSON(schema, step));
     }
 
+    // We have to make another transform for rebasing to work correctly.
+    // See: https://github.com/ProseMirror/prosemirror/issues/874
+    // TODO: Remove in the future if this is fixed in ProseMirror.
+    const rebaseTransform = new Transform(transform.doc);
+
     rebaseSteps(fork2steps.map((s, i) => {
       return {
         step: s,
         inverted: s.invert(transform.docs[initialSteps.length + i]),
       };
-    }), fork1steps, transform);
+    }), fork1steps, rebaseTransform);
 
-    assert.deepEqual(transform.doc.toJSON(), FINAL_CONTENT);
+    assert.deepEqual(rebaseTransform.doc.toJSON(), FINAL_CONTENT);
   });
 });

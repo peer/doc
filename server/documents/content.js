@@ -220,27 +220,36 @@ function rebaseSteps(parentDocumentId) {
         assert(rebasedInParentDocumentStepsCount >= 0, `${rebasedInParentDocumentStepsCount}`);
         assert(newParentDocumentStepsCount >= 0, `${newParentDocumentStepsCount}`);
 
+        // The following rebasing logic is equal to "rebaseSteps" function from "prosemirror-collab".
+        // The difference is that instead of silently ignoring the failed rebased steps, we do something about them.
+
+        // We have to make another transform for rebasing to work correctly.
+        // See: https://github.com/ProseMirror/prosemirror/issues/874
+        // TODO: Remove in the future if this is fixed in ProseMirror.
+        const rebaseTransform = new Transform(transform.doc);
+
         // We first undo fork's new steps and then steps which have been rebased in the parent document.
         // So all steps available in the transform (all steps after existing shared steps).
         for (let i = newForkStepsAndRebasedInParentDocumentStepsCount - 1; i >= 0; i -= 1) {
-          transform.step(transform.steps[i].invert(transform.docs[i]));
+          rebaseTransform.step(transform.steps[i].invert(transform.docs[i]));
         }
 
         // Then we add new steps from the parent document.
         for (let i = 0; i < newParentDocumentStepsCount; i += 1) {
-          transform.step(newAndRebasedParentDocumentSteps[i]);
+          rebaseTransform.step(newAndRebasedParentDocumentSteps[i]);
         }
 
         const rebasedNewForkSteps = [];
         // Redo steps which have been rebased in the parent document and then fork's new steps.
-        for (let i = 0, mapFrom = newForkStepsAndRebasedInParentDocumentStepsCount; i < newForkStepsAndRebasedInParentDocumentStepsCount; i += 1) {
+        // TODO: When removing "rebaseTransform", replace "rebaseTransform.steps.length" with "newForkStepsAndRebasedInParentDocumentStepsCount".
+        for (let i = 0, mapFrom = rebaseTransform.steps.length; i < newForkStepsAndRebasedInParentDocumentStepsCount; i += 1) {
           const step = transform.steps[i];
-          const mapped = step.map(transform.mapping.slice(mapFrom));
+          const mapped = step.map(rebaseTransform.mapping.slice(mapFrom));
           mapFrom -= 1;
           let result = null;
           // eslint-disable-next-line no-cond-assign
-          if (mapped && !(result = transform.maybeStep(mapped)).failed) {
-            transform.mapping.setMirror(mapFrom, transform.steps.length - 1);
+          if (mapped && !(result = rebaseTransform.maybeStep(mapped)).failed) {
+            rebaseTransform.mapping.setMirror(mapFrom, rebaseTransform.steps.length - 1);
             if (i < rebasedInParentDocumentStepsCount) {
               // TODO: Check.
               // eslint-disable-next-line no-console
@@ -347,14 +356,14 @@ function rebaseSteps(parentDocumentId) {
           $set: {
             version,
             rebasedAtVersion,
-            body: transform.doc.toJSON(),
+            body: rebaseTransform.doc.toJSON(),
             updatedAt: timestamp,
             lastActivity: timestamp,
-            title: extractTitle(transform.doc),
+            title: extractTitle(rebaseTransform.doc),
           },
         });
 
-        updateCurrentState(fork.contentKey, rebasedAtVersion, transform.doc, version);
+        updateCurrentState(fork.contentKey, rebasedAtVersion, rebaseTransform.doc, version);
 
         Content.scheduleRebase(fork._id);
       });
