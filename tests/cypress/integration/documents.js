@@ -2,7 +2,7 @@
 /* eslint-disable func-names, prefer-arrow-callback */
 
 describe('documents', function () {
-  it('can create a document', function () {
+  it('can create, fork, and merge a document', function () {
     cy.visit('/');
 
     cy.visualSnapshot(this.test, 'initial');
@@ -88,6 +88,122 @@ describe('documents', function () {
         });
       });
     });
+
+    cy.get('.document-status').contains('draft');
+    cy.get('.document-status').contains('fork').should('not.exist');
+    cy.get('.document-status').contains('published').should('not.exist');
+    cy.get('.document-status').contains('merged').should('not.exist');
+    cy.get('.v-btn').contains('Fork').should('not.exist');
+    cy.get('.v-btn').contains('Merge').should('not.exist');
+
+    cy.get('.v-btn').contains('Publish').click();
+
+    cy.location('pathname').should('match', /\/document\/publish\/(.*)/);
+
+    cy.visualSnapshot(this.test, 'publish confirmation');
+
+    cy.get('.v-btn').contains('Publish').click();
+
+    cy.get('.v-snack__content').should('contain', 'The document has been successfully published.').contains('Close').click();
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
+
+    cy.visualSnapshot(this.test, 'published');
+
+    cy.get('.document-status').contains('draft').should('not.exist');
+    cy.get('.document-status').contains('fork').should('not.exist');
+    cy.get('.document-status').contains('published');
+    cy.get('.document-status').contains('merged').should('not.exist');
+    cy.get('.v-btn').contains('Publish').should('not.exist');
+    cy.get('.v-btn').contains('Merge').should('not.exist');
+
+    cy.get('.v-btn').contains('Fork').click();
+
+    cy.location('pathname').should('match', /\/document\/fork\/(.*)/);
+
+    cy.visualSnapshot(this.test, 'fork confirmation');
+
+    cy.get('.v-btn').contains('Fork').click();
+
+    cy.get('.v-snack__content').should('contain', 'The document has been successfully forked.').contains('Close').click();
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
+
+    cy.visualSnapshot(this.test, 'forked');
+
+    cy.get('.document-status').contains('draft');
+    cy.get('.document-status').contains('fork');
+    cy.get('.document-status').contains('published').should('not.exist');
+    cy.get('.document-status').contains('merged').should('not.exist');
+    cy.get('.v-btn').contains('Publish');
+    cy.get('.v-btn').contains('Fork').should('not.exist');
+
+    cy.get('.v-btn').contains('Merge').click();
+
+    cy.location('pathname').should('match', /\/document\/merge\/(.*)/);
+
+    cy.visualSnapshot(this.test, 'merge confirmation no changes');
+
+    cy.get('.v-alert.warning').contains('There are no changes to be shown.');
+
+    cy.get('.v-btn').contains('Cancel').click();
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
+
+    cy.get('.document-status').contains('draft');
+    cy.get('.document-status').contains('fork');
+    cy.get('.document-status').contains('published').should('not.exist');
+    cy.get('.document-status').contains('merged').should('not.exist');
+    cy.get('.v-btn').contains('Publish');
+    cy.get('.v-btn').contains('Fork').should('not.exist');
+
+    cy.get('.editor').type(' test2');
+
+    cy.location('pathname').then((path) => {
+      const match = path.match(/\/document\/(.*)/);
+
+      assert.isNotNull(match);
+
+      cy.call('_test.documentFind', {_id: match[1]}).then((documents) => {
+        assert.equal(documents.length, 1);
+        assert.deepEqual(documents[0].body, {
+          type: 'doc',
+          content: [{
+            type: 'title',
+          }, {
+            type: 'paragraph',
+            content: [{
+              type: 'text',
+              text: 'test test2',
+              marks: [{
+                type: 'strong',
+              }],
+            }],
+          }],
+        });
+      });
+    });
+
+    cy.get('.v-btn').contains('Merge').click();
+
+    cy.location('pathname').should('match', /\/document\/merge\/(.*)/);
+
+    cy.visualSnapshot(this.test, 'merge confirmation');
+
+    cy.get('.v-btn').contains('Merge').click();
+
+    cy.get('.v-snack__content').should('contain', 'The document has been successfully merged into the parent document.').contains('Close').click();
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
+
+    cy.visualSnapshot(this.test, 'merged');
+
+    cy.get('.document-status').contains('draft').should('not.exist');
+    cy.get('.document-status').contains('fork');
+    cy.get('.document-status').contains('published').should('not.exist');
+    cy.get('.document-status').contains('merged');
+    cy.get('.v-btn').contains('Publish').should('not.exist');
+    cy.get('.v-btn').contains('Fork').should('not.exist');
   });
 
   it('can see history', function () {

@@ -10,59 +10,13 @@ import crypto from 'crypto';
 
 import {User} from '/lib/documents/user';
 import {Document} from '/lib/documents/document';
-
-// We use "Npm.require" because otherwise Meteor and eslint
-// complain that this module might not be found.
-// eslint-disable-next-line no-undef
-const Future = Npm.require('fibers/future');
+import {waitForDatabase} from '/server/utils.app-test';
 
 const baseFromMap = {
   '+': '-',
   '/': '_',
   '=': '.',
 };
-
-const WAIT_FOR_DATABASE_TIMEOUT = 1500; // ms
-
-function waitForDatabase() {
-  const future = new Future();
-
-  let timeout = null;
-  const newTimeout = function () {
-    if (timeout) {
-      Meteor.clearTimeout(timeout);
-    }
-    timeout = Meteor.setTimeout(function () {
-      timeout = null;
-      if (!future.isResolved()) {
-        future.return();
-      }
-    }, WAIT_FOR_DATABASE_TIMEOUT);
-  };
-
-  newTimeout();
-
-  const handles = [];
-  for (const document of Document.list) {
-    handles.push(document.documents.find({}).observeChanges({
-      added(id, fields) {
-        newTimeout();
-      },
-      changed(id, fields) {
-        newTimeout();
-      },
-      removed(id) {
-        newTimeout();
-      },
-    }));
-  }
-
-  future.wait();
-
-  for (const handle of handles) {
-    handle.stop();
-  }
-}
 
 function encrypt(inputData, keyHex) {
   const data = Object.assign({}, inputData);
@@ -240,7 +194,7 @@ describe('document api', function () {
     assert.equal(user.emails[0].address, userPayload.email);
   });
 
-  it('should allow publishing', function () {
+  it('should allow publishing, forking, and merging', function () {
     const userPayload = {
       username,
       avatar: 'https://randomuser.me/api/portraits/women/70.jpg',
@@ -264,6 +218,7 @@ describe('document api', function () {
     const documentId = response.data.documentId;
 
     assert.isNotOk(Document.documents.findOne({_id: documentId}).isPublished());
+    assert.isNotOk(Document.documents.findOne({_id: documentId}).isMergeAccepted());
 
     userToken = encrypt(userPayload, keyHex);
 
@@ -277,6 +232,7 @@ describe('document api', function () {
     assert.equal(response.statusCode, 200);
     assert.equal(response.data.status, 'success');
     assert.isOk(Document.documents.findOne({_id: documentId}).isPublished());
+    assert.isNotOk(Document.documents.findOne({_id: documentId}).isMergeAccepted());
 
     userToken = encrypt(userPayload, keyHex);
 
@@ -293,6 +249,38 @@ describe('document api', function () {
       assert.equal(error.response.statusCode, 400);
       assert.deepEqual(error.response.data, {status: 'error'});
     }
+
+    userToken = encrypt(userPayload, keyHex);
+
+    response = HTTP.post(`${apiEndpoint}/fork/${documentId}`, {
+      params: {
+        user: userToken,
+      },
+      data: {},
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.data.status, 'success');
+
+    const forkId = response.data.documentId;
+
+    assert.isNotOk(Document.documents.findOne({_id: forkId}).isPublished());
+    assert.isNotOk(Document.documents.findOne({_id: forkId}).isMergeAccepted());
+
+    userToken = encrypt(userPayload, keyHex);
+
+    response = HTTP.post(`${apiEndpoint}/merge/${forkId}`, {
+      params: {
+        user: userToken,
+      },
+      data: {},
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.data.status, 'success');
+
+    assert.isNotOk(Document.documents.findOne({_id: forkId}).isPublished());
+    assert.isOk(Document.documents.findOne({_id: forkId}).isMergeAccepted());
   });
 
   it('should allow changing visibility', function () {
