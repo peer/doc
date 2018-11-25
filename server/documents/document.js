@@ -140,19 +140,14 @@ Document._create = function create(args, user, connectionId) {
 
   const documentId = insertNewDocument(user, connectionId, createdAt, contentKey);
 
-  // TODO: Improve once we really have groups.
-  const groupUsers = User.documents.find({}, {
-    fields: User.REFERENCE_FIELDS(),
-    transform: null,
-  }).fetch();
-
   Activity.documents.insert({
     timestamp: createdAt,
     connection: connectionId,
     byUser: user.getReference(),
-    // We inform all users in this group.
-    // TODO: Do we? Because document is initially private only to the person who created it?
-    forUsers: groupUsers,
+    // TODO: Should we inform anyone else?
+    forUsers: [
+      user.getReference(),
+    ],
     type: 'documentCreated',
     level: Activity.LEVEL.GENERAL,
     data: {
@@ -242,6 +237,7 @@ Document._publish = function publish(args, user, connectionId) {
       connection: connectionId,
       byUser: user.getReference(),
       // We inform all followers of this document.
+      // TODO: Or should we inform everyone (in the group?) because document is now public?
       // TODO: Implement once we have followers.
       forUsers: [],
       type: 'documentPublished',
@@ -416,11 +412,9 @@ Document._share = function share(args, user, connectionId) {
             timestamp,
             connection: connectionId,
             byUser: user.getReference(),
-            forUsers: [
-              {
-                _id: permission.user._id,
-              },
-            ],
+            forUsers: [{
+              _id: permission.user._id,
+            }],
             type: 'documentPermissionAdded',
             level: Activity.LEVEL.ADMIN,
             data: {
@@ -441,11 +435,9 @@ Document._share = function share(args, user, connectionId) {
             timestamp,
             connection: connectionId,
             byUser: user.getReference(),
-            forUsers: [
-              {
-                _id: permission.user._id,
-              },
-            ],
+            forUsers: [{
+              _id: permission.user._id,
+            }],
             type: 'documentPermissionRemoved',
             level: Activity.LEVEL.ADMIN,
             data: {
@@ -520,19 +512,14 @@ Document._fork = function create(args, user, connectionId) {
   // so we trigger rebase from the parent document to be sure.
   Content.scheduleRebase(parentDocument._id);
 
-  // TODO: Improve once we really have groups.
-  const groupUsers = User.documents.find({}, {
-    fields: User.REFERENCE_FIELDS(),
-    transform: null,
-  }).fetch();
-
   Activity.documents.insert({
     timestamp: createdAt,
     connection: connectionId,
     byUser: user.getReference(),
-    // We inform all users in this group.
-    // TODO: Do we? Because document is initially private only to the person who forked it?
-    forUsers: groupUsers,
+    // TODO: Should we inform anyone else?
+    forUsers: [
+      user.getReference(),
+    ],
     type: 'documentForked',
     level: Activity.LEVEL.GENERAL,
     data: {
@@ -722,19 +709,14 @@ Document._acceptMerge = function create(args, user, connectionId) {
   // children documents (forks) which might exist besides the document we just merged.
   Content.scheduleRebase(parentDocumentId);
 
-  // TODO: Improve once we really have groups.
-  const groupUsers = User.documents.find({}, {
-    fields: User.REFERENCE_FIELDS(),
-    transform: null,
-  }).fetch();
-
   Activity.documents.insert({
     timestamp: mergeAcceptedAt,
     connection: connectionId,
     byUser: user.getReference(),
-    // We inform all users in this group.
-    // TODO: Do we? Should we inform just users who are following the parent document and/or fork?
-    forUsers: groupUsers,
+    // We inform all followers of this and parent documents.
+    // TODO: Or should we inform everyone (in the group?) if it was merged into the public document?
+    // TODO: Implement once we have followers.
+    forUsers: [],
     type: 'documentMergeAccepted',
     level: Activity.LEVEL.GENERAL,
     data: {
