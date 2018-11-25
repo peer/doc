@@ -10,6 +10,8 @@ import crypto from 'crypto';
 
 import {User} from '/lib/documents/user';
 import {Document} from '/lib/documents/document';
+import {Content} from '/lib/documents/content';
+import {createUserFromToken} from '/server/auth-token';
 import {waitForDatabase} from '/server/utils.app-test';
 
 const baseFromMap = {
@@ -281,6 +283,77 @@ describe('document api', function () {
 
     assert.isNotOk(Document.documents.findOne({_id: forkId}).isPublished());
     assert.isOk(Document.documents.findOne({_id: forkId}).isMergeAccepted());
+  });
+
+  it('should allow exporting', function () {
+    const userPayload = {
+      username,
+      avatar: 'https://randomuser.me/api/portraits/women/70.jpg',
+      id: userId,
+      email: `${username}@example.com`,
+    };
+
+    userToken = encrypt(userPayload, keyHex);
+
+    let response;
+    response = HTTP.post(apiEndpoint, {
+      params: {
+        user: userToken,
+      },
+      data: {},
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.data.status, 'success');
+
+    const documentId = response.data.documentId;
+
+    const document = Document.documents.findOne({_id: documentId});
+
+    assert.isOk(document);
+
+    userToken = encrypt(userPayload, keyHex);
+
+    const user = createUserFromToken(userToken);
+
+    const changes = Content._addSteps({
+      contentKey: document.contentKey,
+      currentVersion: 0,
+      steps: [{
+        stepType: 'replace',
+        from: 3,
+        to: 3,
+        slice: {
+          content: [{
+            type: 'text',
+            text: 'test',
+            marks: [{
+              type: 'highlight',
+              attrs: {
+                'highlight-key': Random.id(),
+              },
+            }],
+          }],
+        },
+      }],
+      clientId: Random.id(),
+    }, user);
+
+    assert.equal(changes, 1);
+
+    userToken = encrypt(userPayload, keyHex);
+
+    response = HTTP.post(`${apiEndpoint}/export/${documentId}`, {
+      params: {
+        user: userToken,
+      },
+      data: {},
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.data.status, 'success');
+
+    assert.equal(response.data.html, '<!DOCTYPE html><html><head></head><body><h1></h1><p>test</p></body></html>');
   });
 
   it('should allow changing visibility', function () {

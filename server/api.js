@@ -1,11 +1,17 @@
+import {Match} from 'meteor/check';
+import {Meteor} from 'meteor/meteor';
 import {WebApp} from 'meteor/webapp';
 import {_} from 'meteor/underscore';
 
 import bodyParser from 'body-parser';
+import {JSDOM} from 'jsdom';
 import parseurl from 'parseurl';
+import {DOMSerializer, Node} from 'prosemirror-model';
 
 import {Document} from '/lib/documents/document';
+import {schema} from '/lib/full-schema';
 import {createOrGetUser, createUserFromToken} from '/server/auth-token';
+import {check} from '/server/check';
 
 // TODO: Use path information from router instead of hard-coding the path here.
 WebApp.connectHandlers.use('/document', (req, res, next) => {
@@ -39,6 +45,71 @@ WebApp.connectHandlers.use('/document', (req, res, next) => {
     catch (error) {
       // eslint-disable-next-line no-console
       console.error("Error handling /document API request.", error);
+      res.writeHead(400, {'Content-Type': 'application/json'});
+      res.end(JSON.stringify({
+        status: 'error',
+      }));
+    }
+  }
+  else {
+    next();
+  }
+});
+
+// TODO: Use path information from router instead of hard-coding the path here.
+WebApp.connectHandlers.use('/document/export', (req, res, next) => {
+  const match = parseurl(req).pathname.match(/^\/([^/]+)$/);
+
+  if (!match) {
+    next();
+    return;
+  }
+
+  if (req.method === 'POST') {
+    try {
+      if (!req.query || !req.query.user) {
+        throw new Error("'user' query string parameter is missing.");
+      }
+
+      const documentId = match[1];
+
+      const user = createUserFromToken(req.query.user);
+
+      check(documentId, Match.DocumentId);
+
+      const document = Document.documents.findOne(Document.restrictQuery({_id: documentId}, Document.PERMISSIONS.VIEW, user));
+
+      if (!document) {
+        throw new Meteor.Error('not-found', "Document cannot be found.");
+      }
+
+      const body = Node.fromJSON(schema, document.body);
+
+      const dom = new JSDOM('<!DOCTYPE html><body></body>');
+
+      const nodes = DOMSerializer.nodesFromSchema(schema);
+      const marks = DOMSerializer.marksFromSchema(schema);
+
+      // We do not want to export highlights. And deleted marks should not be present.
+      delete marks.highlight;
+      delete marks.deleted;
+
+      const serializer = new DOMSerializer(nodes, marks);
+      const fragment = serializer.serializeFragment(body.content, {document: dom.window.document});
+
+      dom.window.document.body.appendChild(fragment);
+
+      const result = JSON.stringify({
+        status: 'success',
+        html: dom.serialize(),
+      });
+
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.end(result);
+    }
+    catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Error handling /document/export API request.", error);
       res.writeHead(400, {'Content-Type': 'application/json'});
       res.end(JSON.stringify({
         status: 'error',
