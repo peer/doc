@@ -76,7 +76,7 @@
     "husky": "~0.14.3",
     "lint-staged": "~7.0.5",
     "selenium-webdriver": "~3.6.0",
-    "start-server-and-test": "~1.7.1"
+    "start-server-and-test": "~1.7.11"
   },
   "meteor": {
     "vueVersion": 2
