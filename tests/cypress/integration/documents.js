@@ -23,8 +23,7 @@ describe('documents', function () {
 
     cy.visualSnapshot(this.test, 'documents');
 
-    // No idea why we need force, but it complains without.
-    cy.get('.v-btn').contains('New document').click({force: true});
+    cy.get('.v-btn').contains('New document').click();
 
     cy.get('.v-snack__content').should('contain', 'New document has been created.').contains('Close').click();
 
@@ -106,7 +105,7 @@ describe('documents', function () {
 
     cy.get('.v-snack__content').should('contain', 'The document has been successfully published.').contains('Close').click();
 
-    cy.location('pathname').should('match', /\/document\/(.*)/);
+    cy.location('pathname').should('match', /\/document\/(.*)/).as('parentDocumentPathname');
 
     cy.visualSnapshot(this.test, 'published');
 
@@ -204,6 +203,32 @@ describe('documents', function () {
     cy.get('.document-status').contains('merged');
     cy.get('.v-btn').contains('Publish').should('not.exist');
     cy.get('.v-btn').contains('Fork').should('not.exist');
+
+    cy.get('@parentDocumentPathname').then((pathname) => {
+      cy.visit(pathname);
+    });
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
+
+    cy.get('.document-status').contains('published');
+
+    cy.get('nav.v-toolbar .v-menu__activator').click();
+
+    cy.get('.v-list__tile--link').contains('Sign Out').click();
+
+    cy.contains('Sign In');
+
+    cy.get('.v-snack__content').should('contain', 'You have been signed out.').contains('Close').click();
+
+    cy.get('@parentDocumentPathname').then((pathname) => {
+      cy.visit(pathname);
+    });
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
+
+    cy.get('.document-status').contains('published');
+
+    cy.visualSnapshot(this.test, 'published signed out');
   });
 
   it('can see history', function () {
@@ -219,8 +244,7 @@ describe('documents', function () {
 
     cy.get('div.v-card__text').contains('No documents.');
 
-    // No idea why we need force, but it complains without.
-    cy.get('.v-btn').contains('New document').click({force: true});
+    cy.get('.v-btn').contains('New document').click();
 
     cy.get('.v-snack__content').should('contain', 'New document has been created.').contains('Close').click();
 
@@ -291,7 +315,9 @@ describe('documents', function () {
 
     cy.wait(500);
 
-    cy.get('.v-btn').contains('History').click({force: true});
+    cy.get('.v-btn').contains('History').click();
+
+    cy.location('pathname').should('match', /\/document\/history\/(.*)/);
 
     cy.wait(500);
 
@@ -308,5 +334,9 @@ describe('documents', function () {
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'both changes');
+
+    cy.get('.v-btn').contains('Editor').click();
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
   });
 });
