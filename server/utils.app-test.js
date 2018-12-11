@@ -21,17 +21,17 @@ export function waitForDatabase() {
   const future = new Future();
 
   let timeout = null;
-  const newTimeout = function () {
+  function newTimeout() {
     if (timeout) {
       Meteor.clearTimeout(timeout);
     }
-    timeout = Meteor.setTimeout(function () {
+    timeout = Meteor.setTimeout(function timeoutExpired() {
       timeout = null;
       if (!future.isResolved()) {
         future.return();
       }
     }, WAIT_FOR_DATABASE_TIMEOUT);
-  };
+  }
 
   newTimeout();
 
