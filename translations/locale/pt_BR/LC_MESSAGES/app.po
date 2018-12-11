@@ -149,7 +149,7 @@ msgstr "Emendar"
 
 #: client/components/document-status.vue:25
 msgid "document-is-draft"
-msgstr "Rascunho"
+msgstr "rascunho"
 
 #: client/components/document-status.vue:32
 msgid "document-is-fork"
