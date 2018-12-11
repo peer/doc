@@ -19,23 +19,23 @@ msgstr ""
 
 #: client/components/document-merge.vue:52
 msgid "accept-merge"
-msgstr ""
+msgstr "Incorporar"
 
 #: client/components/document-merge.vue:25
 msgid "accept-merge-document-confirmation-body"
-msgstr ""
+msgstr "Ao incorporar esta emenda ao documento original, qualquer conteúdo novo desta emenda será copiado no original. Comentários não serão copiados. Uma vez incorporada, a emenda não será mais editável por ninguém."
 
 #: client/components/document-merge.vue:19
 msgid "accept-merge-document-confirmation-title"
-msgstr ""
+msgstr "Incorporar emenda"
 
 #: client/components/document-merge.vue:136
 msgid "accept-merge-error"
-msgstr ""
+msgstr "Um erro ocorreu ao tentar incorporar a emenda."
 
 #: client/components/document-merge.vue:140
 msgid "accept-merge-success"
-msgstr ""
+msgstr "A emenda foi incorporada ao documento original com sucesso."
 
 #: client/components/access-denied.vue:3
 msgid "access-denied"
@@ -47,7 +47,7 @@ msgstr "Adicione aqui o texto do seu documento"
 
 #: client/components/document-history.vue:35
 msgid "back-to-document"
-msgstr ""
+msgstr "Editor"
 
 #: client/vue-extensions.js:108
 msgid "calendar-last-day"
@@ -79,7 +79,7 @@ msgstr "Cancelar"
 
 #: client/components/document-history.vue:92
 msgid "change-starts-at"
-msgstr ""
+msgstr "Alterado %{at}"
 
 #: client/components/utils/placeholder.js:27
 msgid "choose-title"
@@ -153,11 +153,11 @@ msgstr "rascunho"
 
 #: client/components/document-status.vue:32
 msgid "document-is-fork"
-msgstr ""
+msgstr "emenda"
 
 #: client/components/document-status.vue:18
 msgid "document-is-merge-accepted"
-msgstr ""
+msgstr "incorporado"
 
 #: client/components/document-status.vue:11
 msgid "document-is-published"
@@ -165,7 +165,7 @@ msgstr "publicado"
 
 #: client/components/documents.vue:41
 msgid "document-merge-accepted-at"
-msgstr ""
+msgstr "Incorporado %{at}"
 
 #: client/components/sidebar.vue:23
 msgid "document-publish"
@@ -245,7 +245,7 @@ msgstr "Documentos"
 
 #: client/components/editor.vue:118
 msgid "editor-locked"
-msgstr ""
+msgstr "Trancado"
 
 #: client/components/editor.vue:128
 msgid "editor-saved"
@@ -257,27 +257,27 @@ msgstr "Salvando..."
 
 #: client/components/document-fork.vue:43
 msgid "fork"
-msgstr ""
+msgstr "Emendar"
 
 #: client/components/document-fork.vue:22
 msgid "fork-document-confirmation-merged-body"
-msgstr ""
+msgstr "Ao emendar um documento, o conteúdo do documento será copiado em um novo documento, uma emenda. Comentários não serão copiados. Como o documento atual é uma emenda incorporada, nào é possível incorporar nenhuma alteração nova ao documento atual."
 
 #: client/components/document-fork.vue:26
 msgid "fork-document-confirmation-regular-body"
-msgstr ""
+msgstr "Ao emendar um documento, o conteúdo do documento será copiado em um novo documento, uma emenda. Além disso, todas as alterações futuras ao conteúdo do documento atual serão automaticamente copiadas à emenda. Comentários não serão copiados. Qualquer alteração à emenda pode ser incorporada ao documento atual."
 
 #: client/components/document-fork.vue:16
 msgid "fork-document-confirmation-title"
-msgstr ""
+msgstr "Emendar documento"
 
 #: client/components/document-fork.vue:112
 msgid "fork-error"
-msgstr ""
+msgstr "Um erro ocorreu ao tentar emendar o documento."
 
 #: client/components/document-fork.vue:116
 msgid "fork-success"
-msgstr ""
+msgstr "O documento foi emendado com sucesso."
 
 #: client/components/front-page.vue:3
 msgid "front-page"
@@ -297,31 +297,31 @@ msgstr "t3"
 
 #: client/components/sidebar.vue:42
 msgid "history"
-msgstr ""
+msgstr "Histórico"
 
 #: client/components/document-history.vue:321
 msgid "history-created-event"
-msgstr ""
+msgstr "Criado %{at}"
 
 #: client/components/history.vue:19
 msgid "history-empty"
-msgstr ""
+msgstr "Não há alterações a serem mostradas."
 
 #: client/components/document-history.vue:312
 msgid "history-forked-event"
-msgstr ""
+msgstr "Emendado %{at}"
 
 #: client/components/document-history.vue:339
 msgid "history-merge-accepted-event"
-msgstr ""
+msgstr "Incorporado %{at}"
 
 #: client/components/document-history.vue:330
 msgid "history-published-event"
-msgstr ""
+msgstr "Publicado %{at}"
 
 #: client/components/document-history.vue:284
 msgid "history-select-range"
-msgstr ""
+msgstr "Clique e arraste ou segure a tecla Shift para selecionar um intervalo de alterações"
 
 #: client/vue-extensions.js:169
 msgid "hour"
@@ -389,15 +389,15 @@ msgstr "Publicar"
 
 #: client/components/document-publish.vue:22
 msgid "publish-document-confirmation-fork-body"
-msgstr ""
+msgstr "Uma vez publicado, o documento não será diretamente editável por ninguém. Alterações ao documento serão possíveis apenas emendando o documento, editando a emenda, e incorporando as alterações de volta ao documento original. Além disso, o documento se tornará visível a outros usuários e todos poderão adicionar comentários. Este documento é uma emenda de outro documento (original) e publicar este documento (emenda) é uma alternativa a incorporar a emenda ao original. Se este documento (emenda) for publicado, incorporá-lo ao documento original não será mais possível."
 
 #: client/components/document-publish.vue:26
 msgid "publish-document-confirmation-regular-body"
-msgstr ""
+msgstr "Uma vez publicado, o documento não será diretamente editável por ninguém. Alterações ao documento serão possíveis apenas emendando o documento, editando a emenda, e incorporando as alterações de volta ao documento original. Além disso, o documento se tornará visível a outros usuários e todos poderão adicionar comentários."
 
 #: client/components/document-publish.vue:16
 msgid "publish-document-confirmation-title"
-msgstr ""
+msgstr "Publicar documento"
 
 #: client/components/document-publish.vue:105
 msgid "publish-error"
