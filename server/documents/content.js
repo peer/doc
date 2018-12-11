@@ -280,8 +280,7 @@ function rebaseSteps(parentDocumentId) {
 
         // Remove fork's "contentKey" from fork's old steps (those which are not
         // shared with the parent document). We do not just remove these documents
-        // because some other fork might depend on them. We remove documents with
-        // empty "contentKeys" at the end of this function.
+        // because some other fork might depend on them.
         let changed = Content.documents.update({
           $and: [{
             contentKeys: fork.contentKey,
@@ -297,6 +296,11 @@ function rebaseSteps(parentDocumentId) {
         });
 
         assert.strictEqual(changed, newForkStepsAndRebasedInParentDocumentStepsCount);
+
+        // Remove all documents which have now empty "contentKeys". We remove them here
+        // because we have an index on "contentKeys" (and "version') and we do not want to have
+        // duplicate documents with empty "contentKeys" and same "version" value by accident.
+        Content.documents.remove({contentKeys: []});
 
         // Add parent document's steps to the fork.
         changed = Content.documents.update({
@@ -366,9 +370,6 @@ function rebaseSteps(parentDocumentId) {
       });
     });
   });
-
-  // Remove all documents which have now empty "contentKeys".
-  Content.documents.remove({contentKeys: []});
 }
 
 // Schedules a rebase of all children (forks) of a document identified by
