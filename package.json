@@ -19,7 +19,7 @@
     "cypress-ci": "NO_HMR=1 start-server-and-test test-app http://localhost:3000 cypress-ci:runner"
   },
   "dependencies": {
-    "@babel/core": "~7.0.0-beta.38",
+    "@babel/core": "~7.0.0",
     "@babel/plugin-proposal-class-properties": "~7.0.0-beta.38",
     "@babel/runtime": "~7.0.0-beta.46",
     "autoprefixer": "~8.4.1",
