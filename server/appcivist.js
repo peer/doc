@@ -20,7 +20,7 @@ if (Document.instances > 1) {
 }
 
 function getSessionKey() {
-  const timestamp = new Date().valueOf();
+  const timestamp = Date.now();
   if (!sessionKeyTimestamp || sessionKeyTimestamp.valueOf() + SESSION_KEY_TTL < timestamp) {
     const response = HTTP.call('POST', `${Meteor.settings.appCivistIntegration.endpoint}/api/user/login`, {
       data: _.pick(Meteor.settings.appCivistIntegration, 'email', 'password'),
