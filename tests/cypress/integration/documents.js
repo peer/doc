@@ -126,7 +126,7 @@ describe('documents', function () {
 
     cy.get('.v-snack__content').should('contain', 'The document has been successfully forked.').contains('Close').click();
 
-    cy.location('pathname').should('match', /\/document\/(.*)/);
+    cy.location('pathname').should('match', /\/document\/(.*)/).as('forkedDocumentPathname');
 
     cy.visualSnapshot(this.test, 'forked');
 
@@ -136,6 +136,16 @@ describe('documents', function () {
     cy.contains('.document-status', 'merged').should('not.exist');
     cy.contains('.v-btn', 'Publish');
     cy.contains('.v-btn', 'Fork').should('not.exist');
+
+    cy.contains('.v-btn', 'Parent').click();
+
+    cy.get('@parentDocumentPathname').then((pathname) => {
+      cy.location('pathname').should('be', pathname);
+    });
+
+    cy.get('@forkedDocumentPathname').then((pathname) => {
+      cy.visit(pathname);
+    });
 
     cy.contains('.v-btn', 'Merge').click();
 

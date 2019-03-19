@@ -17,8 +17,11 @@ Cypress.Commands.add('call', function call(methodName, ...args) {
   return new Promise((resolve, reject) => {
     const Meteor = cy.state('window').Meteor;
 
-    if (!this.testConnection) {
+    // If app is reloaded, a new "Meteor" instance is created
+    // and we have to re-create connection in that case.
+    if (!this.testConnection || this.Meteor !== Meteor) {
       this.testConnection = Meteor.connect(Meteor.absoluteUrl());
+      this.Meteor = Meteor;
     }
 
     this.testConnection.apply(methodName, args, (error, result) => {
