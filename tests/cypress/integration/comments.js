@@ -56,7 +56,7 @@ describe('comments', function () {
 
     cy.allSubscriptionsReady().should('eq', true);
 
-    cy.wait(500);
+    cy.wait(1000);
 
     cy.visualSnapshot(this.test, 'comment made');
 
