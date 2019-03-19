@@ -42,11 +42,15 @@ describe('comments', function () {
 
     cy.allSubscriptionsReady().should('eq', true);
 
+    cy.get('.thread__input .comment-editor');
+
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'comment prompt');
 
     cy.get('.thread__input .comment-editor').type('comment body');
+
+    cy.contains('.thread__input_container .v-btn', 'Insert');
 
     cy.wait(500);
 
@@ -56,13 +60,17 @@ describe('comments', function () {
 
     cy.allSubscriptionsReady().should('eq', true);
 
+    cy.get('.thread__input .comment-editor');
+
+    cy.contains('.comment__body', 'comment body');
+
     cy.wait(1000);
 
     cy.visualSnapshot(this.test, 'comment made');
 
     cy.get('.thread__input .comment-editor').type('reply body');
 
-    cy.allSubscriptionsReady().should('eq', true);
+    cy.contains('.thread__input_container .v-btn', 'Insert');
 
     cy.wait(500);
 
@@ -71,6 +79,8 @@ describe('comments', function () {
     cy.contains('.thread__input_container .v-btn', 'Insert').click();
 
     cy.allSubscriptionsReady().should('eq', true);
+
+    cy.contains('.comment__body', 'reply body');
 
     cy.wait(500);
 
