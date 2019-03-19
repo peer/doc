@@ -147,6 +147,25 @@ describe('documents', function () {
       cy.visit(pathname);
     });
 
+    cy.contains('.v-btn', 'Compare').click();
+
+    cy.location('pathname').should('match', /\/document\/compare\/(.*)/);
+
+    cy.visualSnapshot(this.test, 'compare no changes');
+
+    cy.contains('.v-alert.warning', 'There are no changes to be shown.');
+
+    cy.contains('.v-btn', 'Editor').click();
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
+
+    cy.contains('.document-status', 'draft');
+    cy.contains('.document-status', 'fork');
+    cy.contains('.document-status', 'published').should('not.exist');
+    cy.contains('.document-status', 'merged').should('not.exist');
+    cy.contains('.v-btn', 'Publish');
+    cy.contains('.v-btn', 'Fork').should('not.exist');
+
     cy.contains('.v-btn', 'Merge').click();
 
     cy.location('pathname').should('match', /\/document\/merge\/(.*)/);
@@ -192,6 +211,16 @@ describe('documents', function () {
         });
       });
     });
+
+    cy.contains('.v-btn', 'Compare').click();
+
+    cy.location('pathname').should('match', /\/document\/compare\/(.*)/);
+
+    cy.visualSnapshot(this.test, 'compare');
+
+    cy.contains('.v-btn', 'Editor').click();
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
 
     cy.contains('.v-btn', 'Merge').click();
 
