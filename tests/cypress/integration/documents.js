@@ -5,6 +5,8 @@ describe('documents', function () {
   it('can create, fork, and merge a document', function () {
     cy.visit('/');
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'initial');
 
     cy.resetDatabase();
@@ -21,6 +23,8 @@ describe('documents', function () {
 
     cy.contains('div.v-card__text', 'No documents.');
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'documents');
 
     cy.contains('.v-btn', 'New document').click();
@@ -28,6 +32,8 @@ describe('documents', function () {
     cy.get('.v-snack__content').should('contain', 'New document has been created.').contains('Close').click();
 
     cy.get('h1[data-text="Write the title of your document here"]');
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.visualSnapshot(this.test, 'document made');
 
@@ -44,6 +50,8 @@ describe('documents', function () {
       });
     });
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'focused');
 
     cy.window().then((window) => {
@@ -53,11 +61,15 @@ describe('documents', function () {
       range.insertNode(window.document.createTextNode('test'));
     });
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'added text');
 
     cy.get('button[title="Bold (Ctrl-B)"]').click();
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.wait(500);
 
@@ -99,6 +111,8 @@ describe('documents', function () {
 
     cy.location('pathname').should('match', /\/document\/publish\/(.*)/);
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'publish confirmation');
 
     cy.contains('.v-btn', 'Publish').click();
@@ -106,6 +120,8 @@ describe('documents', function () {
     cy.get('.v-snack__content').should('contain', 'The document has been successfully published.').contains('Close').click();
 
     cy.location('pathname').should('match', /\/document\/(.*)/).as('parentDocumentPathname');
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.visualSnapshot(this.test, 'published');
 
@@ -120,6 +136,8 @@ describe('documents', function () {
 
     cy.location('pathname').should('match', /\/document\/fork\/(.*)/);
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'fork confirmation');
 
     cy.contains('.v-btn', 'Fork').click();
@@ -127,6 +145,8 @@ describe('documents', function () {
     cy.get('.v-snack__content').should('contain', 'The document has been successfully forked.').contains('Close').click();
 
     cy.location('pathname').should('match', /\/document\/(.*)/).as('forkedDocumentPathname');
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.visualSnapshot(this.test, 'forked');
 
@@ -151,6 +171,8 @@ describe('documents', function () {
 
     cy.location('pathname').should('match', /\/document\/compare\/(.*)/);
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'compare no changes');
 
     cy.contains('.v-alert.warning', 'There are no changes to be shown.');
@@ -169,6 +191,8 @@ describe('documents', function () {
     cy.contains('.v-btn', 'Merge').click();
 
     cy.location('pathname').should('match', /\/document\/merge\/(.*)/);
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.visualSnapshot(this.test, 'merge confirmation no changes');
 
@@ -216,6 +240,8 @@ describe('documents', function () {
 
     cy.location('pathname').should('match', /\/document\/compare\/(.*)/);
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'compare');
 
     cy.contains('.v-btn', 'Editor').click();
@@ -226,6 +252,8 @@ describe('documents', function () {
 
     cy.location('pathname').should('match', /\/document\/merge\/(.*)/);
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'merge confirmation');
 
     cy.contains('.v-btn', 'Merge').click();
@@ -233,6 +261,8 @@ describe('documents', function () {
     cy.get('.v-snack__content').should('contain', 'The document has been successfully merged into the parent document.').contains('Close').click();
 
     cy.location('pathname').should('match', /\/document\/(.*)/);
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.visualSnapshot(this.test, 'merged');
 
@@ -266,6 +296,8 @@ describe('documents', function () {
     cy.location('pathname').should('match', /\/document\/(.*)/);
 
     cy.contains('.document-status', 'published');
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.visualSnapshot(this.test, 'published signed out');
   });
@@ -309,6 +341,8 @@ describe('documents', function () {
         range.deleteContents();
       });
     });
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.wait(500);
 
@@ -358,17 +392,23 @@ describe('documents', function () {
 
     cy.location('pathname').should('match', /\/document\/history\/(.*)/);
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'initial history');
 
     cy.get('.v-timeline-item__body .v-card__text').eq(1).click();
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'second change');
 
     cy.get('.v-timeline-item__body .v-card__text').eq(0).trigger('click', {shiftKey: true});
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.wait(500);
 

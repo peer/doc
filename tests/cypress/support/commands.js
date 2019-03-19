@@ -50,6 +50,36 @@ Cypress.Commands.add('call', function call(methodName, ...args) {
   });
 });
 
+Cypress.Commands.add('allSubscriptionsReady', (options = {}) => {
+  const log = {
+    name: 'allSubscriptionsReady',
+  };
+
+  const getValue = () => {
+    const DDP = cy.state('window').DDP;
+
+    if (DDP._allSubscriptionsReady()) {
+      return true;
+    }
+    else {
+      return null;
+    }
+  };
+
+  const resolveValue = () => {
+    return Cypress.Promise.try(getValue).then((value) => {
+      return cy.verifyUpcomingAssertions(value, options, {
+        onRetry: resolveValue,
+      });
+    });
+  };
+
+  return resolveValue().then((value) => {
+    Cypress.log(log);
+    return value;
+  });
+});
+
 Cypress.Commands.add('resetDatabase', function resetDatabase() {
   const log = Cypress.log({
     name: 'resetDatabase',
