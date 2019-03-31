@@ -27,7 +27,7 @@
     "bcrypt": "~2.0.1",
     "body-parser": "~1.18.3",
     "core-js": "~2.5.5",
-    "css-loader": "~0.28.11",
+    "css-loader": "~1.0.0",
     "fast-json-stable-stringify": "~2.0.0",
     "jsdom": "~13.0.0",
     "material-design-icons": "git://github.com/mitar/material-design-icons.git",
