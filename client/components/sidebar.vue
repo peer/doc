@@ -18,10 +18,20 @@
             >
               <document-status :document-id="document._id" />
               <v-btn
+                v-if="!apiControlled && parentDocument && canUserSeeParentDocument"
+                :to="{name: 'document', params: {documentId: parentDocument._id}}"
+                outline
+              ><translate>to-parent-document</translate></v-btn>
+              <v-btn
                 v-if="!apiControlled && canUserPublishDocument"
                 :to="{name: 'document-publish', params: {documentId}}"
                 outline
               ><translate>document-publish</translate></v-btn>
+              <v-btn
+                v-if="!apiControlled && canUserCompareDocument"
+                :to="{name: 'document-compare', params: {documentId}}"
+                outline
+              ><translate>document-compare</translate></v-btn>
               <v-btn
                 v-if="!apiControlled && canUserForkDocument"
                 :to="{name: 'document-fork', params: {documentId}}"
@@ -188,6 +198,14 @@
 
       canUserAdministerDocument() {
         return !!(this.document && this.document.canUser(Document.PERMISSIONS.ADMIN));
+      },
+
+      canUserSeeParentDocument() {
+        return !!(this.parentDocument && this.parentDocument.canUser(Document.PERMISSIONS.VIEW));
+      },
+
+      canUserCompareDocument() {
+        return !!(this.document && this.document.canUser(Document.PERMISSIONS.VIEW) && this.parentDocument && this.parentDocument.canUser(Document.PERMISSIONS.VIEW));
       },
 
       canUserPublishDocument() {

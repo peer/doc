@@ -5,6 +5,8 @@ describe('documents', function () {
   it('can create, fork, and merge a document', function () {
     cy.visit('/');
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'initial');
 
     cy.resetDatabase();
@@ -15,19 +17,23 @@ describe('documents', function () {
       cy.get('nav.v-toolbar .v-menu__activator').should('contain', 'testuser');
     });
 
-    cy.get('.v-btn').contains('Documents').click();
+    cy.contains('.v-btn', 'Documents').click();
 
     cy.location('pathname').should('eq', '/document');
 
-    cy.get('div.v-card__text').contains('No documents.');
+    cy.contains('div.v-card__text', 'No documents.');
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.visualSnapshot(this.test, 'documents');
 
-    cy.get('.v-btn').contains('New document').click();
+    cy.contains('.v-btn', 'New document').click();
 
     cy.get('.v-snack__content').should('contain', 'New document has been created.').contains('Close').click();
 
     cy.get('h1[data-text="Write the title of your document here"]');
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.visualSnapshot(this.test, 'document made');
 
@@ -44,6 +50,8 @@ describe('documents', function () {
       });
     });
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'focused');
 
     cy.window().then((window) => {
@@ -53,11 +61,15 @@ describe('documents', function () {
       range.insertNode(window.document.createTextNode('test'));
     });
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'added text');
 
     cy.get('button[title="Bold (Ctrl-B)"]').click();
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.wait(500);
 
@@ -88,73 +100,114 @@ describe('documents', function () {
       });
     });
 
-    cy.get('.document-status').contains('draft');
-    cy.get('.document-status').contains('fork').should('not.exist');
-    cy.get('.document-status').contains('published').should('not.exist');
-    cy.get('.document-status').contains('merged').should('not.exist');
-    cy.get('.v-btn').contains('Fork').should('not.exist');
-    cy.get('.v-btn').contains('Merge').should('not.exist');
+    cy.contains('.document-status', 'draft');
+    cy.contains('.document-status', 'fork').should('not.exist');
+    cy.contains('.document-status', 'published').should('not.exist');
+    cy.contains('.document-status', 'merged').should('not.exist');
+    cy.contains('.v-btn', 'Fork').should('not.exist');
+    cy.contains('.v-btn', 'Merge').should('not.exist');
 
-    cy.get('.v-btn').contains('Publish').click();
+    cy.contains('.v-btn', 'Publish').click();
 
     cy.location('pathname').should('match', /\/document\/publish\/(.*)/);
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'publish confirmation');
 
-    cy.get('.v-btn').contains('Publish').click();
+    cy.contains('.v-btn', 'Publish').click();
 
     cy.get('.v-snack__content').should('contain', 'The document has been successfully published.').contains('Close').click();
 
     cy.location('pathname').should('match', /\/document\/(.*)/).as('parentDocumentPathname');
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'published');
 
-    cy.get('.document-status').contains('draft').should('not.exist');
-    cy.get('.document-status').contains('fork').should('not.exist');
-    cy.get('.document-status').contains('published');
-    cy.get('.document-status').contains('merged').should('not.exist');
-    cy.get('.v-btn').contains('Publish').should('not.exist');
-    cy.get('.v-btn').contains('Merge').should('not.exist');
+    cy.contains('.document-status', 'draft').should('not.exist');
+    cy.contains('.document-status', 'fork').should('not.exist');
+    cy.contains('.document-status', 'published');
+    cy.contains('.document-status', 'merged').should('not.exist');
+    cy.contains('.v-btn', 'Publish').should('not.exist');
+    cy.contains('.v-btn', 'Merge').should('not.exist');
 
-    cy.get('.v-btn').contains('Fork').click();
+    cy.contains('.v-btn', 'Fork').click();
 
     cy.location('pathname').should('match', /\/document\/fork\/(.*)/);
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'fork confirmation');
 
-    cy.get('.v-btn').contains('Fork').click();
+    cy.contains('.v-btn', 'Fork').click();
 
     cy.get('.v-snack__content').should('contain', 'The document has been successfully forked.').contains('Close').click();
 
-    cy.location('pathname').should('match', /\/document\/(.*)/);
+    cy.location('pathname').should('match', /\/document\/(.*)/).as('forkedDocumentPathname');
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.visualSnapshot(this.test, 'forked');
 
-    cy.get('.document-status').contains('draft');
-    cy.get('.document-status').contains('fork');
-    cy.get('.document-status').contains('published').should('not.exist');
-    cy.get('.document-status').contains('merged').should('not.exist');
-    cy.get('.v-btn').contains('Publish');
-    cy.get('.v-btn').contains('Fork').should('not.exist');
+    cy.contains('.document-status', 'draft');
+    cy.contains('.document-status', 'fork');
+    cy.contains('.document-status', 'published').should('not.exist');
+    cy.contains('.document-status', 'merged').should('not.exist');
+    cy.contains('.v-btn', 'Publish');
+    cy.contains('.v-btn', 'Fork').should('not.exist');
 
-    cy.get('.v-btn').contains('Merge').click();
+    cy.contains('.v-btn', 'Parent').click();
 
-    cy.location('pathname').should('match', /\/document\/merge\/(.*)/);
+    cy.get('@parentDocumentPathname').then((pathname) => {
+      cy.location('pathname').should('be', pathname);
+    });
 
-    cy.visualSnapshot(this.test, 'merge confirmation no changes');
+    cy.get('@forkedDocumentPathname').then((pathname) => {
+      cy.visit(pathname);
+    });
 
-    cy.get('.v-alert.warning').contains('There are no changes to be shown.');
+    cy.contains('.v-btn', 'Compare').click();
 
-    cy.get('.v-btn').contains('Cancel').click();
+    cy.location('pathname').should('match', /\/document\/compare\/(.*)/);
+
+    cy.allSubscriptionsReady().should('eq', true);
+
+    cy.visualSnapshot(this.test, 'compare no changes');
+
+    cy.contains('.v-alert.warning', 'There are no changes to be shown.');
+
+    cy.contains('.v-btn', 'Editor').click();
 
     cy.location('pathname').should('match', /\/document\/(.*)/);
 
-    cy.get('.document-status').contains('draft');
-    cy.get('.document-status').contains('fork');
-    cy.get('.document-status').contains('published').should('not.exist');
-    cy.get('.document-status').contains('merged').should('not.exist');
-    cy.get('.v-btn').contains('Publish');
-    cy.get('.v-btn').contains('Fork').should('not.exist');
+    cy.contains('.document-status', 'draft');
+    cy.contains('.document-status', 'fork');
+    cy.contains('.document-status', 'published').should('not.exist');
+    cy.contains('.document-status', 'merged').should('not.exist');
+    cy.contains('.v-btn', 'Publish');
+    cy.contains('.v-btn', 'Fork').should('not.exist');
+
+    cy.contains('.v-btn', 'Merge').click();
+
+    cy.location('pathname').should('match', /\/document\/merge\/(.*)/);
+
+    cy.allSubscriptionsReady().should('eq', true);
+
+    cy.visualSnapshot(this.test, 'merge confirmation no changes');
+
+    cy.contains('.v-alert.warning', 'There are no changes to be shown.');
+
+    cy.contains('.v-btn', 'Cancel').click();
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
+
+    cy.contains('.document-status', 'draft');
+    cy.contains('.document-status', 'fork');
+    cy.contains('.document-status', 'published').should('not.exist');
+    cy.contains('.document-status', 'merged').should('not.exist');
+    cy.contains('.v-btn', 'Publish');
+    cy.contains('.v-btn', 'Fork').should('not.exist');
 
     cy.get('.editor').type(' test2');
 
@@ -183,26 +236,42 @@ describe('documents', function () {
       });
     });
 
-    cy.get('.v-btn').contains('Merge').click();
+    cy.contains('.v-btn', 'Compare').click();
+
+    cy.location('pathname').should('match', /\/document\/compare\/(.*)/);
+
+    cy.allSubscriptionsReady().should('eq', true);
+
+    cy.visualSnapshot(this.test, 'compare');
+
+    cy.contains('.v-btn', 'Editor').click();
+
+    cy.location('pathname').should('match', /\/document\/(.*)/);
+
+    cy.contains('.v-btn', 'Merge').click();
 
     cy.location('pathname').should('match', /\/document\/merge\/(.*)/);
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'merge confirmation');
 
-    cy.get('.v-btn').contains('Merge').click();
+    cy.contains('.v-btn', 'Merge').click();
 
     cy.get('.v-snack__content').should('contain', 'The document has been successfully merged into the parent document.').contains('Close').click();
 
     cy.location('pathname').should('match', /\/document\/(.*)/);
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.visualSnapshot(this.test, 'merged');
 
-    cy.get('.document-status').contains('draft').should('not.exist');
-    cy.get('.document-status').contains('fork');
-    cy.get('.document-status').contains('published').should('not.exist');
-    cy.get('.document-status').contains('merged');
-    cy.get('.v-btn').contains('Publish').should('not.exist');
-    cy.get('.v-btn').contains('Fork').should('not.exist');
+    cy.contains('.document-status', 'draft').should('not.exist');
+    cy.contains('.document-status', 'fork');
+    cy.contains('.document-status', 'published').should('not.exist');
+    cy.contains('.document-status', 'merged');
+    cy.contains('.v-btn', 'Publish').should('not.exist');
+    cy.contains('.v-btn', 'Fork').should('not.exist');
 
     cy.get('@parentDocumentPathname').then((pathname) => {
       cy.visit(pathname);
@@ -210,11 +279,11 @@ describe('documents', function () {
 
     cy.location('pathname').should('match', /\/document\/(.*)/);
 
-    cy.get('.document-status').contains('published');
+    cy.contains('.document-status', 'published');
 
     cy.get('nav.v-toolbar .v-menu__activator').click();
 
-    cy.get('.v-list__tile--link').contains('Sign Out').click();
+    cy.contains('.v-list__tile--link', 'Sign Out').click();
 
     cy.contains('Sign In');
 
@@ -226,7 +295,9 @@ describe('documents', function () {
 
     cy.location('pathname').should('match', /\/document\/(.*)/);
 
-    cy.get('.document-status').contains('published');
+    cy.contains('.document-status', 'published');
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.visualSnapshot(this.test, 'published signed out');
   });
@@ -242,9 +313,9 @@ describe('documents', function () {
       cy.get('nav.v-toolbar .v-menu__activator').should('contain', 'testuser');
     });
 
-    cy.get('div.v-card__text').contains('No documents.');
+    cy.contains('div.v-card__text', 'No documents.');
 
-    cy.get('.v-btn').contains('New document').click();
+    cy.contains('.v-btn', 'New document').click();
 
     cy.get('.v-snack__content').should('contain', 'New document has been created.').contains('Close').click();
 
@@ -270,6 +341,8 @@ describe('documents', function () {
         range.deleteContents();
       });
     });
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.wait(500);
 
@@ -315,9 +388,11 @@ describe('documents', function () {
 
     cy.wait(500);
 
-    cy.get('.v-btn').contains('History').click();
+    cy.contains('.v-btn', 'History').click();
 
     cy.location('pathname').should('match', /\/document\/history\/(.*)/);
+
+    cy.allSubscriptionsReady().should('eq', true);
 
     cy.wait(500);
 
@@ -325,17 +400,21 @@ describe('documents', function () {
 
     cy.get('.v-timeline-item__body .v-card__text').eq(1).click();
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'second change');
 
     cy.get('.v-timeline-item__body .v-card__text').eq(0).trigger('click', {shiftKey: true});
 
+    cy.allSubscriptionsReady().should('eq', true);
+
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'both changes');
 
-    cy.get('.v-btn').contains('Editor').click();
+    cy.contains('.v-btn', 'Editor').click();
 
     cy.location('pathname').should('match', /\/document\/(.*)/);
   });

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-24 15:39-0800\n"
+"POT-Creation-Date: 2019-03-18 00:50-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: client/components/document-merge.vue:52
+#: client/components/document-merge.vue:57
 msgid "accept-merge"
 msgstr "Incorporar"
 
@@ -29,11 +29,11 @@ msgstr "Ao incorporar esta emenda ao documento original, qualquer conteúdo novo
 msgid "accept-merge-document-confirmation-title"
 msgstr "Incorporar emenda"
 
-#: client/components/document-merge.vue:136
+#: client/components/document-merge.vue:141
 msgid "accept-merge-error"
 msgstr "Um erro ocorreu ao tentar incorporar a emenda."
 
-#: client/components/document-merge.vue:140
+#: client/components/document-merge.vue:145
 msgid "accept-merge-success"
 msgstr "A emenda foi incorporada ao documento original com sucesso."
 
@@ -45,6 +45,7 @@ msgstr "Acesso negado."
 msgid "add-content"
 msgstr "Adicione aqui o texto do seu documento"
 
+#: client/components/document-compare.vue:54
 #: client/components/document-history.vue:35
 msgid "back-to-document"
 msgstr "Editor"
@@ -71,7 +72,7 @@ msgstr "[hoje às] LT"
 
 #: client/components/comment-deletion-dialog.vue:21
 #: client/components/document-fork.vue:37
-#: client/components/document-merge.vue:46
+#: client/components/document-merge.vue:51
 #: client/components/document-publish.vue:37
 #: client/components/link-dialog.vue:31 client/components/thread.vue:78
 msgid "cancel"
@@ -105,6 +106,14 @@ msgstr "Insira um comentário"
 msgid "comment-reply-hint"
 msgstr "Insira uma resposta"
 
+#: client/components/document-compare.vue:25
+msgid "compare-document-body"
+msgstr ""
+
+#: client/components/document-compare.vue:19
+msgid "compare-document-title"
+msgstr ""
+
 #: client/vue-extensions.js:168
 msgid "day"
 msgid_plural "days"
@@ -115,9 +124,13 @@ msgstr[1] "%{value} dias"
 msgid "delete"
 msgstr "Eliminar"
 
-#: client/components/sidebar.vue:33
+#: client/components/document-compare.vue:50 client/components/sidebar.vue:43
 msgid "document-accept-merge"
 msgstr "Mesclar"
+
+#: client/components/sidebar.vue:33
+msgid "document-compare"
+msgstr ""
 
 #: client/components/documents.vue:13
 msgid "document-create"
@@ -143,7 +156,7 @@ msgstr "Permissões padrão"
 msgid "document-default-permissions-hint"
 msgstr "Permissões padrão para usuários que podem acessar o documento."
 
-#: client/components/sidebar.vue:28
+#: client/components/sidebar.vue:38
 msgid "document-fork"
 msgstr "Emendar"
 
@@ -167,7 +180,7 @@ msgstr "publicado"
 msgid "document-merge-accepted-at"
 msgstr "Incorporado %{at}"
 
-#: client/components/sidebar.vue:23
+#: client/components/sidebar.vue:28
 msgid "document-publish"
 msgstr "Publicar"
 
@@ -295,7 +308,7 @@ msgstr "t2"
 msgid "h3"
 msgstr "t3"
 
-#: client/components/sidebar.vue:42
+#: client/components/sidebar.vue:52
 msgid "history"
 msgstr "Histórico"
 
@@ -351,7 +364,7 @@ msgid_plural "minutes"
 msgstr[0] "%{value} minuto"
 msgstr[1] "%{value} minutos"
 
-#: client/components/sidebar.vue:84
+#: client/components/sidebar.vue:94
 msgid "no-comments"
 msgstr "Sem comentários."
 
@@ -475,7 +488,7 @@ msgstr "O usuário pode ver o documento."
 msgid "role-view-users-hint"
 msgstr "Usuários que podem acessar o documento podem vê-lo."
 
-#: client/components/sidebar.vue:38
+#: client/components/sidebar.vue:48
 msgid "share"
 msgstr "Partilhar"
 
@@ -499,7 +512,7 @@ msgstr "Erro durante a saída: %{error}"
 msgid "signed-out-success"
 msgstr "Você saiu com sucesso."
 
-#: client/components/sidebar.vue:88
+#: client/components/sidebar.vue:98
 msgid "start-a-new-comment"
 msgstr "Inicie um comentário selecionando o conteúdo à esquerda."
 
@@ -510,6 +523,11 @@ msgstr "Tem certeza de que deseja eliminar esta linha de discussão?"
 #: client/components/editor.vue:343
 msgid "title-length"
 msgstr "O título deve ser breve (max. 100 caracteres) e o texto do documento adicionado abaixo dele."
+
+#: client/components/document-compare.vue:45
+#: client/components/document-merge.vue:46 client/components/sidebar.vue:23
+msgid "to-parent-document"
+msgstr ""
 
 #: client/components/editor.vue:242
 msgid "toolbar-bold"

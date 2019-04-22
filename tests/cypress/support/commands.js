@@ -17,8 +17,11 @@ Cypress.Commands.add('call', function call(methodName, ...args) {
   return new Promise((resolve, reject) => {
     const Meteor = cy.state('window').Meteor;
 
-    if (!this.testConnection) {
+    // If app is reloaded, a new "Meteor" instance is created
+    // and we have to re-create connection in that case.
+    if (!this.testConnection || this.Meteor !== Meteor) {
       this.testConnection = Meteor.connect(Meteor.absoluteUrl());
+      this.Meteor = Meteor;
     }
 
     this.testConnection.apply(methodName, args, (error, result) => {
@@ -44,6 +47,36 @@ Cypress.Commands.add('call', function call(methodName, ...args) {
     Cypress.utils.throwErr(error, {
       onFail: log,
     });
+  });
+});
+
+Cypress.Commands.add('allSubscriptionsReady', (options = {}) => {
+  const log = {
+    name: 'allSubscriptionsReady',
+  };
+
+  const getValue = () => {
+    const DDP = cy.state('window').DDP;
+
+    if (DDP._allSubscriptionsReady()) {
+      return true;
+    }
+    else {
+      return null;
+    }
+  };
+
+  const resolveValue = () => {
+    return Cypress.Promise.try(getValue).then((value) => {
+      return cy.verifyUpcomingAssertions(value, options, {
+        onRetry: resolveValue,
+      });
+    });
+  };
+
+  return resolveValue().then((value) => {
+    Cypress.log(log);
+    return value;
   });
 });
 

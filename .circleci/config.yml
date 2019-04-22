@@ -9,6 +9,15 @@ jobs:
     steps:
       - checkout
       - run: git submodule update --init --recursive
+      - run:
+          command: |
+            apt-get update -q -q
+            apt-get --yes --force-yes install wget
+            wget http://launchpadlibrarian.net/413897613/chromium-codecs-ffmpeg-extra_72.0.3626.121-0ubuntu0.16.04.1_amd64.deb
+            wget http://launchpadlibrarian.net/413897611/chromium-browser_72.0.3626.121-0ubuntu0.16.04.1_amd64.deb
+            wget http://launchpadlibrarian.net/413897612/chromium-chromedriver_72.0.3626.121-0ubuntu0.16.04.1_amd64.deb
+            dpkg -i chromium-browser_72.0.3626.121-0ubuntu0.16.04.1_amd64.deb chromium-codecs-ffmpeg-extra_72.0.3626.121-0ubuntu0.16.04.1_amd64.deb chromium-chromedriver_72.0.3626.121-0ubuntu0.16.04.1_amd64.deb
+            rm -f *.deb
       - run: ./.circleci/authors/check-authors.sh
       - run:
           command: |
