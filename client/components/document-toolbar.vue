@@ -2,46 +2,48 @@
   <v-toolbar
     flat
     dense
+    class="document-toolbar"
   >
     <v-toolbar-items>
-      <document-status
-        v-if="document"
-        :document-id="document._id"
-      />
       <v-btn
         v-if="!apiControlled && parentDocument && canUserSeeParentDocument"
         :to="{name: 'document', params: {documentId: parentDocument._id}}"
-        outline
+        flat
       ><translate>to-parent-document</translate></v-btn>
       <v-btn
         v-if="!apiControlled && canUserPublishDocument"
         :to="{name: 'document-publish', params: {documentId}}"
-        outline
+        flat
       ><translate>document-publish</translate></v-btn>
       <v-btn
         v-if="!apiControlled && canUserCompareDocument"
         :to="{name: 'document-compare', params: {documentId}}"
-        outline
+        flat
       ><translate>document-compare</translate></v-btn>
       <v-btn
         v-if="!apiControlled && canUserForkDocument"
         :to="{name: 'document-fork', params: {documentId}}"
-        outline
+        flat
       ><translate>document-fork</translate></v-btn>
       <v-btn
         v-if="!apiControlled && canUserMergeDocument"
         :to="{name: 'document-merge', params: {documentId}}"
-        outline
+        flat
       ><translate>document-accept-merge</translate></v-btn>
       <v-btn
         v-if="!apiControlled && canUserAdministerDocument"
         :to="{name: 'document-share', params: {documentId}}"
-        outline
+        flat
       ><translate>share</translate></v-btn>
       <v-btn
         :to="{name: 'document-history', params: {documentId}}"
-        outline
+        flat
       ><translate>history</translate></v-btn>
+      <v-spacer />
+      <document-status
+        v-if="document"
+        :document-id="document._id"
+      />
     </v-toolbar-items>
   </v-toolbar>
 </template>
@@ -133,3 +135,10 @@
 
   export default component;
 </script>
+
+<style lang="scss">
+  .document-toolbar .v-toolbar__items {
+    align-items: center;
+    width: 100%;
+  }
+</style>

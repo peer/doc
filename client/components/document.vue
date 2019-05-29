@@ -82,8 +82,11 @@
       });
     },
 
-    destroyed() {
-      documentToolbarState.documentId = null;
+    beforeDestroy() {
+      // If we are moving between documents it might have already been set to some other value.
+      if (documentToolbarState.documentId === this.documentId) {
+        documentToolbarState.documentId = null;
+      }
     },
 
     methods: {
