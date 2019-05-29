@@ -5,13 +5,6 @@
     class="pa-2"
   >
     <v-flex xs12>
-      <v-chip>
-        <v-avatar size="36px"><img
-          :src="commentDescriptor.comment.author.avatarUrl()"
-          :alt="commentDescriptor.comment.author.username"
-        ></v-avatar>
-        {{commentDescriptor.comment.author.username}}
-      </v-chip>
       <v-btn
         flat
         icon
@@ -21,6 +14,13 @@
       >
         <v-icon>more_vert</v-icon>
       </v-btn>
+      <v-chip>
+        <v-avatar size="36px"><img
+          :src="commentDescriptor.comment.author.avatarUrl()"
+          :alt="commentDescriptor.comment.author.username"
+        ></v-avatar>
+        {{commentDescriptor.comment.author.username}}
+      </v-chip>
     </v-flex>
     <transition name="comment__details-expand">
       <v-flex
@@ -28,13 +28,6 @@
         xs12
         class="comment__details px-1"
       >
-        <span
-          v-translate="{at: $fromNow(commentDescriptor.comment.createdAt)}"
-          :title="commentDescriptor.comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
-          class="timestamp"
-        >
-          comment-created-at
-        </span>
         <v-btn
           flat
           icon
@@ -44,6 +37,13 @@
         >
           <v-icon>delete</v-icon>
         </v-btn>
+        <span
+          v-translate="{at: $fromNow(commentDescriptor.comment.createdAt)}"
+          :title="commentDescriptor.comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
+          class="timestamp"
+        >
+          comment-created-at
+        </span>
         <div class="clear" />
         <v-divider class="pb-1" />
       </v-flex>
