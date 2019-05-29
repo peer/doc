@@ -1,6 +1,5 @@
 <template>
-  <v-container
-    fluid
+  <v-layout
     fill-height
     class="sidebar"
     @mousedown.stop
@@ -75,7 +74,7 @@
       :dialog-type="dialogType"
       @comment-delete-clicked="onDeleteClicked"
     />
-  </v-container>
+  </v-layout>
 </template>
 
 <script>
@@ -587,9 +586,7 @@
 
 <style lang="scss">
   .sidebar {
-    padding-top: 0;
-    padding-right: 0;
-    padding-bottom: 0;
+    padding-left: 24px;
 
     .sidebar__controlbox {
       z-index: 1;

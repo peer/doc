@@ -14,8 +14,7 @@
       </v-card>
     </v-flex>
     <v-flex xs4>
-      <v-container
-        fluid
+      <v-layout
         fill-height
         class="sidebar"
       >
@@ -132,7 +131,7 @@
             </v-flex>
           </v-layout>
         </v-layout>
-      </v-container>
+      </v-layout>
     </v-flex>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />
