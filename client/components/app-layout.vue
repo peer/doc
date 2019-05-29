@@ -57,6 +57,12 @@
       >
         <document-toolbar />
       </template>
+      <template
+        v-else-if="documentHistoryToolbarIsActive"
+        slot="extension"
+      >
+        <document-history-toolbar />
+      </template>
     </v-toolbar>
     <v-content>
       <v-container
@@ -94,6 +100,7 @@
   import {Snackbar} from '../snackbar';
 
   import {documentToolbarState} from './document-toolbar.vue';
+  import {documentHistoryToolbarState} from './document-history-toolbar.vue';
 
   const component = {
     data() {
@@ -110,6 +117,10 @@
     computed: {
       documentToolbarIsActive() {
         return !!documentToolbarState.documentId;
+      },
+
+      documentHistoryToolbarIsActive() {
+        return !!documentHistoryToolbarState.documentId;
       },
     },
 
