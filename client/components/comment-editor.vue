@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="editor-wrapper">
     <div
       ref="editor"
-      class="comment-editor"
+      class="editor"
     />
     <link-dialog
       ref="linkDialog"
@@ -52,6 +52,8 @@
       return {
         isEmpty: true,
         bodyState: this.body,
+        // Just for compatibility with placeholder plugin.
+        canUserUpdateDocument: true,
       };
     },
 
@@ -132,30 +134,3 @@
 
   export default component;
 </script>
-
-<style lang="scss">
-  .comment-editor {
-    .empty-node::before {
-      float: left;
-      color: #aaa;
-      pointer-events: none;
-      height: 0;
-    }
-
-    .empty-node:hover::before {
-      color: #777;
-    }
-
-    h1.empty-node::before {
-      content: attr(data-text);
-    }
-
-    p {
-      margin-bottom: 0px;
-    }
-
-    p.empty-node:first-of-type::before {
-      content: attr(data-text);
-    }
-  }
-</style>

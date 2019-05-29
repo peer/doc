@@ -100,11 +100,11 @@ msgstr "Are you sure you want to delete this comment?"
 
 #: client/components/comment-editor.vue:110
 msgid "comment-hint"
-msgstr "Enter a comment"
+msgstr "Write a comment"
 
 #: client/components/comment-editor.vue:110
 msgid "comment-reply-hint"
-msgstr "Enter a reply"
+msgstr "Write a reply"
 
 #: client/components/document-compare.vue:25
 msgid "compare-document-body"

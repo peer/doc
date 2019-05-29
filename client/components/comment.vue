@@ -1,120 +1,62 @@
 <template>
-  <v-layout row>
-    <v-flex
-      hidden-xs-only
-      sm3
-      md2
-      class="text-xs-center"
-    >
-      <v-avatar size="36px"><img
-        :src="commentDescriptor.comment.author.avatarUrl()"
-        :alt="commentDescriptor.comment.author.username"
-        :title="commentDescriptor.comment.author.username"
-      ></v-avatar>
-    </v-flex>
-    <v-flex
-      xs6
-      sm6
-      md8
-    >
-      <div>
-        <comment-editor
-          :body="commentDescriptor.comment.body"
-          :read-only="true"
-          class="comment__body"
-        />
-        <transition name="comment__details">
-          <div v-show="commentDescriptor.showDetails">
-            <v-divider />
-            <v-layout row>
-              <v-flex
-                lg4
-                md5
-                x12
-              >
-                <v-chip>{{commentDescriptor.comment.author.username}}</v-chip>
-              </v-flex>
-              <v-flex
-                lg6
-                md5
-                hidden-sm-and-down
-                class="comment__timestamp-container"
-              >
-                <span
-                  v-translate="{at: $fromNow(commentDescriptor.comment.createdAt)}"
-                  :title="commentDescriptor.comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
-                  class="timestamp"
-                >
-                  comment-created-at
-                </span>
-              </v-flex>
-              <v-flex
-                v-if="canUserDeleteComment"
-                lg2
-                md2
-                xs12
-                hidden-sm-and-down
-              >
-                <v-btn
-                  flat
-                  icon
-                  small
-                  @click="onDeleteClicked"
-                >
-                  <v-icon>delete</v-icon>
-                </v-btn>
-              </v-flex>
-            </v-layout>
-            <v-layout row>
-              <v-flex
-                lg4
-                md5
-                x12
-                hidden-md-and-up
-              >
-                <span
-                  v-translate="{at: $fromNow(commentDescriptor.comment.createdAt)}"
-                  :title="commentDescriptor.comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
-                  class="timestamp"
-                >
-                  comment-created-at
-                </span>
-              </v-flex>
-            </v-layout>
-            <v-layout row>
-              <v-flex
-                lg4
-                md5
-                x12
-                hidden-md-and-up
-              >
-                <v-btn
-                  flat
-                  icon
-                  small
-                  @click.stop="onDeleteClicked"
-                >
-                  <v-icon>delete</v-icon>
-                </v-btn>
-              </v-flex>
-            </v-layout>
-          </div>
-        </transition>
-      </div>
-    </v-flex>
-    <v-flex
-      xs6
-      sm1
-      md1
-    >
+  <v-layout
+    row
+    wrap
+    class="pa-2"
+  >
+    <v-flex xs12>
+      <v-chip>
+        <v-avatar size="36px"><img
+          :src="commentDescriptor.comment.author.avatarUrl()"
+          :alt="commentDescriptor.comment.author.username"
+        ></v-avatar>
+        {{commentDescriptor.comment.author.username}}
+      </v-chip>
       <v-btn
         flat
         icon
         small
+        class="comment__more-button"
         @click="commentDescriptor.showDetails = !commentDescriptor.showDetails"
       >
-        <v-icon>more_horiz</v-icon>
+        <v-icon>more_vert</v-icon>
       </v-btn>
+    </v-flex>
+    <transition name="comment__details-expand">
+      <v-flex
+        v-show="commentDescriptor.showDetails"
+        xs12
+        class="comment__details px-1"
+      >
+        <span
+          v-translate="{at: $fromNow(commentDescriptor.comment.createdAt)}"
+          :title="commentDescriptor.comment.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
+          class="timestamp"
+        >
+          comment-created-at
+        </span>
+        <v-btn
+          flat
+          icon
+          small
+          class="comment__delete-button"
+          @click="onDeleteClicked"
+        >
+          <v-icon>delete</v-icon>
+        </v-btn>
+        <div class="clear" />
+        <v-divider class="pb-1" />
+      </v-flex>
+    </transition>
+    <v-flex
+      xs12
+      class="pa-1"
+    >
+      <comment-editor
+        :body="commentDescriptor.comment.body"
+        :read-only="true"
+        class="comment__body"
+      />
     </v-flex>
   </v-layout>
 </template>
@@ -149,26 +91,36 @@
 
 <style lang="scss">
   .comment__body {
-    min-height: 36px;
-    padding-top: 5px;
     word-wrap: break-word;
-    margin-bottom: 10px;
   }
 
-  .comment__timestamp-container {
-    margin-top: 12px;
-  }
-
-  .comment__details-enter {
+  .comment__details-expand-enter {
     opacity: 0;
   }
 
-  .comment__details-enter-active {
+  .comment__details-expand-enter-active {
     transition: opacity 0.5s;
   }
 
-  .comment__details-leave-active {
+  .comment__details-expand-leave-active {
     transition: opacity 0.2s;
     opacity: 0;
+  }
+
+  .comment__more-button {
+    float: right;
+    margin-right: 0;
+  }
+
+  .comment__delete-button {
+    float: right;
+  }
+
+  .clear {
+    clear: both;
+  }
+
+  .comment__details {
+    line-height: 40px;
   }
 </style>

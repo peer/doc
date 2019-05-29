@@ -8,86 +8,94 @@
       :class="['thread__card', {'elevation-10': commentDescriptor.focus}]"
       @mousedown.stop
     >
-      <v-container
+      <v-layout
         v-if="!commentDescriptor.dummy"
-        class="thread__container"
+        row
+        wrap
       >
         <comment
           :comment-descriptor="commentDescriptor"
           @delete-clicked="onDeleteClicked(commentDescriptor)"
         />
-        <v-container
-          v-if="!commentDescriptor.focus && commentDescriptor.hasManyReplies"
-          class="thread__show_replies"
+
+        <v-flex
+          v-if="!commentDescriptor.focus && commentDescriptor.replies.length > 1"
+          xs12
+          text-xs-center
         >
           <v-divider />
-          <v-layout row>
-            <v-flex text-xs-center>
-              <v-btn
-                flat
-                small
-                @click="onViewAllReplies"
-              ><translate :translate-params="{count: commentDescriptor.replies.length}">view-all-replies</translate></v-btn>
-            </v-flex>
-          </v-layout>
-          <v-divider />
-        </v-container>
-        <v-layout
-          v-for="(replyDescriptor, index) of commentDescriptor.replies"
+          <v-btn
+            flat
+            small
+            @click="onViewAllReplies"
+          ><translate :translate-params="{count: commentDescriptor.replies.length}">view-all-replies</translate></v-btn>
+        </v-flex>
+
+        <v-flex
+          v-for="replyDescriptor of commentDescriptor.focus ? commentDescriptor.replies.slice(0, commentDescriptor.replies.length - 1) : []"
           :key="replyDescriptor._id"
-          row
+          xs12
         >
+          <v-divider />
           <comment
-            v-if="commentDescriptor.focus || (!commentDescriptor.focus && index == commentDescriptor.replies.length - 1)"
             :comment-descriptor="replyDescriptor"
-            class="thread__reply"
             @delete-clicked="onDeleteClicked(replyDescriptor)"
           />
-        </v-layout>
-      </v-container>
-      <v-container
-        v-if="canUserCreateComments"
+        </v-flex>
+
+        <v-flex
+          v-if="commentDescriptor.replies.length > 0"
+          xs12
+        >
+          <v-divider />
+          <comment
+            :comment-descriptor="commentDescriptor.replies[commentDescriptor.replies.length - 1]"
+            @delete-clicked="onDeleteClicked(commentDescriptor.replies[commentDescriptor.replies.length - 1])"
+          />
+        </v-flex>
+      </v-layout>
+
+      <v-layout
+        v-if="canUserCreateComments && commentDescriptor.focus"
         ref="inputContainer"
-        class="thread__input_container"
+        row
+        wrap
+        @click.stop
       >
-        <v-layout row>
-          <v-flex
-            xs10
-            offset-xs1
-          >
-            <div
-              v-show="commentDescriptor.focus"
-              @click.stop
-            >
-              <comment-editor
-                ref="threadInput"
-                v-model="newCommentBody"
-                :read-only="false"
-                :is-reply="!commentDescriptor.dummy"
-                class="thread__input"
-                @body-empty="showActions = !$event"
-              />
-              <v-card-actions
-                v-if="showActions"
-                class="thread__actions"
-              >
-                <v-btn
-                  small
-                  color="secondary"
-                  flat
-                  @click.stop="onCancel"
-                ><translate>cancel</translate></v-btn>
-                <v-btn
-                  small
-                  color="primary"
-                  flat
-                  @click.stop="onSubmit"
-                ><translate>insert</translate></v-btn>
-              </v-card-actions>
-            </div>
-          </v-flex>
-        </v-layout>
-      </v-container>
+        <v-flex xs12>
+          <v-divider />
+        </v-flex>
+        <v-flex
+          xs12
+          class="comment__input"
+        >
+          <comment-editor
+            ref="threadInput"
+            v-model="newCommentBody"
+            :read-only="false"
+            :is-reply="!commentDescriptor.dummy"
+            @body-empty="showActions = !$event"
+          />
+          <v-divider
+            v-if="showActions"
+            class="actions-divider"
+          />
+          <v-card-actions v-if="showActions">
+            <v-spacer />
+            <v-btn
+              small
+              flat
+              @click.stop="onCancel"
+            ><translate>cancel</translate></v-btn>
+            <v-btn
+              small
+              flat
+              color="primary"
+              @click.stop="onSubmit"
+            ><translate>insert</translate></v-btn>
+          </v-card-actions>
+        </v-flex>
+      </v-layout>
     </v-card>
   </transition>
 </template>
@@ -154,55 +162,16 @@
 </script>
 
 <style lang="scss">
-  .comment__body {
-    min-height: 36px;
-    padding-top: 5px;
-  }
-
-  .comment__details-enter {
-    opacity: 0;
-  }
-
-  .comment__details-enter-active {
-    transition: opacity 0.5s;
-  }
-
-  .comment__details-leave-active {
-    transition: opacity 0.2s;
-    opacity: 0;
-  }
-
   .thread__card {
     cursor: pointer;
-    padding-top: 10px;
-    padding-bottom: 10px;
   }
 
-  .thread__container {
-    padding: 0;
-  }
+  .comment__input {
+    padding: 12px 12px 0 12px;
 
-  .thread__show_replies {
-    padding-top: 5px;
-    padding-bottom: 5px;
-  }
-
-  .thread__reply {
-    padding-top:5px;
-  }
-
-  .thread__input_container {
-    padding: 0;
-  }
-
-  .thread__input {
-    padding-top: 0;
-    padding-bottom: 5px;
-    border-bottom: 1px solid gray;
-  }
-
-  .thread__actions {
-    padding-top: 5px;
-    padding-bottom: 0;
+    .editor-wrapper {
+      padding-bottom: 12px;
+      cursor: auto;
+    }
   }
 </style>

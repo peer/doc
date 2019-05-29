@@ -334,7 +334,6 @@
           return Object.assign({}, commentDescriptor, {
             highlightTop: getOffset(el).top,
             showDetails: false,
-            hasManyReplies: commentDescriptor.replies.length > 1,
             isMain: commentDescriptor.comment.replyTo === null,
             focus: currentHighlightKey === commentDescriptor.comment.highlightKey,
           });
