@@ -43,6 +43,8 @@
 
   import {Document} from '/lib/documents/document';
 
+  import {documentToolbarState} from './document-toolbar.vue';
+
   // @vue/component
   const component = {
     props: {
@@ -72,8 +74,16 @@
 
     created() {
       this.$autorun((computation) => {
+        documentToolbarState.documentId = this.documentId;
+      });
+
+      this.$autorun((computation) => {
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
+    },
+
+    destroyed() {
+      documentToolbarState.documentId = null;
     },
 
     methods: {

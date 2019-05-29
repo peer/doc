@@ -4,6 +4,7 @@
       v-if="!isEmbeded"
       app
       absolute
+      extension-height="49px"
     >
       <v-btn
         :to="{name: 'front-page'}"
@@ -50,6 +51,12 @@
           flat
         ><translate>sign-in</translate></v-btn>
       </v-toolbar-items>
+      <template
+        v-if="documentToolbarIsActive"
+        slot="extension"
+      >
+        <document-toolbar />
+      </template>
     </v-toolbar>
     <v-content>
       <v-container
@@ -86,6 +93,8 @@
   import {isEmbedded} from '../embed';
   import {Snackbar} from '../snackbar';
 
+  import {documentToolbarState} from './document-toolbar.vue';
+
   const component = {
     data() {
       return {
@@ -96,6 +105,12 @@
         isEmbeded: isEmbedded(),
         passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
+    },
+
+    computed: {
+      documentToolbarIsActive() {
+        return !!documentToolbarState.documentId;
+      },
     },
 
     created() {
@@ -188,5 +203,10 @@
   // We disable min-height otherwise iframe does not shrink when embedded.
   .embed .application--wrap {
     min-height: 0;
+  }
+
+  .v-toolbar__extension {
+    padding: 0;
+    border-top: 1px solid rgba(0,0,0,0.12);
   }
 </style>
