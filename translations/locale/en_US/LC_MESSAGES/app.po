@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-18 00:50-0700\n"
+"POT-Creation-Date: 2019-05-29 03:52-0700\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -46,7 +46,7 @@ msgid "add-content"
 msgstr "Add the text of your document here"
 
 #: client/components/document-compare.vue:54
-#: client/components/document-history.vue:35
+#: client/components/document-history-toolbar.vue:9
 msgid "back-to-document"
 msgstr "Editor"
 
@@ -74,11 +74,11 @@ msgstr "[today at] LT"
 #: client/components/document-fork.vue:37
 #: client/components/document-merge.vue:51
 #: client/components/document-publish.vue:37
-#: client/components/link-dialog.vue:31 client/components/thread.vue:78
+#: client/components/link-dialog.vue:31 client/components/thread.vue:88
 msgid "cancel"
 msgstr "Cancel"
 
-#: client/components/document-history.vue:92
+#: client/components/document-history.vue:86
 msgid "change-starts-at"
 msgstr "Changed %{at}"
 
@@ -86,11 +86,11 @@ msgstr "Changed %{at}"
 msgid "choose-title"
 msgstr "Write the title of your document here"
 
-#: client/components/app-layout.vue:77
+#: client/components/app-layout.vue:90
 msgid "close"
 msgstr "Close"
 
-#: client/components/comment.vue:42 client/components/comment.vue:74
+#: client/components/comment.vue:30
 msgid "comment-created-at"
 msgstr "Created %{at}"
 
@@ -98,11 +98,11 @@ msgstr "Created %{at}"
 msgid "comment-deletion-confirmation"
 msgstr "Are you sure you want to delete this comment?"
 
-#: client/components/comment-editor.vue:110
+#: client/components/comment-editor.vue:112
 msgid "comment-hint"
 msgstr "Write a comment"
 
-#: client/components/comment-editor.vue:110
+#: client/components/comment-editor.vue:112
 msgid "comment-reply-hint"
 msgstr "Write a reply"
 
@@ -124,11 +124,12 @@ msgstr[1] "%{value} days"
 msgid "delete"
 msgstr "Delete"
 
-#: client/components/document-compare.vue:50 client/components/sidebar.vue:43
+#: client/components/document-compare.vue:50
+#: client/components/document-toolbar.vue:31
 msgid "document-accept-merge"
 msgstr "Merge"
 
-#: client/components/sidebar.vue:33
+#: client/components/document-toolbar.vue:21
 msgid "document-compare"
 msgstr "Compare"
 
@@ -156,7 +157,7 @@ msgstr "Default permissions"
 msgid "document-default-permissions-hint"
 msgstr "Default permissions for users who can access the document."
 
-#: client/components/sidebar.vue:38
+#: client/components/document-toolbar.vue:26
 msgid "document-fork"
 msgstr "Fork"
 
@@ -180,7 +181,7 @@ msgstr "published"
 msgid "document-merge-accepted-at"
 msgstr "Merged %{at}"
 
-#: client/components/sidebar.vue:28
+#: client/components/document-toolbar.vue:16
 msgid "document-publish"
 msgstr "Publish"
 
@@ -252,7 +253,7 @@ msgstr "Public"
 msgid "document-visibility-public-hint"
 msgstr "Anyone with the link to the document can access the document."
 
-#: client/components/app-layout.vue:20
+#: client/components/app-layout.vue:21
 msgid "documents"
 msgstr "Documents"
 
@@ -308,11 +309,11 @@ msgstr "h2"
 msgid "h3"
 msgstr "h3"
 
-#: client/components/sidebar.vue:52
+#: client/components/document-toolbar.vue:40
 msgid "history"
 msgstr "History"
 
-#: client/components/document-history.vue:321
+#: client/components/document-history.vue:317
 msgid "history-created-event"
 msgstr "Created %{at}"
 
@@ -320,19 +321,19 @@ msgstr "Created %{at}"
 msgid "history-empty"
 msgstr "There are no changes to be shown."
 
-#: client/components/document-history.vue:312
+#: client/components/document-history.vue:308
 msgid "history-forked-event"
 msgstr "Forked %{at}"
 
-#: client/components/document-history.vue:339
+#: client/components/document-history.vue:335
 msgid "history-merge-accepted-event"
 msgstr "Merged %{at}"
 
-#: client/components/document-history.vue:330
+#: client/components/document-history.vue:326
 msgid "history-published-event"
 msgstr "Published %{at}"
 
-#: client/components/document-history.vue:284
+#: client/components/document-history.vue:280
 msgid "history-select-range"
 msgstr "Click and drag or hold Shift key to select a range of changes"
 
@@ -342,7 +343,7 @@ msgid_plural "hours"
 msgstr[0] "%{value} hour"
 msgstr[1] "%{value} hours"
 
-#: client/components/link-dialog.vue:43 client/components/thread.vue:84
+#: client/components/link-dialog.vue:43 client/components/thread.vue:94
 msgid "insert"
 msgstr "Insert"
 
@@ -364,7 +365,7 @@ msgid_plural "minutes"
 msgstr[0] "%{value} minute"
 msgstr[1] "%{value} minutes"
 
-#: client/components/sidebar.vue:94
+#: client/components/sidebar.vue:57
 msgid "no-comments"
 msgstr "No comments."
 
@@ -488,15 +489,15 @@ msgstr "User can view the document."
 msgid "role-view-users-hint"
 msgstr "Users who can access the document can view it."
 
-#: client/components/sidebar.vue:48
+#: client/components/document-toolbar.vue:36
 msgid "share"
 msgstr "Share"
 
-#: client/components/app-layout.vue:50 client/components/user-signin.vue:46
+#: client/components/app-layout.vue:51 client/components/user-signin.vue:46
 msgid "sign-in"
 msgstr "Sign In"
 
-#: client/components/app-layout.vue:42
+#: client/components/app-layout.vue:43
 msgid "sign-out"
 msgstr "Sign Out"
 
@@ -504,15 +505,15 @@ msgstr "Sign Out"
 msgid "signed-in-success"
 msgstr "You have been signed in."
 
-#: client/components/app-layout.vue:121
+#: client/components/app-layout.vue:147
 msgid "signed-out-error"
 msgstr "Error signing out: %{error}"
 
-#: client/components/app-layout.vue:125
+#: client/components/app-layout.vue:151
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
-#: client/components/sidebar.vue:98
+#: client/components/sidebar.vue:61
 msgid "start-a-new-comment"
 msgstr "Start a new comment by selecting content on the left."
 
@@ -525,7 +526,8 @@ msgid "title-length"
 msgstr "Your title should be brief (max 100 characters) and the text of your document added below it."
 
 #: client/components/document-compare.vue:45
-#: client/components/document-merge.vue:46 client/components/sidebar.vue:23
+#: client/components/document-merge.vue:46
+#: client/components/document-toolbar.vue:11
 msgid "to-parent-document"
 msgstr "Parent"
 
@@ -601,7 +603,7 @@ msgstr "Username is required."
 msgid "username-too-short"
 msgstr "Username too short. It should be 4 characters or more."
 
-#: client/components/thread.vue:29
+#: client/components/thread.vue:30
 msgid "view-all-replies"
 msgstr "View all replies (%{count})"
 
