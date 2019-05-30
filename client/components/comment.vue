@@ -29,6 +29,7 @@
         class="comment__details px-1"
       >
         <v-btn
+          v-if="canUserDeleteComment"
           flat
           icon
           small
