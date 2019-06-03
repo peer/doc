@@ -52,16 +52,13 @@
         ><translate>sign-in</translate></v-btn>
       </v-toolbar-items>
       <template
-        v-if="documentToolbarIsActive"
+        v-if="isToolbarPortalActive"
         slot="extension"
       >
-        <document-toolbar />
-      </template>
-      <template
-        v-else-if="documentHistoryToolbarIsActive"
-        slot="extension"
-      >
-        <document-history-toolbar />
+        <portal-target
+          name="toolbar"
+          slim
+        />
       </template>
     </v-toolbar>
     <v-content>
@@ -96,11 +93,10 @@
 <script>
   import {Meteor} from 'meteor/meteor';
 
+  import {Wormhole} from 'portal-vue';
+
   import {isEmbedded} from '../embed';
   import {Snackbar} from '../snackbar';
-
-  import {documentToolbarState} from './document-toolbar.vue';
-  import {documentHistoryToolbarState} from './document-history-toolbar.vue';
 
   const component = {
     data() {
@@ -115,12 +111,8 @@
     },
 
     computed: {
-      documentToolbarIsActive() {
-        return !!documentToolbarState.documentId;
-      },
-
-      documentHistoryToolbarIsActive() {
-        return !!documentHistoryToolbarState.documentId;
+      isToolbarPortalActive() {
+        return Wormhole.hasContentFor('toolbar');
       },
     },
 

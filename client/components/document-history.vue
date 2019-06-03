@@ -133,6 +133,19 @@
         </v-layout>
       </v-layout>
     </v-flex>
+    <portal to="toolbar">
+      <v-toolbar
+        flat
+        dense
+      >
+        <v-toolbar-items>
+          <v-btn
+            :to="{name: 'document', params: {documentId}}"
+            flat
+          ><translate>back-to-document</translate></v-btn>
+        </v-toolbar-items>
+      </v-toolbar>
+    </portal>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />
 </template>
@@ -148,8 +161,6 @@
   import {Document} from '/lib/documents/document';
   import {schema} from '/lib/full-schema';
   import {stepsAreOnlyHighlights} from '/lib/utils';
-
-  import {documentHistoryToolbarState} from './document-history-toolbar.vue';
 
   // How long between steps for them to be counted as a separate change?
   const CHANGES_BREAK = 15 * 60 * 1000; // milliseconds
@@ -443,10 +454,6 @@
 
     created() {
       this.$autorun((computation) => {
-        documentHistoryToolbarState.documentId = this.documentId;
-      });
-
-      this.$autorun((computation) => {
         this.$subscribe('Document.one', {documentId: this.documentId});
       });
 
@@ -455,13 +462,6 @@
           this.contentsHandle = this.$subscribe('Content.list', {contentKey: this.document.contentKey, withMetadata: true});
         }
       });
-    },
-
-    beforeDestroy() {
-      // If we are moving between documents it might have already been set to some other value.
-      if (documentHistoryToolbarState.documentId === this.documentId) {
-        documentHistoryToolbarState.documentId = null;
-      }
     },
 
     methods: {
