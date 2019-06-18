@@ -42,25 +42,25 @@ describe('comments', function () {
 
     cy.allSubscriptionsReady().should('eq', true);
 
-    cy.get('.thread__input .comment-editor');
+    cy.get('.comment__input .editor');
 
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'comment prompt');
 
-    cy.get('.thread__input .comment-editor').type('comment body');
+    cy.get('.comment__input .editor').type('comment body');
 
-    cy.contains('.thread__input_container .v-btn', 'Insert');
+    cy.contains('.comment__input .v-btn', 'Insert');
 
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'comment body');
 
-    cy.contains('.thread__input_container .v-btn', 'Insert').click();
+    cy.contains('.comment__input .v-btn', 'Insert').click();
 
     cy.allSubscriptionsReady().should('eq', true);
 
-    cy.get('.thread__input .comment-editor');
+    cy.get('.comment__input .editor');
 
     cy.contains('.comment__body', 'comment body');
 
@@ -68,15 +68,15 @@ describe('comments', function () {
 
     cy.visualSnapshot(this.test, 'comment made');
 
-    cy.get('.thread__input .comment-editor').type('reply body');
+    cy.get('.comment__input .editor').type('reply body');
 
-    cy.contains('.thread__input_container .v-btn', 'Insert');
+    cy.contains('.comment__input .v-btn', 'Insert');
 
     cy.wait(500);
 
     cy.visualSnapshot(this.test, 'reply body');
 
-    cy.contains('.thread__input_container .v-btn', 'Insert').click();
+    cy.contains('.comment__input .v-btn', 'Insert').click();
 
     cy.allSubscriptionsReady().should('eq', true);
 

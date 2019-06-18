@@ -4,6 +4,7 @@
       v-if="!isEmbeded"
       app
       absolute
+      extension-height="49px"
     >
       <v-btn
         :to="{name: 'front-page'}"
@@ -50,6 +51,15 @@
           flat
         ><translate>sign-in</translate></v-btn>
       </v-toolbar-items>
+      <template
+        v-if="isToolbarPortalActive"
+        slot="extension"
+      >
+        <portal-target
+          name="toolbar"
+          slim
+        />
+      </template>
     </v-toolbar>
     <v-content>
       <v-container
@@ -83,6 +93,8 @@
 <script>
   import {Meteor} from 'meteor/meteor';
 
+  import {Wormhole} from 'portal-vue';
+
   import {isEmbedded} from '../embed';
   import {Snackbar} from '../snackbar';
 
@@ -96,6 +108,12 @@
         isEmbeded: isEmbedded(),
         passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
+    },
+
+    computed: {
+      isToolbarPortalActive() {
+        return Wormhole.hasContentFor('toolbar');
+      },
     },
 
     created() {
@@ -188,5 +206,10 @@
   // We disable min-height otherwise iframe does not shrink when embedded.
   .embed .application--wrap {
     min-height: 0;
+  }
+
+  .v-toolbar__extension {
+    padding: 0;
+    border-top: 1px solid rgba(0,0,0,0.12);
   }
 </style>

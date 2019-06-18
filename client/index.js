@@ -9,6 +9,7 @@ import 'moment/locale/pt-br';
 import Vue from 'vue';
 import GetTextPlugin from 'vue-gettext';
 import GlobalEvents from 'vue-global-events';
+import PortalVue from 'portal-vue';
 import Vuetify from 'vuetify';
 
 import {Activity} from '/lib/documents/activity';
@@ -24,6 +25,7 @@ Vue.use(GetTextPlugin, {
   defaultLanguage: getLanguage(),
   translations,
 });
+Vue.use(PortalVue);
 Vue.use(VueExtensions);
 
 Vue.component('global-events', GlobalEvents);

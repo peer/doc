@@ -14,8 +14,7 @@
       </v-card>
     </v-flex>
     <v-flex xs4>
-      <v-container
-        fluid
+      <v-layout
         fill-height
         class="sidebar"
       >
@@ -29,12 +28,7 @@
                 <v-toolbar
                   dense
                   card
-                >
-                  <v-btn
-                    :to="{name: 'document', params: {documentId}}"
-                    outline
-                  ><translate>back-to-document</translate></v-btn>
-                </v-toolbar>
+                />
               </v-card>
             </v-flex>
           </v-layout>
@@ -137,8 +131,21 @@
             </v-flex>
           </v-layout>
         </v-layout>
-      </v-container>
+      </v-layout>
     </v-flex>
+    <portal to="toolbar">
+      <v-toolbar
+        flat
+        dense
+      >
+        <v-toolbar-items>
+          <v-btn
+            :to="{name: 'document', params: {documentId}}"
+            flat
+          ><translate>back-to-document</translate></v-btn>
+        </v-toolbar-items>
+      </v-toolbar>
+    </portal>
   </v-layout>
   <not-found v-else-if="$subscriptionsReady()" />
 </template>

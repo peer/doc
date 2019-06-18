@@ -4,7 +4,9 @@ import {_} from 'meteor/underscore';
 
 import moment from 'moment';
 
+import {Comment} from '/lib/documents/comment';
 import {Document} from '/lib/documents/document';
+import {User} from '/lib/documents/user';
 
 let sessionKey = null;
 let sessionKeyTimestamp = null;
@@ -33,7 +35,7 @@ function getSessionKey() {
   return sessionKey;
 }
 
-function update(id, fields) {
+function documentUpdated(id, fields) {
   // We process the change only if the first character of the document
   // ID matches one of characters in "prefix". In this way we distribute
   // processing across multiple nodes.
@@ -63,6 +65,41 @@ function update(id, fields) {
   });
 }
 
+function commentInserted(id, fields) {
+  // We process the change only if the first character of the document
+  // ID matches one of characters in "prefix". In this way we distribute
+  // processing across multiple nodes.
+  if (!prefix.includes(id[0])) {
+    return;
+  }
+
+  // A required field is missing.
+  if (!(fields.author && fields.author._id && fields.document && fields.document._id)) {
+    return;
+  }
+
+  const author = User.documents.findOne({_id: fields.author._id, 'services.usertoken': {$exists: true}}, {fields: {'services.usertoken': 1}});
+  const appCivistUserId = author && author.services && author.services.usertoken && author.services.usertoken.id;
+
+  // We notify only for AppCivist users.
+  if (!appCivistUserId) {
+    return;
+  }
+
+  const params = {
+    eventType: 'NEW_CONTRIBUTION_COMMENT',
+    userId: appCivistUserId,
+  };
+
+  HTTP.call('POST', `${Meteor.settings.appCivistIntegration.endpoint}/api/contribution/${fields.document._id}/signal`, {
+    params,
+    data: {},
+    headers: {
+      SESSION_KEY: getSessionKey(),
+    },
+  });
+}
+
 if (Meteor.settings.appCivistIntegration && Meteor.settings.appCivistIntegration.endpoint && Meteor.settings.appCivistIntegration.email && Meteor.settings.appCivistIntegration.password) {
   Meteor.startup(() => {
     if (Document.instanceDisabled) {
@@ -75,8 +112,29 @@ if (Meteor.settings.appCivistIntegration && Meteor.settings.appCivistIntegration
         lastActivity: 1,
       },
     }).observeChanges({
-      added: update,
-      changed: update,
+      added: documentUpdated,
+      changed: documentUpdated,
     });
+  });
+
+  Meteor.startup(() => {
+    if (Comment.instanceDisabled) {
+      return;
+    }
+
+    let initializing = true;
+    Comment.documents.find({}, {
+      fields: {
+        author: 1,
+        document: 1,
+      },
+    }).observeChanges({
+      added(id, fields) {
+        if (!initializing) {
+          commentInserted(id, fields);
+        }
+      },
+    });
+    initializing = false;
   });
 }
