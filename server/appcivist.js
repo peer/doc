@@ -11,7 +11,7 @@ import {User} from '/lib/documents/user';
 let sessionKey = null;
 let sessionKeyTimestamp = null;
 
-const SESSION_KEY_TTL = 30 * 24 * 60 * 60; // 30 days, seconds
+const SESSION_KEY_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days, miliseconds
 const UNMISTAKABLE_CHARS = '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz';
 
 let prefix = UNMISTAKABLE_CHARS.split('');
@@ -23,7 +23,7 @@ if (Document.instances > 1) {
 
 function getSessionKey() {
   const timestamp = Date.now();
-  if (!sessionKeyTimestamp || sessionKeyTimestamp.valueOf() + SESSION_KEY_TTL < timestamp) {
+  if (!sessionKeyTimestamp || sessionKeyTimestamp + SESSION_KEY_TTL < timestamp) {
     const response = HTTP.call('POST', `${Meteor.settings.appCivistIntegration.endpoint}/api/user/login`, {
       data: _.pick(Meteor.settings.appCivistIntegration, 'email', 'password'),
     });
