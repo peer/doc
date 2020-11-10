@@ -18,6 +18,14 @@ tests:
     - meteor npm run test-ci
     - meteor npm run cypress-ci
 
+  artifacts:
+    name: "reports-$CI_JOB_ID"
+    when: always
+    paths:
+      - tests/reports
+    reports:
+      junit: tests/reports/*.xml
+
 check_authors:
   stage: test
 
