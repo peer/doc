@@ -64,7 +64,7 @@
     "@percy/cypress": "~1.0.2",
     "babel-eslint": "~8.2.3",
     "chai": "~3.5.0",
-    "chromedriver": "~2.41.0",
+    "chromedriver": "~86.0.0",
     "cypress": "~3.2.0",
     "easygettext": "~2.3.0",
     "eslint": "~4.19.1",
