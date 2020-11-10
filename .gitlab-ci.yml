@@ -47,3 +47,26 @@ check_commits:
    - apk add --no-cache git
    # No merge marks in commits.
    - '! git log --oneline "-G^(<<<<<<<|=======|>>>>>>>)" | grep "^"'
+
+build_image:
+  stage: build
+
+  image: docker:19
+
+  services:
+    - docker:19-dind
+
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+
+  before_script:
+    - docker info
+    - echo "$CI_JOB_TOKEN" | docker login --username gitlab-ci-token --password-stdin "$CI_REGISTRY"
+
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" .
+
+  only:
+    - main
+    - devel
