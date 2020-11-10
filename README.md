@@ -9,7 +9,7 @@ $ curl https://install.meteor.com/ | sh
 Clone the repository **recursively**:
 
 ```bash
-$ git clone --recursive https://github.com/peer/doc.git
+$ git clone --recursive https://gitlab.com/peer/doc.git
 ```
 
 Install dependencies:

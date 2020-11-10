@@ -33,7 +33,7 @@ In JavaScript it is not required to define all arguments if you do not use them 
 even if caller is passing them. We encourage you to always list all arguments which you know caller is
 passing to a function, even if you do not use them because maybe in the future somebody will find it useful
 when doing modification to function's code. In this way it is also easier to do modifications because you
-do not have to fullly know what all is being passed to a function and you can work directly with what you have
+do not have to fully know what all is being passed to a function and you can work directly with what you have
 available.
 
 ### Imports
@@ -148,19 +148,19 @@ Commit often and make sure each commit is a rounded change. Do not squash commit
 into a clearer change. We leave unsuccessful attempts in the repository because maybe in the future we can come back to them
 and use them, maybe in a different context or way.
 
-For most changes to the repository, we make first a feature branch from `master` branch. We make all necessary changes in
-that new branch, potentially make multiple commits. We make a pull request against the `master` branch for the change
-to be reviewed and merged. We should make a pull request even before all changes are finished so that others can comment
-and discuss the development. We can continue adding more commits to this branch even after the pull request has been made
-and GitHub will update the pull request automatically. Until a pull request is finished and is deemed ready to be merged
-by its author, pull request's title should be prefixed with `WiP` keyword so that it is clear that it is not yet meant
+For most changes to the repository, we make first a feature branch from `devel` branch. We make all necessary changes in
+that new branch, potentially make multiple commits. We make a merge request against the `devel` branch for the change
+to be reviewed and merged. We should make a merge request even before all changes are finished so that others can comment
+and discuss the development. We can continue adding more commits to this branch even after the merge request has been made
+and GitLab will update the merge request automatically. Until a merge request is finished and is deemed ready to be merged
+by its author, merge request's title should be prefixed with `WiP` keyword so that it is clear that it is not yet meant
 to be merged (and thoroughly reviewed).
 
 ### Commit messages
 
 Commit messages should be descriptive and full sentences, with grammatically correct punctuation.
 If possible, they should reference relevant tickets (by appending something like `See #123.`) or even close them
-(`Fixes #123.`). GitHub recognizes that. If longer commit message is suitable (which is always a good thing),
+(`Fixes #123.`). GitLab recognizes that. If longer commit message is suitable (which is always a good thing),
 first one line summary should be made (50 characters is a soft limit), followed by an empty line, followed
 by a multi-line message:
 
