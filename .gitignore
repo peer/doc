@@ -8,3 +8,4 @@ settings.json
 translations/template.pot
 tests/cypress/videos
 tests/cypress/screenshots
+tests/reports
