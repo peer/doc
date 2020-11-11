@@ -8,7 +8,7 @@ variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_PIPELINE_IMAGE_NAME: "$CI_REGISTRY_IMAGE/pipeline:$CI_PIPELINE_ID"
 
-build_local:
+test:
   stage: build
 
   image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
@@ -33,6 +33,14 @@ build_local:
     - echo -e "section_start:`date +%s`:cypress\r\e[0K${TXT_SECTION}Cypress${TXT_CLEAR}"
     - meteor npm run cypress-ci
     - echo -e "section_end:`date +%s`:cypress\r\e[0K"
+
+  artifacts:
+    name: "reports-$CI_PIPELINE_ID"
+    when: always
+    paths:
+      - tests/reports
+    reports:
+      junit: tests/reports/*.xml
 
 build_image:
   stage: build
