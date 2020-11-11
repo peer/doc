@@ -14,22 +14,22 @@ build_local:
   image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
 
   variables:
-    TXT_RED: "\\e[31m"
+    TXT_SECTION: "\\e[34;1m"
     TXT_CLEAR: "\\e[0m"
 
   script:
-    - echo -e "section_start:`date +%s`:install\r\e[0K${TXT_RED}Install${TXT_CLEAR}"
+    - echo -e "section_start:`date +%s`:install\r\e[0K${TXT_SECTION}Install${TXT_CLEAR}"
     # TODO: We should replace this with "meteor npm ci" when we will have npm 5.7.0 or newer.
     - meteor npm install
     - meteor list
     - echo -e "section_end:`date +%s`:install\r\e[0K"
-    - echo -e "section_start:`date +%s`:lint\r\e[0K${TXT_RED}Lint${TXT_CLEAR}"
+    - echo -e "section_start:`date +%s`:lint\r\e[0K${TXT_SECTION}Lint${TXT_CLEAR}"
     - meteor npm run lint-ci
     - echo -e "section_end:`date +%s`:lint\r\e[0K"
-    - echo -e "section_start:`date +%s`:lint\r\e[0K${TXT_RED}Test${TXT_CLEAR}"
+    - echo -e "section_start:`date +%s`:lint\r\e[0K${TXT_SECTION}Test${TXT_CLEAR}"
     - meteor npm run test-ci
     - echo -e "section_end:`date +%s`:test\r\e[0K"
-    - echo -e "section_start:`date +%s`:cypress\r\e[0K${TXT_RED}Cypress${TXT_CLEAR}"
+    - echo -e "section_start:`date +%s`:cypress\r\e[0K${TXT_SECTION}Cypress${TXT_CLEAR}"
     - meteor npm run cypress-ci
     - echo -e "section_end:`date +%s`:cypress\r\e[0K"
 
