@@ -1,12 +1,17 @@
 stages:
-  - test
   - build
+  - test
+  - deploy
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://docker:2375
 
-tests:
-  stage: test
+build_local:
+  stage: build
+
+  needs: []
 
   image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
 
@@ -14,20 +19,32 @@ tests:
     # TODO: We should replace this with "meteor npm ci" when we will have npm 5.7.0 or newer.
     - meteor npm install
     - meteor list
-    - meteor npm run lint-ci
-    - meteor npm run test-ci
-    - meteor npm run cypress-ci
+
+build_image:
+  stage: build
+
+  needs: []
+
+  image: docker:19
+
+  services:
+    - docker:19-dind
+
+  before_script:
+    - docker info
+
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:pipeline-$CI_PIPELINE_ID" .
+    - docker save "$CI_REGISTRY_IMAGE:pipeline-$CI_PIPELINE_ID" | gzip > docker-image.tgz
 
   artifacts:
-    name: "reports-$CI_JOB_ID"
-    when: always
     paths:
-      - tests/reports
-    reports:
-      junit: tests/reports/*.xml
+      - docker-image.tgz
 
 check_authors:
   stage: test
+
+  needs: []
 
   image: alpine:3
 
@@ -37,6 +54,8 @@ check_authors:
 
 check_commits:
   stage: test
+
+  needs: []
 
   image: alpine:3
 
@@ -48,24 +67,24 @@ check_commits:
    # No merge marks in commits.
    - '! git log --oneline "-G^(<<<<<<<|=======|>>>>>>>)" | grep "^"'
 
-build_image:
-  stage: build
+push_image:
+  stage: deploy
+
+  dependencies:
+    - build_image
 
   image: docker:19
 
   services:
     - docker:19-dind
 
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://docker:2375
-
   before_script:
     - docker info
     - echo "$CI_JOB_TOKEN" | docker login --username gitlab-ci-token --password-stdin "$CI_REGISTRY"
 
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" .
+    - docker load < docker-image.tgz
+    - docker tag "$CI_REGISTRY_IMAGE:pipeline-$CI_PIPELINE_ID" "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
     - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
 
   only:
