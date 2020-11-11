@@ -22,6 +22,7 @@ build_local:
     # TODO: We should replace this with "meteor npm ci" when we will have npm 5.7.0 or newer.
     - meteor npm install
     - meteor list
+    - mkidr tests/reports
     - echo -e "section_end:`date +%s`:install\r\e[0K"
     - echo -e "section_start:`date +%s`:lint\r\e[0K${TXT_SECTION}Lint${TXT_CLEAR}"
     - meteor npm run lint-ci
