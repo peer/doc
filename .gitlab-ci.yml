@@ -19,6 +19,17 @@ build_local:
     # TODO: We should replace this with "meteor npm ci" when we will have npm 5.7.0 or newer.
     - meteor npm install
     - meteor list
+    # Artifacts can only be relative, so we move them here.
+    - mkdir .root
+    - mv /.npm .root/.npm
+    - mv /.cache .root/.cache
+    - mv /.meteor .root/.meteor
+
+  artifacts:
+    paths:
+      - .root
+      - .meteor
+      - node_modules
 
 build_image:
   stage: build
@@ -52,6 +63,7 @@ check_authors:
    - apk add --no-cache git bash
    - ./.authors/check-authors.sh
 
+ # Check that there are no merge marks in commits.
 check_commits:
   stage: test
 
@@ -64,8 +76,61 @@ check_commits:
 
   script:
    - apk add --no-cache git
-   # No merge marks in commits.
    - '! git log --oneline "-G^(<<<<<<<|=======|>>>>>>>)" | grep "^"'
+
+lint:
+  stage: test
+
+  needs:
+    - build_local
+
+  image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
+
+  before_script:
+    # Artifacts can only be relative, so we restore them here.
+    - mv .root/.npm /.npm
+    - mv .root/.cache /.cache
+    - mv .root/.meteor /.meteor
+    - rmdir .root
+
+  script:
+    - meteor npm run lint-ci
+
+test:
+  stage: test
+
+  needs:
+    - build_local
+
+  image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
+
+  before_script:
+    # Artifacts can only be relative, so we restore them here.
+    - mv .root/.npm /.npm
+    - mv .root/.cache /.cache
+    - mv .root/.meteor /.meteor
+    - rmdir .root
+
+  script:
+    - meteor npm run test-ci
+
+cypress:
+  stage: test
+
+  needs:
+    - build_local
+
+  image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
+
+  before_script:
+    # Artifacts can only be relative, so we restore them here.
+    - mv .root/.npm /.npm
+    - mv .root/.cache /.cache
+    - mv .root/.meteor /.meteor
+    - rmdir .root
+
+  script:
+    - meteor npm run cypress-ci
 
 push_image:
   stage: deploy
