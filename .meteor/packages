@@ -31,7 +31,7 @@ peerlibrary:peerdb
 akryum:vue-sass
 fourseven:scss
 tmeasday:acceptance-test-driver
-meteortesting:mocha
+meteortesting:mocha@2.0.1
 lmieulet:meteor-coverage
 peerlibrary:peerdb-migrations
 runisland:static-assets
