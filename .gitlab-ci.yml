@@ -52,6 +52,7 @@ build_image:
 
   before_script:
     - docker info
+    - echo "$CI_JOB_TOKEN" | docker login --username gitlab-ci-token --password-stdin "$CI_REGISTRY"
 
   script:
     - docker build --pull -t "$DOCKER_PIPELINE_IMAGE_NAME" .
