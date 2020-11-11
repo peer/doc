@@ -1,40 +1,36 @@
 stages:
   - build
-  - test
   - deploy
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375
+  DOCKER_PIPELINE_IMAGE_NAME: "$CI_REGISTRY_IMAGE/pipeline:$CI_PIPELINE_ID"
 
 build_local:
   stage: build
 
-  needs: []
-
   image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
 
   script:
+    - echo -e "section_start:`date +%s`:install\r\e[0KInstall"
     # TODO: We should replace this with "meteor npm ci" when we will have npm 5.7.0 or newer.
     - meteor npm install
     - meteor list
-    # Artifacts can only be relative, so we move them here.
-    - mkdir .root
-    - mv /.npm .root/.npm
-    - mv /.cache .root/.cache
-    - mv /.meteor .root/.meteor
-
-  artifacts:
-    paths:
-      - .root
-      - .meteor
-      - node_modules
+    - echo -e "section_end:`date +%s`:install\r\e[0K"
+    - echo -e "section_start:`date +%s`:lint\r\e[0KLint"
+    - meteor npm run lint-ci
+    - echo -e "section_end:`date +%s`:lint\r\e[0K"
+    - echo -e "section_start:`date +%s`:lint\r\e[0KTest"
+    - meteor npm run test-ci
+    - echo -e "section_end:`date +%s`:test\r\e[0K"
+    - echo -e "section_start:`date +%s`:cypress\r\e[0KCypress"
+    - meteor npm run cypress-ci
+    - echo -e "section_end:`date +%s`:cypress\r\e[0K"
 
 build_image:
   stage: build
-
-  needs: []
 
   image: docker:19
 
@@ -45,17 +41,11 @@ build_image:
     - docker info
 
   script:
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:pipeline-$CI_PIPELINE_ID" .
-    - docker save "$CI_REGISTRY_IMAGE:pipeline-$CI_PIPELINE_ID" | gzip > docker-image.tgz
-
-  artifacts:
-    paths:
-      - docker-image.tgz
+    - docker build --pull -t "$DOCKER_PIPELINE_IMAGE_NAME" .
+    - docker push "$DOCKER_PIPELINE_IMAGE_NAME"
 
 check_authors:
-  stage: test
-
-  needs: []
+  stage: build
 
   image: alpine:3
 
@@ -65,9 +55,7 @@ check_authors:
 
  # Check that there are no merge marks in commits.
 check_commits:
-  stage: test
-
-  needs: []
+  stage: build
 
   image: alpine:3
 
@@ -78,65 +66,8 @@ check_commits:
    - apk add --no-cache git
    - '! git log --oneline "-G^(<<<<<<<|=======|>>>>>>>)" | grep "^"'
 
-lint:
-  stage: test
-
-  needs:
-    - build_local
-
-  image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
-
-  before_script:
-    # Artifacts can only be relative, so we restore them here.
-    - mv .root/.npm /.npm
-    - mv .root/.cache /.cache
-    - mv .root/.meteor /.meteor
-    - rmdir .root
-
-  script:
-    - meteor npm run lint-ci
-
-test:
-  stage: test
-
-  needs:
-    - build_local
-
-  image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
-
-  before_script:
-    # Artifacts can only be relative, so we restore them here.
-    - mv .root/.npm /.npm
-    - mv .root/.cache /.cache
-    - mv .root/.meteor /.meteor
-    - rmdir .root
-
-  script:
-    - meteor npm run test-ci
-
-cypress:
-  stage: test
-
-  needs:
-    - build_local
-
-  image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
-
-  before_script:
-    # Artifacts can only be relative, so we restore them here.
-    - mv .root/.npm /.npm
-    - mv .root/.cache /.cache
-    - mv .root/.meteor /.meteor
-    - rmdir .root
-
-  script:
-    - meteor npm run cypress-ci
-
 push_image:
   stage: deploy
-
-  dependencies:
-    - build_image
 
   image: docker:19
 
@@ -148,8 +79,9 @@ push_image:
     - echo "$CI_JOB_TOKEN" | docker login --username gitlab-ci-token --password-stdin "$CI_REGISTRY"
 
   script:
-    - docker load < docker-image.tgz
-    - docker tag "$CI_REGISTRY_IMAGE:pipeline-$CI_PIPELINE_ID" "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+    # TODO: Improve so that pulling is not necessary. See: https://gitlab.com/gitlab-org/gitlab/-/issues/15252
+    - docker pull "$DOCKER_PIPELINE_IMAGE_NAME"
+    - docker tag "$DOCKER_PIPELINE_IMAGE_NAME" "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
     - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
 
   only:
