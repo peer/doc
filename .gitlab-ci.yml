@@ -11,7 +11,7 @@ variables:
 test:
   stage: build
 
-  image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-bionic-1.6.1.4
+  image: registry.gitlab.com/tozd/docker/meteor-testing:ubuntu-focal-1.11.1
 
   variables:
     TXT_SECTION: "\\e[34;1m"
