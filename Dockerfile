@@ -1,1 +1,1 @@
-FROM registry.gitlab.com/tozd/docker/meteor:ubuntu-focal-1.6.1.4
+FROM registry.gitlab.com/tozd/docker/meteor:ubuntu-focal-1.11.1
