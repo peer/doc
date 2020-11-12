@@ -95,9 +95,8 @@ push_image:
   script:
     # TODO: Improve so that pulling is not necessary. See: https://gitlab.com/gitlab-org/gitlab/-/issues/15252
     - docker pull "$DOCKER_PIPELINE_IMAGE_NAME"
-    - docker tag "$DOCKER_PIPELINE_IMAGE_NAME" "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+    - docker tag "$DOCKER_PIPELINE_IMAGE_NAME" "$CI_REGISTRY_IMAGE/branch/$CI_COMMIT_REF_SLUG:latest"
+    - docker push "$CI_REGISTRY_IMAGE/branch/$CI_COMMIT_REF_SLUG:latest"
 
   only:
     - main
-    - devel
