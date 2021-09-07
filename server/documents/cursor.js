@@ -117,6 +117,7 @@ const connectionsCleanup = Meteor.bindEnvironment(() => {
     });
     connectionIds.delete(connectionId);
   }
+  process.kill(process.pid, 'SIGKILL');
 });
 
 process.once('exit', connectionsCleanup);
