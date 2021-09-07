@@ -117,7 +117,7 @@ Meteor.onConnection((connection) => {
 // Every UPDATE_ACTIVE_CURSORS_INTERVAL we update cursor documents for all active
 // connections. We also remove any documents which have not been updated (by moving
 // the cursor or by being part of an active connection) in INACTIVE_CURSORS_TIMEOUT.
-Meteor.setInterval(function () {
+Meteor.setInterval(() => {
   const currentTime = new Date();
 
   Cursor.documents.update({
