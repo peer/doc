@@ -9,6 +9,10 @@ import {User} from '/lib/documents/user';
 import {Document} from '/lib/documents/document';
 import {check} from '/server/check';
 
+const UPDATE_ACTIVE_CURSORS_INTERVAL = 60 * 1000; // ms
+// INACTIVE_CURSORS_TIMEOUT should be larger than UPDATE_ACTIVE_CURSORS_INTERVAL.
+const INACTIVE_CURSORS_TIMEOUT = UPDATE_ACTIVE_CURSORS_INTERVAL + 30 * 1000; // ms
+
 Cursor._delete = function delete_(args, connectionId) {
   check(args, {
     contentKey: Match.DocumentId,
@@ -110,16 +114,30 @@ Meteor.onConnection((connection) => {
   });
 });
 
-const connectionsCleanup = Meteor.bindEnvironment(() => {
-  for (const connectionId of connectionIds) {
-    Cursor.documents.remove({
-      connectionId,
-    });
-    connectionIds.delete(connectionId);
-  }
-  process.kill(process.pid, 'SIGKILL');
-});
+// Every UPDATE_ACTIVE_CURSORS_INTERVAL we update cursor documents for all active
+// connections. We also remove any documents which have not been updated (by moving
+// the cursor or by being part of an active connection) in INACTIVE_CURSORS_TIMEOUT.
+Meteor.setInterval(function () {
+  const currentTime = new Date();
 
-process.once('exit', connectionsCleanup);
-process.once('SIGTERM', connectionsCleanup);
-process.once('SIGINT', connectionsCleanup);
+  Cursor.documents.update({
+    connectionId: {
+      $in: Array.from(connectionIds.keys()),
+    },
+    updatedAt: {
+      $lt: currentTime,
+    },
+  }, {
+    $set: {
+      updatedAt: currentTime,
+    },
+  }, {multi: true});
+
+  const expirationTime = new Date();
+  expirationTime.setTime(currentTime.getTime() - INACTIVE_CURSORS_TIMEOUT);
+  Cursor.documents.remove({
+    updatedAt: {
+      $lt: expirationTime,
+    },
+  });
+}, UPDATE_ACTIVE_CURSORS_INTERVAL);
