@@ -26,7 +26,7 @@ test:
     - echo -e "section_start:`date +%s`:lint\r\e[0K${TXT_SECTION}Lint${TXT_CLEAR}"
     - meteor npm run lint-ci
     - echo -e "section_end:`date +%s`:lint\r\e[0K"
-    - echo -e "section_start:`date +%s`:lint\r\e[0K${TXT_SECTION}Test${TXT_CLEAR}"
+    - echo -e "section_start:`date +%s`:test\r\e[0K${TXT_SECTION}Test${TXT_CLEAR}"
     - meteor npm run test-ci
     - echo -e "section_end:`date +%s`:test\r\e[0K"
     - echo -e "section_start:`date +%s`:cypress\r\e[0K${TXT_SECTION}Cypress${TXT_CLEAR}"
@@ -95,7 +95,9 @@ push_image:
     # TODO: Improve so that pulling is not necessary. See: https://gitlab.com/gitlab-org/gitlab/-/issues/15252
     - docker pull "$DOCKER_PIPELINE_IMAGE_NAME"
     - docker tag "$DOCKER_PIPELINE_IMAGE_NAME" "$CI_REGISTRY_IMAGE/branch/$CI_COMMIT_REF_SLUG:latest"
+    - docker tag "$DOCKER_PIPELINE_IMAGE_NAME" "$CI_REGISTRY_IMAGE/branch/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA"
     - docker push "$CI_REGISTRY_IMAGE/branch/$CI_COMMIT_REF_SLUG:latest"
+    - docker push "$CI_REGISTRY_IMAGE/branch/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA"
 
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH
