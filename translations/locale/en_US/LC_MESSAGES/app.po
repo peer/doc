@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: peer-doc undefined\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-29 03:52-0700\n"
+"POT-Creation-Date: 2021-09-07 21:07+0200\n"
 "PO-Revision-Date: 2018-04-06 07:57-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: client/components/document-merge.vue:57
+#: client/components/document-merge.vue:62
 msgid "accept-merge"
 msgstr "Merge"
 
@@ -29,11 +29,11 @@ msgstr "Merging this document into its parent document will copy into the parent
 msgid "accept-merge-document-confirmation-title"
 msgstr "Merge document"
 
-#: client/components/document-merge.vue:141
+#: client/components/document-merge.vue:147
 msgid "accept-merge-error"
 msgstr "An error has occurred when trying to merge the document."
 
-#: client/components/document-merge.vue:145
+#: client/components/document-merge.vue:151
 msgid "accept-merge-success"
 msgstr "The document has been successfully merged into the parent document."
 
@@ -45,8 +45,8 @@ msgstr "Access denied."
 msgid "add-content"
 msgstr "Add the text of your document here"
 
-#: client/components/document-compare.vue:54
-#: client/components/document-history-toolbar.vue:9
+#: client/components/document-compare.vue:59
+#: client/components/document-history.vue:149
 msgid "back-to-document"
 msgstr "Editor"
 
@@ -70,11 +70,11 @@ msgstr "dddd [at] LT"
 msgid "calendar-same-day"
 msgstr "[today at] LT"
 
-#: client/components/comment-deletion-dialog.vue:21
-#: client/components/document-fork.vue:37
-#: client/components/document-merge.vue:51
-#: client/components/document-publish.vue:37
-#: client/components/link-dialog.vue:31 client/components/thread.vue:88
+#: client/components/comment-deletion-dialog.vue:22
+#: client/components/document-fork.vue:38
+#: client/components/document-merge.vue:54
+#: client/components/document-publish.vue:38
+#: client/components/link-dialog.vue:32 client/components/thread.vue:93
 msgid "cancel"
 msgstr "Cancel"
 
@@ -86,11 +86,11 @@ msgstr "Changed %{at}"
 msgid "choose-title"
 msgstr "Write the title of your document here"
 
-#: client/components/app-layout.vue:90
+#: client/components/app-layout.vue:97
 msgid "close"
 msgstr "Close"
 
-#: client/components/comment.vue:30
+#: client/components/comment.vue:42
 msgid "comment-created-at"
 msgstr "Created %{at}"
 
@@ -114,22 +114,21 @@ msgstr "Comparing this document with its parent document."
 msgid "compare-document-title"
 msgstr "Compare document"
 
-#: client/vue-extensions.js:168
+#: client/vue-extensions.js:167
 msgid "day"
 msgid_plural "days"
 msgstr[0] "%{value} day"
 msgstr[1] "%{value} days"
 
-#: client/components/comment-deletion-dialog.vue:26
+#: client/components/comment-deletion-dialog.vue:29
 msgid "delete"
 msgstr "Delete"
 
-#: client/components/document-compare.vue:50
-#: client/components/document-toolbar.vue:31
+#: client/components/document-compare.vue:53 client/components/document.vue:74
 msgid "document-accept-merge"
 msgstr "Merge"
 
-#: client/components/document-toolbar.vue:21
+#: client/components/document.vue:60
 msgid "document-compare"
 msgstr "Compare"
 
@@ -137,15 +136,15 @@ msgstr "Compare"
 msgid "document-create"
 msgstr "New document"
 
-#: client/components/documents.vue:47
+#: client/components/documents.vue:51
 msgid "document-created-at"
 msgstr "Created %{at}"
 
-#: client/components/documents.vue:131
+#: client/components/documents.vue:135
 msgid "document-created-error"
 msgstr "Error creating a new document: %{error}"
 
-#: client/components/documents.vue:135
+#: client/components/documents.vue:139
 msgid "document-created-success"
 msgstr "New document has been created."
 
@@ -157,55 +156,55 @@ msgstr "Default permissions"
 msgid "document-default-permissions-hint"
 msgstr "Default permissions for users who can access the document."
 
-#: client/components/document-toolbar.vue:26
+#: client/components/document.vue:67
 msgid "document-fork"
 msgstr "Fork"
 
-#: client/components/document-status.vue:25
+#: client/components/document-status.vue:30
 msgid "document-is-draft"
 msgstr "draft"
 
-#: client/components/document-status.vue:32
+#: client/components/document-status.vue:39
 msgid "document-is-fork"
 msgstr "fork"
 
-#: client/components/document-status.vue:18
+#: client/components/document-status.vue:21
 msgid "document-is-merge-accepted"
 msgstr "merged"
 
-#: client/components/document-status.vue:11
+#: client/components/document-status.vue:12
 msgid "document-is-published"
 msgstr "published"
 
-#: client/components/documents.vue:41
+#: client/components/documents.vue:45
 msgid "document-merge-accepted-at"
 msgstr "Merged %{at}"
 
-#: client/components/document-toolbar.vue:16
+#: client/components/document.vue:53
 msgid "document-publish"
 msgstr "Publish"
 
-#: client/components/documents.vue:35
+#: client/components/documents.vue:39
 msgid "document-published-at"
 msgstr "Published %{at}"
 
-#: client/components/document-share.vue:204
+#: client/components/document-share.vue:205
 msgid "document-share-cancel"
 msgstr "Cancel"
 
-#: client/components/document-share.vue:208
+#: client/components/document-share.vue:211
 msgid "document-share-done"
 msgstr "Done"
 
-#: client/components/document-share.vue:482
+#: client/components/document-share.vue:486
 msgid "document-shared-error"
 msgstr "Error updating document sharing."
 
-#: client/components/document-share.vue:489
+#: client/components/document-share.vue:493
 msgid "document-shared-no-change"
 msgstr "No changes to document sharing."
 
-#: client/components/document-share.vue:486
+#: client/components/document-share.vue:490
 msgid "document-shared-success"
 msgstr "Document sharing has been updated."
 
@@ -229,47 +228,47 @@ msgstr "Document visibility"
 msgid "document-visibility-hint"
 msgstr "Who can access the document?"
 
-#: client/components/document-share.vue:249
+#: client/components/document-share.vue:253
 msgid "document-visibility-listed"
 msgstr "Listed"
 
-#: client/components/document-share.vue:250
+#: client/components/document-share.vue:254
 msgid "document-visibility-listed-hint"
 msgstr "The document is listed for everyone to find it and access it."
 
-#: client/components/document-share.vue:241
+#: client/components/document-share.vue:245
 msgid "document-visibility-private"
 msgstr "Private"
 
-#: client/components/document-share.vue:242
+#: client/components/document-share.vue:246
 msgid "document-visibility-private-hint"
 msgstr "Only specific users can access the document."
 
-#: client/components/document-share.vue:245
+#: client/components/document-share.vue:249
 msgid "document-visibility-public"
 msgstr "Public"
 
-#: client/components/document-share.vue:246
+#: client/components/document-share.vue:250
 msgid "document-visibility-public-hint"
 msgstr "Anyone with the link to the document can access the document."
 
-#: client/components/app-layout.vue:21
+#: client/components/app-layout.vue:22
 msgid "documents"
 msgstr "Documents"
 
-#: client/components/editor.vue:118
+#: client/components/editor.vue:142
 msgid "editor-locked"
 msgstr "Locked"
 
-#: client/components/editor.vue:128
+#: client/components/editor.vue:156
 msgid "editor-saved"
 msgstr "Saved"
 
-#: client/components/editor.vue:123
+#: client/components/editor.vue:149
 msgid "editor-saving"
 msgstr "Saving..."
 
-#: client/components/document-fork.vue:43
+#: client/components/document-fork.vue:46
 msgid "fork"
 msgstr "Fork"
 
@@ -285,11 +284,11 @@ msgstr "Forking a document will copy document's content into a new document, a f
 msgid "fork-document-confirmation-title"
 msgstr "Fork document"
 
-#: client/components/document-fork.vue:112
+#: client/components/document-fork.vue:116
 msgid "fork-error"
 msgstr "An error has occurred when trying to fork the document."
 
-#: client/components/document-fork.vue:116
+#: client/components/document-fork.vue:120
 msgid "fork-success"
 msgstr "The document has been successfully forked."
 
@@ -297,23 +296,23 @@ msgstr "The document has been successfully forked."
 msgid "front-page"
 msgstr "Front page."
 
-#: client/components/editor.vue:72
+#: client/components/editor.vue:85
 msgid "h1"
 msgstr "h1"
 
-#: client/components/editor.vue:79
+#: client/components/editor.vue:94
 msgid "h2"
 msgstr "h2"
 
-#: client/components/editor.vue:86
+#: client/components/editor.vue:103
 msgid "h3"
 msgstr "h3"
 
-#: client/components/document-toolbar.vue:40
+#: client/components/document.vue:87
 msgid "history"
 msgstr "History"
 
-#: client/components/document-history.vue:317
+#: client/components/document-history.vue:334
 msgid "history-created-event"
 msgstr "Created %{at}"
 
@@ -321,45 +320,45 @@ msgstr "Created %{at}"
 msgid "history-empty"
 msgstr "There are no changes to be shown."
 
-#: client/components/document-history.vue:308
+#: client/components/document-history.vue:325
 msgid "history-forked-event"
 msgstr "Forked %{at}"
 
-#: client/components/document-history.vue:335
+#: client/components/document-history.vue:352
 msgid "history-merge-accepted-event"
 msgstr "Merged %{at}"
 
-#: client/components/document-history.vue:326
+#: client/components/document-history.vue:343
 msgid "history-published-event"
 msgstr "Published %{at}"
 
-#: client/components/document-history.vue:280
+#: client/components/document-history.vue:297
 msgid "history-select-range"
 msgstr "Click and drag or hold Shift key to select a range of changes"
 
-#: client/vue-extensions.js:169
+#: client/vue-extensions.js:168
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] "%{value} hour"
 msgstr[1] "%{value} hours"
 
-#: client/components/link-dialog.vue:43 client/components/thread.vue:94
+#: client/components/link-dialog.vue:50 client/components/thread.vue:101
 msgid "insert"
 msgstr "Insert"
 
-#: client/components/link-dialog.vue:65
+#: client/components/link-dialog.vue:75
 msgid "invalid-url"
 msgstr "Invalid URL."
 
-#: client/vue-extensions.js:221
+#: client/vue-extensions.js:220
 msgid "less-than-a-minute"
 msgstr "less than a minute"
 
-#: client/components/link-dialog.vue:60
+#: client/components/link-dialog.vue:70
 msgid "link-hint"
 msgstr "Enter a link"
 
-#: client/vue-extensions.js:170
+#: client/vue-extensions.js:169
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "%{value} minute"
@@ -369,7 +368,7 @@ msgstr[1] "%{value} minutes"
 msgid "no-comments"
 msgstr "No comments."
 
-#: client/components/documents.vue:65
+#: client/components/documents.vue:69
 msgid "no-documents"
 msgstr "No documents."
 
@@ -385,7 +384,7 @@ msgstr "Assign"
 msgid "permissions-list-add-users-hint"
 msgstr "Assign permissions to users"
 
-#: client/components/document-share.vue:293
+#: client/components/document-share.vue:297
 msgid "permissions-list-no-users-found"
 msgstr "No users found."
 
@@ -393,11 +392,11 @@ msgstr "No users found."
 msgid "permissions-list-remove-user"
 msgstr "Remove"
 
-#: client/components/document-share.vue:292
+#: client/components/document-share.vue:296
 msgid "permissions-list-select-users"
 msgstr "Select users"
 
-#: client/components/document-publish.vue:43
+#: client/components/document-publish.vue:46
 msgid "publish"
 msgstr "Publish"
 
@@ -413,107 +412,107 @@ msgstr "Once the document is published it will not be directly editable anymore 
 msgid "publish-document-confirmation-title"
 msgstr "Publish document"
 
-#: client/components/document-publish.vue:105
+#: client/components/document-publish.vue:109
 msgid "publish-error"
 msgstr "An error has occurred when trying to publish the document."
 
-#: client/components/document-publish.vue:109
+#: client/components/document-publish.vue:113
 msgid "publish-success"
 msgstr "The document has been successfully published."
 
-#: client/components/link-dialog.vue:37
+#: client/components/link-dialog.vue:40
 msgid "remove"
 msgstr "Remove"
 
-#: client/components/document-share.vue:281
+#: client/components/document-share.vue:285
 msgid "role-admin-label"
 msgstr "Can administer"
 
-#: client/components/document-share.vue:282
+#: client/components/document-share.vue:286
 msgid "role-admin-user-hint"
 msgstr "Alongside everything else, user can manage sharing of the document and publish it."
 
-#: client/components/document-share.vue:259
-#: client/components/document-share.vue:273
+#: client/components/document-share.vue:263
+#: client/components/document-share.vue:277
 msgid "role-comment-label"
 msgstr "Can comment"
 
-#: client/components/document-share.vue:274
+#: client/components/document-share.vue:278
 msgid "role-comment-user-hint"
 msgstr "User can view the document and comment publicly."
 
-#: client/components/document-share.vue:260
+#: client/components/document-share.vue:264
 msgid "role-comment-users-hint"
 msgstr "Users who can access the document can view it and comment publicly."
 
-#: client/components/document-share.vue:378
-#: client/components/document-share.vue:395
-#: client/components/document-share.vue:456
+#: client/components/document-share.vue:382
+#: client/components/document-share.vue:399
+#: client/components/document-share.vue:460
 msgid "role-custom-label"
 msgstr "Custom permissions"
 
-#: client/components/document-share.vue:379
-#: client/components/document-share.vue:457
+#: client/components/document-share.vue:383
+#: client/components/document-share.vue:461
 msgid "role-custom-user-hint"
 msgstr "User has custom permissions."
 
-#: client/components/document-share.vue:396
+#: client/components/document-share.vue:400
 msgid "role-custom-users-hint"
 msgstr "Users who can access the document have custom permissions."
 
-#: client/components/document-share.vue:263
-#: client/components/document-share.vue:277
+#: client/components/document-share.vue:267
+#: client/components/document-share.vue:281
 msgid "role-edit-label"
 msgstr "Can edit"
 
-#: client/components/document-share.vue:278
+#: client/components/document-share.vue:282
 msgid "role-edit-user-hint"
 msgstr "User can view the document, comment privately and publicly, and edit it."
 
-#: client/components/document-share.vue:264
+#: client/components/document-share.vue:268
 msgid "role-edit-users-hint"
 msgstr "Users who can access the document can view it, comment privately and publicly, and edit it."
 
-#: client/components/document-share.vue:255
-#: client/components/document-share.vue:269
-#: client/components/document-share.vue:286
+#: client/components/document-share.vue:259
+#: client/components/document-share.vue:273
+#: client/components/document-share.vue:290
 msgid "role-view-label"
 msgstr "Can view"
 
-#: client/components/document-share.vue:270
-#: client/components/document-share.vue:287
+#: client/components/document-share.vue:274
+#: client/components/document-share.vue:291
 msgid "role-view-user-hint"
 msgstr "User can view the document."
 
-#: client/components/document-share.vue:256
+#: client/components/document-share.vue:260
 msgid "role-view-users-hint"
 msgstr "Users who can access the document can view it."
 
-#: client/components/document-toolbar.vue:36
+#: client/components/document.vue:81
 msgid "share"
 msgstr "Share"
 
-#: client/components/app-layout.vue:51 client/components/user-signin.vue:46
+#: client/components/app-layout.vue:59 client/components/user-signin.vue:48
 msgid "sign-in"
 msgstr "Sign In"
 
-#: client/components/app-layout.vue:43
+#: client/components/app-layout.vue:48
 msgid "sign-out"
 msgstr "Sign Out"
 
-#: client/components/user-signin.vue:106
+#: client/components/user-signin.vue:108
 msgid "signed-in-success"
 msgstr "You have been signed in."
 
-#: client/components/app-layout.vue:147
+#: client/components/app-layout.vue:150
 msgid "signed-out-error"
 msgstr "Error signing out: %{error}"
 
-#: client/components/app-layout.vue:151
+#: client/components/app-layout.vue:154
 msgid "signed-out-success"
 msgstr "You have been signed out."
 
-#: client/components/sidebar.vue:61
+#: client/components/sidebar.vue:63
 msgid "start-a-new-comment"
 msgstr "Start a new comment by selecting content on the left."
 
@@ -521,93 +520,92 @@ msgstr "Start a new comment by selecting content on the left."
 msgid "thread-deletion-confirmation"
 msgstr "Are you sure you want to delete this comment thread?"
 
-#: client/components/editor.vue:343
+#: client/components/editor.vue:375
 msgid "title-length"
 msgstr "Your title should be brief (max 100 characters) and the text of your document added below it."
 
-#: client/components/document-compare.vue:45
-#: client/components/document-merge.vue:46
-#: client/components/document-toolbar.vue:11
+#: client/components/document-compare.vue:46
+#: client/components/document-merge.vue:47 client/components/document.vue:46
 msgid "to-parent-document"
 msgstr "Parent"
 
-#: client/components/editor.vue:242
+#: client/components/editor.vue:274
 msgid "toolbar-bold"
 msgstr "Bold (%{shortcut})"
 
-#: client/components/editor.vue:250
+#: client/components/editor.vue:282
 msgid "toolbar-bulleted-list"
 msgstr "Bulleted list"
 
-#: client/components/editor.vue:246
+#: client/components/editor.vue:278
 msgid "toolbar-h1"
 msgstr "Heading 1"
 
-#: client/components/editor.vue:247
+#: client/components/editor.vue:279
 msgid "toolbar-h2"
 msgstr "Heading 2"
 
-#: client/components/editor.vue:248
+#: client/components/editor.vue:280
 msgid "toolbar-h3"
 msgstr "Heading 3"
 
-#: client/components/editor.vue:243
+#: client/components/editor.vue:275
 msgid "toolbar-italic"
 msgstr "Italic (%{shortcut})"
 
-#: client/components/editor.vue:245
+#: client/components/editor.vue:277
 msgid "toolbar-link"
 msgstr "Link (%{shortcut})"
 
-#: client/components/editor.vue:251
+#: client/components/editor.vue:283
 msgid "toolbar-numbered-list"
 msgstr "Numbered list"
 
-#: client/components/editor.vue:249
+#: client/components/editor.vue:281
 msgid "toolbar-quote"
 msgstr "Quote"
 
-#: client/components/editor.vue:241
+#: client/components/editor.vue:273
 msgid "toolbar-redo"
 msgstr "Redo (%{shortcut})"
 
-#: client/components/editor.vue:244
+#: client/components/editor.vue:276
 msgid "toolbar-strikethrough"
 msgstr "Strikethrough (%{shortcut})"
 
-#: client/components/editor.vue:240
+#: client/components/editor.vue:272
 msgid "toolbar-undo"
 msgstr "Undo (%{shortcut})"
 
-#: client/components/documents.vue:29
+#: client/components/documents.vue:31
 msgid "untitled"
 msgstr "Untitled"
 
-#: client/components/link-dialog.vue:43
+#: client/components/link-dialog.vue:48
 msgid "update"
 msgstr "Update"
 
-#: client/components/user-signin.vue:88
+#: client/components/user-signin.vue:90
 msgid "username"
 msgstr "Username"
 
-#: client/components/user-signin.vue:73
+#: client/components/user-signin.vue:75
 msgid "username-invalid"
 msgstr "Invalid username. It should contain only basic characters."
 
-#: client/components/user-signin.vue:67
+#: client/components/user-signin.vue:69
 msgid "username-is-required"
 msgstr "Username is required."
 
-#: client/components/user-signin.vue:70
+#: client/components/user-signin.vue:72
 msgid "username-too-short"
 msgstr "Username too short. It should be 4 characters or more."
 
-#: client/components/thread.vue:30
+#: client/components/thread.vue:31
 msgid "view-all-replies"
 msgstr "View all replies (%{count})"
 
-#: client/vue-extensions.js:167
+#: client/vue-extensions.js:166
 msgid "week"
 msgid_plural "weeks"
 msgstr[0] "%{value} week"
