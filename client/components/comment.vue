@@ -5,6 +5,7 @@
     class="pa-2"
   >
     <v-flex xs12>
+      <!-- eslint-disable vue/no-mutating-props -->
       <v-btn
         flat
         icon
@@ -14,6 +15,7 @@
       >
         <v-icon>more_vert</v-icon>
       </v-btn>
+      <!-- eslint-enable vue/no-mutating-props -->
       <v-chip>
         <v-avatar size="36px">
           <img

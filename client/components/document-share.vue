@@ -68,21 +68,21 @@
               </v-subheader>
 
               <v-list-tile
-                v-for="role in defaultRoles"
-                :key="role.value"
+                v-for="dr in defaultRoles"
+                :key="dr.value"
                 ripple
-                @click="defaultRole = role.value"
+                @click="defaultRole = dr.value"
               >
                 <v-list-tile-action>
                   <v-radio
-                    :value="role.value"
+                    :value="dr.value"
                   />
                 </v-list-tile-action>
                 <v-list-tile-content
-                  @click="defaultRole = role.value"
+                  @click="defaultRole = dr.value"
                 >
-                  <v-list-tile-title>{{role.label}}</v-list-tile-title>
-                  <v-list-tile-sub-title>{{role.hint}}</v-list-tile-sub-title>
+                  <v-list-tile-title>{{dr.label}}</v-list-tile-title>
+                  <v-list-tile-sub-title>{{dr.hint}}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
             </v-list>

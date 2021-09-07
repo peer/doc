@@ -123,6 +123,7 @@
       "prefer-destructuring": 0,
       "no-else-return": 0,
       "no-continue": 0,
+      "max-classes-per-file": 0,
       "object-shorthand": [
         "error",
         "always",

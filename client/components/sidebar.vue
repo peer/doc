@@ -195,8 +195,6 @@
               replyTo: null,
             },
             showDetails: false,
-            showAllReplies: false,
-            hasManyReplies: false,
             isMain: false,
             replies: [],
           };
