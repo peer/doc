@@ -27,11 +27,13 @@
               dismissible
               transition="scale-transition"
               class="mb-3"
-            >{{errorMessage}}</v-alert>
+            >
+              {{errorMessage}}
+            </v-alert>
             <v-text-field
+              v-model="username"
               :readonly="formSubmissionInProgress"
               :label="usernameLabel"
-              v-model="username"
               :rules="usernameRules"
               required
             />

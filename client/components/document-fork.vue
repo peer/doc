@@ -35,13 +35,17 @@
             :disabled="documentForkInProgress"
             :to="{name: 'document', params: {documentId: documentId}}"
             flat
-          ><translate>cancel</translate></v-btn>
+          >
+            <translate>cancel</translate>
+          </v-btn>
           <p-button
             :loading="documentForkInProgress"
             :disabled="documentForkInProgress"
             color="primary"
             @click="fork()"
-          ><translate>fork</translate></p-button>
+          >
+            <translate>fork</translate>
+          </p-button>
         </v-card-actions>
       </v-card>
     </v-flex>

@@ -19,12 +19,16 @@
             color="secondary"
             flat
             @click="show = false"
-          ><translate>cancel</translate></v-btn>
+          >
+            <translate>cancel</translate>
+          </v-btn>
           <v-btn
             color="error"
             flat
             @click="deleteComment"
-          ><translate>delete</translate></v-btn>
+          >
+            <translate>delete</translate>
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

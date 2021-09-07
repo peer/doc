@@ -29,19 +29,29 @@
             color="secondary"
             flat
             @click="closeLinkDialog"
-          ><translate>cancel</translate></v-btn>
+          >
+            <translate>cancel</translate>
+          </v-btn>
           <v-btn
             v-if="!!selectedExistingLinks.length"
             color="error"
             flat
             @click="removeLink"
-          ><translate>remove</translate></v-btn>
+          >
+            <translate>remove</translate>
+          </v-btn>
           <v-btn
             :disabled="!validLink"
             color="primary"
             flat
             @click="insertLink"
-          ><translate v-if="!!selectedExistingLinks.length">update</translate><translate v-else>insert</translate></v-btn>
+          >
+            <translate v-if="!!selectedExistingLinks.length">
+              update
+            </translate><translate v-else>
+              insert
+            </translate>
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

@@ -35,13 +35,17 @@
             :disabled="documentPublishInProgress"
             :to="{name: 'document', params: {documentId: documentId}}"
             flat
-          ><translate>cancel</translate></v-btn>
+          >
+            <translate>cancel</translate>
+          </v-btn>
           <p-button
             :loading="documentPublishInProgress"
             :disabled="documentPublishInProgress"
             color="primary"
             @click="publish()"
-          ><translate>publish</translate></p-button>
+          >
+            <translate>publish</translate>
+          </p-button>
         </v-card-actions>
       </v-card>
     </v-flex>

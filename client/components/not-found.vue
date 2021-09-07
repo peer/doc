@@ -1,7 +1,9 @@
 <template>
   <v-layout row>
     <v-flex xs12>
-      <h4 v-translate>not-found</h4>
+      <h4 v-translate>
+        not-found
+      </h4>
     </v-flex>
   </v-layout>
 </template>

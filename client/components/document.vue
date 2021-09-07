@@ -43,36 +43,50 @@
             v-if="!apiControlled && parentDocument && canUserSeeParentDocument"
             :to="{name: 'document', params: {documentId: parentDocument._id}}"
             flat
-          ><translate>to-parent-document</translate></v-btn>
+          >
+            <translate>to-parent-document</translate>
+          </v-btn>
           <v-btn
             v-if="!apiControlled && canUserPublishDocument"
             :to="{name: 'document-publish', params: {documentId}}"
             flat
-          ><translate>document-publish</translate></v-btn>
+          >
+            <translate>document-publish</translate>
+          </v-btn>
           <v-btn
             v-if="!apiControlled && canUserCompareDocument"
             :to="{name: 'document-compare', params: {documentId}}"
             flat
-          ><translate>document-compare</translate></v-btn>
+          >
+            <translate>document-compare</translate>
+          </v-btn>
           <v-btn
             v-if="!apiControlled && canUserForkDocument"
             :to="{name: 'document-fork', params: {documentId}}"
             flat
-          ><translate>document-fork</translate></v-btn>
+          >
+            <translate>document-fork</translate>
+          </v-btn>
           <v-btn
             v-if="!apiControlled && canUserMergeDocument"
             :to="{name: 'document-merge', params: {documentId}}"
             flat
-          ><translate>document-accept-merge</translate></v-btn>
+          >
+            <translate>document-accept-merge</translate>
+          </v-btn>
           <v-btn
             v-if="!apiControlled && canUserAdministerDocument"
             :to="{name: 'document-share', params: {documentId}}"
             flat
-          ><translate>share</translate></v-btn>
+          >
+            <translate>share</translate>
+          </v-btn>
           <v-btn
             :to="{name: 'document-history', params: {documentId}}"
             flat
-          ><translate>history</translate></v-btn>
+          >
+            <translate>history</translate>
+          </v-btn>
           <v-spacer />
           <document-status
             v-if="document"

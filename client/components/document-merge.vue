@@ -44,18 +44,24 @@
             :disabled="documentAcceptMergeInProgress"
             :to="{name: 'document', params: {documentId: parentDocument._id}}"
             flat
-          ><translate>to-parent-document</translate></v-btn>
+          >
+            <translate>to-parent-document</translate>
+          </v-btn>
           <v-btn
             :disabled="documentAcceptMergeInProgress"
             :to="{name: 'document', params: {documentId}}"
             flat
-          ><translate>cancel</translate></v-btn>
+          >
+            <translate>cancel</translate>
+          </v-btn>
           <p-button
             :loading="documentAcceptMergeInProgress"
             :disabled="documentAcceptMergeInProgress"
             color="primary"
             @click="acceptMerge()"
-          ><translate>accept-merge</translate></p-button>
+          >
+            <translate>accept-merge</translate>
+          </p-button>
         </v-card-actions>
       </v-card>
     </v-flex>

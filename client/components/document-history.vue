@@ -96,11 +96,13 @@
                           v-for="author of event.change.authors"
                           :key="author._id"
                           size="36px"
-                        ><img
-                          :src="author.avatarUrl()"
-                          :alt="author.username"
-                          :title="author.username"
-                        ></v-avatar>
+                        >
+                          <img
+                            :src="author.avatarUrl()"
+                            :alt="author.username"
+                            :title="author.username"
+                          >
+                        </v-avatar>
                       </div>
                     </v-card-text>
                   </v-card>
@@ -119,11 +121,13 @@
                       <v-avatar
                         v-if="event.by"
                         size="36px"
-                      ><img
-                        :src="event.by.avatarUrl()"
-                        :alt="event.by.username"
-                        :title="event.by.username"
-                      ></v-avatar>
+                      >
+                        <img
+                          :src="event.by.avatarUrl()"
+                          :alt="event.by.username"
+                          :title="event.by.username"
+                        >
+                      </v-avatar>
                     </v-card-text>
                   </v-card>
                 </v-timeline-item>
@@ -142,7 +146,9 @@
           <v-btn
             :to="{name: 'document', params: {documentId}}"
             flat
-          ><translate>back-to-document</translate></v-btn>
+          >
+            <translate>back-to-document</translate>
+          </v-btn>
         </v-toolbar-items>
       </v-toolbar>
     </portal>

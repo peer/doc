@@ -28,7 +28,11 @@
             flat
             small
             @click="onViewAllReplies"
-          ><translate :translate-params="{count: commentDescriptor.replies.length}">view-all-replies</translate></v-btn>
+          >
+            <translate :translate-params="{count: commentDescriptor.replies.length}">
+              view-all-replies
+            </translate>
+          </v-btn>
         </v-flex>
 
         <v-flex
@@ -86,13 +90,17 @@
               small
               flat
               @click.stop="onCancel"
-            ><translate>cancel</translate></v-btn>
+            >
+              <translate>cancel</translate>
+            </v-btn>
             <v-btn
               small
               flat
               color="primary"
               @click.stop="onSubmit"
-            ><translate>insert</translate></v-btn>
+            >
+              <translate>insert</translate>
+            </v-btn>
           </v-card-actions>
         </v-flex>
       </v-layout>

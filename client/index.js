@@ -28,7 +28,7 @@ Vue.use(GetTextPlugin, {
 Vue.use(PortalVue);
 Vue.use(VueExtensions);
 
-Vue.component('global-events', GlobalEvents);
+Vue.component('GlobalEvents', GlobalEvents);
 
 moment.locale(Vue.config.language);
 

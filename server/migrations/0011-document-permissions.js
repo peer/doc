@@ -18,9 +18,7 @@ class Migration extends Document.PatchMigration {
         }
 
         for (const permission of [Document.PERMISSIONS.PUBLISH, Document.PERMISSIONS.ACCEPT_MERGE]) {
-          const newUserPermission = Object.assign({}, userPermission, {
-            permission,
-          });
+          const newUserPermission = {...userPermission, permission};
 
           changed += collection.update({
             _id: document._id,

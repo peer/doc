@@ -43,16 +43,22 @@
           <v-btn
             :to="{name: 'document', params: {documentId: parentDocument._id}}"
             flat
-          ><translate>to-parent-document</translate></v-btn>
+          >
+            <translate>to-parent-document</translate>
+          </v-btn>
           <v-btn
             v-if="canUserMergeDocument"
             :to="{name: 'document-merge', params: {documentId}}"
             flat
-          ><translate>document-accept-merge</translate></v-btn>
+          >
+            <translate>document-accept-merge</translate>
+          </v-btn>
           <v-btn
             :to="{name: 'document', params: {documentId}}"
             color="primary"
-          ><translate>back-to-document</translate></v-btn>
+          >
+            <translate>back-to-document</translate>
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>

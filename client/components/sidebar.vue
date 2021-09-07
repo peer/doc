@@ -58,10 +58,12 @@
           <p
             v-translate
             class="mb-0"
-          >no-comments</p>
+          >
+            no-comments
+          </p>
           <p
-            v-translate
             v-if="canUserCreateComments"
+            v-translate
             class="mb-0 mt-3"
           >
             start-a-new-comment
@@ -218,9 +220,7 @@
       onViewAllReplies(commentDescriptor) {
         if (this.currentHighlightKey !== commentDescriptor.comment.highlightKey) {
           this.commentDescriptors = this.commentDescriptors.map((cd) => {
-            return Object.assign({}, cd, {
-              focus: cd.comment._id === commentDescriptor.comment._id,
-            });
+            return {...cd, focus: cd.comment._id === commentDescriptor.comment._id};
           });
           this.currentHighlightKey = commentDescriptor.highlightKey;
           commentDescriptor.focus = true; // eslint-disable-line no-param-reassign
@@ -309,14 +309,10 @@
           }).sort((a, b) => {
             return a.comment.createdAt - b.comment.createdAt;
           }).map((replyDescriptor) => {
-            return Object.assign({}, replyDescriptor, {
-              showDetails: false,
-            });
+            return {...replyDescriptor, showDetails: false};
           });
 
-          return Object.assign({}, commentDescriptor, {
-            replies: commentReplyDescriptors,
-          });
+          return {...commentDescriptor, replies: commentReplyDescriptors};
         });
 
         const commentMarksEls = document.querySelectorAll('span[data-highlight-key]');
@@ -331,12 +327,13 @@
           if (!el) {
             return null;
           }
-          return Object.assign({}, commentDescriptor, {
+          return {
+            ...commentDescriptor,
             highlightTop: getOffset(el).top,
             showDetails: false,
             isMain: commentDescriptor.comment.replyTo === null,
             focus: currentHighlightKey === commentDescriptor.comment.highlightKey,
-          });
+          };
         }).filter((commentDescriptor) => {
           return commentDescriptor;
         }).sort((a, b) => {
@@ -358,7 +355,7 @@
             render them normally and after that (with "Vue.$nextTick") make the
             position changes accordingly (in "layoutComments").
           */
-          return Object.assign({}, commentDescriptor, {marginTop: 0});
+          return {...commentDescriptor, marginTop: 0};
         });
         this.layoutCommentsAfterRender(true);
       },
@@ -509,7 +506,7 @@
               bottom -= 10;
             }
           }
-          this.commentDescriptors.splice(i, 1, Object.assign({}, commentDescriptor, {height, bottom, marginTop, top}));
+          this.commentDescriptors.splice(i, 1, {...commentDescriptor, height, bottom, marginTop, top});
         }
 
         // If there is a focused comment, move the focused comment next to the
@@ -528,7 +525,7 @@
           if (commentDescriptor.comment.highlightKey === this.currentHighlightKey) {
             lastFocusedIndex = i;
           }
-          return Object.assign({}, commentDescriptor, {focus: commentDescriptor.comment.highlightKey === highlightKey});
+          return {...commentDescriptor, focus: commentDescriptor.comment.highlightKey === highlightKey};
         });
 
         // Defocus.
@@ -541,15 +538,14 @@
           }
           // Collapse comments.
           this.commentDescriptors = this.commentDescriptors.map((commentDescriptor) => {
-            return Object.assign({}, commentDescriptor, {
+            return {
+              ...commentDescriptor,
               replies: commentDescriptor.replies.map((replyDescriptor) => {
-                return Object.assign({}, replyDescriptor, {
-                  showDetails: false,
-                });
+                return {...replyDescriptor, showDetails: false};
               }),
               showDetails: false,
               focus: false,
-            });
+            };
           }).filter((commentDescriptor) => {
             return !commentDescriptor.dummy;
           });

@@ -11,13 +11,17 @@
             :disabled="!canUserUpdateDocument || disabledButtons.undo"
             :title="undoHint"
             flat
-          ><v-icon>undo</v-icon></v-btn>
+          >
+            <v-icon>undo</v-icon>
+          </v-btn>
           <v-btn
             ref="buttonRedo"
             :disabled="!canUserUpdateDocument || disabledButtons.redo"
             :title="redoHint"
             flat
-          ><v-icon>redo</v-icon></v-btn>
+          >
+            <v-icon>redo</v-icon>
+          </v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle
@@ -30,21 +34,27 @@
             :title="strongHint"
             flat
             @input="onButtonChange('formatting')"
-          ><v-icon>format_bold</v-icon></v-btn>
+          >
+            <v-icon>format_bold</v-icon>
+          </v-btn>
           <v-btn
             ref="buttonEm"
             :disabled="!canUserUpdateDocument || disabledButtons.em"
             :title="emHint"
             flat
             @input="onButtonChange('formatting')"
-          ><v-icon>format_italic</v-icon></v-btn>
+          >
+            <v-icon>format_italic</v-icon>
+          </v-btn>
           <v-btn
             ref="buttonStrikethrough"
             :disabled="!canUserUpdateDocument || disabledButtons.strikethrough"
             :title="strikethroughHint"
             flat
             @input="onButtonChange('formatting')"
-          ><v-icon>strikethrough_s</v-icon></v-btn>
+          >
+            <v-icon>strikethrough_s</v-icon>
+          </v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle
@@ -57,7 +67,9 @@
             :title="linkHint"
             flat
             @input="onButtonChange('link')"
-          ><v-icon>insert_link</v-icon></v-btn>
+          >
+            <v-icon>insert_link</v-icon>
+          </v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle
@@ -70,21 +82,27 @@
             :title="h1Hint"
             flat
             @input="onButtonChange('heading')"
-          ><translate>h1</translate></v-btn>
+          >
+            <translate>h1</translate>
+          </v-btn>
           <v-btn
             ref="buttonH2"
             :disabled="!canUserUpdateDocument || disabledButtons.h2"
             :title="h2Hint"
             flat
             @input="onButtonChange('heading')"
-          ><translate>h2</translate></v-btn>
+          >
+            <translate>h2</translate>
+          </v-btn>
           <v-btn
             ref="buttonH3"
             :disabled="!canUserUpdateDocument || disabledButtons.h3"
             :title="h3Hint"
             flat
             @input="onButtonChange('heading')"
-          ><translate>h3</translate></v-btn>
+          >
+            <translate>h3</translate>
+          </v-btn>
         </v-btn-toggle>
 
         <v-btn-toggle
@@ -97,40 +115,52 @@
             :title="quoteHint"
             flat
             @input="onButtonChange('block')"
-          ><v-icon>format_quote</v-icon></v-btn>
+          >
+            <v-icon>format_quote</v-icon>
+          </v-btn>
           <v-btn
             ref="buttonBulletedList"
             :disabled="!canUserUpdateDocument || disabledButtons.bulletedList"
             :title="bulletedListHint"
             flat
             @input="onButtonChange('block')"
-          ><v-icon>format_list_bulleted</v-icon></v-btn>
+          >
+            <v-icon>format_list_bulleted</v-icon>
+          </v-btn>
           <v-btn
             ref="buttonNumberedList"
             :disabled="!canUserUpdateDocument || disabledButtons.numberedList"
             :title="numberedListHint"
             flat
             @input="onButtonChange('block')"
-          ><v-icon>format_list_numbered</v-icon></v-btn>
+          >
+            <v-icon>format_list_numbered</v-icon>
+          </v-btn>
         </v-btn-toggle>
 
         <v-spacer />
 
         <div
-          v-translate
           v-if="canUserUpdateDocument && document.hasContentModifyLock"
-          class="editor__saving text--secondary"
-        >editor-locked</div>
-        <div
           v-translate
+          class="editor__saving text--secondary"
+        >
+          editor-locked
+        </div>
+        <div
           v-else-if="canUserUpdateDocument && unconfirmedCount"
-          class="editor__saving text--secondary"
-        >editor-saving</div>
-        <div
           v-translate
-          v-else-if="canUserUpdateDocument"
           class="editor__saving text--secondary"
-        >editor-saved</div>
+        >
+          editor-saving
+        </div>
+        <div
+          v-else-if="canUserUpdateDocument"
+          v-translate
+          class="editor__saving text--secondary"
+        >
+          editor-saved
+        </div>
 
         <div class="editor__users">
           <v-btn
@@ -141,11 +171,13 @@
             icon
             @click="onAvatarClicked(cursor)"
           >
-            <v-avatar size="36px"><img
-              :src="cursor.author.avatarUrl()"
-              :alt="cursor.author.username"
-              :title="cursor.author.username"
-            ></v-avatar>
+            <v-avatar size="36px">
+              <img
+                :src="cursor.author.avatarUrl()"
+                :alt="cursor.author.username"
+                :title="cursor.author.username"
+              >
+            </v-avatar>
           </v-btn>
         </div>
       </v-toolbar>
@@ -477,9 +509,7 @@
             },
             transform: null,
           }).map((x) => {
-            return Object.assign({}, x, {
-              step: Step.fromJSON(schema, x.step),
-            });
+            return {...x, step: Step.fromJSON(schema, x.step)};
           });
 
           if (newContents.length) {

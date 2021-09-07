@@ -19,7 +19,9 @@
         <v-btn
           :to="{name: 'documents'}"
           flat
-        ><translate>documents</translate></v-btn>
+        >
+          <translate>documents</translate>
+        </v-btn>
         <v-menu
           v-if="$currentUser"
           offset-y
@@ -30,18 +32,23 @@
           <v-btn
             slot="activator"
             flat
-          >{{$currentUser.username}}
+          >
+            {{$currentUser.username}}
             <v-avatar
               size="36px"
               class="app-layout__avatar"
-            ><img
-              :src="$currentUser.avatarUrl()"
-              alt=""
-            ></v-avatar>
+            >
+              <img
+                :src="$currentUser.avatarUrl()"
+                alt=""
+              >
+            </v-avatar>
           </v-btn>
           <v-list>
             <v-list-tile @click="onSignOut">
-              <v-list-tile-title v-translate>sign-out</v-list-tile-title>
+              <v-list-tile-title v-translate>
+                sign-out
+              </v-list-tile-title>
             </v-list-tile>
           </v-list>
         </v-menu>
@@ -49,7 +56,9 @@
           v-else-if="!passwordlessAuthDisabled"
           :to="{name: 'user-signin'}"
           flat
-        ><translate>sign-in</translate></v-btn>
+        >
+          <translate>sign-in</translate>
+        </v-btn>
       </v-toolbar-items>
       <template
         v-if="isToolbarPortalActive"
@@ -77,15 +86,17 @@
       </v-container>
     </v-content>
     <v-snackbar
-      :timeout="snackbarTime"
       v-model="snackbarIsShown"
+      :timeout="snackbarTime"
     >
       {{snackbarMessage}}
       <v-btn
         :color="snackbarColor"
         flat
         @click.native="onSnackbarClose"
-      ><translate>close</translate></v-btn>
+      >
+        <translate>close</translate>
+      </v-btn>
     </v-snackbar>
   </v-app>
 </template>

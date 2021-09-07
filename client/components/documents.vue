@@ -21,33 +21,37 @@
         >
           <template v-for="(document, index) in documents">
             <v-list-tile
-              :to="{name: 'document', params: {documentId: document._id}}"
               :key="'document-' + document._id"
+              :to="{name: 'document', params: {documentId: document._id}}"
               ripple
             >
               <v-list-tile-content>
-                <v-list-tile-title v-if="document.title">{{document.title}}</v-list-tile-title>
+                <v-list-tile-title v-if="document.title">
+                  {{document.title}}
+                </v-list-tile-title>
                 <v-list-tile-title
-                  v-translate
                   v-else
+                  v-translate
                   class="documents__untitled"
-                >untitled</v-list-tile-title>
+                >
+                  untitled
+                </v-list-tile-title>
                 <v-list-tile-sub-title>
                   <span
-                    v-translate="{at: $fromNow(document.publishedAt)}"
                     v-if="document.isPublished()"
+                    v-translate="{at: $fromNow(document.publishedAt)}"
                     :title="document.publishedAt | formatDate(DEFAULT_DATETIME_FORMAT)"
                     class="timestamp"
                   >document-published-at</span>
                   <span
-                    v-translate="{at: $fromNow(document.mergeAcceptedAt)}"
                     v-else-if="document.isMergeAccepted()"
+                    v-translate="{at: $fromNow(document.mergeAcceptedAt)}"
                     :title="document.mergeAcceptedAt | formatDate(DEFAULT_DATETIME_FORMAT)"
                     class="timestamp"
                   >document-merge-accepted-at</span>
                   <span
-                    v-translate="{at: $fromNow(document.createdAt)}"
                     v-else
+                    v-translate="{at: $fromNow(document.createdAt)}"
                     :title="document.createdAt | formatDate(DEFAULT_DATETIME_FORMAT)"
                     class="timestamp"
                   >document-created-at</span>
@@ -64,8 +68,8 @@
           </template>
         </v-list>
         <v-card-text
-          v-translate
           v-else-if="$subscriptionsReady()"
+          v-translate
           class="text-xs-center text--secondary"
         >
           no-documents

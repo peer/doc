@@ -15,10 +15,12 @@
         <v-icon>more_vert</v-icon>
       </v-btn>
       <v-chip>
-        <v-avatar size="36px"><img
-          :src="commentDescriptor.comment.author.avatarUrl()"
-          :alt="commentDescriptor.comment.author.username"
-        ></v-avatar>
+        <v-avatar size="36px">
+          <img
+            :src="commentDescriptor.comment.author.avatarUrl()"
+            :alt="commentDescriptor.comment.author.username"
+          >
+        </v-avatar>
         {{commentDescriptor.comment.author.username}}
       </v-chip>
     </v-flex>

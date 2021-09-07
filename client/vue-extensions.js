@@ -115,7 +115,6 @@ export function install(Vue, options) {
   };
   Vue.filter('calendarDate', Vue.prototype.$calendarDate);
 
-
   // Similar to moment.js "humanize" function (http://momentjs.com/docs/#/durations/humanize/) it returns
   // a friendly string representing the duration.
   //

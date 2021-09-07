@@ -21,7 +21,7 @@ const baseFromMap = {
 };
 
 function encrypt(inputData, keyHex) {
-  const data = Object.assign({}, inputData);
+  const data = {...inputData};
   data.nonce = crypto.randomBytes(16).toString('hex');
   const json = JSON.stringify(data);
   const iv = crypto.randomBytes(12);

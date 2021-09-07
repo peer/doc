@@ -18,10 +18,10 @@ class AddComment {
     const {state} = view;
     const {selection} = state;
     if (
-      (lastState &&
-      lastState.doc.eq(state.doc) &&
-      lastState.selection.eq(state.selection)) ||
-      !this.vueInstance) {
+      (lastState
+      && lastState.doc.eq(state.doc)
+      && lastState.selection.eq(state.selection))
+      || !this.vueInstance) {
       return;
     }
 
@@ -44,11 +44,12 @@ class AddComment {
     this.vueInstance.selectedExistingHighlights = marks.filter((marksObj) => {
       return marksObj.marks.length;
     }).map((marksObj) => {
-      return Object.assign({}, marksObj, {
+      return {
+        ...marksObj,
         marks: marksObj.marks.filter((m) => {
           return m.type.name === 'highlight';
         }),
-      });
+      };
     }).filter((marksObj) => {
       return marksObj.marks.length;
     });

@@ -114,9 +114,9 @@
                 <v-layout row>
                   <v-flex>
                     <v-select
+                      v-model="contributor.role"
                       :items="contributorRoles(contributor)"
                       :disabled="contributor.user._id === $currentUserId"
-                      v-model="contributor.role"
                       return-object
                       item-text="label"
                       item-value="value"
@@ -149,6 +149,7 @@
                         See: https://github.com/vuetifyjs/vuetify/issues/4169
                 -->
                 <v-autocomplete
+                  v-model="selectedUsers"
                   :loading="userSearchLoading"
                   :items="userSearchResults"
                   :filter="filterUserSearchResults"
@@ -156,7 +157,6 @@
                   :label="userSearchLabel"
                   :no-data-text="userSearchNoUsersMessage"
                   :item-avatar="(user) => user.avatarUrl()"
-                  v-model="selectedUsers"
                   return-object
                   item-text="username"
                   item-value="_id"
@@ -172,8 +172,8 @@
                 <v-layout row>
                   <v-flex>
                     <v-select
-                      :items="roles"
                       v-model="role"
+                      :items="roles"
                       return-object
                       item-text="label"
                       item-value="value"
@@ -202,11 +202,15 @@
           <v-btn
             :to="{name: 'document', params: {documentId: documentId}}"
             flat
-          ><translate>document-share-cancel</translate></v-btn>
+          >
+            <translate>document-share-cancel</translate>
+          </v-btn>
           <v-btn
             color="primary"
             @click="share()"
-          ><translate>document-share-done</translate></v-btn>
+          >
+            <translate>document-share-done</translate>
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>

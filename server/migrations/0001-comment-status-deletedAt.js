@@ -2,6 +2,7 @@ import {Comment} from '/lib/documents/comment';
 
 class Migration extends Document.AddRequiredFieldsMigration {
   name = "Adding userPermissions, status, deletedAt, deletedBy fields";
+
   fields = {
     userPermissions: [],
     status: Comment.STATUS.CREATED,
