@@ -160,7 +160,7 @@ describe('documents', function () {
     cy.contains('.v-btn', 'Parent').click();
 
     cy.get('@parentDocumentPathname').then((pathname) => {
-      cy.location('pathname').should('be', pathname);
+      cy.location('pathname').should('eq', pathname);
     });
 
     cy.get('@forkedDocumentPathname').then((pathname) => {
