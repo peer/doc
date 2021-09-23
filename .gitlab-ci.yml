@@ -34,10 +34,11 @@ test:
     - echo -e "section_end:`date +%s`:cypress\r\e[0K"
 
   artifacts:
-    name: "reports-$CI_PIPELINE_ID"
+    name: "artifacts-$CI_PIPELINE_ID"
     when: always
     paths:
       - tests/reports
+      - tests/cypress/videos
     reports:
       junit: tests/reports/*.xml
 
