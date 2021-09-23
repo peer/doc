@@ -1,3 +1,9 @@
+# PeerDoc
+
+## Description
+
+![editor](https://gitlab.com/peer/doc/-/jobs/1618410731/artifacts/raw/tests/cypress/screenshots/comments.js/comments%20-%20can%20create%20and%20reply%20-%20reply%20made.png?inline=false)
+
 ## Development
 
 The application uses [Meteor](https://www.meteor.com/) web framework. Install it:
