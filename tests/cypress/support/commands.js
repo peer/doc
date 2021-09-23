@@ -116,5 +116,7 @@ Cypress.Commands.add('visualSnapshot', (test, name) => {
     t = t.parent;
   }
   titlePath.push(name);
-  cy.percySnapshot(titlePath.join(' - '));
+  const title = titlePath.join(' - ');
+  cy.percySnapshot(title);
+  cy.screenshot(title);
 });
