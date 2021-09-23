@@ -39,6 +39,7 @@ test:
     paths:
       - tests/reports
       - tests/cypress/videos
+      - tests/cypress/screenshots
     reports:
       junit: tests/reports/*.xml
 
