@@ -10,7 +10,7 @@ history of edits. Things you would expect.
 But the main difference is that it provides two types of collaboration:
 
 * real-time collaboration between collaborators on the draft of the document
-* fork and merge request style of collaboration with others
+* fork and merge request style of collaboration with others, allowing collaboration to scale beyond a small group of collaborators
 
 First, you (potentially with others you add) start editing a draft of the document. Once you are satisfied with the document,
 you can publish it. Published documents are not directly editable anymore by anyone.
@@ -21,8 +21,19 @@ into the original document. Moreover, the document becomes visible to other user
 
 PeerDoc is a stable prototype. It has been already used in production though. All features described above are implemented,
 but some of them are implemented in its basic form. For example, authentication and registration is currently very simple.
-Merge requests just show a diff but do not offer discussion. You cannot add attachments. And so on. See [issues](https://gitlab.com/peer/doc/-/issues)
+Merge requests just show a diff but do not offer discussion. Or decision making to approve merge requests.
+You cannot add attachments. And so on. See [issues](https://gitlab.com/peer/doc/-/issues)
 for more details.
+
+## Installation
+
+PeerDoc is distributed as a [Docker image](https://gitlab.com/peer/doc/container_registry). To get the latest stable version,
+use `registry.gitlab.com/peer/doc/branch/main:latest`.
+
+The Docker image is based on [`tozd/meteor`](https://gitlab.com/tozd/docker/meteor) Docker image so [see there](https://gitlab.com/tozd/docker/meteor)
+more details how to run and configure the image.
+
+See also [example settings file](https://gitlab.com/peer/doc/-/blob/main/settings.example.json).
 
 ## Development
 
