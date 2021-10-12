@@ -1,7 +1,7 @@
 <template>
-  <v-app :class="{embed: isEmbeded}">
+  <v-app :class="{embed: isEmbedded}">
     <v-toolbar
-      v-if="!isEmbeded"
+      v-if="!isEmbedded"
       app
       absolute
       extension-height="49px"
@@ -116,7 +116,7 @@
         snackbarMessage: null,
         snackbarColor: null,
         snackbarDocumentId: null,
-        isEmbeded: isEmbedded(),
+        isEmbedded: isEmbedded(),
         passwordlessAuthDisabled: Meteor.settings.public.passwordlessAuthDisabled,
       };
     },
